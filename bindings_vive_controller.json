@@ -1,0 +1,116 @@
+{
+   "alias_info" : {},
+   "app_key" : "application.generated.unity.slorkbirdpiece.exe",
+   "bindings" : {
+      "/actions/buggy" : {
+         "chords" : [],
+         "haptics" : [],
+         "poses" : [],
+         "skeleton" : [],
+         "sources" : []
+      },
+      "/actions/default" : {
+         "chords" : [],
+         "haptics" : [],
+         "poses" : [],
+         "skeleton" : [],
+         "sources" : []
+      },
+      "/actions/platformer" : {
+         "chords" : [],
+         "haptics" : [],
+         "poses" : [],
+         "skeleton" : [],
+         "sources" : []
+      },
+      "/actions/terraingenerate" : {
+         "chords" : [],
+         "haptics" : [
+            {
+               "output" : "/actions/terraingenerate/out/haptic",
+               "path" : "/user/hand/left/output/haptic"
+            },
+            {
+               "output" : "/actions/terraingenerate/out/haptic",
+               "path" : "/user/hand/right/output/haptic"
+            }
+         ],
+         "poses" : [
+            {
+               "output" : "/actions/terraingenerate/in/pose",
+               "path" : "/user/hand/left/pose/raw"
+            },
+            {
+               "output" : "/actions/terraingenerate/in/pose",
+               "path" : "/user/hand/right/pose/raw"
+            },
+            {
+               "output" : "none",
+               "path" : "/user/hand/left/pose/base"
+            },
+            {
+               "output" : "none",
+               "path" : "/user/hand/right/pose/base"
+            },
+            {
+               "output" : "none",
+               "path" : "/user/hand/left/pose/handgrip"
+            },
+            {
+               "output" : "none",
+               "path" : "/user/hand/right/pose/handgrip"
+            }
+         ],
+         "skeleton" : [],
+         "sources" : [
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/terraingenerate/in/triggerdown"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/terraingenerate/in/triggerdown"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/terraingenerate/in/touchpadpressed"
+                  },
+                  "position" : {
+                     "output" : "/actions/terraingenerate/in/touchpad_xy"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/left/input/trackpad"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/terraingenerate/in/touchpadpressed"
+                  },
+                  "position" : {
+                     "output" : "/actions/terraingenerate/in/touchpad_xy"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/right/input/trackpad"
+            }
+         ]
+      }
+   },
+   "controller_type" : "vive_controller",
+   "description" : "",
+   "name" : "vive_controller_terrain_by_example",
+   "options" : {},
+   "simulated_actions" : []
+}

@@ -1,0 +1,16 @@
+{
+  "source": "Unity",
+  "applications": [
+    {
+      "app_key": "application.generated.unity.slorkbirdpiece.exe",
+      "launch_type": "url",
+      "url": "steam://launch/",
+      "action_manifest_path": "C:\\cygwin64\\home\\Jack\\Unity\\terrain-by-example\\actions.json",
+      "strings": {
+        "en_us": {
+          "name": "Terrain By Example [Testing]"
+        }
+      }
+    }
+  ]
+}

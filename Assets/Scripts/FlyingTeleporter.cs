@@ -9,7 +9,7 @@ public class FlyingTeleporter : MonoBehaviour
     public SteamVR_Input_Sources handType;
     public SteamVR_Action_Boolean touchpadClick;
     public SteamVR_Action_Vector2 touchpadXY;
-    public SteamVR_Behaviour_Pose controllerPose;
+    private SteamVR_Behaviour_Pose controllerPose;
 
     public GameObject laserPrefab;
     private GameObject laser;
@@ -25,6 +25,10 @@ public class FlyingTeleporter : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // grab reference
+        controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
+
+        // make objects
         laser = Instantiate( laserPrefab );
         laserTransform = laser.transform;
         teleportLaserEnd = Instantiate( teleportLaserEndPrefab );

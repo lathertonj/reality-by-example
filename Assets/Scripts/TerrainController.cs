@@ -18,22 +18,58 @@ public class TerrainController : MonoBehaviour
 
     // regression
     private RapidMixRegression myRegression;
+    private List<Vector3> myRegressionExamples;
+    private bool haveTrained = false;
 
     public void ProvideExample( Vector3 givenHeight )
     {
         // world to local point
-        //givenHeight = givenHeight - transform.position; 
         givenHeight = transform.InverseTransformPoint( givenHeight );
-        myRegression.RecordDataPoint( InputVector( givenHeight.x, givenHeight.z ), new double[] { givenHeight.y } );
-        myRegression.Train();
-        ComputeLandHeight( topLand, false );
-        ComputeLandHeight( bottomLand, true );
+        
+        // remember
+        myRegressionExamples.Add( givenHeight );
+
+        // train and recompute
+        TrainRegression();
+        ComputeLandHeight();
+    }
+
+    private void TrainRegression()
+    {
+        // only do this when we have examples
+        if( myRegressionExamples.Count > 0 )
+        {
+            // reset the regression
+            myRegression.ResetRegression();
+
+            // rerecord all points
+            foreach( Vector3 example in myRegressionExamples )
+            {
+                myRegression.RecordDataPoint( InputVector( example.x, example.z ), new double[] { example.y } );
+            }
+
+            // train
+            myRegression.Train();
+
+            // remember
+            haveTrained = true;
+        }
+    }
+
+    private void ComputeLandHeight()
+    {
+        // only do this if we have trained at least once before
+        if( haveTrained )
+        {
+            ComputeLandHeight( topLand, false );
+            ComputeLandHeight( bottomLand, true );
+        }
     }
 
     private double[] InputVector( float x, float z )
     {
         // kernel method
-        return new double[] { x, z, x*x, z*z, x*z, x*x*x, z*z*z, x*x*z, x*z*z };
+        return new double[] { x, z, x * x, z * z, x * z, x * x * x, z * z * z, x * x * z, x * z * z };
         // return new double[] { x, z, x*x, z*z, x*z };
     }
 
@@ -43,11 +79,14 @@ public class TerrainController : MonoBehaviour
         // grab component reference
         myRegression = GetComponent<RapidMixRegression>();
 
+        // initialize list
+        myRegressionExamples = new List<Vector3>();
+
         // compute sizes
         landSize = 10; // it is invariant to scale. scaling up doesn't affect the computations here.
         spaceBetweenVertices = landSize / ( verticesPerSide - 1 );
         Debug.Log( spaceBetweenVertices );
-        Debug.Log( IndicesToCoordinates( 0, 0 )) ;
+        Debug.Log( IndicesToCoordinates( 0, 0 ) );
 
 
         // construct meshes
@@ -64,9 +103,9 @@ public class TerrainController : MonoBehaviour
         {
             ProvideExample( example.position );
         }
-        
+
     }
-    
+
     void CreateDebugMarkers()
     {
         Mesh m = topLand.GetComponent<MeshFilter>().mesh;
@@ -75,10 +114,10 @@ public class TerrainController : MonoBehaviour
         // {
         //     Instantiate( vertexDebugPrefab, new Vector3( vertices[i].x, 2, vertices[i].z), Quaternion.identity );
         // }
-        Instantiate( vertexDebugPrefab, new Vector3( -spaceBetweenVertices, 0, -spaceBetweenVertices ), Quaternion.identity);
-        Instantiate( vertexDebugPrefab, new Vector3( -spaceBetweenVertices, 0, spaceBetweenVertices ), Quaternion.identity);
-        Instantiate( vertexDebugPrefab, new Vector3( spaceBetweenVertices, 0, -spaceBetweenVertices ), Quaternion.identity);
-        Instantiate( vertexDebugPrefab, new Vector3( spaceBetweenVertices, 0, spaceBetweenVertices ), Quaternion.identity);
+        Instantiate( vertexDebugPrefab, new Vector3( -spaceBetweenVertices, 0, -spaceBetweenVertices ), Quaternion.identity );
+        Instantiate( vertexDebugPrefab, new Vector3( -spaceBetweenVertices, 0, spaceBetweenVertices ), Quaternion.identity );
+        Instantiate( vertexDebugPrefab, new Vector3( spaceBetweenVertices, 0, -spaceBetweenVertices ), Quaternion.identity );
+        Instantiate( vertexDebugPrefab, new Vector3( spaceBetweenVertices, 0, spaceBetweenVertices ), Quaternion.identity );
     }
 
     // Update is called once per frame
@@ -147,7 +186,7 @@ public class TerrainController : MonoBehaviour
         // recompute height
         for( int i = 0; i < vertices.Length; i++ )
         {
-            vertices[i].y = (float) myRegression.Run( InputVector( vertices[i].x, vertices[i].z ) )[0];
+            vertices[i].y = (float)myRegression.Run( InputVector( vertices[i].x, vertices[i].z ) )[0];
         }
 
         if( reverseHeight )

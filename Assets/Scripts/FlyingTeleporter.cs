@@ -84,9 +84,16 @@ public class FlyingTeleporter : MonoBehaviour
         teleportLaserEnd.SetActive( false );
 
         // we want to put the user's body in this position, not the center of the room
-        Vector3 headRoomOffset = room.position - head.position;
-        headRoomOffset.y = 0;
-        room.position = GetTeleportPosition() + headRoomOffset;
+        // Vector3 headRoomOffset = room.position - head.position;
+        // headRoomOffset.y = 0;
+        // room.position = GetTeleportPosition() + headRoomOffset;
+        
+        // this version: put the HAND in the spot. move the room 
+        // by the difference between where the hand is now and
+        // where the teleportation shows the hand will be.
+        // AND, don't zero out the y. we want the hand to be
+        // exactly where it shows it will be
+        room.position += GetTeleportPosition() - controllerPose.transform.position;
     }
 
     private bool ClickDown()

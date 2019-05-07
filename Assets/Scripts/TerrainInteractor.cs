@@ -20,7 +20,6 @@ public class TerrainInteractor : MonoBehaviour
     }
 
     // TODO: more complex interactions such as
-    // - showing a little translucent object for the terrain examples
     // - ability to delete the terrain examples
     void Update()
     {

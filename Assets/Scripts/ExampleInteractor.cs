@@ -56,7 +56,8 @@ public class ExampleInteractor : MonoBehaviour
     {
         if( collidingObject != null )
         {
-            objectInHand = collidingObject;
+            // the Example prefab is the PARENT of the collider
+            objectInHand = collidingObject.transform.parent.gameObject;
             collidingObject = null;
             objectInHandOriginalParent = objectInHand.transform.parent;
             objectInHand.transform.parent = transform;

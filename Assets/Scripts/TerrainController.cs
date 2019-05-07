@@ -92,9 +92,6 @@ public class TerrainController : MonoBehaviour
         // compute sizes
         landSize = 10; // it is invariant to scale. scaling up doesn't affect the computations here.
         spaceBetweenVertices = landSize / ( verticesPerSide - 1 );
-        Debug.Log( spaceBetweenVertices );
-        Debug.Log( IndicesToCoordinates( 0, 0 ) );
-
 
         // construct meshes
         ConstructMesh( topLand );

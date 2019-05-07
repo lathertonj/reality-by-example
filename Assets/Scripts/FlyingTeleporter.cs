@@ -53,7 +53,7 @@ public class FlyingTeleporter : MonoBehaviour
 
     private float GetLaserLength()
     {
-        return touchpadXY.GetAxis( handType ).y.Map( -1, 1, minTeleport, maxTeleport );
+        return touchpadXY.GetAxis( handType ).y.PowMapClamp( -1, 1, minTeleport, maxTeleport, 3f );
     }
 
     private Vector3 GetTeleportPosition()

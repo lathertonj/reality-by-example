@@ -204,6 +204,9 @@ public class TerrainController : MonoBehaviour
         // set vertices
         m.vertices = vertices;
         m.RecalculateNormals();
+        m.RecalculateTangents();
+        m.RecalculateBounds();
+        o.GetComponent<MeshCollider>().sharedMesh = m;
     }
 
 

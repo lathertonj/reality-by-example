@@ -33,11 +33,11 @@ namespace Valve.VR
             }
         }
         
-        public virtual SteamVR_Action_Boolean TriggerDown
+        public virtual SteamVR_Action_Boolean GrabObject
         {
             get
             {
-                return SteamVR_Actions.terraingenerate_TriggerDown;
+                return SteamVR_Actions.terraingenerate_GrabObject;
             }
         }
         
@@ -46,6 +46,14 @@ namespace Valve.VR
             get
             {
                 return SteamVR_Actions.terraingenerate_Pose;
+            }
+        }
+        
+        public virtual SteamVR_Action_Boolean GeneratePoint
+        {
+            get
+            {
+                return SteamVR_Actions.terraingenerate_GeneratePoint;
             }
         }
         

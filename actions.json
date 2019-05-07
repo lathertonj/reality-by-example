@@ -11,13 +11,18 @@
       "requirement": "mandatory"
     },
     {
-      "name": "/actions/terraingenerate/in/TriggerDown",
+      "name": "/actions/terraingenerate/in/GrabObject",
       "type": "boolean",
       "requirement": "mandatory"
     },
     {
       "name": "/actions/terraingenerate/in/Pose",
       "type": "pose",
+      "requirement": "mandatory"
+    },
+    {
+      "name": "/actions/terraingenerate/in/GeneratePoint",
+      "type": "boolean",
       "requirement": "mandatory"
     },
     {

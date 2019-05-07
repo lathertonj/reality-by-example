@@ -43,44 +43,10 @@
             {
                "output" : "/actions/terraingenerate/in/pose",
                "path" : "/user/hand/right/pose/raw"
-            },
-            {
-               "output" : "none",
-               "path" : "/user/hand/left/pose/base"
-            },
-            {
-               "output" : "none",
-               "path" : "/user/hand/right/pose/base"
-            },
-            {
-               "output" : "none",
-               "path" : "/user/hand/left/pose/handgrip"
-            },
-            {
-               "output" : "none",
-               "path" : "/user/hand/right/pose/handgrip"
             }
          ],
          "skeleton" : [],
          "sources" : [
-            {
-               "inputs" : {
-                  "click" : {
-                     "output" : "/actions/terraingenerate/in/triggerdown"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/left/input/trigger"
-            },
-            {
-               "inputs" : {
-                  "click" : {
-                     "output" : "/actions/terraingenerate/in/triggerdown"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/right/input/trigger"
-            },
             {
                "inputs" : {
                   "click" : {
@@ -104,6 +70,42 @@
                },
                "mode" : "trackpad",
                "path" : "/user/hand/right/input/trackpad"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/terraingenerate/in/grabobject"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/terraingenerate/in/grabobject"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/terraingenerate/in/generatepoint"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/grip"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/terraingenerate/in/generatepoint"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/grip"
             }
          ]
       }

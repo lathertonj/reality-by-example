@@ -11,6 +11,8 @@ public class TerrainInteractor : MonoBehaviour
 
     public TerrainController theTerrain;
 
+    public Transform examplePrefab;
+
 
     void Start()
     {
@@ -24,7 +26,8 @@ public class TerrainInteractor : MonoBehaviour
     {
         if( triggerPress.GetStateDown( handType ) )
         {
-            theTerrain.ProvideExample( controllerPose.transform.position );
+            Transform newExample = Instantiate( examplePrefab, controllerPose.transform.position, Quaternion.identity );
+            theTerrain.ProvideExample( newExample );
         }
     }
 }

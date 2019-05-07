@@ -18,17 +18,20 @@ public class TerrainController : MonoBehaviour
 
     // regression
     private RapidMixRegression myRegression;
-    private List<Vector3> myRegressionExamples;
+    private List<Transform> myRegressionExamples;
     private bool haveTrained = false;
 
-    public void ProvideExample( Vector3 givenHeight )
+    public void ProvideExample( Transform example )
     {
-        // world to local point
-        givenHeight = transform.InverseTransformPoint( givenHeight );
-        
         // remember
-        myRegressionExamples.Add( givenHeight );
+        myRegressionExamples.Add( example );
 
+        // recompute
+        RescanProvidedExamples();
+    }
+
+    public void RescanProvidedExamples()
+    {
         // train and recompute
         TrainRegression();
         ComputeLandHeight();
@@ -43,9 +46,13 @@ public class TerrainController : MonoBehaviour
             myRegression.ResetRegression();
 
             // rerecord all points
-            foreach( Vector3 example in myRegressionExamples )
+            foreach( Transform example in myRegressionExamples )
             {
-                myRegression.RecordDataPoint( InputVector( example.x, example.z ), new double[] { example.y } );
+                // world to local point
+                Vector3 point = transform.InverseTransformPoint( example.position );
+
+                // remember
+                myRegression.RecordDataPoint( InputVector( point.x, point.z ), new double[] { point.y } );
             }
 
             // train
@@ -80,7 +87,7 @@ public class TerrainController : MonoBehaviour
         myRegression = GetComponent<RapidMixRegression>();
 
         // initialize list
-        myRegressionExamples = new List<Vector3>();
+        myRegressionExamples = new List<Transform>();
 
         // compute sizes
         landSize = 10; // it is invariant to scale. scaling up doesn't affect the computations here.
@@ -101,7 +108,7 @@ public class TerrainController : MonoBehaviour
 
         foreach( Transform example in examplePointsContainer )
         {
-            ProvideExample( example.position );
+            ProvideExample( example );
         }
 
     }

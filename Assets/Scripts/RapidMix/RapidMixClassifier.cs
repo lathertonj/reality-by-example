@@ -64,7 +64,11 @@ public class RapidMixClassifier : MonoBehaviour
     {
         resetStaticClassifier( myClassifierID );
         haveTrained = false;
-        // myInputLength = 0; // to enable if the dataset can also be reset
+        
+        // reset data too
+        myInputLength = 0; 
+        cleanupTrainingData( myTrainingID );
+        myTrainingID = createEmptyTrainingData();
     }
 
     private string mostRecentResult = "";
@@ -104,5 +108,8 @@ public class RapidMixClassifier : MonoBehaviour
 
     [DllImport( PLUGIN_NAME )]
     private static extern bool resetStaticClassifier( System.UInt32 classifierID );
+
+    [DllImport( PLUGIN_NAME )]
+    private static extern bool cleanupTrainingData( System.UInt32 trainingID );
 
 }

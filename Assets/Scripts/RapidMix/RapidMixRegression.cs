@@ -59,12 +59,15 @@ public class RapidMixRegression : MonoBehaviour
         return output;
     }
 
-    // TODO can the dataset also be reset? need to check C++ API
     public void ResetRegression()
     {
         resetStaticRegression( myRegressionID );
         haveTrained = false;
-        // myOutputLength = 0; // to enable if the dataset can also be reset
+        
+        // reset data too
+        myOutputLength = 0; 
+        cleanupTrainingData( myTrainingID );
+        myTrainingID = createEmptyTrainingData();
     }
 
     const string PLUGIN_NAME = "RapidMixAPI";
@@ -94,5 +97,8 @@ public class RapidMixRegression : MonoBehaviour
 
     [DllImport( PLUGIN_NAME )]
     private static extern bool resetStaticRegression( System.UInt32 regressionID );
+
+    [DllImport( PLUGIN_NAME )]
+    private static extern bool cleanupTrainingData( System.UInt32 trainingID );
 
 }

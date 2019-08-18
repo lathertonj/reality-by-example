@@ -4,6 +4,17 @@ using UnityEngine;
 
 public class TerrainController : MonoBehaviour
 {
+    // CRIT NOTES
+    // - could do a comparison between this and linear regression and to non-ML interpolation
+    // - in zoo tycoon, some animals need more mountainous and some need more flat --> different places could have different animals
+    // --- wheeboxes could jump out of the boxes and roam the terrain!
+    // --- the little thingies could run out to the vertices and roam the terrain and pull it up and down
+    // - groups of boxes -- be able to move them together after you place them
+    // - versioning?
+
+    // designers better at curating than creating; better to have a computer to generate 100 and have the designer select between them
+    
+    // texture synthesis by example? paint on the landscape then map it onto new object?
 
     public GameObject topLand;
     public GameObject bottomLand;

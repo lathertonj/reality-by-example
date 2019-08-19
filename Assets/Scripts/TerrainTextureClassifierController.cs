@@ -2,28 +2,32 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TerrainTextureController : MonoBehaviour
+public class TerrainTextureClassifierController : MonoBehaviour
 {
     private Terrain myTerrain;
     private TerrainData myTerrainData;
-    private RapidMixRegression myRegression;
+    private RapidMixClassifier myClassifier;
+
+    // Classifier looks worse 
+    // BUT I think it is helping me figure out that the visuals are
+    // being applied to the map rotated?
 
     // Start is called before the first frame update
     void Start()
     {
         myTerrain = GetComponent<Terrain>();
         myTerrainData = myTerrain.terrainData;
-        myRegression = GetComponent<RapidMixRegression>();
-        myRegressionExamples = new List<TerrainTextureExample>();
+        myClassifier = GetComponent<RapidMixClassifier>();
+        myClassifierExamples = new List<TerrainTextureExample>();
     }
 
-    private List<TerrainTextureExample> myRegressionExamples;
+    private List<TerrainTextureExample> myClassifierExamples;
     private bool haveTrained = false;
 
     public void ProvideExample( TerrainTextureExample example )
     {
         // remember
-        myRegressionExamples.Add( example );
+        myClassifierExamples.Add( example );
 
         // recompute
         RescanProvidedExamples();
@@ -32,28 +36,28 @@ public class TerrainTextureController : MonoBehaviour
     public void RescanProvidedExamples()
     {
         // train and recompute
-        TrainRegression();
+        TrainClassifier();
         ComputeTerrainSplatMaps();
     }
 
-    private void TrainRegression()
+    private void TrainClassifier()
     {
         // only do this when we have examples
-        if( myRegressionExamples.Count > 0 )
+        if( myClassifierExamples.Count > 0 )
         {
-            // reset the regression
-            myRegression.ResetRegression();
+            // reset the classifier
+            myClassifier.ResetClassifier();
 
             // rerecord all points
-            foreach( TerrainTextureExample example in myRegressionExamples )
+            foreach( TerrainTextureExample example in myClassifierExamples )
             {
                 // remember
-                myRegression.RecordDataPoint( InputVector( example.transform.position ), example.myValues );
+                myClassifier.RecordDataPoint( InputVector( example.transform.position ), example.myLabel );
                 //Debug.Log( string.Join( ", ", InputVector( example.transform.position ) ) );
             }
 
             // train
-            myRegression.Train();
+            myClassifier.Train();
 
             // remember
             haveTrained = true;
@@ -63,7 +67,7 @@ public class TerrainTextureController : MonoBehaviour
     private void ComputeTerrainSplatMaps()
     {
         float[, ,] splatmapData = new float[myTerrainData.alphamapHeight, myTerrainData.alphamapWidth, myTerrainData.alphamapLayers];
-        if( myTerrainData.alphamapLayers != myRegressionExamples[0].myValues.Length )
+        if( myTerrainData.alphamapLayers != myClassifierExamples[0].myValues.Length )
         {
             Debug.Log( "Terrain has a different number of layers than the examples know about." );
         }
@@ -77,16 +81,33 @@ public class TerrainTextureController : MonoBehaviour
                 float y_01 = (float)y/(float)myTerrainData.alphamapHeight;
                  
                 
-                double[] splatWeights = myRegression.Run( InputVectorFromNormCoordinates( x_01, y_01 ) );
+                string label = myClassifier.Run( InputVectorFromNormCoordinates( x_01, y_01 ) );
+                double[] splatWeights = new double[] {0, 0, 0, 0};
+                if( label == "1" )
+                {
+                    splatWeights[1] = 1;
+                }
+                else if( label == "2" ) 
+                {
+                    splatWeights[2] = 1;
+                }
+                else if( label == "3" )
+                {
+                    splatWeights[3] = 1;
+                }
+                else
+                {
+                    splatWeights[0] = 1;
+                }
                  
                 // Sum of all textures weights must add to 1, so calculate normalization factor from sum of weights
-                double sum = 0; for( int i = 0; i < splatWeights.Length; i++ ) { sum += splatWeights[i]; }
+                //double sum = 0; for( int i = 0; i < splatWeights.Length; i++ ) { sum += splatWeights[i]; }
                  
                 // Loop through each terrain texture
                 for( int i = 0; i < splatWeights.Length; i++ )
                 {      
                     // Normalize so that sum of all texture weights = 1
-                    splatWeights[i] /= sum;
+                    //splatWeights[i] /= sum;
                      
                     // Assign this point to the splatmap array
                     // NOTE: The unusual indexing of the array!
@@ -119,11 +140,11 @@ public class TerrainTextureController : MonoBehaviour
     {
         // FIRST POINT: normalized height at this location in terrain
         // TODO check if this is normalized already or if we need to divide by myTerrainData.heightmapHeight
-        float normHeight = myTerrainData.GetInterpolatedHeight( normX, normY ) / myTerrainData.heightmapHeight;
+        float normHeight = myTerrainData.GetInterpolatedHeight( normX, normY );// / myTerrainData.heightmapHeight;
         
         // SECOND POINT: normalized steepness at this location in terrain
         // according to Unity: "Steepness is given as an angle, 0..90 degrees"
-        float normSteepness = myTerrainData.GetSteepness( normX, normY ) / 90.0f;
+        float normSteepness = myTerrainData.GetSteepness( normX, normY );// / 90.0f;
 
         // THIRD POINT: the x and z directions of the surface normal (ignore y because that has to do with steepness)
         Vector3 normal = myTerrainData.GetInterpolatedNormal( normX, normY );
@@ -141,16 +162,16 @@ public class TerrainTextureController : MonoBehaviour
         // could consider adding height * steepness * normal directions...
         // could consider adding norm positions...
         return new double[] {
-            normHeight,
-            normSteepness,
-            normX,
-            normY,
-            normal.x,
-            normal.z
+            normHeight
+            // normSteepness,
+            // normX * myTerrainData.size.x,
+            // normY * myTerrainData.size.z
             // normHeight * normX,
             // normHeight * normY,
             // normSteepness * normX,
             // normSteepness * normY
+            // normal.x * 20,
+            // normal.z * 20
             // normHeight * normSteepness,
             // normHeight * normal.x,
             // normHeight * normal.z,

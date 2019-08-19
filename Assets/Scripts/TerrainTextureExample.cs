@@ -7,6 +7,7 @@ public class TerrainTextureExample : MonoBehaviour
     public Material[] myMaterials;
 
     [HideInInspector] public double[] myValues = new double[4];
+    [HideInInspector] public string myLabel = "";
     private int myCurrentValue;
     private MeshRenderer myRenderer;
 
@@ -14,6 +15,7 @@ public class TerrainTextureExample : MonoBehaviour
     {
         for( int i = 0; i < myValues.Length; i++ ) { myValues[i] = 0; }
         myCurrentValue = 0;
+        myLabel = myCurrentValue.ToString();
         myValues[ myCurrentValue ] = 1;
         myRenderer = GetComponentInChildren<MeshRenderer>();
         UpdateMaterial();
@@ -26,6 +28,7 @@ public class TerrainTextureExample : MonoBehaviour
         myCurrentValue++;
         myCurrentValue %= myValues.Length;
         myValues[ myCurrentValue ] = 1;
+        myLabel = myCurrentValue.ToString();
 
         // also, change material
         UpdateMaterial();
@@ -38,6 +41,7 @@ public class TerrainTextureExample : MonoBehaviour
         myCurrentValue = myCurrentValue - 1 + myValues.Length;
         myCurrentValue %= myValues.Length;
         myValues[ myCurrentValue ] = 1;
+        myLabel = myCurrentValue.ToString();
 
         // also, change material
         UpdateMaterial();

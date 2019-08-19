@@ -46,12 +46,26 @@ public class FlyingTeleporter : MonoBehaviour
 
         if( ClickCurrentlyDown() )
         {
-            ShowLaser();
+            if( ShouldTeleportAndShowLaser() )
+            {
+                ShowLaser();
+            }
+            else
+            {
+                HideLasers();
+            }
         }
 
         if( ClickUp() )
         {
-            Teleport();
+            if( ShouldTeleportAndShowLaser() )
+            {
+                Teleport();
+            }
+            else
+            {
+                HideLasers();
+            }
         }
     }
 
@@ -81,11 +95,16 @@ public class FlyingTeleporter : MonoBehaviour
         teleportLaserEnd.transform.position = endpoint;
     }
 
-    private void Teleport()
+    private void HideLasers()
     {
         // hide lasers
         laser.SetActive( false );
         teleportLaserEnd.SetActive( false );
+    }
+
+    private void Teleport()
+    {
+        HideLasers();
 
         // we want to put the user's body in this position, not the center of the room
         // Vector3 headRoomOffset = room.position - head.position;
@@ -113,5 +132,10 @@ public class FlyingTeleporter : MonoBehaviour
     private bool ClickUp()
     {
         return touchpadClick.GetStateUp( handType );
+    }
+
+    private bool ShouldTeleportAndShowLaser()
+    {
+        return Mathf.Abs( touchpadXY.GetAxis( handType ).x ) < 0.4f;
     }
 }

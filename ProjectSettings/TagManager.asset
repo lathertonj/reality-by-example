@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - TerrainExample
+  - TerrainTextureExample
   layers:
   - Default
   - TransparentFX

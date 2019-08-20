@@ -81,7 +81,11 @@ public class RapidMixClassifier : MonoBehaviour
     [UnmanagedFunctionPointer (CallingConvention.Cdecl)]
 	public delegate void StringCallback( System.String str );
 
+#if UNITY_WEBGL
+    const string PLUGIN_NAME = "__Internal";
+#else    
     const string PLUGIN_NAME = "RapidMixAPI";
+#endif
 
     [DllImport( PLUGIN_NAME )]
     private static extern System.UInt32 createEmptyTrainingData();

@@ -6,25 +6,50 @@ using System.Runtime.InteropServices;
 
 public class RapidMixRegression : MonoBehaviour
 {
-    private System.UInt32 myTrainingID, myRegressionID, myOutputLength;
+#if UNITY_WEBGL
+    private int myTrainingID, myRegressionID, myInputLength, myOutputLength;
+#else
+    private System.UInt32 myTrainingID, myRegressionID, myInputLength, myOutputLength;
+#endif
     private bool haveTrained = false;
 
     void Awake()
     {
+        #if UNITY_WEBGL
+            initializeRapidMix();
+        #endif
         myTrainingID = createEmptyTrainingData();
         myRegressionID = createNewStaticRegression();
+        myInputLength = 0;
         myOutputLength = 0;
     }
 
     public void RecordDataPoint( double[] input, double[] output )
     {
+        // remember expected input length
+        if( myInputLength == 0 )
+        {
+            #if UNITY_WEBGL
+            myInputLength = input.Length;
+            #else
+            myInputLength = (System.UInt32) input.Length;
+            #endif
+        }
         // remember expected output length
         if( myOutputLength == 0 )
         {
+            #if UNITY_WEBGL
+            myOutputLength = output.Length;
+            #else
             myOutputLength = (System.UInt32) output.Length;
+            #endif
         }
 
         // show error if we get something that isn't the expected length
+        if( myInputLength != input.Length )
+        {
+            Debug.LogError( string.Format( "Received input of dimension {0} which was different than the expected / originally recieved input dimension {1}", input.Length, myInputLength ) );
+        }
         if( myOutputLength != output.Length )
         {
             Debug.LogError( string.Format( "Received output of dimension {0} which was different than the expected / originally recieved output dimension {1}", output.Length, myOutputLength ) );
@@ -32,8 +57,8 @@ public class RapidMixRegression : MonoBehaviour
 
         recordSingleTrainingElement(
             myTrainingID,
-            input, (System.UInt32) input.Length,
-            output, (System.UInt32) output.Length
+            input, myInputLength,
+            output, myOutputLength
         );
     }
 
@@ -50,11 +75,15 @@ public class RapidMixRegression : MonoBehaviour
             Debug.LogError( "Regression can't Run() without having Train()ed first!" );
             return new double[]{ };
         }
+        if( myInputLength != input.Length )
+        {
+            Debug.LogError( string.Format( "Received input of dimension {0} which was different than the expected / originally recieved input dimension {1}", input.Length, myInputLength ) );
+        }
         double [] output = new double[myOutputLength];
         runStaticRegression(
             myRegressionID,
-            input, (System.UInt32) input.Length,
-            output, (System.UInt32) output.Length
+            input, myInputLength,
+            output, myOutputLength
         );
         return output;
     }
@@ -70,8 +99,42 @@ public class RapidMixRegression : MonoBehaviour
         myTrainingID = createEmptyTrainingData();
     }
 
-    const string PLUGIN_NAME = "RapidMixAPI";
+#if UNITY_WEBGL
+    const string PLUGIN_NAME = "__Internal";
+    
+    [DllImport( PLUGIN_NAME )]
+    private static extern void initializeRapidMix();
+    
+    [DllImport( PLUGIN_NAME )]
+    private static extern int createEmptyTrainingData();
 
+    [DllImport( PLUGIN_NAME )]
+    private static extern int createNewStaticRegression();
+
+    [DllImport( PLUGIN_NAME )]
+    private static extern bool recordSingleTrainingElement(
+        int trainingID,
+        double[] input, int n_input,
+        double[] output, int n_ouput
+    );
+
+    [DllImport( PLUGIN_NAME )]
+    private static extern bool trainStaticRegression( int regressionID, int trainingID );
+
+    [DllImport( PLUGIN_NAME )]
+    private static extern bool runStaticRegression(
+        int regressionID,
+        double[] input, int n_input,
+        double[] output, int n_output
+    );
+
+    [DllImport( PLUGIN_NAME )]
+    private static extern bool resetStaticRegression( int regressionID );
+
+    [DllImport( PLUGIN_NAME )]
+    private static extern bool cleanupTrainingData( int trainingID );
+#else    
+    const string PLUGIN_NAME = "RapidMixAPI";
     [DllImport( PLUGIN_NAME )]
     private static extern System.UInt32 createEmptyTrainingData();
 
@@ -100,5 +163,8 @@ public class RapidMixRegression : MonoBehaviour
 
     [DllImport( PLUGIN_NAME )]
     private static extern bool cleanupTrainingData( System.UInt32 trainingID );
+#endif
+
+    
 
 }

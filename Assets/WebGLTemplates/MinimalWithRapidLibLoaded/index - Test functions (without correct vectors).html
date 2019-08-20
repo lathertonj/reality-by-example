@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | %UNITY_WEB_NAME%</title>
+    <script src="https://www.doc.gold.ac.uk/eavi/rapidmix/RapidLib.js"></script>
+    <script>
+      var rapidFunctions = {
+          initializeRapidMix: function ()
+          {
+              this.currentTrainingID = 0;
+              this.trainingSets = {};
+              this.currentRegressionID = 0;
+              this.regressions = {};
+              this.currentClassificationID = 0;
+              this.classifications = {};
+              this.rapidLib = window.RapidLib();
+          },
+          
+          // private static extern System.UInt32 createEmptyTrainingData();
+          createEmptyTrainingData: function ()
+          {
+              // generate new training ID
+              var nextTrainingID = this.currentTrainingID;
+              this.currentTrainingID++;
+              // training set is an empty list
+              this.trainingSets[nextTrainingID] = [];
+              return nextTrainingID;
+          },
+          
+          // private static extern System.UInt32 createNewStaticRegression();
+          createNewStaticRegression: function ()
+          {
+              // generate new regression id
+              var nextRegressionID = this.currentRegressionID;
+              this.currentRegressionID++;
+              // generate new regression
+              this.regressions[nextRegressionID] = new this.rapidLib.Regression();
+              return nextRegressionID;
+          },
+          
+          //     private static extern bool recordSingleTrainingElement(
+          //         System.UInt32 trainingID,
+          //         double[] input, System.UInt32 n_input,
+          //         double[] output, System.UInt32 n_ouput
+          //     );
+          // TODO how are arrays passed to JS?
+          recordSingleTrainingElement: function ( trainingID, inputVector, outputVector )
+          {
+              if( trainingID in this.trainingSets )
+              {
+                  this.trainingSets[trainingID].push( { 
+                      input: inputVector,
+                      output: outputVector
+                  } );
+                  return true;
+              }
+              return false;
+          },
+              
+              
+          // private static extern bool trainStaticRegression( System.UInt32 regressionID, System.UInt32 trainingID );
+          trainStaticRegression: function ( regressionID, trainingID )
+          {
+              if( regressionID in this.regressions && trainingID in this.trainingSets )
+              {
+                  this.regressions[regressionID].train( this.trainingSets[trainingID] );
+                  return true;
+              }
+              return false;
+          },
+
+
+          //     private static extern bool runStaticRegression(
+          //         System.UInt32 regressionID,
+          //         double[] input, System.UInt32 n_input,
+          //         double[] output, System.UInt32 n_output
+          //     );
+          runStaticRegression: function ( regressionID, inputVector )
+          {
+              if( !( regressionID in this.regressions ) )
+              {
+                  return [];
+              }
+              return this.regressions[regressionID].run( inputVector );
+          },
+          
+          
+          //     private static extern bool resetStaticRegression( System.UInt32 regressionID );
+          resetStaticRegression: function( regressionID ) 
+          {
+              if( regressionID in this.regressions )
+              {
+                  return this.regressions[regressionID].reset();
+              }
+              return false;
+          },
+
+          //     private static extern bool cleanupTrainingData( System.UInt32 trainingID );
+          cleanupTrainingData: function ( trainingID )
+          {
+              if( trainingID in this.trainingSets )
+              {
+                  this.trainingSets[trainingID] = [];
+                  return true;
+              }
+              return false;
+          },
+        
+        };
+
+        rapidFunctions.initializeRapidMix();
+        var myTrainingID = rapidFunctions.createEmptyTrainingData();
+        var myRegressionID = rapidFunctions.createNewStaticRegression();
+        rapidFunctions.recordSingleTrainingElement( myTrainingID, [48], [130.81] );
+        rapidFunctions.recordSingleTrainingElement( myTrainingID, [54], [185.00] );
+        rapidFunctions.recordSingleTrainingElement( myTrainingID, [60], [261.63] );
+        rapidFunctions.recordSingleTrainingElement( myTrainingID, [66], [369.994] );
+        rapidFunctions.recordSingleTrainingElement( myTrainingID, [72], [523.25] );
+
+        rapidFunctions.trainStaticRegression( myRegressionID, myTrainingID );
+        console.log( rapidFunctions.runStaticRegression( myRegressionID, [64] ) );
+        console.log( rapidFunctions.runStaticRegression( myRegressionID, [69] ) );
+
+        rapidFunctions.resetStaticRegression( myRegressionID );
+        rapidFunctions.cleanupTrainingData( myTrainingID );
+    </script>
+  </head>
+  
+  <body>
+    <div></div>
+  </body>
+  
+</html>

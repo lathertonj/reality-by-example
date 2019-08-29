@@ -1,12 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 public class TerrainTextureController : MonoBehaviour
 {
     private Terrain myTerrain;
     private TerrainData myTerrainData;
     private RapidMixRegression myRegression;
+
+    public bool saveExamplesOnQuit;
+    public string saveExamplesFilename;
 
     // Start is called before the first frame update
     void Start()
@@ -159,9 +163,37 @@ public class TerrainTextureController : MonoBehaviour
         };
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnApplicationQuit()
     {
-        
+        if( saveExamplesOnQuit )
+        {
+            SaveExamples();
+        }
     }
+
+    void SaveExamples()
+    {
+        SerializableTerrainTrainingExamples mySerializableExamples;
+        mySerializableExamples = new SerializableTerrainTrainingExamples();
+        mySerializableExamples.examples = new List<SerializableTerrainTextureExample>();
+
+        foreach( TerrainTextureExample example in myRegressionExamples )
+        {
+            mySerializableExamples.examples.Add( example.serializableObject );
+        }
+
+        // open for overwriting (append = false)
+        StreamWriter writer = new StreamWriter( Application.streamingAssetsPath + "/" + saveExamplesFilename, false );
+        // convert to json and write
+        string theJSON = JsonUtility.ToJson( mySerializableExamples );
+        Debug.Log( theJSON );
+        writer.Write( theJSON );
+        writer.Close();
+    }
+}
+
+[System.Serializable]
+public class SerializableTerrainTrainingExamples
+{
+    public List< SerializableTerrainTextureExample > examples;
 }

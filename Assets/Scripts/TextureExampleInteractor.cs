@@ -92,6 +92,21 @@ public class TextureExampleInteractor : MonoBehaviour
         return false;
     }
 
+    private bool TryUpdatePosition( GameObject o )
+    {
+        if( o != null )
+        {
+            TerrainTextureExample example = o.GetComponentInParent<TerrainTextureExample>();
+            if( example != null )
+            {
+                // update position
+                example.UpdatePosition();
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void AdvanceToPrevious()
     {
         // first try colliding object, then object in hand
@@ -126,6 +141,9 @@ public class TextureExampleInteractor : MonoBehaviour
     {
         if( objectInHand != null )
         {
+            // tell the object it was moved
+            TryUpdatePosition( objectInHand );
+
             // let go of object
             objectInHand.transform.parent = objectInHandOriginalParent;
             objectInHandOriginalParent = null;

@@ -11,14 +11,19 @@ public class TerrainTextureExample : MonoBehaviour
     private int myCurrentValue;
     private MeshRenderer myRenderer;
 
+    [HideInInspector] public SerializableTerrainTextureExample serializableObject;
+
     void Awake()
     {
+        serializableObject = new SerializableTerrainTextureExample();
+
         for( int i = 0; i < myValues.Length; i++ ) { myValues[i] = 0; }
         myCurrentValue = 0;
         myLabel = myCurrentValue.ToString();
         myValues[ myCurrentValue ] = 1;
         myRenderer = GetComponentInChildren<MeshRenderer>();
         UpdateMaterial();
+        UpdatePosition();
     }
 
     public void SwitchToNextMaterial()
@@ -47,9 +52,24 @@ public class TerrainTextureExample : MonoBehaviour
         UpdateMaterial();
     }
 
+    public void UpdatePosition()
+    {
+        serializableObject.position = transform.position;
+    }
+
     // Update is called once per frame
     void UpdateMaterial()
     {
         myRenderer.material = myMaterials[ myCurrentValue ];
+        serializableObject.material = myCurrentValue;
     }
+
+
+}
+
+[System.Serializable]
+public class SerializableTerrainTextureExample
+{
+    public Vector3 position;
+    public int material;
 }

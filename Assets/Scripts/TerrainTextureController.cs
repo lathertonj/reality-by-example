@@ -11,6 +11,10 @@ public class TerrainTextureController : MonoBehaviour
 
     public bool saveExamplesOnQuit;
     public string saveExamplesFilename;
+    public TerrainTextureExample terrainExamplePrefab;
+
+    public bool loadExamples;
+    public string loadExamplesFilename;
 
     // Start is called before the first frame update
     void Start()
@@ -19,18 +23,26 @@ public class TerrainTextureController : MonoBehaviour
         myTerrainData = myTerrain.terrainData;
         myRegression = GetComponent<RapidMixRegression>();
         myRegressionExamples = new List<TerrainTextureExample>();
+
+        if( loadExamples )
+        {
+            LoadExamplesFromFile();
+        }
     }
 
     private List<TerrainTextureExample> myRegressionExamples;
     private bool haveTrained = false;
 
-    public void ProvideExample( TerrainTextureExample example )
+    public void ProvideExample( TerrainTextureExample example, bool shouldRetrain = true )
     {
         // remember
         myRegressionExamples.Add( example );
 
         // recompute
-        RescanProvidedExamples();
+        if( shouldRetrain )
+        {
+            RescanProvidedExamples();
+        }
     }
 
     public void RescanProvidedExamples()
@@ -189,6 +201,44 @@ public class TerrainTextureController : MonoBehaviour
         Debug.Log( theJSON );
         writer.Write( theJSON );
         writer.Close();
+    }
+
+    void LoadExamplesFromFile()
+    {
+        StreamReader reader = new StreamReader( Application.streamingAssetsPath + "/" + loadExamplesFilename );
+        string json = reader.ReadToEnd();
+        reader.Close();
+        LoadExamples( json );
+    }
+
+    void LoadExamples( string examplesJSON )
+    {
+        Debug.Log( examplesJSON );
+        SerializableTerrainTrainingExamples examples = 
+            JsonUtility.FromJson<SerializableTerrainTrainingExamples>( examplesJSON );
+        for( int i = 0; i < examples.examples.Count; i++ )
+        {
+            TerrainTextureExample newExample = Instantiate( terrainExamplePrefab );
+            newExample.ResetFromSerial( examples.examples[i] );
+            // don't retrain until end
+            ProvideExample( newExample, false );
+        }
+        RescanProvidedExamples();
+    }
+
+    void ClearExamples()
+    {
+        for( int i = 0; i < myRegressionExamples.Count; i++ )
+        {
+            Destroy( myRegressionExamples[i].gameObject );
+        }
+        myRegressionExamples.Clear();
+    }
+
+    public void ReplaceTrainingExamplesWithSerial( string examplesJSON )
+    {
+        ClearExamples();
+        LoadExamples( examplesJSON );
     }
 }
 

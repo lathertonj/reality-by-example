@@ -7,7 +7,7 @@ public class TerrainTextureExample : MonoBehaviour
     public Material[] myMaterials;
 
     [HideInInspector] public double[] myValues = new double[4];
-    [HideInInspector] public string myLabel = "";
+    public string myLabel = "";
     private int myCurrentValue;
     private MeshRenderer myRenderer;
 
@@ -17,10 +17,7 @@ public class TerrainTextureExample : MonoBehaviour
     {
         serializableObject = new SerializableTerrainTextureExample();
 
-        for( int i = 0; i < myValues.Length; i++ ) { myValues[i] = 0; }
         myCurrentValue = 0;
-        myLabel = myCurrentValue.ToString();
-        myValues[ myCurrentValue ] = 1;
         myRenderer = GetComponentInChildren<MeshRenderer>();
         UpdateMaterial();
         UpdatePosition();
@@ -29,26 +26,20 @@ public class TerrainTextureExample : MonoBehaviour
     public void SwitchToNextMaterial()
     {
         // compute new value for IML
-        myValues[ myCurrentValue ] = 0;
         myCurrentValue++;
         myCurrentValue %= myValues.Length;
-        myValues[ myCurrentValue ] = 1;
-        myLabel = myCurrentValue.ToString();
 
-        // also, change material
+        // change material and update IML
         UpdateMaterial();
     }
 
     public void SwitchToPreviousMaterial()
     {
-        // compute new value for IML
-        myValues[ myCurrentValue ] = 0;
+        // compute new index
         myCurrentValue = myCurrentValue - 1 + myValues.Length;
         myCurrentValue %= myValues.Length;
-        myValues[ myCurrentValue ] = 1;
-        myLabel = myCurrentValue.ToString();
 
-        // also, change material
+        // change material and update IML
         UpdateMaterial();
     }
 
@@ -60,11 +51,25 @@ public class TerrainTextureExample : MonoBehaviour
     // Update is called once per frame
     void UpdateMaterial()
     {
+        // display
         myRenderer.material = myMaterials[ myCurrentValue ];
+
+        // store for serialize
         serializableObject.material = myCurrentValue;
+
+        // store for IML
+        for( int i = 0; i < myValues.Length; i++ ) { myValues[i] = 0; }
+        myValues[ myCurrentValue ] = 1;
+        myLabel = myCurrentValue.ToString();
     }
 
-
+    public void ResetFromSerial( SerializableTerrainTextureExample serialized )
+    {
+        transform.position = serialized.position;
+        myCurrentValue = serialized.material;
+        UpdatePosition();
+        UpdateMaterial();
+    }
 }
 
 [System.Serializable]

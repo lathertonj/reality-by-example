@@ -25,7 +25,7 @@ public class TerrainController : MonoBehaviour
 
     public Transform examplePointsContainer;
 
-    private int verticesPerSide = 101;
+    private int verticesPerSide = 129;
     private float landSize;
     private float spaceBetweenVertices;
     public bool showDebugMarkers = false;

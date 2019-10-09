@@ -9,7 +9,7 @@ public class TerrainInteractor : MonoBehaviour
     public SteamVR_Action_Boolean triggerPress;
     private SteamVR_Behaviour_Pose controllerPose;
 
-    public TerrainController theTerrain;
+    public ConnectedTerrainController theTerrain;
 
     public Transform examplePrefab;
 

@@ -16,7 +16,8 @@ public class ExampleInteractor : MonoBehaviour
     private GameObject objectInHand;
     private Transform objectInHandOriginalParent = null;
 
-    public TerrainController theTerrain;
+    public ConnectedTerrainController theTerrain;
+    // TODO: find the closest one (underneath us), and maybe highlight it blue?
 
     // Start is called before the first frame update
     void Start()

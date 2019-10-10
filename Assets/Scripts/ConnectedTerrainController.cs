@@ -216,7 +216,7 @@ public class ConnectedTerrainController : MonoBehaviour
         {
             for( int x = 0; x < samplesToLerp; x++ )
             {
-                output[ y, x ] = Mathf.Lerp( 
+                output[ y, x ] = Mathf.SmoothStep( 
                     leftCols[ samplesToLerp + y, samplesToLerp + verticesPerSide + x ],
                     rightCols[ samplesToLerp + y, samplesToLerp + x ],
                     0.5f + 0.5f * x / samplesToLerp
@@ -231,7 +231,7 @@ public class ConnectedTerrainController : MonoBehaviour
         {
             for( int x = 0; x < samplesToLerp; x++ )
             {
-                output[ y, verticesPerSide - 1 - x ] = Mathf.Lerp( 
+                output[ y, verticesPerSide - 1 - x ] = Mathf.SmoothStep( 
                     rightCols[ samplesToLerp + y, samplesToLerp - 1 - x ],
                     leftCols[ samplesToLerp + y, samplesToLerp + verticesPerSide - 1 - x ],
                     0.5f + 0.5f * x / samplesToLerp
@@ -246,7 +246,7 @@ public class ConnectedTerrainController : MonoBehaviour
         {
             for( int y = 0; y < samplesToLerp; y++ )
             {
-                output[ y, x ] = Mathf.Lerp( 
+                output[ y, x ] = Mathf.SmoothStep( 
                     bottomRows[ samplesToLerp + verticesPerSide + y, samplesToLerp + x ],
                     topRows[ samplesToLerp + y, samplesToLerp + x ],
                     0.5f + 0.5f * y / samplesToLerp
@@ -261,7 +261,7 @@ public class ConnectedTerrainController : MonoBehaviour
         {
             for( int y = 0; y < samplesToLerp; y++ )
             {
-                output[ verticesPerSide - 1 - y, x ] = Mathf.Lerp( 
+                output[ verticesPerSide - 1 - y, x ] = Mathf.SmoothStep( 
                     topRows[ samplesToLerp - 1 - y, samplesToLerp + x ],
                     bottomRows[ samplesToLerp + verticesPerSide - 1 - y, samplesToLerp + x ],
                     0.5f + 0.5f * y / samplesToLerp

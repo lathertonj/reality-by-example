@@ -80,6 +80,36 @@ public class ConnectedTerrainController : MonoBehaviour
         stitchStrength = 0.2f;
     }
 
+    private double[] InputVector( float x, float z )
+    {
+        // kernel method
+        return new double[] { 
+            x, z, 
+            x * x, z * z, x * z, 
+            x * x * x, z * z * z, x * x * z, x * z * z, 
+            /*Mathf.Sin( 0.1f * x ) + Mathf.Sin, Mathf.Sin( 0.3f * x ), Mathf.Sin( 0.5f * x ), Mathf.Sin( 0.7f * x ),
+            // Mathf.Sin( 2 * x ), Mathf.Sin( 5 * x ), Mathf.Sin( 8 * x ),
+
+            Mathf.Sin( 0.1f * z ), Mathf.Sin( 0.3f * z ), Mathf.Sin( 0.5f * z ), Mathf.Sin( 0.7f * z ),
+            // Mathf.Sin( 2 * z ), Mathf.Sin( 5 * z ), Mathf.Sin( 8 * z ),
+
+            Mathf.Sin( 0.1f * x * z), Mathf.Sin( 0.3f * x * z ), Mathf.Sin( 0.5f * x * z ), Mathf.Sin( 0.7f * x * z ),
+            // Mathf.Sin( 2 * x * z ), Mathf.Sin( 5 * x * z ), Mathf.Sin( 8 * x * z ),
+            */
+            WeirdSineFeature( x, 0.1f, 0.3f, 0.7f ), WeirdSineFeature( x, 0.5f, 0.6f, 2f ), WeirdSineFeature( x, 0.1f, 0.2f, 0.3f ),
+            WeirdSineFeature( z, 0.1f, 0.3f, 0.7f ), WeirdSineFeature( z, 0.5f, 0.6f, 2f ), WeirdSineFeature( z, 0.1f, 0.2f, 0.3f ),
+            WeirdSineFeature( x+z, 0.1f, 0.3f, 0.7f ), WeirdSineFeature( x+z, 0.5f, 0.6f, 2f ), WeirdSineFeature( x+z, 0.1f, 0.2f, 0.3f ),
+            WeirdSineFeature( x-z, 0.1f, 0.3f, 0.7f ), WeirdSineFeature( x-z, 0.5f, 0.6f, 2f ), WeirdSineFeature( x-z, 0.1f, 0.2f, 0.3f ),
+            WeirdSineFeature( x*z, 0.1f, 0.3f, 0.7f ), WeirdSineFeature( x*z, 0.5f, 0.6f, 2f ), WeirdSineFeature( x*z, 0.1f, 0.2f, 0.3f ),
+        };
+        // return new double[] { x, z, x*x, z*z, x*z };
+    }
+
+    private float WeirdSineFeature( float f, float a, float b, float c )
+    {
+        return Mathf.Sin( f*a ) + Mathf.Sin( f*b ) + Mathf.Sin( f*c );
+    }
+
     void Start() 
     {
         if( examplePointsContainer )
@@ -414,11 +444,6 @@ public class ConnectedTerrainController : MonoBehaviour
 
 
 
-    private double[] InputVector( float x, float z )
-    {
-        // kernel method
-        return new double[] { x, z, x * x, z * z, x * z, x * x * x, z * z * z, x * x * z, x * z * z };
-        // return new double[] { x, z, x*x, z*z, x*z };
-    }
+    
 
 }

@@ -16,8 +16,6 @@ public class ExampleInteractor : MonoBehaviour
     private GameObject objectInHand;
     private Transform objectInHandOriginalParent = null;
 
-    public ConnectedTerrainController theTerrain;
-    // TODO: find the closest one (underneath us), and maybe highlight it blue?
 
     // Start is called before the first frame update
     void Start()
@@ -69,6 +67,9 @@ public class ExampleInteractor : MonoBehaviour
     {
         if( objectInHand != null )
         {
+            // save reference to terrain
+            ConnectedTerrainController theTerrain = objectInHand.GetComponent<TerrainHeightExample>().myTerrain;
+
             // let go of object
             objectInHand.transform.parent = objectInHandOriginalParent;
             objectInHandOriginalParent = null;
@@ -76,6 +77,9 @@ public class ExampleInteractor : MonoBehaviour
 
             // tell the terrain to recompute
             theTerrain.RescanProvidedExamples();
+
+            // TODO: if we move far away enough from old terrain, then remove it from that terrain,
+            // rescan that terrain, find new terrain, and add it to that terrain, and rescan that terrain.
         }
     }
 

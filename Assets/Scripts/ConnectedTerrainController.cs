@@ -26,13 +26,15 @@ public class ConnectedTerrainController : MonoBehaviour
     public Transform examplePointsContainer;
     public ConnectedTerrainController leftNeighbor, rightNeighbor, upperNeighbor, lowerNeighbor;
 
-    static int extraBorderPixels = 10;
+    static int extraBorderPixels = 20;
 
     private int verticesPerSide;
     private float terrainSize;
     private float spaceBetweenVertices;
     private float terrainHeight;
     private float[,] myPureRegressionHeights, myModifiedRegressionHeights;
+    private float stitchWidth;
+    private float stitchStrength;
 
     // regression
     private RapidMixRegression myRegression;
@@ -73,6 +75,9 @@ public class ConnectedTerrainController : MonoBehaviour
         spaceBetweenVertices = terrainSize / ( verticesPerSide - 1 );
         myPureRegressionHeights = new float[ verticesPerSide + 2 * extraBorderPixels, verticesPerSide + 2 * extraBorderPixels ];
         myModifiedRegressionHeights = new float[ verticesPerSide, verticesPerSide ];
+        // stitch width is 15 pixels' worth
+        stitchWidth = 15.0f / verticesPerSide;
+        stitchStrength = 0.2f;
     }
 
     void Start() 
@@ -183,7 +188,7 @@ public class ConnectedTerrainController : MonoBehaviour
 
     private void SmoothEdgeRegion()
     {
-        // TODO: shadows are wrong, why?
+        // TODO: shadows are sometimes wrong, read this article https://docs.unity3d.com/Manual/BestPracticeLightingPipelines.html
         if( leftNeighbor )
         {
             LerpColsLeftOntoRight( leftNeighbor.myPureRegressionHeights, myPureRegressionHeights, myModifiedRegressionHeights, extraBorderPixels );
@@ -329,8 +334,8 @@ public class ConnectedTerrainController : MonoBehaviour
                 leftNeighbor.myTerrain.terrainData, 
                 myTerrain.terrainData, 
                 StitchDirection.Across, 
-                1.0f * extraBorderPixels / verticesPerSide, 
-                0.5f, 
+                stitchWidth,
+                stitchStrength, 
                 false
             );
         }
@@ -344,8 +349,8 @@ public class ConnectedTerrainController : MonoBehaviour
                 myTerrain.terrainData, 
                 rightNeighbor.myTerrain.terrainData,
                 StitchDirection.Across, 
-                1.0f * extraBorderPixels / verticesPerSide, 
-                0.5f, 
+                stitchWidth, 
+                stitchStrength, 
                 false
             );
         }
@@ -359,8 +364,8 @@ public class ConnectedTerrainController : MonoBehaviour
                 upperNeighbor.myTerrain.terrainData, 
                 myTerrain.terrainData, 
                 StitchDirection.Down, 
-                1.0f * extraBorderPixels / verticesPerSide, 
-                0.5f, 
+                stitchWidth, 
+                stitchStrength,
                 false
             );
         }
@@ -374,8 +379,8 @@ public class ConnectedTerrainController : MonoBehaviour
                 myTerrain.terrainData, 
                 lowerNeighbor.myTerrain.terrainData,
                 StitchDirection.Down, 
-                1.0f * extraBorderPixels / verticesPerSide, 
-                0.5f, 
+                stitchWidth, 
+                stitchStrength,
                 false
             );
         }

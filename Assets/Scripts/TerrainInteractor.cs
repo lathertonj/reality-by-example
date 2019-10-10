@@ -9,9 +9,8 @@ public class TerrainInteractor : MonoBehaviour
     public SteamVR_Action_Boolean triggerPress;
     private SteamVR_Behaviour_Pose controllerPose;
 
-    public ConnectedTerrainController theTerrain;
 
-    public Transform examplePrefab;
+    public TerrainHeightExample examplePrefab;
 
 
     void Start()
@@ -25,8 +24,30 @@ public class TerrainInteractor : MonoBehaviour
     {
         if( triggerPress.GetStateDown( handType ) )
         {
-            Transform newExample = Instantiate( examplePrefab, controllerPose.transform.position, Quaternion.identity );
-            theTerrain.ProvideExample( newExample );
+            // find a terrrain below or above us
+            ConnectedTerrainController currentTerrain = FindTerrain();
+
+            // if we found one, make an example and give it
+            if( currentTerrain != null )
+            {
+                TerrainHeightExample newExample = Instantiate( examplePrefab, controllerPose.transform.position, Quaternion.identity );
+                newExample.myTerrain = currentTerrain;
+                currentTerrain.ProvideExample( newExample.transform );
+            }
         }
+    }
+
+    ConnectedTerrainController FindTerrain()
+    {
+        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
+        int layerMask = 1 << 8;
+
+        RaycastHit hit;
+        // Check from a point really high above us, in the downward direction (in case we are below terrain)
+        if( Physics.Raycast( transform.position + 400 * Vector3.up, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
+        {
+            return hit.transform.GetComponentInParent<ConnectedTerrainController>();
+        }
+        return null;
     }
 }

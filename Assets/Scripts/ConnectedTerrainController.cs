@@ -50,11 +50,12 @@ public class ConnectedTerrainController : MonoBehaviour
         RescanProvidedExamples();
     }
 
-    public void RescanProvidedExamples()
+    public void RescanProvidedExamples( bool lazy = false )
     {
         // train and recompute
         TrainRegression();
-        ComputeLandHeight();
+        int framesToSpreadOver = 15;
+        StartCoroutine( ComputeLandHeight( lazy, framesToSpreadOver ) );
     }
 
 
@@ -145,9 +146,18 @@ public class ConnectedTerrainController : MonoBehaviour
     }
 
 
-    private void ComputeLandHeight()
+    private IEnumerator ComputeLandHeight( bool lazy, int framesToSpreadOver )
     {
-        if( !haveTrained ) { return; }
+        if( !haveTrained ) { yield break; }
+
+
+        // UnityEngine.Profiling.Profiler.BeginSample("Running regression");
+        
+        // Added for coroutine
+        int totalRuns = myPureRegressionHeights.GetLength(0) * myPureRegressionHeights.GetLength(1);
+        int runsPerFrame = totalRuns / framesToSpreadOver + 1;
+        int runsSoFar = 0;
+        // End added for coroutine
 
         // recompute height
         for( int y = 0; y < myPureRegressionHeights.GetLength(0); y++ )
@@ -157,9 +167,20 @@ public class ConnectedTerrainController : MonoBehaviour
                 Vector3 worldCoords = IndicesToCoordinates( x - extraBorderPixels, y - extraBorderPixels );
                 float landHeightHere = (float) myRegression.Run( InputVector( worldCoords.x, worldCoords.z ) )[0];
                 myPureRegressionHeights[ y, x ] = landHeightHere / terrainHeight;
+
+                // Added for coroutine
+                runsSoFar++;
+                if( runsSoFar == runsPerFrame )
+                {
+                    runsSoFar = 0;
+                    yield return null;
+                }
+                // End added for coroutine
             }
         }
+        // UnityEngine.Profiling.Profiler.EndSample();
 
+        UnityEngine.Profiling.Profiler.BeginSample("Copying regression");
         // it is [y,x]
         for( int y = 0; y < verticesPerSide; y++ )
         {
@@ -168,21 +189,33 @@ public class ConnectedTerrainController : MonoBehaviour
                 myModifiedRegressionHeights[ y, x ] = myPureRegressionHeights[ y + extraBorderPixels, x + extraBorderPixels ];
             }
         }
+        UnityEngine.Profiling.Profiler.EndSample();
 
-        SmoothEdgeRegion();
-        SetTerrainData();
-        SetNeighbors( true );
-        StitchEdges();
+
+        if( !lazy )
+        {
+            SmoothEdgeRegion();
+            SetTerrainData( true );
+            SetNeighbors( true );
+            StitchEdges();
+        }
+        else
+        {
+            // TODO: could maybe still restitch neighbors...
+            UnityEngine.Profiling.Profiler.BeginSample("Lazy terrain set");
+            SetTerrainData( false );
+            UnityEngine.Profiling.Profiler.EndSample();
+        }
     }
 
-    private void SetTerrainData()
+    private void SetTerrainData( bool finalize )
     {
         // set vertices from 0,0 corner
         myTerrain.terrainData.SetHeightsDelayLOD( 0, 0, myModifiedRegressionHeights );
         
-        // NOTE: can wait to do this ONLY AFTER operation is done, so don't need to keep calling it
+        // can wait to do this ONLY AFTER operation is done, so don't need to keep calling it
         // if we do a long gesture or show change over time
-        myTerrain.terrainData.SyncHeightmap();
+        if( finalize ) { myTerrain.terrainData.SyncHeightmap(); }
     }
 
 
@@ -223,25 +256,25 @@ public class ConnectedTerrainController : MonoBehaviour
         {
             LerpColsLeftOntoRight( leftNeighbor.myPureRegressionHeights, myPureRegressionHeights, myModifiedRegressionHeights, extraBorderPixels );
             LerpColsRightOntoLeft( myPureRegressionHeights, leftNeighbor.myPureRegressionHeights, leftNeighbor.myModifiedRegressionHeights, extraBorderPixels );
-            leftNeighbor.SetTerrainData();
+            leftNeighbor.SetTerrainData( true );
         }
         if( rightNeighbor )
         {
             LerpColsLeftOntoRight( myPureRegressionHeights, rightNeighbor.myPureRegressionHeights, rightNeighbor.myModifiedRegressionHeights, extraBorderPixels );
             LerpColsRightOntoLeft( rightNeighbor.myPureRegressionHeights, myPureRegressionHeights, myModifiedRegressionHeights, extraBorderPixels );
-            rightNeighbor.SetTerrainData();
+            rightNeighbor.SetTerrainData( true );
         }
         if( lowerNeighbor )
         {
             LerpRowsBottomOntoTop( lowerNeighbor.myPureRegressionHeights, myPureRegressionHeights, myModifiedRegressionHeights, extraBorderPixels );
             LerpRowsTopOntoBottom( myPureRegressionHeights, lowerNeighbor.myPureRegressionHeights, lowerNeighbor.myModifiedRegressionHeights, extraBorderPixels );
-            lowerNeighbor.SetTerrainData();
+            lowerNeighbor.SetTerrainData( true );
         }
         if( upperNeighbor )
         {
             LerpRowsBottomOntoTop( myPureRegressionHeights, upperNeighbor.myPureRegressionHeights, upperNeighbor.myModifiedRegressionHeights, extraBorderPixels );
             LerpRowsTopOntoBottom( upperNeighbor.myPureRegressionHeights, myPureRegressionHeights, myModifiedRegressionHeights, extraBorderPixels );
-            upperNeighbor.SetTerrainData();
+            upperNeighbor.SetTerrainData( true );
         }
     }
 
@@ -418,6 +451,7 @@ public class ConnectedTerrainController : MonoBehaviour
 
     private void TrainRegression()
     {
+        UnityEngine.Profiling.Profiler.BeginSample("Training regression");
         // only do this when we have examples
         if( myRegressionExamples.Count > 0 )
         {
@@ -440,6 +474,7 @@ public class ConnectedTerrainController : MonoBehaviour
             // remember
             haveTrained = true;
         }
+        UnityEngine.Profiling.Profiler.EndSample();
     }
 
 

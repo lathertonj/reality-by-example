@@ -77,23 +77,23 @@ public class ConnectedTerrainController : MonoBehaviour
 
     void Start() 
     {
-        foreach( Transform example in examplePointsContainer )
+        if( examplePointsContainer )
         {
-            // remember
-            myRegressionExamples.Add( example );
+            foreach( Transform example in examplePointsContainer )
+            {
+                // remember
+                myRegressionExamples.Add( example );
+            }
         }
-        // train and show
-        RescanProvidedExamples();
 
         // edges
-        myTerrain.SetNeighbors( 
-            leftNeighbor ? leftNeighbor.GetComponentInChildren<Terrain>() : null, 
-            upperNeighbor ? upperNeighbor.GetComponentInChildren<Terrain>() : null,
-            rightNeighbor ? rightNeighbor.GetComponentInChildren<Terrain>() : null,
-            lowerNeighbor ? lowerNeighbor.GetComponentInChildren<Terrain>() : null
-        );
-        myTerrain.Flush();
-        StitchEdges();
+        SetNeighbors( true );
+
+        if( myRegressionExamples.Count > 0 )
+        {
+            // train and show
+            RescanProvidedExamples();    
+        } 
     }
 
 
@@ -135,14 +135,15 @@ public class ConnectedTerrainController : MonoBehaviour
         }
 
         SmoothEdgeRegion();
+        SetTerrainData();
+        SetNeighbors( true );
+        StitchEdges();
     }
 
     private void SetTerrainData()
     {
         // set vertices from 0,0 corner
         myTerrain.terrainData.SetHeightsDelayLOD( 0, 0, myModifiedRegressionHeights );
-
-        StitchEdges();
         
         // NOTE: can wait to do this ONLY AFTER operation is done, so don't need to keep calling it
         // if we do a long gesture or show change over time
@@ -150,12 +151,39 @@ public class ConnectedTerrainController : MonoBehaviour
     }
 
 
+    private void SetNeighbors( bool recursive = false )
+    {
+        myTerrain.SetNeighbors( 
+            leftNeighbor ? leftNeighbor.GetComponentInChildren<Terrain>() : null, 
+            upperNeighbor ? upperNeighbor.GetComponentInChildren<Terrain>() : null,
+            rightNeighbor ? rightNeighbor.GetComponentInChildren<Terrain>() : null,
+            lowerNeighbor ? lowerNeighbor.GetComponentInChildren<Terrain>() : null
+        );
+        myTerrain.Flush();
+        if( !recursive ) { return; }
+
+        if( leftNeighbor )
+        {
+            leftNeighbor.SetNeighbors( false );
+        }
+        if( rightNeighbor )
+        {
+            rightNeighbor.SetNeighbors( false );
+        }
+        if( upperNeighbor )
+        {
+            upperNeighbor.SetNeighbors( false );
+        }
+        if( lowerNeighbor )
+        {
+            lowerNeighbor.SetNeighbors( false );
+        }
+    }
+
 
     private void SmoothEdgeRegion()
     {
-        // TODO: Lerp functions are not quite getting "all the way there" (try turning off the stitching)
-        // --> is this good enough?
-        // TODO: why do some edges not get stitched together?
+        // TODO: Lerp functions sometimes have weird artifacts at the corners
         // TODO: shadows are wrong, why?
         if( leftNeighbor )
         {
@@ -181,7 +209,6 @@ public class ConnectedTerrainController : MonoBehaviour
             LerpRowsTopOntoBottom( upperNeighbor.myPureRegressionHeights, myPureRegressionHeights, myModifiedRegressionHeights, extraBorderPixels );
             upperNeighbor.SetTerrainData();
         }
-        SetTerrainData();
     }
 
     private void LerpColsLeftOntoRight( float[,] leftCols, float[,] rightCols, float[,] output, int samplesToLerp )
@@ -248,6 +275,55 @@ public class ConnectedTerrainController : MonoBehaviour
 
     private void StitchEdges()
     {
+        // re-stitch the grid of 9 surrounding this square.
+
+        // horizontal first
+        // top row
+        if( upperNeighbor )
+        {
+            upperNeighbor.StitchEdgeLeft();
+            upperNeighbor.StitchEdgeRight();
+        }
+
+        // middle row
+        StitchEdgeLeft();
+        StitchEdgeRight();
+
+        // bottom row
+        if( lowerNeighbor )
+        {
+            lowerNeighbor.StitchEdgeLeft();
+            lowerNeighbor.StitchEdgeRight();
+        }
+
+        // vertical second
+        // top row
+        if( upperNeighbor )
+        {
+            if( upperNeighbor.leftNeighbor )
+            {
+                upperNeighbor.leftNeighbor.StitchEdgeDown();
+            }
+            upperNeighbor.StitchEdgeDown();
+            if( upperNeighbor.rightNeighbor )
+            {
+                upperNeighbor.rightNeighbor.StitchEdgeDown();
+            }
+        }
+        // middle row
+        if( leftNeighbor )
+        {
+            leftNeighbor.StitchEdgeDown();
+        }
+        StitchEdgeDown();
+        if( rightNeighbor )
+        {
+            rightNeighbor.StitchEdgeDown();
+        }
+    }
+
+    private void StitchEdgeLeft()
+    {
         if( leftNeighbor )
         {
             Stitch.TerrainStitch( 
@@ -259,6 +335,10 @@ public class ConnectedTerrainController : MonoBehaviour
                 false
             );
         }
+    }
+
+    private void StitchEdgeRight()
+    {
         if( rightNeighbor )
         {
             Stitch.TerrainStitch( 
@@ -270,6 +350,10 @@ public class ConnectedTerrainController : MonoBehaviour
                 false
             );
         }
+    }
+
+    private void StitchEdgeUp()
+    {
         if( upperNeighbor )
         {
             Stitch.TerrainStitch( 
@@ -281,6 +365,10 @@ public class ConnectedTerrainController : MonoBehaviour
                 false
             );
         }
+    }
+
+    private void StitchEdgeDown()
+    {
         if( lowerNeighbor )
         {
             Stitch.TerrainStitch( 

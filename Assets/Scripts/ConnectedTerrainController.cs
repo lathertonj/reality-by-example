@@ -93,6 +93,7 @@ public class ConnectedTerrainController : MonoBehaviour
             lowerNeighbor ? lowerNeighbor.GetComponentInChildren<Terrain>() : null
         );
         myTerrain.Flush();
+        StitchEdges();
     }
 
 
@@ -141,7 +142,7 @@ public class ConnectedTerrainController : MonoBehaviour
         // set vertices from 0,0 corner
         myTerrain.terrainData.SetHeightsDelayLOD( 0, 0, myModifiedRegressionHeights );
 
-        //StitchEdges();
+        StitchEdges();
         
         // NOTE: can wait to do this ONLY AFTER operation is done, so don't need to keep calling it
         // if we do a long gesture or show change over time
@@ -152,6 +153,10 @@ public class ConnectedTerrainController : MonoBehaviour
 
     private void SmoothEdgeRegion()
     {
+        // TODO: Lerp functions are not quite getting "all the way there" (try turning off the stitching)
+        // --> is this good enough?
+        // TODO: why do some edges not get stitched together?
+        // TODO: shadows are wrong, why?
         if( leftNeighbor )
         {
             LerpColsLeftOntoRight( leftNeighbor.myPureRegressionHeights, myPureRegressionHeights, myModifiedRegressionHeights, extraBorderPixels );
@@ -186,8 +191,8 @@ public class ConnectedTerrainController : MonoBehaviour
             for( int x = 0; x < samplesToLerp; x++ )
             {
                 output[ y, x ] = Mathf.Lerp( 
-                    leftCols[ y, samplesToLerp + verticesPerSide + x ],
-                    rightCols[ y, samplesToLerp + x ],
+                    leftCols[ samplesToLerp + y, samplesToLerp + verticesPerSide + x ],
+                    rightCols[ samplesToLerp + y, samplesToLerp + x ],
                     0.5f + 0.5f * x / samplesToLerp
                 );
             }
@@ -201,8 +206,8 @@ public class ConnectedTerrainController : MonoBehaviour
             for( int x = 0; x < samplesToLerp; x++ )
             {
                 output[ y, verticesPerSide - x - 1 ] = Mathf.Lerp( 
-                    rightCols[ y, samplesToLerp - 1 - x ],
-                    leftCols[ y, samplesToLerp + verticesPerSide - 1 - x ],
+                    rightCols[ samplesToLerp + y, samplesToLerp - 1 - x ],
+                    leftCols[ samplesToLerp + y, samplesToLerp + verticesPerSide - 1 - x ],
                     0.5f + 0.5f * x / samplesToLerp
                 );
             }
@@ -216,8 +221,8 @@ public class ConnectedTerrainController : MonoBehaviour
             for( int y = 0; y < samplesToLerp; y++ )
             {
                 output[ y, x ] = Mathf.Lerp( 
-                    bottomRows[ samplesToLerp + verticesPerSide + y, x ],
-                    topRows[ samplesToLerp + y, x ],
+                    bottomRows[ samplesToLerp + verticesPerSide + y, samplesToLerp + x ],
+                    topRows[ samplesToLerp + y, samplesToLerp + x ],
                     0.5f + 0.5f * y / samplesToLerp
                 );
             }
@@ -230,9 +235,9 @@ public class ConnectedTerrainController : MonoBehaviour
         {
             for( int y = 0; y < samplesToLerp; y++ )
             {
-                output[ y, verticesPerSide - x - 1 ] = Mathf.Lerp( 
-                    topRows[ samplesToLerp - 1 - y, x ],
-                    bottomRows[ samplesToLerp + verticesPerSide - 1 - y, x ],
+                output[ verticesPerSide - 1 - y, 1 ] = Mathf.Lerp( 
+                    topRows[ samplesToLerp - 1 - y, samplesToLerp + x ],
+                    bottomRows[ samplesToLerp + verticesPerSide - 1 - y, samplesToLerp + x ],
                     0.5f + 0.5f * y / samplesToLerp
                 );
             }

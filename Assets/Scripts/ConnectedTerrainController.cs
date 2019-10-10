@@ -183,7 +183,6 @@ public class ConnectedTerrainController : MonoBehaviour
 
     private void SmoothEdgeRegion()
     {
-        // TODO: Lerp functions sometimes have weird artifacts at the corners
         // TODO: shadows are wrong, why?
         if( leftNeighbor )
         {
@@ -232,7 +231,7 @@ public class ConnectedTerrainController : MonoBehaviour
         {
             for( int x = 0; x < samplesToLerp; x++ )
             {
-                output[ y, verticesPerSide - x - 1 ] = Mathf.Lerp( 
+                output[ y, verticesPerSide - 1 - x ] = Mathf.Lerp( 
                     rightCols[ samplesToLerp + y, samplesToLerp - 1 - x ],
                     leftCols[ samplesToLerp + y, samplesToLerp + verticesPerSide - 1 - x ],
                     0.5f + 0.5f * x / samplesToLerp
@@ -262,7 +261,7 @@ public class ConnectedTerrainController : MonoBehaviour
         {
             for( int y = 0; y < samplesToLerp; y++ )
             {
-                output[ verticesPerSide - 1 - y, 1 ] = Mathf.Lerp( 
+                output[ verticesPerSide - 1 - y, x ] = Mathf.Lerp( 
                     topRows[ samplesToLerp - 1 - y, samplesToLerp + x ],
                     bottomRows[ samplesToLerp + verticesPerSide - 1 - y, samplesToLerp + x ],
                     0.5f + 0.5f * y / samplesToLerp

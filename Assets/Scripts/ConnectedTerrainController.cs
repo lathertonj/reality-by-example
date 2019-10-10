@@ -96,11 +96,11 @@ public class ConnectedTerrainController : MonoBehaviour
             Mathf.Sin( 0.1f * x * z), Mathf.Sin( 0.3f * x * z ), Mathf.Sin( 0.5f * x * z ), Mathf.Sin( 0.7f * x * z ),
             // Mathf.Sin( 2 * x * z ), Mathf.Sin( 5 * x * z ), Mathf.Sin( 8 * x * z ),
             */
-            WeirdSineFeature( x, 0.1f, 0.3f, 0.7f ), WeirdSineFeature( x, 0.5f, 0.6f, 2f ), WeirdSineFeature( x, 0.1f, 0.2f, 0.3f ),
-            WeirdSineFeature( z, 0.1f, 0.3f, 0.7f ), WeirdSineFeature( z, 0.5f, 0.6f, 2f ), WeirdSineFeature( z, 0.1f, 0.2f, 0.3f ),
-            WeirdSineFeature( x+z, 0.1f, 0.3f, 0.7f ), WeirdSineFeature( x+z, 0.5f, 0.6f, 2f ), WeirdSineFeature( x+z, 0.1f, 0.2f, 0.3f ),
-            WeirdSineFeature( x-z, 0.1f, 0.3f, 0.7f ), WeirdSineFeature( x-z, 0.5f, 0.6f, 2f ), WeirdSineFeature( x-z, 0.1f, 0.2f, 0.3f ),
-            WeirdSineFeature( x*z, 0.1f, 0.3f, 0.7f ), WeirdSineFeature( x*z, 0.5f, 0.6f, 2f ), WeirdSineFeature( x*z, 0.1f, 0.2f, 0.3f ),
+            x + 10* WeirdSineFeature( x, 0.1f, 0.3f, 0.7f ), x - 70 * WeirdSineFeature( x, 0.5f, 0.6f, 2f ), - x + 39 * WeirdSineFeature( x, 0.1f, 0.2f, 0.3f ),
+            z - 10 * WeirdSineFeature( z, 0.1f, 0.3f, 0.7f ), -z + 70 * WeirdSineFeature( z, 0.5f, 0.6f, 2f ), - z - 39 * WeirdSineFeature( z, 0.1f, 0.2f, 0.3f ),
+            x + z - 40 * WeirdSineFeature( x+z, 0.1f, 0.3f, 0.7f ), x - z + 35 * WeirdSineFeature( x+z, 0.5f, 0.6f, 2f ), z - x + 60 * WeirdSineFeature( x+z, 0.1f, 0.2f, 0.3f ),
+            // WeirdSineFeature( x-z, 0.1f, 0.3f, 0.7f ), WeirdSineFeature( x-z, 0.5f, 0.6f, 2f ), WeirdSineFeature( x-z, 0.1f, 0.2f, 0.3f ),
+            // WeirdSineFeature( x*z, 0.1f, 0.3f, 0.7f ), WeirdSineFeature( x*z, 0.5f, 0.6f, 2f ), WeirdSineFeature( x*z, 0.1f, 0.2f, 0.3f ),
         };
         // return new double[] { x, z, x*x, z*z, x*z };
     }

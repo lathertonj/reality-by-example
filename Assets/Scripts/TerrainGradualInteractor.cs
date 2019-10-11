@@ -9,6 +9,8 @@ public class TerrainGradualInteractor : MonoBehaviour
     public SteamVR_Action_Boolean triggerPress;
     private SteamVR_Behaviour_Pose controllerPose;
 
+    private ExampleInteractor terrainExampleDetector;
+
 
     public TerrainHeightExample examplePrefab;
     private TerrainHeightExample currentlyPlacingExample;
@@ -19,6 +21,7 @@ public class TerrainGradualInteractor : MonoBehaviour
     void Start()
     {
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
+        terrainExampleDetector = GetComponent<ExampleInteractor>();
     }
 
     // TODO: more complex interactions such as
@@ -27,11 +30,24 @@ public class TerrainGradualInteractor : MonoBehaviour
     {
         if( triggerPress.GetStateDown( handType ) )
         {
-            // find a terrrain below or above us, and place an example there if we can
-            ConnectedTerrainController currentTerrain = FindTerrainAndPlaceExample();
+            // are we currently intersecting with an example?
+            GameObject maybeTerrainExample = terrainExampleDetector.GetCollidingObject();
+            if( maybeTerrainExample != null )
+            {
+                TerrainHeightExample heightExample = maybeTerrainExample.GetComponentInParent<TerrainHeightExample>();
+                // remove it
+                heightExample.myTerrain.ForgetExample( heightExample );
+                Destroy( maybeTerrainExample );
+            }
+            else
+            {
+                // place a new example
+                // find a terrrain below or above us, and place an example there if we can
+                ConnectedTerrainController currentTerrain = FindTerrainAndPlaceExample();
 
-            // start recomputing the terrain
-            StartCoroutine( LazilyRecomputeTerrain() );
+                // start recomputing the terrain
+                StartCoroutine( LazilyRecomputeTerrain() );
+            }
         }
         else if( currentlyPlacingExample != null && triggerPress.GetState( handType ) )
         {
@@ -78,7 +94,7 @@ public class TerrainGradualInteractor : MonoBehaviour
             {
                 currentlyPlacingExample = Instantiate( examplePrefab, hit.point, Quaternion.identity );
                 currentlyPlacingExample.myTerrain = foundTerrain;
-                foundTerrain.ProvideExample( currentlyPlacingExample.transform );
+                foundTerrain.ProvideExample( currentlyPlacingExample );
                 return foundTerrain;
             }
         }

@@ -32,7 +32,7 @@ public class TerrainInteractor : MonoBehaviour
             {
                 TerrainHeightExample newExample = Instantiate( examplePrefab, controllerPose.transform.position, Quaternion.identity );
                 newExample.myTerrain = currentTerrain;
-                currentTerrain.ProvideExample( newExample.transform );
+                currentTerrain.ProvideExample( newExample );
             }
         }
     }

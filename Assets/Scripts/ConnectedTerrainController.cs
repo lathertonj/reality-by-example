@@ -38,16 +38,26 @@ public class ConnectedTerrainController : MonoBehaviour
 
     // regression
     private RapidMixRegression myRegression;
-    private List<Transform> myRegressionExamples;
+    private List<TerrainHeightExample> myRegressionExamples;
     private bool haveTrained = false;
 
-    public void ProvideExample( Transform example )
+    public void ProvideExample( TerrainHeightExample example )
     {
         // remember
         myRegressionExamples.Add( example );
 
         // recompute
         RescanProvidedExamples();
+    }
+
+    public void ForgetExample( TerrainHeightExample example )
+    {
+        // forget
+        if( myRegressionExamples.Remove( example ) )
+        {
+            // recompute
+            RescanProvidedExamples();
+        }
     }
 
     public void RescanProvidedExamples( bool lazy = false )
@@ -67,7 +77,7 @@ public class ConnectedTerrainController : MonoBehaviour
         myTerrain = GetComponentInChildren<Terrain>();
 
         // initialize list
-        myRegressionExamples = new List<Transform>();
+        myRegressionExamples = new List<TerrainHeightExample>();
 
         // compute sizes
         verticesPerSide = myTerrain.terrainData.heightmapWidth;
@@ -118,7 +128,8 @@ public class ConnectedTerrainController : MonoBehaviour
             foreach( Transform example in examplePointsContainer )
             {
                 // remember
-                myRegressionExamples.Add( example );
+                TerrainHeightExample e = example.GetComponent<TerrainHeightExample>();
+                if( e ) { myRegressionExamples.Add( e ); }
             }
         }
 
@@ -482,10 +493,10 @@ public class ConnectedTerrainController : MonoBehaviour
             myRegression.ResetRegression();
 
             // rerecord all points
-            foreach( Transform example in myRegressionExamples )
+            foreach( TerrainHeightExample example in myRegressionExamples )
             {
                 // world to local point
-                Vector3 point = transform.InverseTransformPoint( example.position );
+                Vector3 point = transform.InverseTransformPoint( example.transform.position );
 
                 // remember
                 myRegression.RecordDataPoint( InputVector( point.x, point.z ), new double[] { point.y } );

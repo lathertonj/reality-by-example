@@ -23,6 +23,11 @@ public class ExampleInteractor : MonoBehaviour
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
     }
 
+    public GameObject GetCollidingObject()
+    {
+        return collidingObject;
+    }
+
     private void SetCollidingObject( Collider col )
     {
         if( collidingObject || !col.gameObject.CompareTag( "TerrainExample" ) )

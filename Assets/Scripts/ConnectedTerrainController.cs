@@ -168,11 +168,22 @@ public class ConnectedTerrainController : MonoBehaviour
                 float landHeightHere = (float) myRegression.Run( InputVector( worldCoords.x, worldCoords.z ) )[0];
                 myPureRegressionHeights[ y, x ] = landHeightHere / terrainHeight;
 
+                if( x >= extraBorderPixels && x < verticesPerSide + extraBorderPixels &&
+                    y >= extraBorderPixels && y < verticesPerSide + extraBorderPixels )
+                {
+                    myModifiedRegressionHeights[ y - extraBorderPixels, x - extraBorderPixels ] = myPureRegressionHeights[ y, x ];
+                }
+
                 // Added for coroutine
                 runsSoFar++;
                 if( runsSoFar == runsPerFrame )
                 {
                     runsSoFar = 0;
+
+                    // lazy terrain set
+                    SetTerrainData( false );
+                    ReducedStitchEdges();
+
                     yield return null;
                 }
                 // End added for coroutine
@@ -180,16 +191,16 @@ public class ConnectedTerrainController : MonoBehaviour
         }
         // UnityEngine.Profiling.Profiler.EndSample();
 
-        UnityEngine.Profiling.Profiler.BeginSample("Copying regression");
-        // it is [y,x]
-        for( int y = 0; y < verticesPerSide; y++ )
-        {
-            for( int x = 0; x < verticesPerSide; x++ )
-            {
-                myModifiedRegressionHeights[ y, x ] = myPureRegressionHeights[ y + extraBorderPixels, x + extraBorderPixels ];
-            }
-        }
-        UnityEngine.Profiling.Profiler.EndSample();
+        // UnityEngine.Profiling.Profiler.BeginSample("Copying regression");
+        // // it is [y,x]
+        // for( int y = 0; y < verticesPerSide; y++ )
+        // {
+        //     for( int x = 0; x < verticesPerSide; x++ )
+        //     {
+        //         myModifiedRegressionHeights[ y, x ] = myPureRegressionHeights[ y + extraBorderPixels, x + extraBorderPixels ];
+        //     }
+        // }
+        // UnityEngine.Profiling.Profiler.EndSample();
 
 
         if( !lazy )
@@ -203,7 +214,9 @@ public class ConnectedTerrainController : MonoBehaviour
         {
             // TODO: could maybe still restitch neighbors...
             UnityEngine.Profiling.Profiler.BeginSample("Lazy terrain set");
+            SmoothEdgeRegion();
             SetTerrainData( false );
+            StitchEdges();
             UnityEngine.Profiling.Profiler.EndSample();
         }
     }
@@ -336,6 +349,16 @@ public class ConnectedTerrainController : MonoBehaviour
                 );
             }
         }
+    }
+
+
+    private void ReducedStitchEdges()
+    {
+        // for temporary times
+        StitchEdgeLeft();
+        StitchEdgeRight();
+        StitchEdgeUp();
+        StitchEdgeDown();
     }
 
     

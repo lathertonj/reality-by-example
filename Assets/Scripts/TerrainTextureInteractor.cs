@@ -11,11 +11,13 @@ public class TerrainTextureInteractor : MonoBehaviour
 
 
     public TerrainTextureExample examplePrefab;
+    private TextureExampleInteractor exampleDetector;
 
 
     void Start()
     {
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
+        exampleDetector = GetComponent<TextureExampleInteractor>();
     }
 
     // TODO: more complex interactions such as
@@ -24,13 +26,27 @@ public class TerrainTextureInteractor : MonoBehaviour
     {
         if( triggerPress.GetStateDown( handType ) )
         {
-            ConnectedTerrainTextureController possibleTerrain = FindTerrain();
-            if( possibleTerrain )
+            // check whether we're intersecting with an example
+            GameObject maybeTextureExample = exampleDetector.GetCollidingObject();
+            TerrainTextureExample textureExample = maybeTextureExample ? maybeTextureExample.GetComponentInParent<TerrainTextureExample>() : null;
+            if( textureExample )
             {
-                TerrainTextureExample newExample = Instantiate( examplePrefab, controllerPose.transform.position, Quaternion.identity );
-                newExample.myTerrain = possibleTerrain;
-                possibleTerrain.ProvideExample( newExample );
+                // delete the texture example
+                textureExample.myTerrain.ForgetExample( textureExample );
+                Destroy( maybeTextureExample );
             }
+            else
+            {
+                // make a new texture example
+                ConnectedTerrainTextureController possibleTerrain = FindTerrain();
+                if( possibleTerrain )
+                {
+                    TerrainTextureExample newExample = Instantiate( examplePrefab, controllerPose.transform.position, Quaternion.identity );
+                    newExample.myTerrain = possibleTerrain;
+                    possibleTerrain.ProvideExample( newExample );
+                }
+            }
+
         }
     }
 

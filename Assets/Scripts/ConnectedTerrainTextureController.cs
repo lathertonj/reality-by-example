@@ -98,6 +98,16 @@ public class ConnectedTerrainTextureController : MonoBehaviour
         }
     }
 
+    public void ForgetExample( TerrainTextureExample example )
+    {
+        // forget
+        if( myRegressionExamples.Remove( example ) )
+        {
+            // recompute
+            RescanProvidedExamples();
+        }
+    }
+
     public void RescanProvidedExamples()
     {
         // train and recompute

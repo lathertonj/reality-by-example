@@ -35,6 +35,11 @@ public class TextureExampleInteractor : MonoBehaviour
         collidingObject = col.gameObject;
     }
 
+    public GameObject GetCollidingObject()
+    {
+        return collidingObject;
+    }
+
     public void OnTriggerEnter( Collider other )
     {
         SetCollidingObject( other );

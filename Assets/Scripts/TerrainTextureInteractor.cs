@@ -9,7 +9,6 @@ public class TerrainTextureInteractor : MonoBehaviour
     public SteamVR_Action_Boolean triggerPress;
     private SteamVR_Behaviour_Pose controllerPose;
 
-    public TerrainTextureController theTerrain;
 
     public TerrainTextureExample examplePrefab;
 
@@ -25,8 +24,27 @@ public class TerrainTextureInteractor : MonoBehaviour
     {
         if( triggerPress.GetStateDown( handType ) )
         {
-            TerrainTextureExample newExample = Instantiate( examplePrefab, controllerPose.transform.position, Quaternion.identity );
-            theTerrain.ProvideExample( newExample );
+            ConnectedTerrainTextureController possibleTerrain = FindTerrain();
+            if( possibleTerrain )
+            {
+                TerrainTextureExample newExample = Instantiate( examplePrefab, controllerPose.transform.position, Quaternion.identity );
+                newExample.myTerrain = possibleTerrain;
+                possibleTerrain.ProvideExample( newExample );
+            }
         }
+    }
+
+    ConnectedTerrainTextureController FindTerrain()
+    {
+        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
+        int layerMask = 1 << 8;
+
+        RaycastHit hit;
+        // Check from a point really high above us, in the downward direction (in case we are below terrain)
+        if( Physics.Raycast( transform.position + 400 * Vector3.up, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
+        {
+            return hit.transform.GetComponentInParent<ConnectedTerrainTextureController>();
+        }
+        return null;
     }
 }

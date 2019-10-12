@@ -12,6 +12,7 @@ public class TerrainTextureExample : MonoBehaviour
     private MeshRenderer myRenderer;
 
     [HideInInspector] public SerializableTerrainTextureExample serializableObject;
+    [HideInInspector] public ConnectedTerrainTextureController myTerrain;
 
     void Awake()
     {

@@ -22,6 +22,7 @@ public class ConnectedTerrainController : MonoBehaviour
 
 
     private Terrain myTerrain;
+    private ConnectedTerrainTextureController myTextureController;
 
     public Transform examplePointsContainer;
     public ConnectedTerrainController leftNeighbor, rightNeighbor, upperNeighbor, lowerNeighbor;
@@ -66,6 +67,12 @@ public class ConnectedTerrainController : MonoBehaviour
         TrainRegression();
         int framesToSpreadOver = 15;
         StartCoroutine( ComputeLandHeight( lazy, framesToSpreadOver ) );
+
+        // on a final pass, rescan the textures when the height is re-finalized
+        if( !lazy )
+        {
+            myTextureController.RescanProvidedExamples();
+        }
     }
 
 
@@ -73,8 +80,9 @@ public class ConnectedTerrainController : MonoBehaviour
     void Awake()
     {
         // grab component reference
-        myRegression = GetComponent<RapidMixRegression>();
+        myRegression = gameObject.AddComponent<RapidMixRegression>();
         myTerrain = GetComponentInChildren<Terrain>();
+        myTextureController = GetComponent<ConnectedTerrainTextureController>();
 
         // initialize list
         myRegressionExamples = new List<TerrainHeightExample>();

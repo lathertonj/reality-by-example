@@ -18,7 +18,6 @@ public class TextureExampleInteractor : MonoBehaviour
     private GameObject objectInHand;
     private Transform objectInHandOriginalParent = null;
 
-    public TerrainTextureController theTerrain;
 
     // Start is called before the first frame update
     void Start()
@@ -65,7 +64,7 @@ public class TextureExampleInteractor : MonoBehaviour
                 example.SwitchToPreviousMaterial();
 
                 // recalculate everything
-                theTerrain.RescanProvidedExamples();
+                example.myTerrain.RescanProvidedExamples();
 
                 return true;
             }
@@ -84,7 +83,7 @@ public class TextureExampleInteractor : MonoBehaviour
                 example.SwitchToNextMaterial();
 
                 // recalculate everything
-                theTerrain.RescanProvidedExamples();
+                example.myTerrain.RescanProvidedExamples();
 
                 return true;
             }
@@ -101,6 +100,10 @@ public class TextureExampleInteractor : MonoBehaviour
             {
                 // update position
                 example.UpdatePosition();
+
+                // tell the terrain to recompute
+                example.myTerrain.RescanProvidedExamples();
+                
                 return true;
             }
         }
@@ -148,9 +151,6 @@ public class TextureExampleInteractor : MonoBehaviour
             objectInHand.transform.parent = objectInHandOriginalParent;
             objectInHandOriginalParent = null;
             objectInHand = null;
-
-            // tell the terrain to recompute
-            theTerrain.RescanProvidedExamples();
         }
     }
 

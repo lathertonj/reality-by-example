@@ -17,13 +17,16 @@ public class TerrainTextureController : MonoBehaviour
     public string loadExamplesFilename;
 
     // Start is called before the first frame update
+    void Awake()
+    {
+        myTerrain = GetComponentInChildren<Terrain>();
+        myTerrainData = myTerrain.terrainData;
+        myRegression = gameObject.AddComponent<RapidMixRegression>();
+        myRegressionExamples = new List<TerrainTextureExample>();
+    }
+    
     void Start()
     {
-        myTerrain = GetComponent<Terrain>();
-        myTerrainData = myTerrain.terrainData;
-        myRegression = GetComponent<RapidMixRegression>();
-        myRegressionExamples = new List<TerrainTextureExample>();
-
         if( loadExamples )
         {
             LoadExamplesFromFile();

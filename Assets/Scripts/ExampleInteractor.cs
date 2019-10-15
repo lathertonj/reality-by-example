@@ -73,18 +73,29 @@ public class ExampleInteractor : MonoBehaviour
         if( objectInHand != null )
         {
             // save reference to terrain
-            ConnectedTerrainController theTerrain = objectInHand.GetComponent<TerrainHeightExample>().myTerrain;
+            TerrainHeightExample theExample = objectInHand.GetComponent<TerrainHeightExample>();
+            ConnectedTerrainController oldTerrain = theExample.myTerrain;
+
+            // determine whether we are over a new terrain
+            ConnectedTerrainController newTerrain = FindTerrain();
 
             // let go of object
             objectInHand.transform.parent = objectInHandOriginalParent;
             objectInHandOriginalParent = null;
             objectInHand = null;
 
-            // tell the terrain to recompute
-            theTerrain.RescanProvidedExamples();
-
-            // TODO: if we move far away enough from old terrain, then remove it from that terrain,
-            // rescan that terrain, find new terrain, and add it to that terrain, and rescan that terrain.
+            // switching terrains?
+            if( newTerrain != oldTerrain )
+            {
+                theExample.myTerrain = newTerrain;
+                oldTerrain.ForgetExample( theExample );
+                newTerrain.ProvideExample( theExample );
+            }
+            else
+            {
+                // tell the terrain to recompute
+                newTerrain.RescanProvidedExamples();
+            }
         }
     }
 
@@ -99,5 +110,23 @@ public class ExampleInteractor : MonoBehaviour
         {
             ReleaseObject();
         }
+    }
+
+    ConnectedTerrainController FindTerrain()
+    {
+        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
+        int layerMask = 1 << 8;
+
+        RaycastHit hit;
+        // Check from a point really high above us, in the downward direction (in case we are below terrain)
+        if( Physics.Raycast( transform.position + 400 * Vector3.up, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
+        {
+            ConnectedTerrainController foundTerrain = hit.transform.GetComponentInParent<ConnectedTerrainController>();
+            if( foundTerrain != null )
+            {
+                return foundTerrain;
+            }
+        }
+        return null;
     }
 }

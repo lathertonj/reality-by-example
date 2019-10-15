@@ -50,7 +50,7 @@ public class TerrainTextureInteractor : MonoBehaviour
         }
     }
 
-    ConnectedTerrainTextureController FindTerrain()
+    public ConnectedTerrainTextureController FindTerrain()
     {
         // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
         int layerMask = 1 << 8;

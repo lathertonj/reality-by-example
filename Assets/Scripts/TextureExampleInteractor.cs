@@ -18,11 +18,14 @@ public class TextureExampleInteractor : MonoBehaviour
     private GameObject objectInHand;
     private Transform objectInHandOriginalParent = null;
 
+    private TerrainTextureInteractor myTextureInteractor;
+
 
     // Start is called before the first frame update
     void Start()
     {
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
+        myTextureInteractor = GetComponent<TerrainTextureInteractor>();
     }
 
     private void SetCollidingObject( Collider col )
@@ -106,8 +109,21 @@ public class TextureExampleInteractor : MonoBehaviour
                 // update position
                 example.UpdatePosition();
 
-                // tell the terrain to recompute
-                example.myTerrain.RescanProvidedExamples();
+                ConnectedTerrainTextureController newTerrain = myTextureInteractor.FindTerrain();
+                ConnectedTerrainTextureController oldTerrain = example.myTerrain;
+
+                // should we update which terrain this belongs to?
+                if( newTerrain != oldTerrain )
+                {
+                    example.myTerrain = newTerrain;
+                    oldTerrain.ForgetExample( example );
+                    newTerrain.ProvideExample( example );
+                }
+                else
+                {
+                    // tell the terrain to recompute
+                    example.myTerrain.RescanProvidedExamples();
+                }
                 
                 return true;
             }

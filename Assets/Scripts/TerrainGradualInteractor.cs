@@ -9,7 +9,7 @@ public class TerrainGradualInteractor : MonoBehaviour
     public SteamVR_Action_Boolean triggerPress;
     private SteamVR_Behaviour_Pose controllerPose;
 
-    private ExampleInteractor terrainExampleDetector;
+    private HeightExampleInteractor terrainExampleDetector;
 
 
     public TerrainHeightExample examplePrefab;
@@ -21,11 +21,9 @@ public class TerrainGradualInteractor : MonoBehaviour
     void Start()
     {
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
-        terrainExampleDetector = GetComponent<ExampleInteractor>();
+        terrainExampleDetector = GetComponent<HeightExampleInteractor>();
     }
 
-    // TODO: more complex interactions such as
-    // - ability to delete the terrain examples
     void Update()
     {
         if( triggerPress.GetStateDown( handType ) )

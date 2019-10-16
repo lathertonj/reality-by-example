@@ -5,7 +5,7 @@ using Valve.VR;
 
 
 
-public class ExampleInteractor : MonoBehaviour
+public class HeightExampleInteractor : MonoBehaviour
 {
 
     public SteamVR_Input_Sources handType;

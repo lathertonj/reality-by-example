@@ -12,27 +12,41 @@ public class TerrainInteractor : MonoBehaviour
 
     public TerrainHeightExample examplePrefab;
 
+    private HeightExampleInteractor terrainExampleDetector;
+
+
 
     void Start()
     {
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
+        terrainExampleDetector = GetComponent<HeightExampleInteractor>();
     }
 
-    // TODO: more complex interactions such as
-    // - ability to delete the terrain examples
     void Update()
     {
         if( triggerPress.GetStateDown( handType ) )
         {
-            // find a terrrain below or above us
-            ConnectedTerrainController currentTerrain = FindTerrain();
-
-            // if we found one, make an example and give it
-            if( currentTerrain != null )
+            // are we currently intersecting with an example?
+            GameObject maybeTerrainExample = terrainExampleDetector.GetCollidingObject();
+            if( maybeTerrainExample != null )
             {
-                TerrainHeightExample newExample = Instantiate( examplePrefab, controllerPose.transform.position, Quaternion.identity );
-                newExample.myTerrain = currentTerrain;
-                currentTerrain.ProvideExample( newExample );
+                TerrainHeightExample heightExample = maybeTerrainExample.GetComponentInParent<TerrainHeightExample>();
+                // remove it
+                heightExample.myTerrain.ForgetExample( heightExample );
+                Destroy( maybeTerrainExample );
+            }
+            else
+            {
+                // find a terrrain below or above us
+                ConnectedTerrainController currentTerrain = FindTerrain();
+
+                // if we found one, make an example and give it
+                if( currentTerrain != null )
+                {
+                    TerrainHeightExample newExample = Instantiate( examplePrefab, controllerPose.transform.position, Quaternion.identity );
+                    newExample.myTerrain = currentTerrain;
+                    currentTerrain.ProvideExample( newExample );
+                }
             }
         }
     }

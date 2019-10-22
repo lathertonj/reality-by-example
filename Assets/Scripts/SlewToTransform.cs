@@ -7,6 +7,8 @@ public class SlewToTransform : MonoBehaviour
     public Transform objectToTrack;
     public float slewSeconds = 1f;
 
+    public bool slewYRotation = true;
+
     void Start()
     {
         
@@ -15,6 +17,7 @@ public class SlewToTransform : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position += slewSeconds * Time.deltaTime * ( objectToTrack.position - transform.position );   
+        transform.position += slewSeconds * Time.deltaTime * ( objectToTrack.position - transform.position );
+        transform.Rotate( Vector3.up, Time.deltaTime * slewSeconds * ( objectToTrack.eulerAngles.y - transform.eulerAngles.y ) );  
     }
 }

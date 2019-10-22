@@ -51,6 +51,9 @@ public class TerrainLocalRaiseLowerInteractor : MonoBehaviour
 
                 // remember
                 lastHandPos = transform.position;
+
+                // since this is a placement-over-time technique, disable the mode switcher
+                DisableModeSwitcher.SetEnabled( false );
             }
         }
         else if( currentlyPlacingExample != null && triggerPress.GetState( handType ) )
@@ -80,6 +83,9 @@ public class TerrainLocalRaiseLowerInteractor : MonoBehaviour
             currentlyPlacingExample = null;
 
         }
+
+        // reenable the mode switcher
+        DisableModeSwitcher.SetEnabled( true );
     }
 
     private IEnumerator LazilyRecomputeTerrain()

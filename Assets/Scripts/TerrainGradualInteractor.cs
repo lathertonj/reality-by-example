@@ -45,6 +45,9 @@ public class TerrainGradualInteractor : MonoBehaviour
 
                 // start recomputing the terrain
                 StartCoroutine( LazilyRecomputeTerrain() );
+
+                // since this is a placement-over-time technique, disable the mode switcher
+                DisableModeSwitcher.SetEnabled( false );
             }
         }
         else if( currentlyPlacingExample != null && triggerPress.GetState( handType ) )
@@ -70,6 +73,9 @@ public class TerrainGradualInteractor : MonoBehaviour
             // stop moving currentlyPlacingExample
             currentlyPlacingExample = null;
         }
+
+        // reenable the mode switcher
+        DisableModeSwitcher.SetEnabled( true );
     }
 
     private IEnumerator LazilyRecomputeTerrain()

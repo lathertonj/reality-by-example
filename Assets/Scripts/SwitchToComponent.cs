@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class SwitchToComponent : MonoBehaviour
 {
-    public enum InteractionType { PlaceTerrainImmediate, PlaceTerrainGrowth, PlaceTexture, PlaceTerrainLocalRaiseLower };
+    public enum InteractionType { PlaceTerrainImmediate, PlaceTerrainGrowth, PlaceTexture, 
+        PlaceTerrainLocalRaiseLower, PlaceTerrainLaserPointerRaiseLower, MoveTeleport, MoveFly };
     public InteractionType switchTo;
 
     private IEnumerator previousAnimation = null;
@@ -27,6 +28,11 @@ public class SwitchToComponent : MonoBehaviour
                     break;
                 case InteractionType.PlaceTerrainLocalRaiseLower:
                     maybeController.GetComponent<TerrainLocalRaiseLowerInteractor>().enabled = true;
+                    maybeController.GetComponent<HeightExampleInteractor>().enabled = true;
+                    break;
+                case InteractionType.PlaceTerrainLaserPointerRaiseLower:
+                    maybeController.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = true;
+                    maybeController.GetComponent<LaserPointerColliderSelector>().enabled = true;
                     maybeController.GetComponent<HeightExampleInteractor>().enabled = true;
                     break;
                 case InteractionType.PlaceTexture:
@@ -79,9 +85,15 @@ public class SwitchToComponent : MonoBehaviour
         o.GetComponent<HeightExampleInteractor>().enabled = false;
         o.GetComponent<TerrainTextureInteractor>().enabled = false;
         o.GetComponent<TextureExampleInteractor>().enabled = false;
-        // TODO: this on other component types
+
+        // TODO: this on other component types above
         o.GetComponent<TerrainLocalRaiseLowerInteractor>().Abort();
         o.GetComponent<TerrainLocalRaiseLowerInteractor>().enabled = false;
+
+        o.GetComponent<LaserPointerColliderSelector>().enabled = false;
+
+        o.GetComponent<TerrainLaserRaiseLowerInteractor>().Abort();
+        o.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = false;
     }
 
 

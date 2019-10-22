@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SwitchToComponent : MonoBehaviour
 {
-    public enum InteractionType { PlaceTerrainImmediate, PlaceTerrainGrowth, PlaceTexture };
+    public enum InteractionType { PlaceTerrainImmediate, PlaceTerrainGrowth, PlaceTexture, PlaceTerrainLocalRaiseLower };
     public InteractionType switchTo;
 
     private void OnTriggerEnter( Collider other )
@@ -21,6 +21,10 @@ public class SwitchToComponent : MonoBehaviour
                     break;
                 case InteractionType.PlaceTerrainGrowth:
                     maybeController.GetComponent<TerrainGradualInteractor>().enabled = true;
+                    maybeController.GetComponent<HeightExampleInteractor>().enabled = true;
+                    break;
+                case InteractionType.PlaceTerrainLocalRaiseLower:
+                    maybeController.GetComponent<TerrainLocalRaiseLowerInteractor>().enabled = true;
                     maybeController.GetComponent<HeightExampleInteractor>().enabled = true;
                     break;
                 case InteractionType.PlaceTexture:
@@ -40,11 +44,12 @@ public class SwitchToComponent : MonoBehaviour
         o.GetComponent<HeightExampleInteractor>().enabled = false;
         o.GetComponent<TerrainTextureInteractor>().enabled = false;
         o.GetComponent<TextureExampleInteractor>().enabled = false;
+        // TODO: this on other component types
+        o.GetComponent<TerrainLocalRaiseLowerInteractor>().Abort();
+        o.GetComponent<TerrainLocalRaiseLowerInteractor>().enabled = false;
     }
 
-    // stayCount allows the OnTriggerStay to be displayed less often
-    // than it actually occurs.
-    private float stayCount = 0.0f;
+
     private void OnTriggerStay( Collider other )
     {
 

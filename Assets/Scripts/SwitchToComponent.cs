@@ -15,7 +15,7 @@ public class SwitchToComponent : MonoBehaviour
         FlyingTeleporter maybeController = other.GetComponent<FlyingTeleporter>();
         if( maybeController )
         {
-            DisableAllInteractors( maybeController.gameObject );
+            DisablePlacementInteractors( maybeController.gameObject );
             switch( switchTo )
             {
                 case InteractionType.PlaceTerrainImmediate:
@@ -31,6 +31,10 @@ public class SwitchToComponent : MonoBehaviour
                     maybeController.GetComponent<HeightExampleInteractor>().enabled = true;
                     break;
                 case InteractionType.PlaceTerrainLaserPointerRaiseLower:
+                    // disable movement interactors because this one uses its own laser pointer
+                    DisableMovementInteractors( maybeController.gameObject );
+
+                    // enable the components we need
                     maybeController.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = true;
                     maybeController.GetComponent<LaserPointerColliderSelector>().enabled = true;
                     maybeController.GetComponent<HeightExampleInteractor>().enabled = true;
@@ -38,6 +42,13 @@ public class SwitchToComponent : MonoBehaviour
                 case InteractionType.PlaceTexture:
                     maybeController.GetComponent<TerrainTextureInteractor>().enabled = true;
                     maybeController.GetComponent<TextureExampleInteractor>().enabled = true;
+                    break;
+                case InteractionType.MoveTeleport:
+                    DisableMovementInteractors( maybeController.gameObject );
+                    maybeController.GetComponent<FlyingTeleporter>().enabled = true;
+                    break;
+                case InteractionType.MoveFly:
+                    DisableMovementInteractors( maybeController.gameObject );
                     break;
                 default:
                     break;
@@ -52,6 +63,31 @@ public class SwitchToComponent : MonoBehaviour
             StartCoroutine( previousAnimation );
 
         }
+    }
+
+    private void DisableMovementInteractors( GameObject o )
+    {
+        o.GetComponent<FlyingTeleporter>().enabled = false;
+    }
+
+    
+
+    private void DisablePlacementInteractors( GameObject o )
+    {
+        o.GetComponent<TerrainInteractor>().enabled = false;
+        o.GetComponent<HeightExampleInteractor>().enabled = false;
+        o.GetComponent<TerrainTextureInteractor>().enabled = false;
+        o.GetComponent<TextureExampleInteractor>().enabled = false;
+        o.GetComponent<LaserPointerColliderSelector>().enabled = false;
+
+        o.GetComponent<TerrainGradualInteractor>().Abort();
+        o.GetComponent<TerrainGradualInteractor>().enabled = false;
+        
+        o.GetComponent<TerrainLocalRaiseLowerInteractor>().Abort();
+        o.GetComponent<TerrainLocalRaiseLowerInteractor>().enabled = false;
+
+        o.GetComponent<TerrainLaserRaiseLowerInteractor>().Abort();
+        o.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = false;
     }
 
     private IEnumerator AnimateSwell( float upSeconds, float upSlew, float downSlew, float increaseSizeBy )
@@ -78,32 +114,4 @@ public class SwitchToComponent : MonoBehaviour
         transform.localScale = startSize * Vector3.one;
     }
 
-    private void DisableAllInteractors( GameObject o )
-    {
-        o.GetComponent<TerrainInteractor>().enabled = false;
-        o.GetComponent<HeightExampleInteractor>().enabled = false;
-        o.GetComponent<TerrainTextureInteractor>().enabled = false;
-        o.GetComponent<TextureExampleInteractor>().enabled = false;
-        o.GetComponent<LaserPointerColliderSelector>().enabled = false;
-
-        o.GetComponent<TerrainGradualInteractor>().Abort();
-        o.GetComponent<TerrainGradualInteractor>().enabled = false;
-        
-        o.GetComponent<TerrainLocalRaiseLowerInteractor>().Abort();
-        o.GetComponent<TerrainLocalRaiseLowerInteractor>().enabled = false;
-
-        o.GetComponent<TerrainLaserRaiseLowerInteractor>().Abort();
-        o.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = false;
-    }
-
-
-    private void OnTriggerStay( Collider other )
-    {
-
-    }
-
-    private void OnTriggerExit( Collider other )
-    {
-
-    }
 }

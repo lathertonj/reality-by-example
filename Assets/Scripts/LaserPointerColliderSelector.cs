@@ -15,6 +15,7 @@ public class LaserPointerColliderSelector : MonoBehaviour
     private GameObject laser;
     private Transform laserTransform;
     private Vector3 hitPoint;
+    private bool currentlyIntersecting;
 
     // Start is called before the first frame update
     void Start()
@@ -36,6 +37,10 @@ public class LaserPointerColliderSelector : MonoBehaviour
                 hitPoint = hit.point;
                 ShowLaser( hit );
             }
+            else
+            {
+                HideLaser();
+            }
         }
         else
         {
@@ -46,6 +51,11 @@ public class LaserPointerColliderSelector : MonoBehaviour
     public Vector3 GetMostRecentIntersectionPoint()
     {
         return hitPoint;
+    }
+
+    public bool IsIntersecting()
+    {
+        return currentlyIntersecting;
     }
 
 
@@ -59,10 +69,12 @@ public class LaserPointerColliderSelector : MonoBehaviour
             laserTransform.localScale.y,
             hit.distance
         );
+        currentlyIntersecting = true;
     }
 
     private void HideLaser()
     {
         laser.SetActive( false ); 
+        currentlyIntersecting = false;
     }
 }

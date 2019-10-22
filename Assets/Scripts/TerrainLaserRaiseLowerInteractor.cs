@@ -44,7 +44,7 @@ public class TerrainLaserRaiseLowerInteractor : MonoBehaviour
                 Destroy( maybeTerrainExample );
             }
         }
-        else if( placeExample.GetStateDown( handType ) )
+        else if( placeExample.GetStateDown( handType ) && laser.IsIntersecting() )
         {
                 // place a new example
                 // find a terrrain below or above us, and place an example there if we can

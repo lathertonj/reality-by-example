@@ -57,6 +57,14 @@ namespace Valve.VR
             }
         }
         
+        public virtual SteamVR_Action_Boolean TouchpadPreview
+        {
+            get
+            {
+                return SteamVR_Actions.terraingenerate_TouchpadPreview;
+            }
+        }
+        
         public virtual SteamVR_Action_Vibration Haptic
         {
             get

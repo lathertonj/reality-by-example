@@ -27,6 +27,8 @@ namespace Valve.VR
         
         private static SteamVR_Action_Boolean p_terraingenerate_GeneratePoint;
         
+        private static SteamVR_Action_Boolean p_terraingenerate_TouchpadPreview;
+        
         private static SteamVR_Action_Vibration p_terraingenerate_Haptic;
         
         public static SteamVR_Action_Boolean terraingenerate_TouchpadPressed
@@ -69,6 +71,14 @@ namespace Valve.VR
             }
         }
         
+        public static SteamVR_Action_Boolean terraingenerate_TouchpadPreview
+        {
+            get
+            {
+                return SteamVR_Actions.p_terraingenerate_TouchpadPreview.GetCopy<SteamVR_Action_Boolean>();
+            }
+        }
+        
         public static SteamVR_Action_Vibration terraingenerate_Haptic
         {
             get
@@ -85,13 +95,15 @@ namespace Valve.VR
                     SteamVR_Actions.terraingenerate_GrabObject,
                     SteamVR_Actions.terraingenerate_Pose,
                     SteamVR_Actions.terraingenerate_GeneratePoint,
+                    SteamVR_Actions.terraingenerate_TouchpadPreview,
                     SteamVR_Actions.terraingenerate_Haptic};
             Valve.VR.SteamVR_Input.actionsIn = new Valve.VR.ISteamVR_Action_In[] {
                     SteamVR_Actions.terraingenerate_TouchpadPressed,
                     SteamVR_Actions.terraingenerate_Touchpad_XY,
                     SteamVR_Actions.terraingenerate_GrabObject,
                     SteamVR_Actions.terraingenerate_Pose,
-                    SteamVR_Actions.terraingenerate_GeneratePoint};
+                    SteamVR_Actions.terraingenerate_GeneratePoint,
+                    SteamVR_Actions.terraingenerate_TouchpadPreview};
             Valve.VR.SteamVR_Input.actionsOut = new Valve.VR.ISteamVR_Action_Out[] {
                     SteamVR_Actions.terraingenerate_Haptic};
             Valve.VR.SteamVR_Input.actionsVibration = new Valve.VR.SteamVR_Action_Vibration[] {
@@ -101,7 +113,8 @@ namespace Valve.VR
             Valve.VR.SteamVR_Input.actionsBoolean = new Valve.VR.SteamVR_Action_Boolean[] {
                     SteamVR_Actions.terraingenerate_TouchpadPressed,
                     SteamVR_Actions.terraingenerate_GrabObject,
-                    SteamVR_Actions.terraingenerate_GeneratePoint};
+                    SteamVR_Actions.terraingenerate_GeneratePoint,
+                    SteamVR_Actions.terraingenerate_TouchpadPreview};
             Valve.VR.SteamVR_Input.actionsSingle = new Valve.VR.SteamVR_Action_Single[0];
             Valve.VR.SteamVR_Input.actionsVector2 = new Valve.VR.SteamVR_Action_Vector2[] {
                     SteamVR_Actions.terraingenerate_Touchpad_XY};
@@ -111,7 +124,8 @@ namespace Valve.VR
                     SteamVR_Actions.terraingenerate_TouchpadPressed,
                     SteamVR_Actions.terraingenerate_Touchpad_XY,
                     SteamVR_Actions.terraingenerate_GrabObject,
-                    SteamVR_Actions.terraingenerate_GeneratePoint};
+                    SteamVR_Actions.terraingenerate_GeneratePoint,
+                    SteamVR_Actions.terraingenerate_TouchpadPreview};
         }
         
         private static void PreInitActions()
@@ -121,6 +135,7 @@ namespace Valve.VR
             SteamVR_Actions.p_terraingenerate_GrabObject = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/terraingenerate/in/GrabObject")));
             SteamVR_Actions.p_terraingenerate_Pose = ((SteamVR_Action_Pose)(SteamVR_Action.Create<SteamVR_Action_Pose>("/actions/terraingenerate/in/Pose")));
             SteamVR_Actions.p_terraingenerate_GeneratePoint = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/terraingenerate/in/GeneratePoint")));
+            SteamVR_Actions.p_terraingenerate_TouchpadPreview = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/terraingenerate/in/TouchpadPreview")));
             SteamVR_Actions.p_terraingenerate_Haptic = ((SteamVR_Action_Vibration)(SteamVR_Action.Create<SteamVR_Action_Vibration>("/actions/terraingenerate/out/Haptic")));
         }
     }

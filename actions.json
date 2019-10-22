@@ -26,8 +26,14 @@
       "requirement": "mandatory"
     },
     {
+      "name": "/actions/terraingenerate/in/TouchpadPreview",
+      "type": "boolean",
+      "requirement": "mandatory"
+    },
+    {
       "name": "/actions/terraingenerate/out/Haptic",
-      "type": "vibration"
+      "type": "vibration",
+      "requirement": "mandatory"
     }
   ],
   "action_sets": [

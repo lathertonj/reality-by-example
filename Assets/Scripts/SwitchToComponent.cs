@@ -7,6 +7,8 @@ public class SwitchToComponent : MonoBehaviour
     public enum InteractionType { PlaceTerrainImmediate, PlaceTerrainGrowth, PlaceTexture, PlaceTerrainLocalRaiseLower };
     public InteractionType switchTo;
 
+    private IEnumerator previousAnimation = null;
+
     private void OnTriggerEnter( Collider other )
     {
         FlyingTeleporter maybeController = other.GetComponent<FlyingTeleporter>();
@@ -34,7 +36,40 @@ public class SwitchToComponent : MonoBehaviour
                 default:
                     break;
             }
+
+            // trigger haptic pulse
+            maybeController.GetComponent<VibrateController>().Vibrate( 0.05f, 30, 0.8f );
+
+            // animate
+            if( previousAnimation != null ) { StopCoroutine( previousAnimation ); }
+            previousAnimation = AnimateSwell( 0.14f, 0.4f, 0.03f, 1.3f );
+            StartCoroutine( previousAnimation );
+
         }
+    }
+
+    private IEnumerator AnimateSwell( float upSeconds, float upSlew, float downSlew, float increaseSizeBy )
+    {
+        float startSize = transform.localScale.x;
+        float currentSize = startSize;
+        float maxSize = startSize * increaseSizeBy;
+        float startTime = Time.time;
+
+        while( Time.time < startTime + upSeconds )
+        {
+            currentSize += ( maxSize - currentSize ) * upSlew;
+            transform.localScale = currentSize * Vector3.one;
+            yield return null;
+        }
+
+        while( currentSize - startSize > 0.001f )
+        {
+            currentSize += ( startSize - currentSize ) * downSlew;
+            transform.localScale = currentSize * Vector3.one;
+            yield return null;
+        }
+
+        transform.localScale = startSize * Vector3.one;
     }
 
     private void DisableAllInteractors( GameObject o )

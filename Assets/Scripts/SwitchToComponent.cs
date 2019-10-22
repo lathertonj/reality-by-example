@@ -81,16 +81,16 @@ public class SwitchToComponent : MonoBehaviour
     private void DisableAllInteractors( GameObject o )
     {
         o.GetComponent<TerrainInteractor>().enabled = false;
-        o.GetComponent<TerrainGradualInteractor>().enabled = false;
         o.GetComponent<HeightExampleInteractor>().enabled = false;
         o.GetComponent<TerrainTextureInteractor>().enabled = false;
         o.GetComponent<TextureExampleInteractor>().enabled = false;
+        o.GetComponent<LaserPointerColliderSelector>().enabled = false;
 
-        // TODO: this on other component types above
+        o.GetComponent<TerrainGradualInteractor>().Abort();
+        o.GetComponent<TerrainGradualInteractor>().enabled = false;
+        
         o.GetComponent<TerrainLocalRaiseLowerInteractor>().Abort();
         o.GetComponent<TerrainLocalRaiseLowerInteractor>().enabled = false;
-
-        o.GetComponent<LaserPointerColliderSelector>().enabled = false;
 
         o.GetComponent<TerrainLaserRaiseLowerInteractor>().Abort();
         o.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = false;

@@ -54,14 +54,21 @@ public class TerrainGradualInteractor : MonoBehaviour
                 Vector3.MoveTowards( currentlyPlacingExample.transform.position, 
                     transform.position, gradualMoveSpeed * Time.deltaTime );
         }
-        else if( currentlyPlacingExample != null && triggerPress.GetStateUp( handType ) )
+        else if( triggerPress.GetStateUp( handType ) )
+        {
+            Abort();
+        }
+    }
+
+    public void Abort()
+    {
+        if( currentlyPlacingExample != null )
         {
             // finalize terrain
             currentlyPlacingExample.myTerrain.RescanProvidedExamples();
 
             // stop moving currentlyPlacingExample
             currentlyPlacingExample = null;
-
         }
     }
 

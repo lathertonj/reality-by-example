@@ -815,40 +815,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 569289523}
   m_PrefabAsset: {fileID: 0}
---- !u!21 &569597024
-Material:
-  serializedVersion: 6
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Sprites/Default
-  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: 
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _AlphaTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats:
-    - PixelSnap: 0
-    - _EnableExternalAlpha: 0
-    m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &668284626
 GameObject:
   m_ObjectHideFlags: 0
@@ -1214,7 +1180,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
---- !u!43 &1003315581
+--- !u!43 &1073764844
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1832,6 +1798,40 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1365141414}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!21 &1404922024
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Sprites/Default
+  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AlphaTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - PixelSnap: 0
+    - _EnableExternalAlpha: 0
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Flip: {r: 1, g: 1, b: 1, a: 1}
+    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1504657328
 GameObject:
   m_ObjectHideFlags: 0
@@ -2060,11 +2060,11 @@ PrefabInstance:
     - target: {fileID: 2348914, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 569597024}
+      objectReference: {fileID: 1404922024}
     - target: {fileID: 3380982, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 1003315581}
+      objectReference: {fileID: 1073764844}
     - target: {fileID: 114000010876603736, guid: 4d293c8e162f3874b982baadd71153d2,
         type: 3}
       propertyPath: poseAction.actionPath
@@ -2540,6 +2540,62 @@ MonoBehaviour:
     actionPath: /actions/terraingenerate/in/TouchpadPressed
     needsReinit: 0
   laserPrefab: {fileID: 4345626581362647167, guid: a34083df02d1caf40b65d7874e64b3f5,
+    type: 3}
+--- !u!114 &1711806380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1711806350}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2074892c9d070e4191e45a02973e8a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handType: 2
+  touchpadClick:
+    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    needsReinit: 0
+  touchpadXY:
+    actionPath: /actions/terraingenerate/in/Touchpad_XY
+    needsReinit: 0
+  laserPrefab: {fileID: 4345626581362647167, guid: e72f3db236f33ff4e9b6aea4ecbf9382,
+    type: 3}
+  minFlyShown: 0.1
+  maxFlyShown: 5
+  percentDistancePerSecond: 1
+  room: {fileID: 288647786}
+  head: {fileID: 494498552}
+  teleportLaserEndPrefab: {fileID: 6743024261359457251, guid: 305b05985e091a54da7e5ea651647466,
+    type: 3}
+--- !u!114 &1711806381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1711806351}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2074892c9d070e4191e45a02973e8a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handType: 1
+  touchpadClick:
+    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    needsReinit: 0
+  touchpadXY:
+    actionPath: /actions/terraingenerate/in/Touchpad_XY
+    needsReinit: 0
+  laserPrefab: {fileID: 4345626581362647167, guid: e72f3db236f33ff4e9b6aea4ecbf9382,
+    type: 3}
+  minFlyShown: 0.1
+  maxFlyShown: 5
+  percentDistancePerSecond: 1
+  room: {fileID: 288647786}
+  head: {fileID: 494498552}
+  teleportLaserEndPrefab: {fileID: 6743024261359457251, guid: 305b05985e091a54da7e5ea651647466,
     type: 3}
 --- !u!1 &1781244046
 GameObject:

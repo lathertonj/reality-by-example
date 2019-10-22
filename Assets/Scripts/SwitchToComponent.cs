@@ -15,47 +15,49 @@ public class SwitchToComponent : MonoBehaviour
         FlyingTeleporter maybeController = other.GetComponent<FlyingTeleporter>();
         if( maybeController )
         {
-            DisablePlacementInteractors( maybeController.gameObject );
+            GameObject o = maybeController.gameObject;
+            DisablePlacementInteractors( o );
             switch( switchTo )
             {
                 case InteractionType.PlaceTerrainImmediate:
-                    maybeController.GetComponent<TerrainInteractor>().enabled = true;
-                    maybeController.GetComponent<HeightExampleInteractor>().enabled = true;
+                    o.GetComponent<TerrainInteractor>().enabled = true;
+                    o.GetComponent<HeightExampleInteractor>().enabled = true;
                     break;
                 case InteractionType.PlaceTerrainGrowth:
-                    maybeController.GetComponent<TerrainGradualInteractor>().enabled = true;
-                    maybeController.GetComponent<HeightExampleInteractor>().enabled = true;
+                    o.GetComponent<TerrainGradualInteractor>().enabled = true;
+                    o.GetComponent<HeightExampleInteractor>().enabled = true;
                     break;
                 case InteractionType.PlaceTerrainLocalRaiseLower:
-                    maybeController.GetComponent<TerrainLocalRaiseLowerInteractor>().enabled = true;
-                    maybeController.GetComponent<HeightExampleInteractor>().enabled = true;
+                    o.GetComponent<TerrainLocalRaiseLowerInteractor>().enabled = true;
+                    o.GetComponent<HeightExampleInteractor>().enabled = true;
                     break;
                 case InteractionType.PlaceTerrainLaserPointerRaiseLower:
                     // disable movement interactors because this one uses its own laser pointer
-                    DisableMovementInteractors( maybeController.gameObject );
+                    DisableMovementInteractors( o );
 
                     // enable the components we need
-                    maybeController.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = true;
-                    maybeController.GetComponent<LaserPointerColliderSelector>().enabled = true;
-                    maybeController.GetComponent<HeightExampleInteractor>().enabled = true;
+                    o.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = true;
+                    o.GetComponent<LaserPointerColliderSelector>().enabled = true;
+                    o.GetComponent<HeightExampleInteractor>().enabled = true;
                     break;
                 case InteractionType.PlaceTexture:
-                    maybeController.GetComponent<TerrainTextureInteractor>().enabled = true;
-                    maybeController.GetComponent<TextureExampleInteractor>().enabled = true;
+                    o.GetComponent<TerrainTextureInteractor>().enabled = true;
+                    o.GetComponent<TextureExampleInteractor>().enabled = true;
                     break;
                 case InteractionType.MoveTeleport:
-                    DisableMovementInteractors( maybeController.gameObject );
-                    maybeController.GetComponent<FlyingTeleporter>().enabled = true;
+                    DisableMovementInteractors( o );
+                    o.GetComponent<FlyingTeleporter>().enabled = true;
                     break;
                 case InteractionType.MoveFly:
-                    DisableMovementInteractors( maybeController.gameObject );
+                    DisableMovementInteractors( o );
+                    o.GetComponent<FlyingMovement>().enabled = true;
                     break;
                 default:
                     break;
             }
 
             // trigger haptic pulse
-            maybeController.GetComponent<VibrateController>().Vibrate( 0.05f, 30, 0.8f );
+            o.GetComponent<VibrateController>().Vibrate( 0.05f, 30, 0.8f );
 
             // animate
             if( previousAnimation != null ) { StopCoroutine( previousAnimation ); }
@@ -68,6 +70,7 @@ public class SwitchToComponent : MonoBehaviour
     private void DisableMovementInteractors( GameObject o )
     {
         o.GetComponent<FlyingTeleporter>().enabled = false;
+        o.GetComponent<FlyingMovement>().enabled = false;
     }
 
     

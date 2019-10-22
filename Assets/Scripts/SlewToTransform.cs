@@ -11,13 +11,17 @@ public class SlewToTransform : MonoBehaviour
 
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
         transform.position += slewSeconds * Time.deltaTime * ( objectToTrack.position - transform.position );
-        transform.Rotate( Vector3.up, Time.deltaTime * slewSeconds * ( objectToTrack.eulerAngles.y - transform.eulerAngles.y ) );  
+        if( slewYRotation )
+        {
+            Quaternion goalRotation = Quaternion.AngleAxis( objectToTrack.eulerAngles.y, Vector3.up );
+            transform.rotation = Quaternion.Slerp( transform.rotation, goalRotation, slewSeconds * Time.deltaTime );
+        }
     }
 }

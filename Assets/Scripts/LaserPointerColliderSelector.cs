@@ -18,11 +18,12 @@ public class LaserPointerColliderSelector : MonoBehaviour
     private bool currentlyIntersecting;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
+        HideLaser();
     }
 
     // Update is called once per frame
@@ -72,7 +73,7 @@ public class LaserPointerColliderSelector : MonoBehaviour
         currentlyIntersecting = true;
     }
 
-    private void HideLaser()
+    public void HideLaser()
     {
         laser.SetActive( false ); 
         currentlyIntersecting = false;

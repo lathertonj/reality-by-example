@@ -69,7 +69,9 @@ public class SwitchToComponent : MonoBehaviour
 
     private void DisableMovementInteractors( GameObject o )
     {
+        o.GetComponent<FlyingTeleporter>().HideLasers();
         o.GetComponent<FlyingTeleporter>().enabled = false;
+        o.GetComponent<FlyingMovement>().HideLasers();
         o.GetComponent<FlyingMovement>().enabled = false;
     }
 
@@ -81,6 +83,8 @@ public class SwitchToComponent : MonoBehaviour
         o.GetComponent<HeightExampleInteractor>().enabled = false;
         o.GetComponent<TerrainTextureInteractor>().enabled = false;
         o.GetComponent<TextureExampleInteractor>().enabled = false;
+
+        o.GetComponent<LaserPointerColliderSelector>().HideLaser();
         o.GetComponent<LaserPointerColliderSelector>().enabled = false;
 
         o.GetComponent<TerrainGradualInteractor>().Abort();

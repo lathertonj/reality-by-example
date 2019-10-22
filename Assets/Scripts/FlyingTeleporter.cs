@@ -23,7 +23,7 @@ public class FlyingTeleporter : MonoBehaviour
 
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         // grab reference
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
@@ -95,7 +95,7 @@ public class FlyingTeleporter : MonoBehaviour
         teleportLaserEnd.transform.position = endpoint;
     }
 
-    private void HideLasers()
+    public void HideLasers()
     {
         // hide lasers
         laser.SetActive( false );

@@ -13,9 +13,6 @@ public class ConnectedTerrainController : MonoBehaviour
     // - groups of boxes -- be able to move them together after you place them
     // - versioning?
 
-    // TODO: refactor to use Unity Terrain so can do procedural splatmapping
-    // TODO: 
-
     // designers better at curating than creating; better to have a computer to generate 100 and have the designer select between them
     
     // texture synthesis by example? paint on the landscape then map it onto new object?

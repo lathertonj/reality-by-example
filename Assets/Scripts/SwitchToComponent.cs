@@ -5,7 +5,7 @@ using UnityEngine;
 public class SwitchToComponent : MonoBehaviour
 {
     public enum InteractionType { PlaceTerrainImmediate, PlaceTerrainGrowth, PlaceTexture, 
-        PlaceTerrainLocalRaiseLower, PlaceTerrainLaserPointerRaiseLower, MoveTeleport, MoveFly };
+        PlaceTerrainLocalRaiseLower, PlaceTerrainLaserPointerRaiseLower, MoveTeleport, MoveFly, MoveGroundFly };
     public InteractionType switchTo;
 
     private IEnumerator previousAnimation = null;
@@ -52,6 +52,10 @@ public class SwitchToComponent : MonoBehaviour
                     DisableMovementInteractors( o );
                     o.GetComponent<FlyingMovement>().enabled = true;
                     break;
+                case InteractionType.MoveGroundFly:
+                    DisableMovementInteractors( o );
+                    o.GetComponent<GroundFlyingMovement>().enabled = true;
+                    break;
                 default:
                     break;
             }
@@ -73,6 +77,8 @@ public class SwitchToComponent : MonoBehaviour
         o.GetComponent<FlyingTeleporter>().enabled = false;
         o.GetComponent<FlyingMovement>().HideLasers();
         o.GetComponent<FlyingMovement>().enabled = false;
+        o.GetComponent<GroundFlyingMovement>().HideLasers();
+        o.GetComponent<GroundFlyingMovement>().enabled = false;
     }
 
     

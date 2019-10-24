@@ -14,7 +14,7 @@ public class ConnectedTerrainController : MonoBehaviour
     // - versioning?
 
     // designers better at curating than creating; better to have a computer to generate 100 and have the designer select between them
-    
+
     // texture synthesis by example? paint on the landscape then map it onto new object?
 
 
@@ -38,6 +38,8 @@ public class ConnectedTerrainController : MonoBehaviour
     private RapidMixRegression myRegression;
     private List<TerrainHeightExample> myRegressionExamples;
     private bool haveTrained = false;
+
+    private UnderTerrainController myBottom;
 
     public void ProvideExample( TerrainHeightExample example )
     {
@@ -89,19 +91,25 @@ public class ConnectedTerrainController : MonoBehaviour
         terrainSize = myTerrain.terrainData.size.x; // it is invariant to scale. scaling up doesn't affect the computations here.
         terrainHeight = myTerrain.terrainData.size.y;
         spaceBetweenVertices = terrainSize / ( verticesPerSide - 1 );
-        myPureRegressionHeights = new float[ verticesPerSide + 2 * extraBorderPixels, verticesPerSide + 2 * extraBorderPixels ];
-        myModifiedRegressionHeights = new float[ verticesPerSide, verticesPerSide ];
+        myPureRegressionHeights = new float[verticesPerSide + 2 * extraBorderPixels, verticesPerSide + 2 * extraBorderPixels];
+        myModifiedRegressionHeights = new float[verticesPerSide, verticesPerSide];
         // stitch width is 15 pixels' worth
         stitchWidth = 15.0f / verticesPerSide;
         stitchStrength = 0.2f;
+
+        myBottom = GetComponentInChildren<UnderTerrainController>();
+        if( myBottom )
+        {
+            myBottom.ConstructMesh( verticesPerSide, spaceBetweenVertices );
+        }
     }
 
     private double[] InputVector( float x, float z )
     {
         // kernel method
-        return new double[] { 
-            x, z, 
-            x * x, z * z, x * z, 
+        return new double[] {
+            x, z,
+            x * x, z * z, x * z,
             x * x * x, z * z * z, x * x * z, x * z * z, 
             /*Mathf.Sin( 0.1f * x ) + Mathf.Sin, Mathf.Sin( 0.3f * x ), Mathf.Sin( 0.5f * x ), Mathf.Sin( 0.7f * x ),
             // Mathf.Sin( 2 * x ), Mathf.Sin( 5 * x ), Mathf.Sin( 8 * x ),
@@ -123,10 +131,10 @@ public class ConnectedTerrainController : MonoBehaviour
 
     private float WeirdSineFeature( float f, float a, float b, float c )
     {
-        return Mathf.Sin( f*a ) + Mathf.Sin( f*b ) + Mathf.Sin( f*c );
+        return Mathf.Sin( f * a ) + Mathf.Sin( f * b ) + Mathf.Sin( f * c );
     }
 
-    void Start() 
+    void Start()
     {
         if( examplePointsContainer )
         {
@@ -144,8 +152,8 @@ public class ConnectedTerrainController : MonoBehaviour
         if( myRegressionExamples.Count > 0 )
         {
             // train and show
-            RescanProvidedExamples();    
-        } 
+            RescanProvidedExamples();
+        }
     }
 
 
@@ -168,26 +176,26 @@ public class ConnectedTerrainController : MonoBehaviour
 
 
         // UnityEngine.Profiling.Profiler.BeginSample("Running regression");
-        
+
         // Added for coroutine
-        int totalRuns = myPureRegressionHeights.GetLength(0) * myPureRegressionHeights.GetLength(1);
+        int totalRuns = myPureRegressionHeights.GetLength( 0 ) * myPureRegressionHeights.GetLength( 1 );
         int runsPerFrame = totalRuns / framesToSpreadOver + 1;
         int runsSoFar = 0;
         // End added for coroutine
 
         // recompute height
-        for( int y = 0; y < myPureRegressionHeights.GetLength(0); y++ )
+        for( int y = 0; y < myPureRegressionHeights.GetLength( 0 ); y++ )
         {
-            for( int x = 0; x < myPureRegressionHeights.GetLength(1); x++ )
+            for( int x = 0; x < myPureRegressionHeights.GetLength( 1 ); x++ )
             {
                 Vector3 worldCoords = IndicesToCoordinates( x - extraBorderPixels, y - extraBorderPixels );
-                float landHeightHere = (float) myRegression.Run( InputVector( worldCoords.x, worldCoords.z ) )[0];
-                myPureRegressionHeights[ y, x ] = landHeightHere / terrainHeight;
+                float landHeightHere = (float)myRegression.Run( InputVector( worldCoords.x, worldCoords.z ) )[0];
+                myPureRegressionHeights[y, x] = landHeightHere / terrainHeight;
 
                 if( x >= extraBorderPixels && x < verticesPerSide + extraBorderPixels &&
                     y >= extraBorderPixels && y < verticesPerSide + extraBorderPixels )
                 {
-                    myModifiedRegressionHeights[ y - extraBorderPixels, x - extraBorderPixels ] = myPureRegressionHeights[ y, x ];
+                    myModifiedRegressionHeights[y - extraBorderPixels, x - extraBorderPixels] = myPureRegressionHeights[y, x];
                 }
 
                 // Added for coroutine
@@ -225,11 +233,12 @@ public class ConnectedTerrainController : MonoBehaviour
             SetTerrainData( true );
             SetNeighbors( true );
             StitchEdges();
+            SetBottomTerrainData( true );
         }
         else
         {
             // TODO: could maybe still restitch neighbors...
-            UnityEngine.Profiling.Profiler.BeginSample("Lazy terrain set");
+            UnityEngine.Profiling.Profiler.BeginSample( "Lazy terrain set" );
             SmoothEdgeRegion();
             SetTerrainData( false );
             StitchEdges();
@@ -241,17 +250,45 @@ public class ConnectedTerrainController : MonoBehaviour
     {
         // set vertices from 0,0 corner
         myTerrain.terrainData.SetHeightsDelayLOD( 0, 0, myModifiedRegressionHeights );
-        
+
         // can wait to do this ONLY AFTER operation is done, so don't need to keep calling it
         // if we do a long gesture or show change over time
         if( finalize ) { myTerrain.terrainData.SyncHeightmap(); }
     }
 
+    private void SetBottomTerrainData( bool doNeighbors = false )
+    {
+        Debug.Log( "setting bottom terrain data for " + gameObject.name );
+        // set bottom too 
+        if( myBottom )
+        {
+            myBottom.SetHeight( myTerrain.terrainData.GetHeights( 0, 0, verticesPerSide, verticesPerSide ), terrainHeight );
+        }
+
+        if( doNeighbors )
+        {
+            if( upperNeighbor )
+            {
+                upperNeighbor.SetBottomTerrainData();
+                if( upperNeighbor.leftNeighbor ) { upperNeighbor.leftNeighbor.SetBottomTerrainData(); }
+                if( upperNeighbor.rightNeighbor ) { upperNeighbor.rightNeighbor.SetBottomTerrainData(); }
+            }
+            if( leftNeighbor ) { leftNeighbor.SetBottomTerrainData(); }
+            if( rightNeighbor ) { rightNeighbor.SetBottomTerrainData(); }
+            if( lowerNeighbor )
+            {
+                lowerNeighbor.SetBottomTerrainData();
+                if( lowerNeighbor.leftNeighbor ) { lowerNeighbor.leftNeighbor.SetBottomTerrainData(); }
+                if( lowerNeighbor.rightNeighbor ) { lowerNeighbor.rightNeighbor.SetBottomTerrainData(); }
+            }
+        }
+    }
+
 
     private void SetNeighbors( bool recursive = false )
     {
-        myTerrain.SetNeighbors( 
-            leftNeighbor ? leftNeighbor.GetComponentInChildren<Terrain>() : null, 
+        myTerrain.SetNeighbors(
+            leftNeighbor ? leftNeighbor.GetComponentInChildren<Terrain>() : null,
             upperNeighbor ? upperNeighbor.GetComponentInChildren<Terrain>() : null,
             rightNeighbor ? rightNeighbor.GetComponentInChildren<Terrain>() : null,
             lowerNeighbor ? lowerNeighbor.GetComponentInChildren<Terrain>() : null
@@ -313,9 +350,9 @@ public class ConnectedTerrainController : MonoBehaviour
         {
             for( int x = 0; x < samplesToLerp; x++ )
             {
-                output[ y, x ] = Mathf.SmoothStep( 
-                    leftCols[ samplesToLerp + y, samplesToLerp + verticesPerSide + x ],
-                    rightCols[ samplesToLerp + y, samplesToLerp + x ],
+                output[y, x] = Mathf.SmoothStep(
+                    leftCols[samplesToLerp + y, samplesToLerp + verticesPerSide + x],
+                    rightCols[samplesToLerp + y, samplesToLerp + x],
                     0.5f + 0.5f * x / samplesToLerp
                 );
             }
@@ -328,9 +365,9 @@ public class ConnectedTerrainController : MonoBehaviour
         {
             for( int x = 0; x < samplesToLerp; x++ )
             {
-                output[ y, verticesPerSide - 1 - x ] = Mathf.SmoothStep( 
-                    rightCols[ samplesToLerp + y, samplesToLerp - 1 - x ],
-                    leftCols[ samplesToLerp + y, samplesToLerp + verticesPerSide - 1 - x ],
+                output[y, verticesPerSide - 1 - x] = Mathf.SmoothStep(
+                    rightCols[samplesToLerp + y, samplesToLerp - 1 - x],
+                    leftCols[samplesToLerp + y, samplesToLerp + verticesPerSide - 1 - x],
                     0.5f + 0.5f * x / samplesToLerp
                 );
             }
@@ -343,9 +380,9 @@ public class ConnectedTerrainController : MonoBehaviour
         {
             for( int y = 0; y < samplesToLerp; y++ )
             {
-                output[ y, x ] = Mathf.SmoothStep( 
-                    bottomRows[ samplesToLerp + verticesPerSide + y, samplesToLerp + x ],
-                    topRows[ samplesToLerp + y, samplesToLerp + x ],
+                output[y, x] = Mathf.SmoothStep(
+                    bottomRows[samplesToLerp + verticesPerSide + y, samplesToLerp + x],
+                    topRows[samplesToLerp + y, samplesToLerp + x],
                     0.5f + 0.5f * y / samplesToLerp
                 );
             }
@@ -358,9 +395,9 @@ public class ConnectedTerrainController : MonoBehaviour
         {
             for( int y = 0; y < samplesToLerp; y++ )
             {
-                output[ verticesPerSide - 1 - y, x ] = Mathf.SmoothStep( 
-                    topRows[ samplesToLerp - 1 - y, samplesToLerp + x ],
-                    bottomRows[ samplesToLerp + verticesPerSide - 1 - y, samplesToLerp + x ],
+                output[verticesPerSide - 1 - y, x] = Mathf.SmoothStep(
+                    topRows[samplesToLerp - 1 - y, samplesToLerp + x],
+                    bottomRows[samplesToLerp + verticesPerSide - 1 - y, samplesToLerp + x],
                     0.5f + 0.5f * y / samplesToLerp
                 );
             }
@@ -377,7 +414,7 @@ public class ConnectedTerrainController : MonoBehaviour
         StitchEdgeDown();
     }
 
-    
+
 
     private void StitchEdges()
     {
@@ -432,12 +469,12 @@ public class ConnectedTerrainController : MonoBehaviour
     {
         if( leftNeighbor )
         {
-            Stitch.TerrainStitch( 
-                leftNeighbor.myTerrain.terrainData, 
-                myTerrain.terrainData, 
-                StitchDirection.Across, 
+            Stitch.TerrainStitch(
+                leftNeighbor.myTerrain.terrainData,
+                myTerrain.terrainData,
+                StitchDirection.Across,
                 stitchWidth,
-                stitchStrength, 
+                stitchStrength,
                 false
             );
         }
@@ -447,12 +484,12 @@ public class ConnectedTerrainController : MonoBehaviour
     {
         if( rightNeighbor )
         {
-            Stitch.TerrainStitch( 
-                myTerrain.terrainData, 
+            Stitch.TerrainStitch(
+                myTerrain.terrainData,
                 rightNeighbor.myTerrain.terrainData,
-                StitchDirection.Across, 
-                stitchWidth, 
-                stitchStrength, 
+                StitchDirection.Across,
+                stitchWidth,
+                stitchStrength,
                 false
             );
         }
@@ -462,11 +499,11 @@ public class ConnectedTerrainController : MonoBehaviour
     {
         if( upperNeighbor )
         {
-            Stitch.TerrainStitch( 
-                upperNeighbor.myTerrain.terrainData, 
-                myTerrain.terrainData, 
-                StitchDirection.Down, 
-                stitchWidth, 
+            Stitch.TerrainStitch(
+                upperNeighbor.myTerrain.terrainData,
+                myTerrain.terrainData,
+                StitchDirection.Down,
+                stitchWidth,
                 stitchStrength,
                 false
             );
@@ -477,11 +514,11 @@ public class ConnectedTerrainController : MonoBehaviour
     {
         if( lowerNeighbor )
         {
-            Stitch.TerrainStitch( 
-                myTerrain.terrainData, 
+            Stitch.TerrainStitch(
+                myTerrain.terrainData,
                 lowerNeighbor.myTerrain.terrainData,
-                StitchDirection.Down, 
-                stitchWidth, 
+                StitchDirection.Down,
+                stitchWidth,
                 stitchStrength,
                 false
             );
@@ -490,7 +527,7 @@ public class ConnectedTerrainController : MonoBehaviour
 
     private void TrainRegression()
     {
-        UnityEngine.Profiling.Profiler.BeginSample("Training regression");
+        UnityEngine.Profiling.Profiler.BeginSample( "Training regression" );
         // only do this when we have examples
         if( myRegressionExamples.Count > 0 )
         {
@@ -518,6 +555,6 @@ public class ConnectedTerrainController : MonoBehaviour
 
 
 
-    
+
 
 }

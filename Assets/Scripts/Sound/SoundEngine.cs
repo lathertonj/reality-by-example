@@ -57,7 +57,7 @@ public class SoundEngine : MonoBehaviour
             66 => int Fs;
             [ 
                 // V:  AM7 x2, EM7 x2
-                [ [A, Cs+12, E,     Gs+12],  [A, Cs+12, E,    Gs+12], 
+                [ [A, Cs+12, E,     Gs+12], [A, Cs+12, E,     Gs+12], 
                   [E, B+12,  Ds+12, Gs+12], [E, B+12,  Ds+12, Gs+12] ],
                 // V 2: AM7, EM7, g#7, g#7 sus4
                 [ [A,  Cs+12, E,     Gs+12], 

@@ -258,7 +258,6 @@ public class ConnectedTerrainController : MonoBehaviour
 
     private void SetBottomTerrainData( bool doNeighbors = false )
     {
-        Debug.Log( "setting bottom terrain data for " + gameObject.name );
         // set bottom too 
         if( myBottom )
         {

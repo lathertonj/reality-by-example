@@ -14,9 +14,11 @@ public class SoundEngine : MonoBehaviour
         myChuck.RunCode( @"
             global int whichChords;
             global float timbreSlider;
-            global float densitySlider;
-            global float quarterNoteTempoSeconds;
-            global float volumeSlider;
+            0.55 => global float densitySlider;
+            0.5 => global float quarterNoteTempoSeconds;
+            1 => global float volumeSlider;
+            global JCRev theRev => dac;
+            0.05 => theRev.mix;
 
             global Event quarterNoteHappened, eighthNoteHappened, sixteenthNoteHappened;
             fun void SendTempoEvents()
@@ -78,26 +80,25 @@ public class SoundEngine : MonoBehaviour
                 [ [A,  Cs+12, B+12, Fs+12],
                   [Fs, Cs+12, B+12, Fs+12], 
                   [A,  E+12,  B+12, Gs+24], 
-                  [E,  E+12,  B+12, Gs+24S] ],
+                  [E,  E+12,  B+12, Gs+24] ],
                 // IV: f#7+11 x2, E+9sus4 x2
                 [ [Fs, A+12, E+12,  B+24], [Fs, A+12, E+24,  B+24], 
                   [E,  A+12, Fs+12, B+24], [E,  A+12, Fs+24, B+24] ]
-            ] @=> int[][][] theChords;
-            global int[4] currentChord;
+            ] @=> int theChords[][][];
+            global int currentChord[ theChords[0][0].size() ];
 
             fun void PopulateCurrentChord()
             {
-                int currentChord;
+                int whichChord;
                 while( true )
                 {
-                    
                     for( int i; i < currentChord.size(); i++ )
                     {
-                        theChords[whichChords][currentChord][i] => currentChord[i];
+                        theChords[whichChords][whichChord][i] => currentChord[i];
                     }
                     repeat(4) { quarterNoteHappened => now; }
-                    currentChord++;
-                    currentChord % 4 => currentChord;
+                    whichChord++;
+                    whichChord % 4 => whichChord;
                 }
             }
             spork ~ PopulateCurrentChord();

@@ -12,33 +12,43 @@ public class SoundEngine : MonoBehaviour
     {
         myChuck = GetComponent<ChuckSubInstance>();
         myChuck.RunCode( @"
-            global int whichChords;
-            global float timbreSlider;
+            // THINGS FOR THE INDIVIDUAL COMPONENTS TO RESPOND TO
+            0 => global float timbreSlider;
             0.55 => global float densitySlider;
+            global Event measureHappened, quarterNoteHappened, eighthNoteHappened, sixteenthNoteHappened;
+            global Event chordsUpdated;
+            // also: global int currentChord[ probably 4 ]
+
+
+            // THINGS WE CONTROL
+            2 => global int whichChords;
             0.5 => global float quarterNoteTempoSeconds;
             1 => global float volumeSlider;
             global JCRev theRev => dac;
             0.05 => theRev.mix;
 
-            global Event quarterNoteHappened, eighthNoteHappened, sixteenthNoteHappened;
             fun void SendTempoEvents()
             {
                 while( true )
                 {
-                    quarterNoteHappened.broadcast();
-                    eighthNoteHappened.broadcast();
-                    sixteenthNoteHappened.broadcast();
-                    (quarterNoteTempoSeconds / 4)::second => now;
+                    measureHappened.broadcast();
+                    repeat(4)
+                    {
+                        quarterNoteHappened.broadcast();
+                        eighthNoteHappened.broadcast();
+                        sixteenthNoteHappened.broadcast();
+                        (quarterNoteTempoSeconds / 4)::second => now;
 
-                    sixteenthNoteHappened.broadcast();
-                    (quarterNoteTempoSeconds / 4)::second => now;
+                        sixteenthNoteHappened.broadcast();
+                        (quarterNoteTempoSeconds / 4)::second => now;
 
-                    eighthNoteHappened.broadcast();
-                    sixteenthNoteHappened.broadcast();
-                    (quarterNoteTempoSeconds / 4)::second => now;
+                        eighthNoteHappened.broadcast();
+                        sixteenthNoteHappened.broadcast();
+                        (quarterNoteTempoSeconds / 4)::second => now;
 
-                    sixteenthNoteHappened.broadcast();
-                    (quarterNoteTempoSeconds / 4)::second => now;
+                        sixteenthNoteHappened.broadcast();
+                        (quarterNoteTempoSeconds / 4)::second => now;
+                    }
                 }
             }
             spork ~ SendTempoEvents();
@@ -59,10 +69,10 @@ public class SoundEngine : MonoBehaviour
             66 => int Fs;
             [ 
                 // V:  AM7 x2, EM7 x2
-                [ [A, Cs+12, E,     Gs+12], [A, Cs+12, E,     Gs+12], 
+                [ [A, Cs+12, E+12,  Gs+12], [A, Cs+12, E+12,  Gs+12], 
                   [E, B+12,  Ds+12, Gs+12], [E, B+12,  Ds+12, Gs+12] ],
                 // V 2: AM7, EM7, g#7, g#7 sus4
-                [ [A,  Cs+12, E,     Gs+12], 
+                [ [A,  Cs+12, E+12,  Gs+12], 
                   [E,  B+12,  Ds+12, Gs+12],
                   [Gs, B+12,  Ds+12, Fs],
                   [Gs, Cs+12, Ds+12, Fs] ],
@@ -82,8 +92,8 @@ public class SoundEngine : MonoBehaviour
                   [A,  E+12,  B+12, Gs+24], 
                   [E,  E+12,  B+12, Gs+24] ],
                 // IV: f#7+11 x2, E+9sus4 x2
-                [ [Fs, A+12, E+12,  B+24], [Fs, A+12, E+24,  B+24], 
-                  [E,  A+12, Fs+12, B+24], [E,  A+12, Fs+24, B+24] ]
+                [ [Fs, A+12, E+12,  B+24], [Fs, A+12, E+12,  B+24], 
+                  [E,  A+12, Fs+12, B+24], [E,  A+12, Fs+12, B+24] ]
             ] @=> int theChords[][][];
             global int currentChord[ theChords[0][0].size() ];
 
@@ -96,9 +106,12 @@ public class SoundEngine : MonoBehaviour
                     {
                         theChords[whichChords][whichChord][i] => currentChord[i];
                     }
-                    repeat(4) { quarterNoteHappened => now; }
                     whichChord++;
                     whichChord % 4 => whichChord;
+
+                    chordsUpdated.broadcast();
+                    
+                    repeat(1) { measureHappened => now; }
                 }
             }
             spork ~ PopulateCurrentChord();

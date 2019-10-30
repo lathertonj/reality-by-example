@@ -5,8 +5,10 @@ using UnityEngine;
 public class SwitchToComponent : MonoBehaviour
 {
     public enum InteractionType { PlaceTerrainImmediate, PlaceTerrainGrowth, PlaceTexture, 
-        PlaceTerrainLocalRaiseLower, PlaceTerrainLaserPointerRaiseLower, MoveTeleport, MoveFly, MoveGroundFly };
+        PlaceTerrainLocalRaiseLower, PlaceTerrainLaserPointerRaiseLower, MoveTeleport, MoveFly, MoveGroundFly,
+        PlaceGivenPrefab };
     public InteractionType switchTo;
+    public Transform givenPrefab;
 
     private IEnumerator previousAnimation = null;
 
@@ -55,6 +57,10 @@ public class SwitchToComponent : MonoBehaviour
                 case InteractionType.MoveGroundFly:
                     DisableMovementInteractors( o );
                     o.GetComponent<GroundFlyingMovement>().enabled = true;
+                    break;
+                case InteractionType.PlaceGivenPrefab:
+                    DisableMovementInteractors( o );
+                    GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
                     break;
                 default:
                     break;

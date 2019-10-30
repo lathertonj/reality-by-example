@@ -158,7 +158,7 @@ public class SoundEngine : MonoBehaviour
 
     public void SetQuarterNoteTime( float inSeconds )
     {
-
+        myChuck.SetFloat( "quarterNoteTempoSeconds", inSeconds );
     }
 
     public void SetSong( int TODOWHATARGS )

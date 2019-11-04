@@ -50,13 +50,13 @@ public class TouchpadUpDownInteraction : MonoBehaviour
         Vector3 currentPosition = controllerPose.transform.position;
         Vector3 displacementSinceBeginning = currentPosition - updownStartPosition;
         Vector3 displacementThisFrame = currentPosition - updownPreviousPosition;
-        interactingObject.InformOfUpOrDownMovement( displacementSinceBeginning.y, displacementThisFrame.y );
+        if( interactingObject != null ){ interactingObject.InformOfUpOrDownMovement( displacementSinceBeginning.y, displacementThisFrame.y ); }
         updownPreviousPosition = currentPosition;
     }
 
     private void EndUpDownGesture()
     {
-        interactingObject.FinalizeMovement();
+        if( interactingObject != null ){ interactingObject.FinalizeMovement(); }
         interactingObject = null;
     }
 

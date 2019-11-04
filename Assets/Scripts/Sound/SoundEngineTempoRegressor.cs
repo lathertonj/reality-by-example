@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoundEngineTempoRegressor : MonoBehaviour
+public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSource
 {
     public Transform objectToRunRegressionOn;
     private SoundEngine mySoundEngine;
@@ -12,6 +12,10 @@ public class SoundEngineTempoRegressor : MonoBehaviour
     private List<SoundTempoExample> myRegressionExamples;
     private bool haveTrained = false;
     private float myDefaultTempo;
+    private ColorablePlane myColorablePlane;
+    private Vector3 previousPosition;
+
+    // TODO: it seems like the 0th example is ignored once the 1st example is placed
 
 
     public void ProvideExample( SoundTempoExample example )
@@ -46,13 +50,28 @@ public class SoundEngineTempoRegressor : MonoBehaviour
         // grab component reference
         myRegression = gameObject.AddComponent<RapidMixRegression>();
         mySoundEngine = GetComponent<SoundEngine>();
+        myColorablePlane = GetComponentInChildren<ColorablePlane>();
+
+        // TODO: activate only when we are in this mode
+        Activate();
 
         // initialize list
         myRegressionExamples = new List<SoundTempoExample>();
 
         // initialize
         myDefaultTempo = 100f;
+        previousPosition = transform.position;
+    }
 
+    public void Activate()
+    {
+        myColorablePlane.gameObject.SetActive( true );
+        myColorablePlane.SetDataSource( this );
+    }
+
+    public void Deactivate()
+    {
+        // TODO: tell the plane to forget about me, and hide it
     }
 
     private double[] InputVector( Vector3 position )
@@ -73,6 +92,12 @@ public class SoundEngineTempoRegressor : MonoBehaviour
         if( haveTrained )
         {
             tempo = (float) myRegression.Run( SoundEngineFeatures.InputVector( objectToRunRegressionOn.position ) )[0];
+
+            if( previousPosition != transform.position )
+            {
+                previousPosition = transform.position;
+                myColorablePlane.UpdateColors();
+            }
         }
         // always be updating the sound engine
         mySoundEngine.SetQuarterNoteTime( TempoBPMToQuarterNoteSeconds( tempo ) );
@@ -108,6 +133,9 @@ public class SoundEngineTempoRegressor : MonoBehaviour
 
             // remember
             haveTrained = true;
+
+            // display
+            myColorablePlane.UpdateColors();
         }
         else
         {
@@ -116,8 +144,10 @@ public class SoundEngineTempoRegressor : MonoBehaviour
         }
     }
 
-
-
-
-
+    public float Intensity0To1( Vector3 worldPos )
+    {
+        if( !haveTrained ) { return 0; }
+        return ((float) myRegression.Run( SoundEngineFeatures.InputVector( worldPos ) )[0])
+            .MapClamp( SoundTempoExample.minTempo, SoundTempoExample.maxTempo, 0, 1 ); 
+    }
 }

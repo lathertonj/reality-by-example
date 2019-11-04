@@ -10,7 +10,7 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
 
     private SoundEngineTempoRegressor myRegressor;
 
-    private float minTempo = 30, maxTempo = 250;
+    public static float minTempo = 30, maxTempo = 250;
     private TextMesh myText;
 
     public void InformOfUpOrDownMovement( float verticalDisplacementSinceBeginning, float verticalDisplacementThisFrame )

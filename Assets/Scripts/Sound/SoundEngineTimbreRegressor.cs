@@ -2,25 +2,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSource
+public class SoundEngineTimbreRegressor : MonoBehaviour , ColorablePlaneDataSource
 {
     public Transform objectToRunRegressionOn;
     private SoundEngine mySoundEngine;
     
     // regression
     private RapidMixRegression myRegression;
-    private List<SoundTempoExample> myRegressionExamples;
+    private List<SoundTimbreExample> myRegressionExamples;
     private bool haveTrained = false;
-    private float myDefaultTempo;
+    private float myDefaultTimbre;
     private ColorablePlane myColorablePlane;
     private Vector3 previousPosition;
     private bool currentlyShowingData = false;
-    private static SoundEngineTempoRegressor me;
 
-    // TODO: it seems like the 0th example is ignored once the 1st example is placed
+    private static SoundEngineTimbreRegressor me;
 
 
-    public void ProvideExample( SoundTempoExample example )
+    // TODO: it seems like some examples get forgotten about 
+    // until they get modified slightly, then other examples get forgotten about...
+
+    public void ProvideExample( SoundTimbreExample example )
     {
         // remember
         myRegressionExamples.Add( example );
@@ -29,7 +31,7 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
         RescanProvidedExamples();
     }
 
-    public void ForgetExample( SoundTempoExample example )
+    public void ForgetExample( SoundTimbreExample example )
     {
         // forget
         if( myRegressionExamples.Remove( example ) )
@@ -53,15 +55,14 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
         myRegression = gameObject.AddComponent<RapidMixRegression>();
         mySoundEngine = GetComponent<SoundEngine>();
         myColorablePlane = GetComponentInChildren<ColorablePlane>();
+        me = this;
 
         // initialize list
-        myRegressionExamples = new List<SoundTempoExample>();
+        myRegressionExamples = new List<SoundTimbreExample>();
 
         // initialize
-        myDefaultTempo = 100f;
+        myDefaultTimbre = 0.5f;
         previousPosition = transform.position;
-
-        me = this;
     }
 
     static public void Activate()
@@ -93,10 +94,10 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
     // Update is called once per frame
     void Update()
     {
-        float tempo = myDefaultTempo;
+        float timbre = myDefaultTimbre;
         if( haveTrained )
         {
-            tempo = (float) myRegression.Run( SoundEngineFeatures.InputVector( objectToRunRegressionOn.position ) )[0];
+            timbre = RunRegressionClamped( objectToRunRegressionOn.position );
 
             if( currentlyShowingData && previousPosition != transform.position )
             {
@@ -105,15 +106,8 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
             }
         }
         // always be updating the sound engine
-        mySoundEngine.SetQuarterNoteTime( TempoBPMToQuarterNoteSeconds( tempo ) );
+        mySoundEngine.SetTimbre( timbre );
     }
-
-    private float TempoBPMToQuarterNoteSeconds( float bpm )
-    {
-        // (60 seconds / 1 minute) * (1 minute / X beats) == units of seconds / beats
-        return 60.0f / bpm;
-    }
-
 
     private void TrainRegression()
     {
@@ -124,13 +118,13 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
             myRegression.ResetRegression();
 
             // rerecord all points
-            foreach( SoundTempoExample example in myRegressionExamples )
+            foreach( SoundTimbreExample example in myRegressionExamples )
             {
                 // world to local point
                 Vector3 point = transform.InverseTransformPoint( example.transform.position );
 
                 // remember
-                myRegression.RecordDataPoint( InputVector( point ), new double[] { example.myTempo } );
+                myRegression.RecordDataPoint( InputVector( point ), new double[] { example.myTimbre } );
             }
 
             // train
@@ -149,10 +143,14 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
         }
     }
 
+    private float RunRegressionClamped( Vector3 pos )
+    {
+        return Mathf.Clamp01( (float) myRegression.Run( SoundEngineFeatures.InputVector( pos ) )[0]);
+    }
+
     public float Intensity0To1( Vector3 worldPos )
     {
         if( !haveTrained ) { return 0; }
-        return ((float) myRegression.Run( SoundEngineFeatures.InputVector( worldPos ) )[0])
-            .MapClamp( SoundTempoExample.minTempo, SoundTempoExample.maxTempo, 0, 1 ); 
+        return RunRegressionClamped( worldPos );
     }
 }

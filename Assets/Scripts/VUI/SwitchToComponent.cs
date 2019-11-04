@@ -6,7 +6,7 @@ public class SwitchToComponent : MonoBehaviour
 {
     public enum InteractionType { PlaceTerrainImmediate, PlaceTerrainGrowth, PlaceTexture, 
         PlaceTerrainLocalRaiseLower, PlaceTerrainLaserPointerRaiseLower, MoveTeleport, MoveFly, MoveGroundFly,
-        PlaceGivenPrefab };
+        PlaceTempo, PlaceTimbre };
     public InteractionType switchTo;
     public Transform givenPrefab;
 
@@ -58,8 +58,14 @@ public class SwitchToComponent : MonoBehaviour
                     DisableMovementInteractors( o );
                     o.GetComponent<GroundFlyingMovement>().enabled = true;
                     break;
-                case InteractionType.PlaceGivenPrefab:
+                case InteractionType.PlaceTempo:
                     DisableMovementInteractors( o );
+                    SoundEngineTempoRegressor.Activate();
+                    GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
+                    break;
+                case InteractionType.PlaceTimbre:
+                    DisableMovementInteractors( o );
+                    SoundEngineTimbreRegressor.Activate();
                     GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
                     break;
                 default:
@@ -107,6 +113,9 @@ public class SwitchToComponent : MonoBehaviour
 
         o.GetComponent<TerrainLaserRaiseLowerInteractor>().Abort();
         o.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = false;
+
+        SoundEngineTempoRegressor.Deactivate();
+        SoundEngineTimbreRegressor.Deactivate();
     }
 
     private IEnumerator AnimateSwell( float upSeconds, float upSlew, float downSlew, float increaseSizeBy )

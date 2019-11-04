@@ -17,8 +17,6 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
     private bool currentlyShowingData = false;
     private static SoundEngineTempoRegressor me;
 
-    // TODO: it seems like the 0th example is ignored once the 1st example is placed
-
 
     public void ProvideExample( SoundTempoExample example )
     {
@@ -110,6 +108,7 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
 
     private float TempoBPMToQuarterNoteSeconds( float bpm )
     {
+        bpm = Mathf.Clamp( bpm, SoundTempoExample.minTempo, SoundTempoExample.maxTempo );
         // (60 seconds / 1 minute) * (1 minute / X beats) == units of seconds / beats
         return 60.0f / bpm;
     }
@@ -126,8 +125,8 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
             // rerecord all points
             foreach( SoundTempoExample example in myRegressionExamples )
             {
-                // world to local point
-                Vector3 point = transform.InverseTransformPoint( example.transform.position );
+                // world point, NOT local
+                Vector3 point = example.transform.position;
 
                 // remember
                 myRegression.RecordDataPoint( InputVector( point ), new double[] { example.myTempo } );

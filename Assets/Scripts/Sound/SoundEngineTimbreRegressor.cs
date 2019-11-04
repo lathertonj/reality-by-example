@@ -19,8 +19,6 @@ public class SoundEngineTimbreRegressor : MonoBehaviour , ColorablePlaneDataSour
     private static SoundEngineTimbreRegressor me;
 
 
-    // TODO: it seems like some examples get forgotten about 
-    // until they get modified slightly, then other examples get forgotten about...
 
     public void ProvideExample( SoundTimbreExample example )
     {
@@ -120,8 +118,8 @@ public class SoundEngineTimbreRegressor : MonoBehaviour , ColorablePlaneDataSour
             // rerecord all points
             foreach( SoundTimbreExample example in myRegressionExamples )
             {
-                // world to local point
-                Vector3 point = transform.InverseTransformPoint( example.transform.position );
+                // world point, NOT local
+                Vector3 point = example.transform.position;
 
                 // remember
                 myRegression.RecordDataPoint( InputVector( point ), new double[] { example.myTimbre } );

@@ -23,22 +23,18 @@ public class SwitchToComponent : MonoBehaviour
             switch( switchTo )
             {
                 case InteractionType.PlaceTerrainImmediate:
-                    o.GetComponent<TerrainInteractor>().enabled = true;
-                    o.GetComponent<HeightExampleInteractor>().enabled = true;
+                    GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
                     break;
                 case InteractionType.PlaceTerrainGrowth:
                     o.GetComponent<TerrainGradualInteractor>().enabled = true;
-                    o.GetComponent<HeightExampleInteractor>().enabled = true;
                     break;
                 case InteractionType.PlaceTerrainLocalRaiseLower:
                     o.GetComponent<TerrainLocalRaiseLowerInteractor>().enabled = true;
-                    o.GetComponent<HeightExampleInteractor>().enabled = true;
                     break;
                 case InteractionType.PlaceTerrainLaserPointerRaiseLower:
                     // enable the components we need
                     o.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = true;
                     o.GetComponent<LaserPointerColliderSelector>().enabled = true;
-                    o.GetComponent<HeightExampleInteractor>().enabled = true;
                     break;
                 case InteractionType.PlaceTexture:
                     GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
@@ -101,9 +97,8 @@ public class SwitchToComponent : MonoBehaviour
 
     private void DisablePlacementInteractors( GameObject o )
     {
-        o.GetComponent<TerrainInteractor>().enabled = false;
-        o.GetComponent<HeightExampleInteractor>().enabled = false;
-
+        GripPlaceDeleteInteraction.currentPrefabToUse = null;
+        
         o.GetComponent<LaserPointerColliderSelector>().HideLaser();
         o.GetComponent<LaserPointerColliderSelector>().enabled = false;
 

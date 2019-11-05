@@ -142,7 +142,10 @@ public class ConnectedTerrainController : MonoBehaviour
             {
                 // remember
                 TerrainHeightExample e = example.GetComponent<TerrainHeightExample>();
-                if( e ) { myRegressionExamples.Add( e ); }
+                if( e )
+                { 
+                    e.JustPlaced();
+                }
             }
         }
 

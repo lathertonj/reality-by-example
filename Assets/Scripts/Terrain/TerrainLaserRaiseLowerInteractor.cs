@@ -6,11 +6,8 @@ using Valve.VR;
 public class TerrainLaserRaiseLowerInteractor : MonoBehaviour
 {
     public SteamVR_Input_Sources handType;
-    public SteamVR_Action_Boolean deleteExample;
     public SteamVR_Action_Boolean placeExample;
     private SteamVR_Behaviour_Pose controllerPose;
-
-    private HeightExampleInteractor terrainExampleDetector;
 
     private LaserPointerColliderSelector laser;
 
@@ -26,25 +23,12 @@ public class TerrainLaserRaiseLowerInteractor : MonoBehaviour
     void Start()
     {
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
-        terrainExampleDetector = GetComponent<HeightExampleInteractor>();
         laser = GetComponent<LaserPointerColliderSelector>();
     }
 
     void Update()
     {
-        if( deleteExample.GetStateDown( handType ) )
-        {
-            // are we currently intersecting with an example?
-            GameObject maybeTerrainExample = terrainExampleDetector.GetCollidingObject();
-            if( maybeTerrainExample != null )
-            {
-                TerrainHeightExample heightExample = maybeTerrainExample.GetComponentInParent<TerrainHeightExample>();
-                // remove it
-                heightExample.myTerrain.ForgetExample( heightExample );
-                Destroy( maybeTerrainExample );
-            }
-        }
-        else if( placeExample.GetStateDown( handType ) && laser.IsIntersecting() )
+        if( placeExample.GetStateDown( handType ) && laser.IsIntersecting() )
         {
                 // place a new example
                 // find a terrrain below or above us, and place an example there if we can

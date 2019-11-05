@@ -33,7 +33,7 @@ public class GripPlaceDeleteInteraction : MonoBehaviour
     {
         if( gripPress.GetStateDown( handType ) )
         {
-            if( collidingObject != null )
+            if( ShouldDeleteObject() )
             {
                 DeleteCollidingObject();
             }
@@ -44,9 +44,20 @@ public class GripPlaceDeleteInteraction : MonoBehaviour
         }
     }
 
+    public bool ShouldDeleteObject()
+    {
+        return collidingObject != null;
+    }
+
     // 3 methods for doing the interaction
     private void PlaceObject()
     {
+        // don't place anything if we've been told not to
+        if( currentPrefabToUse == null )
+        {
+            return;
+        }
+
         // instantiate prefab
         Transform newObject = Instantiate( currentPrefabToUse, transform.position, Quaternion.identity );
 

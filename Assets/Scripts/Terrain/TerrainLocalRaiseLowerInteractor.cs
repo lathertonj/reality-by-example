@@ -8,8 +8,7 @@ public class TerrainLocalRaiseLowerInteractor : MonoBehaviour
     public SteamVR_Input_Sources handType;
     public SteamVR_Action_Boolean triggerPress;
     private SteamVR_Behaviour_Pose controllerPose;
-
-    private HeightExampleInteractor terrainExampleDetector;
+    private GripPlaceDeleteInteraction deleteDetector;
 
 
     public TerrainHeightExample examplePrefab;
@@ -24,24 +23,16 @@ public class TerrainLocalRaiseLowerInteractor : MonoBehaviour
     void Start()
     {
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
-        terrainExampleDetector = GetComponent<HeightExampleInteractor>();
+        deleteDetector = GetComponent<GripPlaceDeleteInteraction>();
     }
 
     void Update()
     {
         if( triggerPress.GetStateDown( handType ) )
         {
-            // are we currently intersecting with an example?
-            GameObject maybeTerrainExample = terrainExampleDetector.GetCollidingObject();
-            if( maybeTerrainExample != null )
+            if( !deleteDetector.ShouldDeleteObject() )
             {
-                TerrainHeightExample heightExample = maybeTerrainExample.GetComponentInParent<TerrainHeightExample>();
-                // remove it
-                heightExample.myTerrain.ForgetExample( heightExample );
-                Destroy( maybeTerrainExample );
-            }
-            else
-            {
+                // we are not about to delete an example, so we should
                 // place a new example
                 // find a terrrain below or above us, and place an example there if we can
                 ConnectedTerrainController currentTerrain = FindTerrainAndPlaceExample();

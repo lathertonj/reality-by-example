@@ -15,6 +15,7 @@ public class GripPlaceDeleteInteraction : MonoBehaviour
 
     private TouchpadUpDownInteraction myUpDownInteraction;
     private TriggerGrabMoveInteraction myGrabMoveInteraction;
+    private TouchpadLeftRightClickInteraction myLeftRightClickInteraction;
 
 
 
@@ -24,6 +25,7 @@ public class GripPlaceDeleteInteraction : MonoBehaviour
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
         myUpDownInteraction = GetComponent<TouchpadUpDownInteraction>();
         myGrabMoveInteraction = GetComponent<TriggerGrabMoveInteraction>();
+        myLeftRightClickInteraction = GetComponent<TouchpadLeftRightClickInteraction>();
     }
 
     // Update is called once per frame
@@ -65,6 +67,8 @@ public class GripPlaceDeleteInteraction : MonoBehaviour
         // inform others
         myGrabMoveInteraction.GameObjectBeingDeleted( collidingGameObject );
         myUpDownInteraction.GameObjectBeingDeleted( collidingGameObject );
+        myLeftRightClickInteraction.GameObjectBeingDeleted( collidingGameObject );
+
 
         // destroy it
         Destroy( collidingGameObject );

@@ -2,35 +2,37 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSource
+public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSource
 {
     public Transform objectToRunRegressionOn;
     private SoundEngine mySoundEngine;
     
     // regression
-    private RapidMixRegression myRegression;
-    private List<SoundTempoExample> myRegressionExamples;
+    private RapidMixClassifier myClassifier;
+    private List<SoundChordExample> myClassifierExamples;
     private bool haveTrained = false;
-    private float myDefaultTempo;
+    private int myDefaultChord = 0;
     private ColorablePlane myColorablePlane;
     private Vector3 previousPosition;
     private bool currentlyShowingData = false;
-    private static SoundEngineTempoRegressor me;
+
+    private static SoundEngineChordClassifier me;
 
 
-    public void ProvideExample( SoundTempoExample example )
+
+    public void ProvideExample( SoundChordExample example )
     {
         // remember
-        myRegressionExamples.Add( example );
+        myClassifierExamples.Add( example );
 
         // recompute
         RescanProvidedExamples();
     }
 
-    public void ForgetExample( SoundTempoExample example )
+    public void ForgetExample( SoundChordExample example )
     {
         // forget
-        if( myRegressionExamples.Remove( example ) )
+        if( myClassifierExamples.Remove( example ) )
         {
             // recompute
             RescanProvidedExamples();
@@ -40,7 +42,7 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
     public void RescanProvidedExamples()
     {
         // train and recompute
-        TrainRegression();
+        TrainClassifier();
     }
 
 
@@ -48,18 +50,17 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
     void Awake()
     {
         // grab component reference
-        myRegression = gameObject.AddComponent<RapidMixRegression>();
+        myClassifier = gameObject.AddComponent<RapidMixClassifier>();
         mySoundEngine = GetComponent<SoundEngine>();
         myColorablePlane = GetComponentInChildren<ColorablePlane>();
+        me = this;
 
         // initialize list
-        myRegressionExamples = new List<SoundTempoExample>();
+        myClassifierExamples = new List<SoundChordExample>();
 
         // initialize
-        myDefaultTempo = 100f;
+        myDefaultChord = 0;
         previousPosition = transform.position;
-
-        me = this;
     }
 
     static public void Activate()
@@ -91,10 +92,10 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
     // Update is called once per frame
     void Update()
     {
-        float tempo = myDefaultTempo;
+        int chord = myDefaultChord;
         if( haveTrained )
         {
-            tempo = (float) myRegression.Run( SoundEngineFeatures.InputVector( objectToRunRegressionOn.position ) )[0];
+            chord = RunClassifier( objectToRunRegressionOn.position );
 
             if( currentlyShowingData && previousPosition != transform.position )
             {
@@ -103,37 +104,30 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
             }
         }
         // always be updating the sound engine
-        mySoundEngine.SetQuarterNoteTime( TempoBPMToQuarterNoteSeconds( tempo ) );
+        // TODO: only update every so often. same with other params.
+        mySoundEngine.SetChord( chord );
     }
 
-    private float TempoBPMToQuarterNoteSeconds( float bpm )
-    {
-        bpm = Mathf.Clamp( bpm, SoundTempoExample.minTempo, SoundTempoExample.maxTempo );
-        // (60 seconds / 1 minute) * (1 minute / X beats) == units of seconds / beats
-        return 60.0f / bpm;
-    }
-
-
-    private void TrainRegression()
+    private void TrainClassifier()
     {
         // only do this when we have examples
-        if( myRegressionExamples.Count > 0 )
+        if( myClassifierExamples.Count > 0 )
         {
             // reset the regression
-            myRegression.ResetRegression();
+            myClassifier.ResetClassifier();
 
             // rerecord all points
-            foreach( SoundTempoExample example in myRegressionExamples )
+            foreach( SoundChordExample example in myClassifierExamples )
             {
                 // world point, NOT local
                 Vector3 point = example.transform.position;
 
                 // remember
-                myRegression.RecordDataPoint( InputVector( point ), new double[] { example.myTempo } );
+                myClassifier.RecordDataPoint( InputVector( point ), example.myChord.ToString() );
             }
 
             // train
-            myRegression.Train();
+            myClassifier.Train();
 
             // remember
             haveTrained = true;
@@ -148,10 +142,14 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
         }
     }
 
+    private int RunClassifier( Vector3 pos )
+    {
+        return int.Parse( myClassifier.Run( SoundEngineFeatures.InputVector( pos ) ) );
+    }
+
     public float Intensity0To1( Vector3 worldPos )
     {
         if( !haveTrained ) { return 0; }
-        return ((float) myRegression.Run( SoundEngineFeatures.InputVector( worldPos ) )[0])
-            .MapClamp( SoundTempoExample.minTempo, SoundTempoExample.maxTempo, 0, 1 ); 
+        return RunClassifier( worldPos ) * 1.0f / SoundChordExample.numChords;
     }
 }

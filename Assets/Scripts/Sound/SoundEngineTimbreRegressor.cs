@@ -73,7 +73,7 @@ public class SoundEngineTimbreRegressor : MonoBehaviour , ColorablePlaneDataSour
     static public void Deactivate()
     {
         // TODO hide the plane -- want to do this, but only when NEITHER of our hands is using the plane...
-        // me.myColorablePlane.gameObject.SetActive( false );
+        me.myColorablePlane.gameObject.SetActive( false );
 
         me.currentlyShowingData = false;
     }

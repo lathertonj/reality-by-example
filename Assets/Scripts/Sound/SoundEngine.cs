@@ -138,7 +138,7 @@ public class SoundEngine : MonoBehaviour
 
     public void SetChord( int whichChord )
     {
-        myChuck.SetInt( "whichChord", whichChord );
+        myChuck.SetInt( "whichChords", whichChord );
     }
 
     public void SetTimbre( float zeroToOne )

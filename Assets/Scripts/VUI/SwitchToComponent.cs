@@ -19,6 +19,7 @@ public class SwitchToComponent : MonoBehaviour
         {
             GameObject o = maybeController.gameObject;
             DisablePlacementInteractors( o );
+            DisableMovementInteractors( o );
             switch( switchTo )
             {
                 case InteractionType.PlaceTerrainImmediate:
@@ -34,52 +35,40 @@ public class SwitchToComponent : MonoBehaviour
                     o.GetComponent<HeightExampleInteractor>().enabled = true;
                     break;
                 case InteractionType.PlaceTerrainLaserPointerRaiseLower:
-                    // disable movement interactors because this one uses its own laser pointer
-                    DisableMovementInteractors( o );
-
                     // enable the components we need
                     o.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = true;
                     o.GetComponent<LaserPointerColliderSelector>().enabled = true;
                     o.GetComponent<HeightExampleInteractor>().enabled = true;
                     break;
                 case InteractionType.PlaceTexture:
-                    o.GetComponent<TerrainTextureInteractor>().enabled = true;
-                    o.GetComponent<TextureExampleInteractor>().enabled = true;
+                    GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
                     break;
                 case InteractionType.MoveTeleport:
-                    DisableMovementInteractors( o );
                     o.GetComponent<FlyingTeleporter>().enabled = true;
                     break;
                 case InteractionType.MoveFly:
-                    DisableMovementInteractors( o );
                     o.GetComponent<FlyingMovement>().enabled = true;
                     break;
                 case InteractionType.MoveGroundFly:
-                    DisableMovementInteractors( o );
                     o.GetComponent<GroundFlyingMovement>().enabled = true;
                     break;
                 case InteractionType.PlaceTempo:
-                    DisableMovementInteractors( o );
                     SoundEngineTempoRegressor.Activate();
                     GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
                     break;
                 case InteractionType.PlaceTimbre:
-                    DisableMovementInteractors( o );
                     SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.timbreRegressor );
                     GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
                     break;
                 case InteractionType.PlaceDensity:
-                    DisableMovementInteractors( o );
                     SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.densityRegressor );
                     GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
                     break;
                 case InteractionType.PlaceVolume:
-                    DisableMovementInteractors( o );
                     SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.volumeRegressor );
                     GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
                     break;
                 case InteractionType.PlaceChord:
-                    DisableMovementInteractors( o );
                     SoundEngineChordClassifier.Activate();
                     GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
                     break;
@@ -114,8 +103,6 @@ public class SwitchToComponent : MonoBehaviour
     {
         o.GetComponent<TerrainInteractor>().enabled = false;
         o.GetComponent<HeightExampleInteractor>().enabled = false;
-        o.GetComponent<TerrainTextureInteractor>().enabled = false;
-        o.GetComponent<TextureExampleInteractor>().enabled = false;
 
         o.GetComponent<LaserPointerColliderSelector>().HideLaser();
         o.GetComponent<LaserPointerColliderSelector>().enabled = false;

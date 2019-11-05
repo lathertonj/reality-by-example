@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TerrainTextureExample : MonoBehaviour
+public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable
 {
     public Material[] myMaterials;
 
@@ -12,7 +12,7 @@ public class TerrainTextureExample : MonoBehaviour
     private MeshRenderer myRenderer;
 
     [HideInInspector] public SerializableTerrainTextureExample serializableObject;
-    [HideInInspector] public ConnectedTerrainTextureController myTerrain;
+    [HideInInspector] private ConnectedTerrainTextureController myTerrain;
 
     void Awake()
     {
@@ -24,7 +24,7 @@ public class TerrainTextureExample : MonoBehaviour
         UpdatePosition();
     }
 
-    public void SwitchToNextMaterial()
+    private void SwitchToNextMaterial()
     {
         // compute new value for IML
         myCurrentValue++;
@@ -34,7 +34,7 @@ public class TerrainTextureExample : MonoBehaviour
         UpdateMaterial();
     }
 
-    public void SwitchToPreviousMaterial()
+    private void SwitchToPreviousMaterial()
     {
         // compute new index
         myCurrentValue = myCurrentValue - 1 + myValues.Length;
@@ -70,6 +70,76 @@ public class TerrainTextureExample : MonoBehaviour
         myCurrentValue = serialized.material;
         UpdatePosition();
         UpdateMaterial();
+    }
+
+    private ConnectedTerrainTextureController FindTerrain()
+    {
+        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
+        int layerMask = 1 << 8;
+
+        RaycastHit hit;
+        // Check from a point really high above us, in the downward direction (in case we are below terrain)
+        if( Physics.Raycast( transform.position + 400 * Vector3.up, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
+        {
+            return hit.transform.GetComponentInParent<ConnectedTerrainTextureController>();
+        }
+        return null;
+    }
+
+    void GripPlaceDeleteInteractable.JustPlaced()
+    {
+        myTerrain = FindTerrain();
+        
+        if( myTerrain == null )
+        {
+            Destroy( gameObject );
+        }
+        else
+        {
+            myTerrain.ProvideExample( this );
+        }
+    }
+
+    void GripPlaceDeleteInteractable.AboutToBeDeleted()
+    {
+        myTerrain.ForgetExample( this );
+    }
+
+    void TouchpadLeftRightClickInteractable.InformOfLeftClick()
+    {
+        SwitchToPreviousMaterial();
+        myTerrain.RescanProvidedExamples();
+    }
+
+    void TouchpadLeftRightClickInteractable.InformOfRightClick()
+    {
+        SwitchToNextMaterial();
+        myTerrain.RescanProvidedExamples();
+    }
+
+    void TriggerGrabMoveInteractable.InformOfTemporaryMovement( Vector3 currentPosition )
+    {
+        // do nothing (don't update terrain while moving temporarily)
+    }
+
+    void TriggerGrabMoveInteractable.FinalizeMovement( Vector3 endPosition )
+    {
+        // remember for serial
+        UpdatePosition();
+
+        // see if we're on a new terrain
+        ConnectedTerrainTextureController newTerrain = FindTerrain();
+        if( newTerrain != null && newTerrain != myTerrain )
+        {
+            myTerrain.ForgetExample( this );
+            newTerrain.ProvideExample( this );
+            myTerrain = newTerrain;
+        }
+        else
+        {
+            // stick with myTerrain
+            myTerrain.RescanProvidedExamples();
+        }
     }
 }
 

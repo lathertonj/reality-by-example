@@ -6,7 +6,7 @@ public class SwitchToComponent : MonoBehaviour
 {
     public enum InteractionType { PlaceTerrainImmediate, PlaceTerrainGrowth, PlaceTexture, 
         PlaceTerrainLocalRaiseLower, PlaceTerrainLaserPointerRaiseLower, MoveTeleport, MoveFly, MoveGroundFly,
-        PlaceTempo, PlaceTimbre, PlaceChord };
+        PlaceTempo, PlaceTimbre, PlaceDensity, PlaceVolume, PlaceChord };
     public InteractionType switchTo;
     public Transform givenPrefab;
 
@@ -65,7 +65,17 @@ public class SwitchToComponent : MonoBehaviour
                     break;
                 case InteractionType.PlaceTimbre:
                     DisableMovementInteractors( o );
-                    SoundEngineTimbreRegressor.Activate();
+                    SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.timbreRegressor );
+                    GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
+                    break;
+                case InteractionType.PlaceDensity:
+                    DisableMovementInteractors( o );
+                    SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.densityRegressor );
+                    GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
+                    break;
+                case InteractionType.PlaceVolume:
+                    DisableMovementInteractors( o );
+                    SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.volumeRegressor );
                     GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
                     break;
                 case InteractionType.PlaceChord:
@@ -120,8 +130,10 @@ public class SwitchToComponent : MonoBehaviour
         o.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = false;
 
         SoundEngineTempoRegressor.Deactivate();
-        SoundEngineTimbreRegressor.Deactivate();
         SoundEngineChordClassifier.Deactivate();
+        SoundEngine0To1Regressor.Deactivate( SoundEngine0To1Regressor.timbreRegressor );
+        SoundEngine0To1Regressor.Deactivate( SoundEngine0To1Regressor.densityRegressor );
+        SoundEngine0To1Regressor.Deactivate( SoundEngine0To1Regressor.volumeRegressor );
     }
 
     private IEnumerator AnimateSwell( float upSeconds, float upSlew, float downSlew, float increaseSizeBy )

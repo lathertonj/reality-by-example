@@ -10,7 +10,7 @@ public class TouchpadUpDownInteraction : MonoBehaviour
     public SteamVR_Action_Boolean click;
     private SteamVR_Behaviour_Pose controllerPose;
     private TouchpadUpDownInteractable collidingObject = null, interactingObject = null;
-    private GameObject collidingGameObject = null;
+    private GameObject collidingGameObject = null, interactingGameObject = null;
     private Vector3 updownStartPosition, updownPreviousPosition;
 
 
@@ -42,6 +42,7 @@ public class TouchpadUpDownInteraction : MonoBehaviour
     private void StartUpDownGesture()
     {
         interactingObject = collidingObject;
+        interactingGameObject = collidingGameObject;
         updownStartPosition = updownPreviousPosition = controllerPose.transform.position;
     }
 
@@ -50,14 +51,15 @@ public class TouchpadUpDownInteraction : MonoBehaviour
         Vector3 currentPosition = controllerPose.transform.position;
         Vector3 displacementSinceBeginning = currentPosition - updownStartPosition;
         Vector3 displacementThisFrame = currentPosition - updownPreviousPosition;
-        if( interactingObject != null ){ interactingObject.InformOfUpOrDownMovement( displacementSinceBeginning.y, displacementThisFrame.y ); }
+        if( interactingGameObject != null ){ interactingObject.InformOfUpOrDownMovement( displacementSinceBeginning.y, displacementThisFrame.y ); }
         updownPreviousPosition = currentPosition;
     }
 
     private void EndUpDownGesture()
     {
-        if( interactingObject != null ){ interactingObject.FinalizeMovement(); }
+        if( interactingGameObject != null ){ interactingObject.FinalizeMovement(); }
         interactingObject = null;
+        interactingGameObject = null;
     }
 
     private void SetCollidingObject( Collider col )
@@ -85,7 +87,7 @@ public class TouchpadUpDownInteraction : MonoBehaviour
             ForgetCollidingObject();
 
             // stop the gesture
-            if( interactingObject != null )
+            if( interactingGameObject != null )
             {
                 EndUpDownGesture();
             }

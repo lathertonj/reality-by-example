@@ -85,26 +85,31 @@ public class SoundEngineTimbreRegressor : MonoBehaviour , ColorablePlaneDataSour
 
     void Start()
     {
-        // nothing to do on start
+        StartCoroutine( UpdateTimbre() );
     }
 
 
     // Update is called once per frame
-    void Update()
+    IEnumerator UpdateTimbre()
     {
-        float timbre = myDefaultTimbre;
-        if( haveTrained )
+        while( true )
         {
-            timbre = RunRegressionClamped( objectToRunRegressionOn.position );
-
-            if( currentlyShowingData && previousPosition != transform.position )
+            float timbre = myDefaultTimbre;
+            if( haveTrained )
             {
-                previousPosition = transform.position;
-                myColorablePlane.UpdateColors();
+                timbre = RunRegressionClamped( objectToRunRegressionOn.position );
+
+                if( currentlyShowingData && previousPosition != transform.position )
+                {
+                    previousPosition = transform.position;
+                    myColorablePlane.UpdateColors();
+                }
             }
+            // update the sound engine
+            mySoundEngine.SetTimbre( timbre );
+
+            yield return new WaitForSecondsRealtime( 0.1f );
         }
-        // always be updating the sound engine
-        mySoundEngine.SetTimbre( timbre );
     }
 
     private void TrainRegression()

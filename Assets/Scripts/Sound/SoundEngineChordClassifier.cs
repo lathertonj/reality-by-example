@@ -85,27 +85,31 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
 
     void Start()
     {
-        // nothing to do on start
+        StartCoroutine( UpdateChords() );
     }
 
 
     // Update is called once per frame
-    void Update()
+    IEnumerator UpdateChords()
     {
-        int chord = myDefaultChord;
-        if( haveTrained )
+        while( true )
         {
-            chord = RunClassifier( objectToRunRegressionOn.position );
-
-            if( currentlyShowingData && previousPosition != transform.position )
+            int chord = myDefaultChord;
+            if( haveTrained )
             {
-                previousPosition = transform.position;
-                myColorablePlane.UpdateColors();
+                chord = RunClassifier( objectToRunRegressionOn.position );
+
+                if( currentlyShowingData && previousPosition != transform.position )
+                {
+                    previousPosition = transform.position;
+                    myColorablePlane.UpdateColors();
+                }
             }
+            // update the sound engine
+            mySoundEngine.SetChord( chord );
+
+            yield return new WaitForSecondsRealtime( 0.1f );
         }
-        // always be updating the sound engine
-        // TODO: only update every so often. same with other params.
-        mySoundEngine.SetChord( chord );
     }
 
     private void TrainClassifier()

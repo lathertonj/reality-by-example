@@ -84,26 +84,31 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
 
     void Start()
     {
-        // nothing to do on start
+        StartCoroutine( UpdateTempo() );
     }
 
 
     // Update is called once per frame
-    void Update()
+    IEnumerator UpdateTempo()
     {
-        float tempo = myDefaultTempo;
-        if( haveTrained )
+        while( true )
         {
-            tempo = (float) myRegression.Run( SoundEngineFeatures.InputVector( objectToRunRegressionOn.position ) )[0];
-
-            if( currentlyShowingData && previousPosition != transform.position )
+            float tempo = myDefaultTempo;
+            if( haveTrained )
             {
-                previousPosition = transform.position;
-                myColorablePlane.UpdateColors();
+                tempo = (float) myRegression.Run( SoundEngineFeatures.InputVector( objectToRunRegressionOn.position ) )[0];
+
+                if( currentlyShowingData && previousPosition != transform.position )
+                {
+                    previousPosition = transform.position;
+                    myColorablePlane.UpdateColors();
+                }
             }
+            // update sound engine
+            mySoundEngine.SetQuarterNoteTime( TempoBPMToQuarterNoteSeconds( tempo ) );
+
+            yield return new WaitForSecondsRealtime( 0.1f );
         }
-        // always be updating the sound engine
-        mySoundEngine.SetQuarterNoteTime( TempoBPMToQuarterNoteSeconds( tempo ) );
     }
 
     private float TempoBPMToQuarterNoteSeconds( float bpm )

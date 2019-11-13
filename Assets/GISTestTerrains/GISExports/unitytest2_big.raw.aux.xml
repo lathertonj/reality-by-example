@@ -1,0 +1,43 @@
+<PAMDataset>
+  <Metadata domain="IMAGE_STRUCTURE">
+    <MDI key="INTERLEAVE">BAND</MDI>
+  </Metadata>
+  <Metadata domain="ENVI">
+    <MDI key="bands">1</MDI>
+    <MDI key="byte_order">0</MDI>
+    <MDI key="data_type">12</MDI>
+    <MDI key="file_type">ENVI Standard</MDI>
+    <MDI key="header_offset">0</MDI>
+    <MDI key="interleave">bsq</MDI>
+    <MDI key="lines">513</MDI>
+    <MDI key="samples">513</MDI>
+  </Metadata>
+  <Metadata>
+    <MDI key="AREA_OR_POINT">Point</MDI>
+    <MDI key="DTED_CompilationDate">0002</MDI>
+    <MDI key="DTED_DataEdition">02</MDI>
+    <MDI key="DTED_DigitizingSystem">SRTM      </MDI>
+    <MDI key="DTED_HorizontalAccuracy">0013</MDI>
+    <MDI key="DTED_HorizontalDatum">WGS84</MDI>
+    <MDI key="DTED_MaintenanceDate">0000</MDI>
+    <MDI key="DTED_MaintenanceDescription">0000</MDI>
+    <MDI key="DTED_MatchMergeDate">0000</MDI>
+    <MDI key="DTED_MatchMergeVersion">A</MDI>
+    <MDI key="DTED_NimaDesignator">DTED1</MDI>
+    <MDI key="DTED_OriginLatitude">0390000N</MDI>
+    <MDI key="DTED_OriginLongitude">1200000W</MDI>
+    <MDI key="DTED_Producer">USCNIMA </MDI>
+    <MDI key="DTED_RelHorizontalAccuracy">NA  </MDI>
+    <MDI key="DTED_RelVerticalAccuracy">0007</MDI>
+    <MDI key="DTED_SecurityCode_DSI">U</MDI>
+    <MDI key="DTED_SecurityCode_UHL">U  </MDI>
+    <MDI key="DTED_UniqueRef_DSI">G18 104        </MDI>
+    <MDI key="DTED_UniqueRef_UHL">G18 104     </MDI>
+    <MDI key="DTED_VerticalAccuracy_ACC">0006</MDI>
+    <MDI key="DTED_VerticalAccuracy_UHL">0006</MDI>
+    <MDI key="DTED_VerticalDatum">E96</MDI>
+  </Metadata>
+  <PAMRasterBand band="1">
+    <NoDataValue>-3.27670000000000E+04</NoDataValue>
+  </PAMRasterBand>
+</PAMDataset>

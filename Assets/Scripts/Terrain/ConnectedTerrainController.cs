@@ -49,7 +49,8 @@ public class ConnectedTerrainController : MonoBehaviour
     private float[,,] loadedGISData;
     private int gisDataFileSideLength = 513;
     private string[] gisDataFiles = { "hillyrivervalley_heightis50", "mountainous2_heightis150", "mountainous3_heightis200", "mountainous1_heightis135", "diagonalcanyon_heightis100" };
-    // TODO: tone down some of these if they are too intense
+    // toning these down by multiplying by 0.X just sort of mellows it out
+    // TODO: just need to go back to the original .raw files and lower them so they don't add so much height in the first place.
     private float[] gisDataHeights = { 50, 150, 200, 135, 100 };
     // choices for hilly: 1 = 80,235; 2 = 50,60
     private Vector2Int[] gisDataOffsets = { new Vector2Int( 50, 60 ), new Vector2Int( 40, 115 ), new Vector2Int( 160, 225 ), new Vector2Int( 50, 0 ), new Vector2Int( 340, 192 ) }; 

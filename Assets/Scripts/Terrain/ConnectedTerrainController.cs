@@ -19,6 +19,7 @@ public class ConnectedTerrainController : MonoBehaviour
 
 
     private Terrain myTerrain;
+    private TerrainData myTerrainData;
     private ConnectedTerrainTextureController myTextureController;
 
     public Transform examplePointsContainer;
@@ -41,6 +42,57 @@ public class ConnectedTerrainController : MonoBehaviour
 
     private UnderTerrainController myBottom;
 
+    public bool addGISTexture = true;
+    private RapidMixRegression myGISRegression;
+    private List<TerrainGISExample> myGISRegressionExamples;
+    private bool haveTrainedGIS = false;
+    private float[,,] loadedGISData;
+    private int gisDataFileSideLength = 513;
+    private string[] gisDataFiles = { "hillyrivervalley_heightis50", "mountainous2_heightis150", "mountainous3_heightis200", "mountainous1_heightis135", "diagonalcanyon_heightis100" };
+    private float[] gisDataHeights = { 50, 150, 200, 135, 100 };
+    // choices for hilly: 1 = 80,235; 2 = 50,60
+    private Vector2Int[] gisDataOffsets = { new Vector2Int( 50, 60 ), new Vector2Int( 40, 115 ), new Vector2Int( 160, 225 ), new Vector2Int( 50, 0 ), new Vector2Int( 340, 192 ) }; 
+
+    // lengthOfSide should be size of the "pureData" (i.e. including the extra non shown stuff)
+    private void LoadGISData( int lengthOfSide, float scaleDownFactor )
+    {
+        // i, y, x
+        loadedGISData = new float[ gisDataFiles.Length, lengthOfSide, lengthOfSide ];
+
+        for( int i = 0; i < gisDataFiles.Length; i++ )
+        {
+            // load into loadedGISData[i,y,x]
+            float[,] fileData = new float[ gisDataFileSideLength, gisDataFileSideLength ];
+
+            // read from Resources
+            TextAsset textAsset = Resources.Load<TextAsset>( gisDataFiles[i] );
+            using( System.IO.Stream stream = new System.IO.MemoryStream( textAsset.bytes ) )
+            using( System.IO.BinaryReader reader = new System.IO.BinaryReader( stream ) )
+            {
+                for( int y = 0; y < gisDataFileSideLength; y++ )
+                {
+                    for( int x = 0; x < gisDataFileSideLength; x++ )
+                    {
+                        float v = (float)reader.ReadUInt16() / 0xFFFF;
+                        fileData[y, x] = v;
+                    }
+                }
+            }
+
+            // crop and re-height
+            Vector2Int offsetWithinFile = gisDataOffsets[i];
+            for( int y = 0; y < lengthOfSide; y++ )
+            {
+                for( int x = 0; x < lengthOfSide; x++ )
+                {
+                    loadedGISData[i, y, x] = fileData[y + offsetWithinFile.y, x + offsetWithinFile.x]
+                        * gisDataHeights[i] / scaleDownFactor;
+                }
+            }
+        }
+    }
+
+
     public void ProvideExample( TerrainHeightExample example )
     {
         // remember
@@ -60,10 +112,34 @@ public class ConnectedTerrainController : MonoBehaviour
         }
     }
 
+    public void ProvideExample( TerrainGISExample example )
+    {
+        if( !addGISTexture ) return;
+        // remember
+        myGISRegressionExamples.Add( example );
+
+        // recompute
+        RescanProvidedExamples();
+    }
+
+    public void ForgetExample( TerrainGISExample example )
+    {
+        if( !addGISTexture ) return;
+        // forget
+        if( myGISRegressionExamples.Remove( example ) )
+        {
+            // recompute
+            RescanProvidedExamples();
+        }
+    }
+
+    // TODO: can this be split into two phases: the base data and the GIS data,
+    // so that we can only recompute one when it changes? :|
     public void RescanProvidedExamples( bool lazy = false )
     {
         // train and recompute
         TrainRegression();
+        if( addGISTexture ) { TrainGISRegression(); }
         int framesToSpreadOver = 15;
         StartCoroutine( ComputeLandHeight( lazy, framesToSpreadOver ) );
 
@@ -80,16 +156,19 @@ public class ConnectedTerrainController : MonoBehaviour
     {
         // grab component reference
         myRegression = gameObject.AddComponent<RapidMixRegression>();
+        myGISRegression = gameObject.AddComponent<RapidMixRegression>();
         myTerrain = GetComponentInChildren<Terrain>();
+        myTerrainData = myTerrain.terrainData;
         myTextureController = GetComponent<ConnectedTerrainTextureController>();
 
         // initialize list
         myRegressionExamples = new List<TerrainHeightExample>();
+        myGISRegressionExamples = new List<TerrainGISExample>();
 
         // compute sizes
-        verticesPerSide = myTerrain.terrainData.heightmapWidth;
-        terrainSize = myTerrain.terrainData.size.x; // it is invariant to scale. scaling up doesn't affect the computations here.
-        terrainHeight = myTerrain.terrainData.size.y;
+        verticesPerSide = myTerrainData.heightmapWidth;
+        terrainSize = myTerrainData.size.x; // it is invariant to scale. scaling up doesn't affect the computations here.
+        terrainHeight = myTerrainData.size.y;
         spaceBetweenVertices = terrainSize / ( verticesPerSide - 1 );
         myPureRegressionHeights = new float[verticesPerSide + 2 * extraBorderPixels, verticesPerSide + 2 * extraBorderPixels];
         myModifiedRegressionHeights = new float[verticesPerSide, verticesPerSide];
@@ -101,6 +180,15 @@ public class ConnectedTerrainController : MonoBehaviour
         if( myBottom )
         {
             myBottom.ConstructMesh( verticesPerSide, spaceBetweenVertices );
+        }
+
+        // load GIS data
+        if( addGISTexture )
+        {
+            // scale down factor: because for some reason it's way too high,
+            // but I'm not quite sure by how much / why, so let's just fudge it
+            float scaleDownFactor = 10f;
+            LoadGISData( verticesPerSide + 2 * extraBorderPixels, scaleDownFactor * terrainHeight );
         }
     }
 
@@ -126,7 +214,63 @@ public class ConnectedTerrainController : MonoBehaviour
             // WeirdSineFeature( x-z, 0.1f, 0.3f, 0.7f ), WeirdSineFeature( x-z, 0.5f, 0.6f, 2f ), WeirdSineFeature( x-z, 0.1f, 0.2f, 0.3f ),
             // WeirdSineFeature( x*z, 0.1f, 0.3f, 0.7f ), WeirdSineFeature( x*z, 0.5f, 0.6f, 2f ), WeirdSineFeature( x*z, 0.1f, 0.2f, 0.3f ),
         };
-        // return new double[] { x, z, x*x, z*z, x*z };
+    }
+
+    private double[] GISInputVector( Vector3 pointNearTerrain )
+    {
+        Vector3 localPoint = pointNearTerrain - myTerrain.transform.position;
+        float normX = Mathf.InverseLerp( 0.0f, myTerrainData.size.x, localPoint.x );
+        float normY = Mathf.InverseLerp( 0.0f, myTerrainData.size.z, localPoint.z );
+
+        return GISInputVectorFromNormCoordinates( normX, normY );
+    }
+
+    // NOTE: this implementation means that to calculate GIS data, we first need to
+    // re-fill the terrain with data from the general heightmap calculation,
+    // THEN do the GIS addition, because it relies on the terrain already having
+    // steepness information and normals.
+    private double[] GISInputVectorFromNormCoordinates( float normX, float normY )
+    {
+        // FIRST POINT: normalized height at this location in terrain
+        // TODO check if this is normalized already or if we need to divide by myTerrainData.heightmapHeight
+        float normHeight = myTerrainData.GetInterpolatedHeight( normX, normY ) / myTerrainData.heightmapHeight;
+
+        // SECOND POINT: normalized steepness at this location in terrain
+        // according to Unity: "Steepness is given as an angle, 0..90 degrees"
+        float normSteepness = myTerrainData.GetSteepness( normX, normY ) / 90.0f;
+
+        // THIRD POINT: the x and z directions of the surface normal (ignore y because that has to do with steepness)
+        Vector3 normal = myTerrainData.GetInterpolatedNormal( normX, normY );
+
+        // final vector:
+        // height
+        // steepness
+        // normal x direction
+        // normal z direction
+        // height * steepness
+        // height * normal x direction
+        // height * normal z direction
+        // steepness * normal x direction
+        // steepness * normal z direction
+        // could consider adding height * steepness * normal directions...
+        // could consider adding norm positions...
+        return new double[] {
+            normHeight,
+            normSteepness,
+            normX,
+            normY,
+            normal.x,
+            normal.z
+            // normHeight * normX,
+            // normHeight * normY,
+            // normSteepness * normX,
+            // normSteepness * normY
+            // normHeight * normSteepness,
+            // normHeight * normal.x,
+            // normHeight * normal.z,
+            // normSteepness * normal.x,
+            // normSteepness * normal.z
+        };
     }
 
     private float WeirdSineFeature( float f, float a, float b, float c )
@@ -143,7 +287,7 @@ public class ConnectedTerrainController : MonoBehaviour
                 // remember
                 TerrainHeightExample e = example.GetComponent<TerrainHeightExample>();
                 if( e )
-                { 
+                {
                     e.JustPlaced();
                 }
             }
@@ -232,6 +376,15 @@ public class ConnectedTerrainController : MonoBehaviour
 
         if( !lazy )
         {
+            // before stitching, run GIS
+            if( addGISTexture )
+            {
+                // add the data into the terrain component in a lazy way so we can compute features.. s a d
+                SetTerrainData( false );
+
+                // compute GIS
+                ComputeGISAddition();
+            }
             SmoothEdgeRegion();
             SetTerrainData( true );
             SetNeighbors( true );
@@ -243,20 +396,58 @@ public class ConnectedTerrainController : MonoBehaviour
             // TODO: could maybe still restitch neighbors...
             UnityEngine.Profiling.Profiler.BeginSample( "Lazy terrain set" );
             SmoothEdgeRegion();
-            SetTerrainData( false );
+            SetTerrainData( finalize: false );
             StitchEdges();
             UnityEngine.Profiling.Profiler.EndSample();
+        }
+    }
+
+    private void ComputeGISAddition()
+    {
+        if( !haveTrainedGIS ) { return; }
+
+        for( int y = 0; y < myPureRegressionHeights.GetLength( 0 ); y++ )
+        {
+            for( int x = 0; x < myPureRegressionHeights.GetLength( 1 ); x++ )
+            {
+                // calculate addition
+                float addition = 0;
+
+                // Normalise x/y coordinates to range 0-1 
+                float x_01 = (float)x / (float)myTerrainData.alphamapWidth;
+                float y_01 = (float)y / (float)myTerrainData.alphamapHeight;
+
+                double[] gisWeights = myGISRegression.Run( GISInputVectorFromNormCoordinates( x_01, y_01 ) );
+                // calculate added height based on the GIS data we loaded
+                for( int i = 0; i < loadedGISData.GetLength( 0 ); i++ )
+                {
+                    addition += Mathf.Clamp01( (float) gisWeights[ i + 1 ] ) * loadedGISData[i, y, x];
+                }
+                // 0th is smooth -- use this to mute other features
+                addition *= 1 - Mathf.Clamp01( (float) gisWeights[0] );
+
+                // note the GIS data is already normalized to terrainHeight so we don't need to normalize it here
+                myPureRegressionHeights[y, x] += addition;
+
+                // re-store into myModifiedRegressionHeights too
+                if( x >= extraBorderPixels && x < verticesPerSide + extraBorderPixels &&
+                    y >= extraBorderPixels && y < verticesPerSide + extraBorderPixels )
+                {
+                    myModifiedRegressionHeights[y - extraBorderPixels, x - extraBorderPixels] = myPureRegressionHeights[y, x];
+                }
+
+            }
         }
     }
 
     private void SetTerrainData( bool finalize )
     {
         // set vertices from 0,0 corner
-        myTerrain.terrainData.SetHeightsDelayLOD( 0, 0, myModifiedRegressionHeights );
+        myTerrainData.SetHeightsDelayLOD( 0, 0, myModifiedRegressionHeights );
 
         // can wait to do this ONLY AFTER operation is done, so don't need to keep calling it
         // if we do a long gesture or show change over time
-        if( finalize ) { myTerrain.terrainData.SyncHeightmap(); }
+        if( finalize ) { myTerrainData.SyncHeightmap(); }
     }
 
     private void SetBottomTerrainData( bool doNeighbors = false )
@@ -264,7 +455,7 @@ public class ConnectedTerrainController : MonoBehaviour
         // set bottom too 
         if( myBottom )
         {
-            myBottom.SetHeight( myTerrain.terrainData.GetHeights( 0, 0, verticesPerSide, verticesPerSide ), terrainHeight );
+            myBottom.SetHeight( myTerrainData.GetHeights( 0, 0, verticesPerSide, verticesPerSide ), terrainHeight );
         }
 
         if( doNeighbors )
@@ -472,8 +663,8 @@ public class ConnectedTerrainController : MonoBehaviour
         if( leftNeighbor )
         {
             Stitch.TerrainStitch(
-                leftNeighbor.myTerrain.terrainData,
-                myTerrain.terrainData,
+                leftNeighbor.myTerrainData,
+                myTerrainData,
                 StitchDirection.Across,
                 stitchWidth,
                 stitchStrength,
@@ -487,8 +678,8 @@ public class ConnectedTerrainController : MonoBehaviour
         if( rightNeighbor )
         {
             Stitch.TerrainStitch(
-                myTerrain.terrainData,
-                rightNeighbor.myTerrain.terrainData,
+                myTerrainData,
+                rightNeighbor.myTerrainData,
                 StitchDirection.Across,
                 stitchWidth,
                 stitchStrength,
@@ -502,8 +693,8 @@ public class ConnectedTerrainController : MonoBehaviour
         if( upperNeighbor )
         {
             Stitch.TerrainStitch(
-                upperNeighbor.myTerrain.terrainData,
-                myTerrain.terrainData,
+                upperNeighbor.myTerrainData,
+                myTerrainData,
                 StitchDirection.Down,
                 stitchWidth,
                 stitchStrength,
@@ -517,8 +708,8 @@ public class ConnectedTerrainController : MonoBehaviour
         if( lowerNeighbor )
         {
             Stitch.TerrainStitch(
-                myTerrain.terrainData,
-                lowerNeighbor.myTerrain.terrainData,
+                myTerrainData,
+                lowerNeighbor.myTerrainData,
                 StitchDirection.Down,
                 stitchWidth,
                 stitchStrength,
@@ -553,6 +744,33 @@ public class ConnectedTerrainController : MonoBehaviour
             haveTrained = true;
         }
         UnityEngine.Profiling.Profiler.EndSample();
+    }
+
+
+    private void TrainGISRegression()
+    {
+        // only do this when we have examples
+        if( myGISRegressionExamples.Count > 0 )
+        {
+            // reset the regression
+            myGISRegression.ResetRegression();
+
+            // rerecord all points
+            foreach( TerrainGISExample example in myGISRegressionExamples )
+            {
+                // remember
+                myGISRegression.RecordDataPoint( GISInputVector( example.transform.position ), example.myValues );
+            }
+
+            // train
+            myGISRegression.Train();
+
+            haveTrainedGIS = true;
+        }
+        else
+        {
+            haveTrainedGIS = false;
+        }
     }
 
 

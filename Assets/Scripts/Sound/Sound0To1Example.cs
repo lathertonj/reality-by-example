@@ -53,12 +53,12 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
         }
     }
 
-    public void InformOfTemporaryMovement( Vector3 currentPosition )
+    void TriggerGrabMoveInteractable.InformOfTemporaryMovement( Vector3 currentPosition )
     {
         // don't care
         // TODO or, could update algorithm. this might be overkill perhaps
     }
-    public void FinalizeMovement( Vector3 endPosition )
+    void TriggerGrabMoveInteractable.FinalizeMovement( Vector3 endPosition )
     {
         // tell the controller to recompute tempo
         myRegressor.RescanProvidedExamples();

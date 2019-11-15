@@ -6,7 +6,8 @@ public class SwitchToComponent : MonoBehaviour
 {
     public enum InteractionType { PlaceTerrainImmediate, PlaceTerrainGrowth, PlaceTexture, 
         PlaceTerrainLocalRaiseLower, PlaceTerrainLaserPointerRaiseLower, MoveTeleport, MoveFly, MoveGroundFly,
-        PlaceTempo, PlaceTimbre, PlaceDensity, PlaceVolume, PlaceChord };
+        PlaceTempo, PlaceTimbre, PlaceDensity, PlaceVolume, PlaceChord,
+        PlaceGIS };
     public InteractionType switchTo;
     public Transform givenPrefab;
 
@@ -37,6 +38,9 @@ public class SwitchToComponent : MonoBehaviour
                     o.GetComponent<LaserPointerColliderSelector>().enabled = true;
                     break;
                 case InteractionType.PlaceTexture:
+                    GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
+                    break;
+                case InteractionType.PlaceGIS:
                     GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
                     break;
                 case InteractionType.MoveTeleport:

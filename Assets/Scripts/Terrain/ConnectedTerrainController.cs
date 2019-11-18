@@ -236,45 +236,17 @@ public class ConnectedTerrainController : MonoBehaviour
     // steepness information and normals.
     private double[] GISInputVectorFromNormCoordinates( float normX, float normY )
     {
-        // FIRST POINT: normalized height at this location in terrain
-        // TODO check if this is normalized already or if we need to divide by myTerrainData.heightmapHeight
         float normHeight = myTerrainData.GetInterpolatedHeight( normX, normY ) / myTerrainData.heightmapHeight;
-
-        // SECOND POINT: normalized steepness at this location in terrain
-        // according to Unity: "Steepness is given as an angle, 0..90 degrees"
-        float normSteepness = myTerrainData.GetSteepness( normX, normY ) / 90.0f;
-
-        // THIRD POINT: the x and z directions of the surface normal (ignore y because that has to do with steepness)
-        Vector3 normal = myTerrainData.GetInterpolatedNormal( normX, normY );
-
-        // final vector:
-        // height
-        // steepness
-        // normal x direction
-        // normal z direction
-        // height * steepness
-        // height * normal x direction
-        // height * normal z direction
-        // steepness * normal x direction
-        // steepness * normal z direction
-        // could consider adding height * steepness * normal directions...
-        // could consider adding norm positions...
+        float x = normX, y = normHeight, z = normY;
         return new double[] {
-            normHeight,
-            normSteepness,
-            normX,
-            normY,
-            normal.x,
-            normal.z
-            // normHeight * normX,
-            // normHeight * normY,
-            // normSteepness * normX,
-            // normSteepness * normY
-            // normHeight * normSteepness,
-            // normHeight * normal.x,
-            // normHeight * normal.z,
-            // normSteepness * normal.x,
-            // normSteepness * normal.z
+            x, y, z,
+            x * x, y * y, z * z,
+            x * y, x * z, y * z,
+            // TODO consider removing
+            // x * x * x, x * x * y, x * x * z,
+            // y * y * x, y * y * y, y * y * z,
+            // z * z * z, z * z * y, z * z * z,
+            x * y * z,
         };
     }
 
@@ -778,16 +750,12 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
             // reset the regression
             myGISRegression.ResetRegression();
 
-            Debug.Log( "training GIS with" );
             // rerecord all points
             foreach( TerrainGISExample example in myGISRegressionExamples )
             {
                 // remember
                 myGISRegression.RecordDataPoint( GISInputVector( example.transform.position ), example.myValues );
-                Debug.Log( Enum.GetName( typeof( TerrainGISExample.GISType ), example.myType ) + ": " + example.myValue.ToString() );
             }
-
-            Debug.Log( "and that's all" );
 
             // train
             myGISRegression.Train();

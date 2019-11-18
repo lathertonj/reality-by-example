@@ -11,8 +11,8 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
 
     [HideInInspector] private ConnectedTerrainController myTerrain;
     // default to 1.0
-    private float myValue = 1.0f;
-    private GISType myType = GISType.Smooth;
+    [HideInInspector] public float myValue = 1.0f;
+    [HideInInspector] public GISType myType = GISType.Smooth;
 
     private TextMesh myText;
 
@@ -175,13 +175,17 @@ public static class GISExtensions
             case TerrainGISExample.GISType.Smooth:
                 return TerrainGISExample.GISType.Hilly;
             case TerrainGISExample.GISType.Hilly:
-                return TerrainGISExample.GISType.River;
+                // disable river
+                // return TerrainGISExample.GISType.River;
+                return TerrainGISExample.GISType.Boulder;
             case TerrainGISExample.GISType.River:
                 return TerrainGISExample.GISType.Boulder;
             case TerrainGISExample.GISType.Boulder:
                 return TerrainGISExample.GISType.Mountain;
             case TerrainGISExample.GISType.Mountain:
-                return TerrainGISExample.GISType.Spines;
+                // disable spines
+                // return TerrainGISExample.GISType.Spines;
+                return TerrainGISExample.GISType.Smooth;
             case TerrainGISExample.GISType.Spines:
                 return TerrainGISExample.GISType.Smooth;
             default:
@@ -195,13 +199,17 @@ public static class GISExtensions
         switch( myEnum )
         {
             case TerrainGISExample.GISType.Smooth:
-                return TerrainGISExample.GISType.Spines;
+                // disable spines
+                // return TerrainGISExample.GISType.Spines;
+                return TerrainGISExample.GISType.Mountain;
             case TerrainGISExample.GISType.Hilly:
                 return TerrainGISExample.GISType.Smooth;
             case TerrainGISExample.GISType.River:
                 return TerrainGISExample.GISType.Hilly;
             case TerrainGISExample.GISType.Boulder:
-                return TerrainGISExample.GISType.River;
+                // disable river
+                // return TerrainGISExample.GISType.River;
+                return TerrainGISExample.GISType.Hilly;
             case TerrainGISExample.GISType.Mountain:
                 return TerrainGISExample.GISType.Boulder;
             case TerrainGISExample.GISType.Spines:

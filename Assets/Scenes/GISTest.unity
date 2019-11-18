@@ -242,8 +242,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dedb65fe8f245e4ab6df97353fe67c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  filename: hillyrivervalley_1_heightis50
-  offsetWithinFile: {x: 0, y: 0}
+  filename: hill_h50
+  offsetWithinFile: {x: 50, y: 60}
   filenameSize: 513
   filenameMaxHeight: 50
   terrainMaxHeight: 600

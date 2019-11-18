@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Stitchscape;
@@ -43,15 +44,17 @@ public class ConnectedTerrainController : MonoBehaviour
     private UnderTerrainController myBottom;
 
     public bool addGISTexture = true;
+    public bool debugGISFeatures = false;
+    public TextMesh debugUI;
     private RapidMixRegression myGISRegression;
     private List<TerrainGISExample> myGISRegressionExamples;
     private bool haveTrainedGIS = false;
     private float[,,] loadedGISData;
     private int gisDataFileSideLength = 513;
-    private string[] gisDataFiles = { "hillyrivervalley_heightis50", "mountainous2_heightis150", "mountainous3_heightis200", "mountainous1_heightis135", "diagonalcanyon_heightis100" };
+    private string[] gisDataFiles = { "hill_h50", "mountain2_h150", "mountain3_h125", "mountain1_h100", "diagonal_100" };
     // toning these down by multiplying by 0.X just sort of mellows it out
     // TODO: just need to go back to the original .raw files and lower them so they don't add so much height in the first place.
-    private float[] gisDataHeights = { 50, 150, 200, 135, 100 };
+    private float[] gisDataHeights = { 50, 150, 125, 100, 100 };
     // choices for hilly: 1 = 80,235; 2 = 50,60
     private Vector2Int[] gisDataOffsets = { new Vector2Int( 50, 60 ), new Vector2Int( 40, 115 ), new Vector2Int( 160, 225 ), new Vector2Int( 50, 0 ), new Vector2Int( 340, 192 ) }; 
 
@@ -309,7 +312,14 @@ public class ConnectedTerrainController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if( debugGISFeatures && haveTrainedGIS )
+        {
+            double[] gisWeights = myGISRegression.Run( GISInputVector( debugUI.transform.position ) );
+            debugUI.text = string.Format( @"Smooth:{0:0.000}
+Hill: {1:0.000}
+Boulder: {2:0.000}
+Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4] );
+        }
     }
 
     private Vector3 IndicesToCoordinates( int x, int z )
@@ -420,11 +430,22 @@ public class ConnectedTerrainController : MonoBehaviour
                 float y_01 = (float)y / (float)myTerrainData.alphamapHeight;
 
                 double[] gisWeights = myGISRegression.Run( GISInputVectorFromNormCoordinates( x_01, y_01 ) );
+                // calculate potential scale factor
+                float sum = 0f;
+                for( int i = 1; i < gisWeights.Length; i++ ) { sum += Mathf.Clamp01( (float) gisWeights[i] ); }
+
                 // calculate added height based on the GIS data we loaded
                 for( int i = 0; i < loadedGISData.GetLength( 0 ); i++ )
                 {
                     addition += Mathf.Clamp01( (float) gisWeights[ i + 1 ] ) * loadedGISData[i, y, x];
                 }
+
+                // downweight only if it gets too strong
+                // if( sum > 1 )
+                // {
+                //     addition /= sum;
+                // }
+
                 // 0th is smooth -- use this to mute other features
                 addition *= 1 - Mathf.Clamp01( (float) gisWeights[0] );
 
@@ -757,12 +778,16 @@ public class ConnectedTerrainController : MonoBehaviour
             // reset the regression
             myGISRegression.ResetRegression();
 
+            Debug.Log( "training GIS with" );
             // rerecord all points
             foreach( TerrainGISExample example in myGISRegressionExamples )
             {
                 // remember
                 myGISRegression.RecordDataPoint( GISInputVector( example.transform.position ), example.myValues );
+                Debug.Log( Enum.GetName( typeof( TerrainGISExample.GISType ), example.myType ) + ": " + example.myValue.ToString() );
             }
+
+            Debug.Log( "and that's all" );
 
             // train
             myGISRegression.Train();

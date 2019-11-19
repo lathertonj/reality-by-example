@@ -147,12 +147,6 @@ public class ConnectedTerrainController : MonoBehaviour
         if( addGISTexture ) { TrainGISRegression(); }
         int framesToSpreadOver = 15;
         StartCoroutine( ComputeLandHeight( lazy, framesToSpreadOver ) );
-
-        // on a final pass, rescan the textures when the height is re-finalized
-        if( !lazy )
-        {
-            myTextureController.RescanProvidedExamples();
-        }
     }
 
 
@@ -178,8 +172,8 @@ public class ConnectedTerrainController : MonoBehaviour
         myPureRegressionHeights = new float[verticesPerSide + 2 * extraBorderPixels, verticesPerSide + 2 * extraBorderPixels];
         myModifiedRegressionHeights = new float[verticesPerSide, verticesPerSide];
         // stitch width is 15 pixels' worth
-        stitchWidth = 15.0f / verticesPerSide;
-        stitchStrength = 0.2f;
+        stitchWidth = 0.1f; //15.0f / verticesPerSide;
+        stitchStrength = 0.0f;
 
         myBottom = GetComponentInChildren<UnderTerrainController>();
         if( myBottom )
@@ -278,6 +272,11 @@ public class ConnectedTerrainController : MonoBehaviour
             // train and show
             RescanProvidedExamples();
         }
+        else
+        {
+            // just reset
+            SetTerrainData( true );
+        }
     }
 
 
@@ -374,6 +373,10 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
             SetNeighbors( true );
             StitchEdges();
             SetBottomTerrainData( true );
+
+            // on a final pass, rescan the textures when the height is re-finalized
+            myTextureController.RescanProvidedExamples();
+        
         }
         else
         {
@@ -651,6 +654,76 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
         {
             rightNeighbor.StitchEdgeDown();
         }
+    }
+
+    private void StitchEdgesSad()
+    {
+        if( upperNeighbor && upperNeighbor.leftNeighbor )
+        {
+            // 1, 2
+            upperNeighbor.leftNeighbor.StitchEdgeRight();
+            upperNeighbor.leftNeighbor.StitchEdgeDown();
+        }
+        else if( leftNeighbor && leftNeighbor.upperNeighbor )
+        {
+            // 1, 2
+            leftNeighbor.upperNeighbor.StitchEdgeRight();
+            leftNeighbor.upperNeighbor.StitchEdgeDown();
+        }
+
+        if( upperNeighbor )
+        {
+            // 3, 4
+            upperNeighbor.StitchEdgeRight();
+            upperNeighbor.StitchEdgeDown();
+        }
+
+        if( upperNeighbor && upperNeighbor.rightNeighbor )
+        {
+            // 5 
+            upperNeighbor.rightNeighbor.StitchEdgeDown();
+        }
+        else if( rightNeighbor && rightNeighbor.upperNeighbor )
+        {
+            // 5
+            rightNeighbor.upperNeighbor.StitchEdgeDown();
+        }
+
+        if( leftNeighbor )
+        {
+            // 6, 7
+            leftNeighbor.StitchEdgeRight();
+            leftNeighbor.StitchEdgeDown();
+        }
+
+        // 8, 9
+        StitchEdgeRight();
+        StitchEdgeDown();
+
+        if( rightNeighbor )
+        {
+            // 10
+            rightNeighbor.StitchEdgeDown();
+        }
+
+        if( leftNeighbor && leftNeighbor.lowerNeighbor )
+        {
+            // 11
+            leftNeighbor.lowerNeighbor.StitchEdgeRight();
+        }
+        else if( lowerNeighbor && lowerNeighbor.leftNeighbor )
+        {
+            // 11
+            lowerNeighbor.leftNeighbor.StitchEdgeRight();
+        }
+
+        if( lowerNeighbor )
+        {
+            // 12 
+            lowerNeighbor.StitchEdgeRight();
+        }
+
+
     }
 
     private void StitchEdgeLeft()

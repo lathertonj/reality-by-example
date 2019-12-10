@@ -1,12 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Valve.VR;
 
 public class AnimationByExampleController : MonoBehaviour
 {
+    public SteamVR_Input_Sources handType;
+    public SteamVR_Action_Boolean startStopDataCollection;
 
-    public Transform modelBase;
-    public Transform[] modelRelativePoints;
+    public Transform modelBaseDataSource, modelBaseToAnimate;
+    public Transform[] modelRelativePointsDataSource, modelRelativePointsToAnimate;
 
     // Basic idea:
     // predict the increment to modelBase location and rotation
@@ -31,15 +34,18 @@ public class AnimationByExampleController : MonoBehaviour
     bool haveTrained = false;
     bool runtimeMode = false;
 
+    IEnumerator dataCollectionCoroutine = null, runtimeCoroutine = null;
+
 
     void Awake()
     {
         modelBasePositionData = new List<ModelBaseDatum>();
         modelBaseRegression = gameObject.AddComponent<RapidMixRegression>();
-        modelRelativePositionData = new List<ModelRelativeDatum>[modelRelativePoints.Length];
-        modelRelativeRegressions = new RapidMixRegression[modelRelativePoints.Length];
+        modelRelativePositionData = new List<ModelRelativeDatum>[modelRelativePointsDataSource.Length];
+        modelRelativeRegressions = new RapidMixRegression[modelRelativePointsDataSource.Length];
+        goalRelativePositions = new Vector3[modelRelativePointsDataSource.Length];
 
-        for( int i = 0; i < modelRelativePoints.Length; i++ )
+        for( int i = 0; i < modelRelativePointsDataSource.Length; i++ )
         {
             modelRelativePositionData[i] = new List<ModelRelativeDatum>();
             modelRelativeRegressions[i] = gameObject.AddComponent<RapidMixRegression>();
@@ -57,16 +63,53 @@ public class AnimationByExampleController : MonoBehaviour
     {
         if( runtimeMode )
         {
-            // slew
-            modelBase.position += globalSlew * ( goalBasePosition - modelBase.position );
-            modelBase.rotation = Quaternion.Slerp( modelBase.rotation, goalBaseRotation, globalSlew );
+            // slew base
+            modelBaseToAnimate.position += globalSlew * ( goalBasePosition - modelBaseToAnimate.position );
+            modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, goalBaseRotation, globalSlew );
 
-            // TODO: slew the relative positions
+            // slew the relative positions
+            for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
+            {
+                Vector3 currentDifference = modelRelativePointsToAnimate[i].position - modelBaseToAnimate.position;
+                Vector3 nextDifference = currentDifference + globalSlew * ( goalRelativePositions[i] - currentDifference );
+                modelRelativePointsToAnimate[i].position = modelBaseToAnimate.position + nextDifference;
+            }
         }   
         else
         {
-
         }
+
+        // grips == have to start / stop coroutines BOTH for data collection AND for running
+        if( startStopDataCollection.GetStateDown( handType ) )
+        {
+            // stop runtime if it's running
+            if( runtimeCoroutine != null )
+            {
+                StopCoroutine( runtimeCoroutine );
+                runtimeCoroutine = null;
+            }
+
+            // start data collection
+            dataCollectionCoroutine = CollectData();
+            StartCoroutine( dataCollectionCoroutine );
+        }
+        else if( startStopDataCollection.GetStateUp( handType ) )
+        {
+            // stop data collection if it's going
+            if( dataCollectionCoroutine != null )
+            {
+                StopCoroutine( dataCollectionCoroutine );
+                dataCollectionCoroutine = null;
+            }
+
+            // train
+            Train();
+
+            // start runtime
+            runtimeCoroutine = Run();
+            StartCoroutine( runtimeCoroutine );
+        }
+
     }
 
     private Terrain FindTerrain()
@@ -101,26 +144,41 @@ public class AnimationByExampleController : MonoBehaviour
     Vector3 goalBasePosition;
     Quaternion goalBaseRotation;
 
+    Vector3[] goalRelativePositions;
+
     private IEnumerator Run()
     {
-        Vector3 prevPosition = modelBase.position;
-        Quaternion prevRotation = modelBase.rotation;
+        // initialize with current values
+        Vector3 prevPosition = modelBaseToAnimate.position;
+        Quaternion prevRotation = modelBaseToAnimate.rotation;
+        Vector3[] prevRelativePositions = new Vector3[goalRelativePositions.Length];
+        for( int i = 0; i < prevRelativePositions.Length; i++ )
+        {
+            prevRelativePositions[i] = modelRelativePointsToAnimate[i].position - prevPosition;
+        }
+
+        // collect data and predict
         while( haveTrained )
         {
-            Vector3 prevPositionDelta = modelBase.position - prevPosition;
-            Quaternion prevRotationDelta = modelBase.rotation * Quaternion.Inverse( prevRotation );
+            Vector3 prevPositionDelta = modelBaseToAnimate.position - prevPosition;
+            Quaternion prevRotationDelta = modelBaseToAnimate.rotation * Quaternion.Inverse( prevRotation );
 
-            double[] o = modelBaseRegression.Run( FindBaseInput( modelBase.position, prevPositionDelta, prevRotationDelta ) );
+            double[] o = modelBaseRegression.Run( FindBaseInput( modelBaseToAnimate.position, prevPositionDelta, prevRotationDelta ) );
             Vector3 nextGoalMovement = BaseOutputToPositionDelta( o );
             Quaternion nextGoalRotation = BaseOutputToRotationDelta( o );
 
-            goalBasePosition = modelBase.position + nextGoalMovement;
-            goalBaseRotation = nextGoalRotation * modelBase.rotation;
+            goalBasePosition = modelBaseToAnimate.position + nextGoalMovement;
+            goalBaseRotation = nextGoalRotation * modelBaseToAnimate.rotation;
 
-            prevPosition = modelBase.position;
-            prevRotation = modelBase.rotation;
+            prevPosition = modelBaseToAnimate.position;
+            prevRotation = modelBaseToAnimate.rotation;
 
-            // TODO: compute the relative position goals
+            // compute the relative position goals
+            for( int i = 0; i < goalRelativePositions.Length; i++ )
+            {
+                double[] output = modelRelativeRegressions[i].Run( FindRelativeInput( goalBaseRotation ) );
+                goalRelativePositions[i] = RelativeOutputToOffset( output );
+            }
 
 
             yield return new WaitForSecondsRealtime( predictionOutputRate );
@@ -130,8 +188,8 @@ public class AnimationByExampleController : MonoBehaviour
 
     private IEnumerator CollectData( bool clearFirst = false )
     {
-        Vector3 prevPosition = modelBase.position;
-        Quaternion prevRotation = modelBase.rotation;
+        Vector3 prevPosition = modelBaseDataSource.position;
+        Quaternion prevRotation = modelBaseDataSource.rotation;
         Vector3 prevPositionDelta = Vector3.zero;
         Quaternion prevRotationDelta = Quaternion.identity;
 
@@ -149,15 +207,15 @@ public class AnimationByExampleController : MonoBehaviour
             Terrain currentTerrain = FindTerrain();
             if( currentTerrain )
             {
-                Vector2 terrainCoords = CoordinatesToIndices( currentTerrain, modelBase.position );
+                Vector2 terrainCoords = CoordinatesToIndices( currentTerrain, modelBaseDataSource.position );
                 currentHeight = currentTerrain.terrainData.GetInterpolatedHeight( terrainCoords.x, terrainCoords.y );
                 currentSteepness = currentTerrain.terrainData.GetSteepness( terrainCoords.x, terrainCoords.y );
             }
 
             // base datum
             ModelBaseDatum newDatum = new ModelBaseDatum();
-            newDatum.positionDelta = modelBase.position - prevPosition;
-            newDatum.rotationDelta = modelBase.rotation * Quaternion.Inverse( prevRotation );
+            newDatum.positionDelta = modelBaseDataSource.position - prevPosition;
+            newDatum.rotationDelta = modelBaseDataSource.rotation * Quaternion.Inverse( prevRotation );
             newDatum.prevPositionDelta = prevPositionDelta;
             newDatum.prevRotationDelta = prevRotationDelta;
             newDatum.terrainHeight = currentHeight;
@@ -166,19 +224,19 @@ public class AnimationByExampleController : MonoBehaviour
             modelBasePositionData.Add( newDatum );
 
             // other data
-            for( int i = 0; i < modelRelativePoints.Length; i++ )
+            for( int i = 0; i < modelRelativePointsDataSource.Length; i++ )
             {
                 ModelRelativeDatum newRelativeDatum = new ModelRelativeDatum();
-                newRelativeDatum.positionRelativeToBase = modelRelativePoints[i].position - modelBase.position;
-                newRelativeDatum.baseRotation = modelBase.rotation;
+                newRelativeDatum.positionRelativeToBase = modelRelativePointsDataSource[i].position - modelBaseDataSource.position;
+                newRelativeDatum.baseRotation = modelBaseDataSource.rotation;
                 newRelativeDatum.terrainHeight = currentHeight;
                 newRelativeDatum.terrainSteepness = currentSteepness;
 
                 modelRelativePositionData[i].Add( newRelativeDatum );
             }
 
-            prevPosition = modelBase.position;
-            prevRotation = modelBase.rotation;
+            prevPosition = modelBaseDataSource.position;
+            prevRotation = modelBaseDataSource.rotation;
             prevPositionDelta = newDatum.positionDelta;
             prevRotationDelta = newDatum.rotationDelta;
         }
@@ -205,7 +263,7 @@ public class AnimationByExampleController : MonoBehaviour
         Terrain currentTerrain = FindTerrain();
         if( currentTerrain )
         {
-            Vector2 terrainCoords = CoordinatesToIndices( currentTerrain, modelBase.position );
+            Vector2 terrainCoords = CoordinatesToIndices( currentTerrain, modelBaseToAnimate.position );
             _dummy.terrainHeight = currentTerrain.terrainData.GetInterpolatedHeight( terrainCoords.x, terrainCoords.y );
             _dummy.terrainSteepness = currentTerrain.terrainData.GetSteepness( terrainCoords.x, terrainCoords.y );
         }
@@ -244,6 +302,23 @@ public class AnimationByExampleController : MonoBehaviour
         };
     }
 
+    ModelRelativeDatum _dummy2 = new ModelRelativeDatum();
+    double[] FindRelativeInput( Quaternion baseRotation )
+    {
+        _dummy2.baseRotation = baseRotation;
+        _dummy2.terrainHeight = 0;
+        _dummy2.terrainSteepness = 0;
+        Terrain currentTerrain = FindTerrain();
+        if( currentTerrain )
+        {
+            Vector2 terrainCoords = CoordinatesToIndices( currentTerrain, modelBaseToAnimate.position );
+            _dummy2.terrainHeight = currentTerrain.terrainData.GetInterpolatedHeight( terrainCoords.x, terrainCoords.y );
+            _dummy2.terrainSteepness = currentTerrain.terrainData.GetSteepness( terrainCoords.x, terrainCoords.y );
+        }
+
+        return RelativeInput( _dummy2 );
+    }
+
     double[] RelativeOutput( ModelRelativeDatum d )
     {
         return new double[] {
@@ -264,6 +339,7 @@ public class AnimationByExampleController : MonoBehaviour
             return;
         }
         
+        // train the base regression
         modelBaseRegression.ResetRegression();
         foreach( ModelBaseDatum d in modelBasePositionData )
         {
@@ -272,6 +348,7 @@ public class AnimationByExampleController : MonoBehaviour
         modelBaseRegression.Train();
     
 
+        // train each of the relative regressions
         for( int i = 0; i < modelRelativeRegressions.Length; i++ )
         {
             modelRelativeRegressions[i].ResetRegression();

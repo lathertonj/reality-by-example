@@ -77,6 +77,14 @@ public class AnimationByExampleController : MonoBehaviour
         }   
         else
         {
+            // animate it as just following the data sources
+            modelBaseToAnimate.position = modelBaseDataSource.position;
+            modelBaseToAnimate.rotation = modelBaseDataSource.rotation;
+
+            for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
+            {
+                modelRelativePointsToAnimate[i].position = modelRelativePointsDataSource[i].position;
+            }
         }
 
         // grips == have to start / stop coroutines BOTH for data collection AND for running
@@ -87,6 +95,7 @@ public class AnimationByExampleController : MonoBehaviour
             {
                 StopCoroutine( runtimeCoroutine );
                 runtimeCoroutine = null;
+                runtimeMode = false;
             }
 
             // start data collection
@@ -108,6 +117,7 @@ public class AnimationByExampleController : MonoBehaviour
             // start runtime
             runtimeCoroutine = Run();
             StartCoroutine( runtimeCoroutine );
+            runtimeMode = true;
         }
 
     }

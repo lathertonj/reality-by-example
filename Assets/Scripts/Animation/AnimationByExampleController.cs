@@ -15,14 +15,14 @@ public class AnimationByExampleController : MonoBehaviour
     // predict the increment to modelBase location and rotation
     // input features: y, steepness of terrain; previous location / rotation.
     // --> 2 regressions for modelBase
-    private List<ModelBaseDatum> modelBasePositionData;
-    private RapidMixRegression modelBaseRegression;
+    private List<List<ModelBaseDatum>> modelBasePositionData;
+    private RapidMixTemporalRegression modelBaseRegression;
 
 
     // predict the position of each modelRelativePoint, relative to modelBase
     // input features: y, steepness of terrain, quaternion of current rotation
-    private List<ModelRelativeDatum>[] modelRelativePositionData;
-    private RapidMixRegression[] modelRelativeRegressions;
+    private List<List<ModelRelativeDatum>>[] modelRelativePositionData;
+    private RapidMixTemporalRegression[] modelRelativeRegressions;
 
     // and, have a maximum amount that each thing can actually move -- maybe a slew per frame.
     public float globalSlew = 0.1f;
@@ -41,16 +41,16 @@ public class AnimationByExampleController : MonoBehaviour
 
     void Awake()
     {
-        modelBasePositionData = new List<ModelBaseDatum>();
-        modelBaseRegression = gameObject.AddComponent<RapidMixRegression>();
-        modelRelativePositionData = new List<ModelRelativeDatum>[modelRelativePointsDataSource.Length];
-        modelRelativeRegressions = new RapidMixRegression[modelRelativePointsDataSource.Length];
+        modelBasePositionData = new List<List<ModelBaseDatum>>();
+        modelBaseRegression = gameObject.AddComponent<RapidMixTemporalRegression>();
+        modelRelativePositionData = new List<List<ModelRelativeDatum>>[modelRelativePointsDataSource.Length];
+        modelRelativeRegressions = new RapidMixTemporalRegression[modelRelativePointsDataSource.Length];
         goalRelativePositions = new Vector3[modelRelativePointsDataSource.Length];
 
         for( int i = 0; i < modelRelativePointsDataSource.Length; i++ )
         {
-            modelRelativePositionData[i] = new List<ModelRelativeDatum>();
-            modelRelativeRegressions[i] = gameObject.AddComponent<RapidMixRegression>();
+            modelRelativePositionData[i] = new List<List<ModelRelativeDatum>>();
+            modelRelativeRegressions[i] = gameObject.AddComponent<RapidMixTemporalRegression>();
         }
 
     }
@@ -76,7 +76,7 @@ public class AnimationByExampleController : MonoBehaviour
                 Vector3 nextDifference = currentDifference + globalSlew * ( goalRelativePositions[i] - currentDifference );
                 modelRelativePointsToAnimate[i].position = modelBaseToAnimate.position + nextDifference;
             }
-        }   
+        }
         else
         {
             // animate it as just following the data sources
@@ -101,7 +101,7 @@ public class AnimationByExampleController : MonoBehaviour
             }
 
             // start data collection
-            dataCollectionCoroutine = CollectData();
+            dataCollectionCoroutine = CollectPhrase();
             StartCoroutine( dataCollectionCoroutine );
         }
         else if( startStopDataCollection.GetStateUp( handType ) )
@@ -113,13 +113,18 @@ public class AnimationByExampleController : MonoBehaviour
                 dataCollectionCoroutine = null;
             }
 
-            // train
-            Train();
 
-            // start runtime
-            runtimeCoroutine = Run();
-            StartCoroutine( runtimeCoroutine );
-            runtimeMode = true;
+            // only train when we have 2 or more phrases
+            // if( modelBasePositionData.Count > 1 )
+            // {
+                // train
+                Train();
+
+                // start runtime
+                runtimeCoroutine = Run();
+                StartCoroutine( runtimeCoroutine );
+                runtimeMode = true;
+            // }
         }
 
     }
@@ -160,31 +165,16 @@ public class AnimationByExampleController : MonoBehaviour
 
     private IEnumerator Run()
     {
-        // initialize with current values
-        Vector3 prevPosition = modelBaseToAnimate.position;
-        Quaternion prevRotation = modelBaseToAnimate.rotation;
-        Vector3[] prevRelativePositions = new Vector3[goalRelativePositions.Length];
-        for( int i = 0; i < prevRelativePositions.Length; i++ )
-        {
-            prevRelativePositions[i] = modelRelativePointsToAnimate[i].position - prevPosition;
-        }
-
         // collect data and predict
         while( haveTrained )
         {
-            Vector3 prevPositionDelta = modelBaseToAnimate.position - prevPosition;
-            Quaternion prevRotationDelta = modelBaseToAnimate.rotation * Quaternion.Inverse( prevRotation );
-
-            double[] o = modelBaseRegression.Run( FindBaseInput( modelBaseToAnimate.position, prevPositionDelta, prevRotationDelta ) );
+            double[] o = modelBaseRegression.Run( FindBaseInput( modelBaseToAnimate.position ) );
             Vector3 nextGoalMovement = BaseOutputToPositionDelta( o );
             Quaternion nextGoalRotation = BaseOutputToRotationDelta( o );
             Debug.Log( "PREDICT: " + nextGoalRotation.eulerAngles.ToString() );
 
             goalBasePosition = modelBaseToAnimate.position + nextGoalMovement;
             goalBaseRotation = nextGoalRotation * modelBaseToAnimate.rotation;
-
-            prevPosition = modelBaseToAnimate.position;
-            prevRotation = modelBaseToAnimate.rotation;
 
             // compute the relative position goals
             for( int i = 0; i < goalRelativePositions.Length; i++ )
@@ -199,16 +189,18 @@ public class AnimationByExampleController : MonoBehaviour
     }
 
 
-    private IEnumerator CollectData( bool clearFirst = false )
+    private IEnumerator CollectPhrase()
     {
         Vector3 prevPosition = modelBaseDataSource.position;
         Vector3 prevRotation = modelBaseDataSource.rotation.eulerAngles;
-        Vector3 prevPositionDelta = Vector3.zero;
-        Vector3 prevRotationDelta = Quaternion.identity.eulerAngles;
 
-        if( clearFirst )
+        List<ModelBaseDatum> basePhrase = new List<ModelBaseDatum>();
+        List<ModelRelativeDatum>[] relativePhrases = new List<ModelRelativeDatum>[modelRelativePointsDataSource.Length];
+        modelBasePositionData.Add( basePhrase );
+        for( int i = 0; i < relativePhrases.Length; i++ )
         {
-            modelBasePositionData.Clear();
+            relativePhrases[i] = new List<ModelRelativeDatum>();
+            modelRelativePositionData[i].Add( relativePhrases[i] );
         }
 
         while( true )
@@ -230,12 +222,10 @@ public class AnimationByExampleController : MonoBehaviour
             newDatum.positionDelta = modelBaseDataSource.position - prevPosition;
             newDatum.rotationDelta = AngleMinify( modelBaseDataSource.rotation.eulerAngles - prevRotation );
             Debug.Log( "DATA: " + newDatum.rotationDelta.ToString() );
-            newDatum.prevPositionDelta = prevPositionDelta;
-            newDatum.prevRotationDelta = prevRotationDelta;
             newDatum.terrainHeight = currentHeight;
             newDatum.terrainSteepness = currentSteepness;
 
-            modelBasePositionData.Add( newDatum );
+            basePhrase.Add( newDatum );
 
             // other data
             for( int i = 0; i < modelRelativePointsDataSource.Length; i++ )
@@ -246,13 +236,11 @@ public class AnimationByExampleController : MonoBehaviour
                 newRelativeDatum.terrainHeight = currentHeight;
                 newRelativeDatum.terrainSteepness = currentSteepness;
 
-                modelRelativePositionData[i].Add( newRelativeDatum );
+                relativePhrases[i].Add( newRelativeDatum );
             }
 
             prevPosition = modelBaseDataSource.position;
             prevRotation = modelBaseDataSource.rotation.eulerAngles;
-            prevPositionDelta = newDatum.positionDelta;
-            prevRotationDelta = newDatum.rotationDelta;
         }
     }
 
@@ -265,12 +253,12 @@ public class AnimationByExampleController : MonoBehaviour
             d.terrainHeight,
             d.terrainSteepness,
             //d.prevPositionDelta.x, d.prevPositionDelta.y, d.prevPositionDelta.z,
-            d.prevRotationDelta.x, d.prevRotationDelta.y, d.prevRotationDelta.z
+            //d.prevRotationDelta.x, d.prevRotationDelta.y, d.prevRotationDelta.z
         };
     }
 
     ModelBaseDatum _dummy = new ModelBaseDatum();
-    double[] FindBaseInput( Vector3 worldPos, Vector3 prevPositionDelta, Quaternion prevRotationDelta )
+    double[] FindBaseInput( Vector3 worldPos )
     {
         _dummy.terrainHeight = 0;
         _dummy.terrainSteepness = 0;
@@ -282,8 +270,8 @@ public class AnimationByExampleController : MonoBehaviour
             _dummy.terrainSteepness = currentTerrain.terrainData.GetSteepness( terrainCoords.x, terrainCoords.y );
         }
 
-        _dummy.prevPositionDelta = prevPositionDelta;
-        _dummy.prevRotationDelta = prevRotationDelta.eulerAngles;
+        // _dummy.prevPositionDelta = prevPositionDelta;
+        // _dummy.prevRotationDelta = prevRotationDelta.eulerAngles;
         return BaseInput( _dummy );
     }
 
@@ -297,12 +285,12 @@ public class AnimationByExampleController : MonoBehaviour
 
     Vector3 BaseOutputToPositionDelta( double[] o )
     {
-        return new Vector3( (float) o[0], (float) o[1], (float) o[2] );
+        return new Vector3( (float)o[0], (float)o[1], (float)o[2] );
     }
 
     Quaternion BaseOutputToRotationDelta( double[] o )
     {
-        return Quaternion.Euler( (float) o[3], (float) o[4], (float) o[5] );
+        return Quaternion.Euler( (float)o[3], (float)o[4], (float)o[5] );
     }
 
     // predict the position of each modelRelativePoint, relative to modelBase
@@ -342,7 +330,7 @@ public class AnimationByExampleController : MonoBehaviour
 
     Vector3 RelativeOutputToOffset( double[] o )
     {
-        return new Vector3( (float) o[0], (float) o[1], (float) o[2] );
+        return new Vector3( (float)o[0], (float)o[1], (float)o[2] );
     }
 
     void Train()
@@ -352,27 +340,41 @@ public class AnimationByExampleController : MonoBehaviour
             haveTrained = false;
             return;
         }
-        
+
         // train the base regression
         modelBaseRegression.ResetRegression();
-        foreach( ModelBaseDatum d in modelBasePositionData )
+        foreach( List<ModelBaseDatum> phrase in modelBasePositionData )
         {
-            modelBaseRegression.RecordDataPoint( BaseInput( d ), BaseOutput( d ) );
+            List<double[]> inputs = new List<double[]>();
+            List<double[]> outputs = new List<double[]>();
+            for( int i = 0; i < phrase.Count; i++ )
+            {
+                inputs.Add( BaseInput( phrase[i] ) );
+                outputs.Add( BaseOutput( phrase[i] ) );
+            }
+            modelBaseRegression.RecordDataPhrase( inputs, outputs );
         }
         modelBaseRegression.Train();
-    
+
 
         // train each of the relative regressions
         for( int i = 0; i < modelRelativeRegressions.Length; i++ )
         {
             modelRelativeRegressions[i].ResetRegression();
-            foreach( ModelRelativeDatum d in modelRelativePositionData[i] )
+            foreach( List<ModelRelativeDatum> phrase in modelRelativePositionData[i] )
             {
-                modelRelativeRegressions[i].RecordDataPoint( RelativeInput( d ), RelativeOutput( d ) );
+                List<double[]> inputs = new List<double[]>();
+                List<double[]> outputs = new List<double[]>();
+                for( int j = 0; j < phrase.Count; j++ )
+                {
+                    inputs.Add( RelativeInput( phrase[j] ) );
+                    outputs.Add( RelativeOutput( phrase[j] ) );
+                }
+                modelRelativeRegressions[i].RecordDataPhrase( inputs, outputs );
             }
             modelRelativeRegressions[i].Train();
         }
-        
+
         haveTrained = true;
     }
 
@@ -417,8 +419,8 @@ public class AnimationByExampleController : MonoBehaviour
 
     private class ModelBaseDatum
     {
-        public Vector3 positionDelta, prevPositionDelta;
-        public Vector3 rotationDelta, prevRotationDelta;
+        public Vector3 positionDelta;
+        public Vector3 rotationDelta;
         public float terrainHeight, terrainSteepness;
     }
 

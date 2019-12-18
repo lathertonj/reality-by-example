@@ -422,7 +422,8 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
                 // }
 
                 // 0th is smooth -- use this to mute other features
-                addition *= 1 - Mathf.Clamp01( (float) gisWeights[0] );
+                // DISABLE SMOOTHING FOR NOW
+                // addition *= 1 - Mathf.Clamp01( (float) gisWeights[0] );
 
                 // note the GIS data is already normalized to terrainHeight so we don't need to normalize it here
                 myPureRegressionHeights[y, x] += addition;

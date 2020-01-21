@@ -68,6 +68,11 @@ public class RapidMixTemporalRegression : MonoBehaviour
         {
             Debug.LogError( string.Format( "Received output of dimension {0} which was different than the expected / originally recieved output dimension {1}", outputs[0].Length, myOutputLength ) );
         }
+        if( myInputLength >= inputs.Count || myOutputLength >= inputs.Count )
+        {
+            Debug.LogError( string.Format( "Received a phrase too short ({0}) for the number of inputs ({1}) or outputs ({2})!", inputs.Count, myInputLength, myOutputLength ) );
+            return;
+        }
 
         // record the phrase
         startPhrase( myTrainingID );
@@ -90,15 +95,12 @@ public class RapidMixTemporalRegression : MonoBehaviour
 
     public void Train()
     {
-        Debug.Log( "training TRALALA!" ); 
         trainTemporalRegression( myRegressionID, myTrainingID );
         haveTrained = true;
-        Debug.Log( "finished training WOO!" );
     }
 
     public double[] Run( double[] input )
     {
-        Debug.Log( "Tryna RUUUN" );
         if( !haveTrained )  
         {
             Debug.LogError( "Regression can't Run() without having Train()ed first!" );
@@ -108,13 +110,36 @@ public class RapidMixTemporalRegression : MonoBehaviour
         {
             Debug.LogError( string.Format( "Received input of dimension {0} which was different than the expected / originally recieved input dimension {1}", input.Length, myInputLength ) );
         }
+        // TODO check if we don't have enough examples: if we don't have more than the dimension, 
+        // then it will probably crash.
+        //if( )
+
+        // ask for an output until we get one that is not NaN
+        // this is just typically while the system is getting warmed up,
+        // in my experience, and doesn't always happen
+        // probably better to figure out what is going on and fix it
+        // instead of hacking around it. OH WELL!
         double [] output = new double[myOutputLength];
-        runTemporalRegression(
-            myRegressionID,
-            input, myInputLength,
-            output, myOutputLength
-        );
-        Debug.Log( "finished running~!" );
+        int attempts = 0;
+        bool isNaN = false;
+        do 
+        {
+            if( System.Double.IsNaN( output[0] ) ) { Debug.Log( "got a nan!!!" ); }
+            runTemporalRegression(
+                myRegressionID,
+                input, myInputLength,
+                output, myOutputLength
+            );
+
+            for( int i = 0; i < output.Length; i++ )
+            {
+                if( System.Double.IsNaN( output[i] ) )
+                {
+                    isNaN = true;
+                }
+            }
+            attempts++;
+        } while( isNaN && attempts < 20 );
         return output;
     }
 

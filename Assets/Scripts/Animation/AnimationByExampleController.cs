@@ -66,7 +66,9 @@ public class AnimationByExampleController : MonoBehaviour
         if( runtimeMode )
         {
             // slew base
-            modelBaseToAnimate.position += globalSlew * ( goalBasePosition - modelBaseToAnimate.position );
+            // TODO: move in the forward direction, perhaps with speed according to limb movement or delayed from it
+            // modelBaseToAnimate.position += globalSlew * ( goalBasePosition - modelBaseToAnimate.position );
+            modelBaseToAnimate.position += 0.05f * modelBaseToAnimate.forward;
             modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, goalBaseRotation, globalSlew );
 
             // slew the relative positions
@@ -114,17 +116,13 @@ public class AnimationByExampleController : MonoBehaviour
             }
 
 
-            // only train when we have 2 or more phrases
-            // if( modelBasePositionData.Count > 1 )
-            // {
-                // train
-                Train();
+            // train
+            Train();
 
-                // start runtime
-                runtimeCoroutine = Run();
-                StartCoroutine( runtimeCoroutine );
-                runtimeMode = true;
-            // }
+            // start runtime
+            runtimeCoroutine = Run();
+            StartCoroutine( runtimeCoroutine );
+            runtimeMode = true;
         }
 
     }
@@ -169,12 +167,15 @@ public class AnimationByExampleController : MonoBehaviour
         while( haveTrained )
         {
             double[] o = modelBaseRegression.Run( FindBaseInput( modelBaseToAnimate.position ) );
-            Vector3 nextGoalMovement = BaseOutputToPositionDelta( o );
-            Quaternion nextGoalRotation = BaseOutputToRotationDelta( o );
-            Debug.Log( "PREDICT: " + nextGoalRotation.eulerAngles.ToString() );
+            // Vector3 nextGoalMovement = BaseOutputToPositionDelta( o );
+            // Quaternion nextGoalRotation = BaseOutputToRotationDelta( o );
+            // Debug.Log( "PREDICT: " + nextGoalRotation.eulerAngles.ToString() );
 
-            goalBasePosition = modelBaseToAnimate.position + nextGoalMovement;
-            goalBaseRotation = nextGoalRotation * modelBaseToAnimate.rotation;
+            // goalBasePosition = modelBaseToAnimate.position + nextGoalMovement;
+            // goalBaseRotation = nextGoalRotation * modelBaseToAnimate.rotation;
+
+            goalBaseRotation = BaseOutputToGoalRotation( o );
+            Debug.Log( "PREDICT: " + goalBaseRotation.eulerAngles.ToString() );
 
             // compute the relative position goals
             for( int i = 0; i < goalRelativePositions.Length; i++ )
@@ -191,6 +192,7 @@ public class AnimationByExampleController : MonoBehaviour
 
     private IEnumerator CollectPhrase()
     {
+        float startTime = Time.time;
         Vector3 prevPosition = modelBaseDataSource.position;
         Vector3 prevRotation = modelBaseDataSource.rotation.eulerAngles;
 
@@ -217,13 +219,18 @@ public class AnimationByExampleController : MonoBehaviour
                 currentSteepness = currentTerrain.terrainData.GetSteepness( terrainCoords.x, terrainCoords.y );
             }
 
+            float timeElapsed = Time.time - startTime;
+
             // base datum
             ModelBaseDatum newDatum = new ModelBaseDatum();
-            newDatum.positionDelta = modelBaseDataSource.position - prevPosition;
-            newDatum.rotationDelta = AngleMinify( modelBaseDataSource.rotation.eulerAngles - prevRotation );
-            Debug.Log( "DATA: " + newDatum.rotationDelta.ToString() );
+            // newDatum.positionDelta = modelBaseDataSource.position - prevPosition;
+            // newDatum.rotationDelta = AngleMinify( modelBaseDataSource.rotation.eulerAngles - prevRotation );
+            // Debug.Log( "DATA: " + newDatum.rotationDelta.ToString() );
+            newDatum.eulerRotation = modelBaseDataSource.rotation.eulerAngles;
+            Debug.Log( "DATA: " + newDatum.eulerRotation.ToString() );
             newDatum.terrainHeight = currentHeight;
             newDatum.terrainSteepness = currentSteepness;
+            newDatum.timeOffset = timeElapsed % 1f;
 
             basePhrase.Add( newDatum );
 
@@ -235,6 +242,7 @@ public class AnimationByExampleController : MonoBehaviour
                 newRelativeDatum.baseRotation = modelBaseDataSource.rotation;
                 newRelativeDatum.terrainHeight = currentHeight;
                 newRelativeDatum.terrainSteepness = currentSteepness;
+                newRelativeDatum.timeOffset = timeElapsed % 1f;
 
                 relativePhrases[i].Add( newRelativeDatum );
             }
@@ -252,6 +260,7 @@ public class AnimationByExampleController : MonoBehaviour
         return new double[] {
             d.terrainHeight,
             d.terrainSteepness,
+            d.timeOffset,
             //d.prevPositionDelta.x, d.prevPositionDelta.y, d.prevPositionDelta.z,
             //d.prevRotationDelta.x, d.prevRotationDelta.y, d.prevRotationDelta.z
         };
@@ -269,6 +278,7 @@ public class AnimationByExampleController : MonoBehaviour
             _dummy.terrainHeight = currentTerrain.terrainData.GetInterpolatedHeight( terrainCoords.x, terrainCoords.y );
             _dummy.terrainSteepness = currentTerrain.terrainData.GetSteepness( terrainCoords.x, terrainCoords.y );
         }
+        _dummy.timeOffset = Time.time % 1f;
 
         // _dummy.prevPositionDelta = prevPositionDelta;
         // _dummy.prevRotationDelta = prevRotationDelta.eulerAngles;
@@ -277,20 +287,30 @@ public class AnimationByExampleController : MonoBehaviour
 
     double[] BaseOutput( ModelBaseDatum d )
     {
+        // return new double[] {
+        //     d.positionDelta.x, d.positionDelta.y, d.positionDelta.z,
+        //     d.rotationDelta.x, d.rotationDelta.y, d.rotationDelta.z
+        // };
         return new double[] {
-            d.positionDelta.x, d.positionDelta.y, d.positionDelta.z,
-            d.rotationDelta.x, d.rotationDelta.y, d.rotationDelta.z
+            d.eulerRotation.x, 
+            d.eulerRotation.y, 
+            d.eulerRotation.z
         };
     }
 
-    Vector3 BaseOutputToPositionDelta( double[] o )
-    {
-        return new Vector3( (float)o[0], (float)o[1], (float)o[2] );
-    }
+    // Vector3 BaseOutputToPositionDelta( double[] o )
+    // {
+    //     return new Vector3( (float)o[0], (float)o[1], (float)o[2] );
+    // }
 
-    Quaternion BaseOutputToRotationDelta( double[] o )
+    // Quaternion BaseOutputToRotationDelta( double[] o )
+    // {
+    //     return Quaternion.Euler( (float)o[3], (float)o[4], (float)o[5] );
+    // }
+
+    Quaternion BaseOutputToGoalRotation( double[] o )
     {
-        return Quaternion.Euler( (float)o[3], (float)o[4], (float)o[5] );
+        return Quaternion.Euler( (float) o[0], (float) o[1], (float) o[2] );
     }
 
     // predict the position of each modelRelativePoint, relative to modelBase
@@ -300,7 +320,8 @@ public class AnimationByExampleController : MonoBehaviour
         return new double[] {
             d.terrainHeight,
             d.terrainSteepness,
-            d.baseRotation.w, d.baseRotation.x, d.baseRotation.y, d.baseRotation.z
+            d.baseRotation.w, d.baseRotation.x, d.baseRotation.y, d.baseRotation.z,
+            d.timeOffset,
         };
     }
 
@@ -317,6 +338,7 @@ public class AnimationByExampleController : MonoBehaviour
             _dummy2.terrainHeight = currentTerrain.terrainData.GetInterpolatedHeight( terrainCoords.x, terrainCoords.y );
             _dummy2.terrainSteepness = currentTerrain.terrainData.GetSteepness( terrainCoords.x, terrainCoords.y );
         }
+        _dummy2.timeOffset = Time.time % 1f;
 
         return RelativeInput( _dummy2 );
     }
@@ -419,9 +441,11 @@ public class AnimationByExampleController : MonoBehaviour
 
     private class ModelBaseDatum
     {
-        public Vector3 positionDelta;
-        public Vector3 rotationDelta;
+        // public Vector3 positionDelta;
+        // public Vector3 rotationDelta;
+        public Vector3 eulerRotation;
         public float terrainHeight, terrainSteepness;
+        public float timeOffset;
     }
 
     private class ModelRelativeDatum
@@ -429,6 +453,7 @@ public class AnimationByExampleController : MonoBehaviour
         public Vector3 positionRelativeToBase;
         public Quaternion baseRotation;
         public float terrainHeight, terrainSteepness;
+        public float timeOffset;
     }
 }
 

@@ -42,6 +42,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour
 
     IEnumerator dataCollectionCoroutine = null, runtimeCoroutine = null;
 
+    private AnimationSoundRecorderPlaybackController mySounder = null;
+
 
     void Awake()
     {
@@ -62,6 +64,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             modelRelativePositionData[i] = new List<List<ModelRelativeDatum>>();
         }
 
+        mySounder = GetComponent<AnimationSoundRecorderPlaybackController>();
     }
 
     void Start()
@@ -120,8 +123,15 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             // stop data collection if it's going
             if( dataCollectionCoroutine != null )
             {
+                // animation
                 StopCoroutine( dataCollectionCoroutine );
                 dataCollectionCoroutine = null;
+
+                // sound
+                if( mySounder )
+                {
+                    mySounder.StopRecordingExamples();
+                }
             }
 
 
@@ -184,7 +194,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                 //     and use an incrementing frame number -- computationally simpler.
                 //     don't forget to i % len(animation) in case we just changed animations)
                 // 3. Use that as the next goal position
-                string o = myAnimationClassifier.Run( FindBaseInput( modelBaseToAnimate.position ) );
+                double[] baseInput = FindBaseInput( modelBaseToAnimate.position );
+                // animation
+                string o = myAnimationClassifier.Run( baseInput );
                 int whichAnimation = System.Convert.ToInt32( o );
                 currentFrame = currentFrame % modelBasePositionData[whichAnimation].Count;
 
@@ -195,6 +207,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                 for( int i = 0; i < goalRelativePositions.Length; i++ )
                 {
                     goalRelativePositions[i] = modelRelativePositionData[i][whichAnimation][currentFrame].positionRelativeToBase;
+                }
+
+                // sound
+                if( mySounder )
+                {
+                    // TODO do we want different features?
+                    mySounder.Predict( baseInput );
                 }
 
                 // since we are playing back recorded animations,
@@ -211,7 +230,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                 // 1. Run regression and normalize to get relative levels of each animation
                 // 2. Average together all the results of that frame offset
                 // 3. Use that as the next goal position / rotation
-                double[] o = myAnimationRegression.Run( FindBaseInput( modelBaseToAnimate.position ) );
+                double[] baseInput = FindBaseInput( modelBaseToAnimate.position );
+
+                // animation
+                double[] o = myAnimationRegression.Run( baseInput );
                 // normalize o
                 double sum = 0;
                 // clamp to [0, inf)
@@ -269,6 +291,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                     }
                 }
 
+                // sound
+                if( mySounder )
+                {
+                    mySounder.Predict( baseInput );
+                }
+
                 // since we are playing back recorded animations,
                 // playback rate == collection rate
                 yield return new WaitForSecondsRealtime( dataCollectionRate );
@@ -308,6 +336,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             modelRelativePositionData[i].Add( relativePhrases[i] );
         }
 
+        // start sound
+        if( mySounder )
+        {
+            mySounder.StartRecordingExamples();
+        }
+
         while( true )
         {
             yield return new WaitForSecondsRealtime( dataCollectionRate );
@@ -336,6 +370,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             newDatum.label = currentLabel;
 
             basePhrase.Add( newDatum );
+
+            // sound
+            if( mySounder )
+            {
+                // TODO: do we want different input features for sounds?
+                mySounder.ProvideExample( BaseInput( newDatum ) );
+            }
 
             // other data
             for( int i = 0; i < modelRelativePointsDataSource.Length; i++ )

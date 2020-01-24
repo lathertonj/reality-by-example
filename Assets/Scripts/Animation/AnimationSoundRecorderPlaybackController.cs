@@ -15,6 +15,8 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
 
     // TODO: generalize chuck code so that can have multiple of these components running
 
+    // TODO: make a simpler version where randomly we pick between different phrases according to the prominence of the animation...
+
     // Start is called before the first frame update
     private RapidMixRegression myRegression;
 

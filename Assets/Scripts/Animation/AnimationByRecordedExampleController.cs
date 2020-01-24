@@ -213,7 +213,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                 if( mySounder )
                 {
                     // TODO do we want different features?
-                    mySounder.Predict( baseInput );
+                    // mySounder.Predict( baseInput );
+                    mySounder.Predict( RotationArray( modelBaseToAnimate.rotation ) );
                 }
 
                 // since we are playing back recorded animations,
@@ -294,7 +295,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                 // sound
                 if( mySounder )
                 {
-                    mySounder.Predict( baseInput );
+                    // mySounder.Predict( baseInput );
+                    mySounder.Predict( RotationArray( modelBaseToAnimate.rotation ) );
                 }
 
                 // since we are playing back recorded animations,
@@ -375,7 +377,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             if( mySounder )
             {
                 // TODO: do we want different input features for sounds?
-                mySounder.ProvideExample( BaseInput( newDatum ) );
+                // mySounder.ProvideExample( BaseInput( newDatum ) );
+                mySounder.ProvideExample( RotationArray( newDatum.rotation ) );
             }
 
             // other data
@@ -402,6 +405,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             d.terrainSteepness,
         };
     }
+
+    
 
     ModelBaseDatum _dummy = new ModelBaseDatum();
     double[] FindBaseInput( Vector3 worldPos )
@@ -506,6 +511,16 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         i.z = Mathf.Clamp( i.z, -maxEulerAnglesChange.z, maxEulerAnglesChange.z );
 
         return i;
+    }
+
+    double[] RotationArray( Quaternion rotation )
+    {
+        return new double[] {
+            rotation.x,
+            rotation.y,
+            rotation.z,
+            rotation.w
+        };
     }
 
     private class ModelBaseDatum

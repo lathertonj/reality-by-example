@@ -214,7 +214,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                 {
                     // TODO do we want different features?
                     // mySounder.Predict( baseInput );
-                    mySounder.Predict( RotationArray( modelBaseToAnimate.rotation ) );
+                    mySounder.Predict( SoundInput( modelBaseToAnimate.rotation, (float) baseInput[0], (float) baseInput[1] ) );
                 }
 
                 // since we are playing back recorded animations,
@@ -241,11 +241,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                 for( int i = 0; i < o.Length; i++ ) { o[i] = Mathf.Clamp( (float) o[i], 0, float.MaxValue ); }
                 for( int i = 0; i < o.Length; i++ ) { sum += o[i]; }
                 for( int i = 0; i < o.Length; i++ ) { o[i] /= sum; }
-                string p = "[";
-                for( int i = 0; i < o.Length; i++ ) { p += o[i].ToString("0.00") + ", "; }
-                p += "]";
-                Debug.Log( "PREDICT: " + p );
-
 
                 // TODO: how to do a weighted average of Quaternion? maybe with slerp?
                 // see: https://stackoverflow.com/questions/12374087/average-of-multiple-quaternions
@@ -296,7 +291,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                 if( mySounder )
                 {
                     // mySounder.Predict( baseInput );
-                    mySounder.Predict( RotationArray( modelBaseToAnimate.rotation ) );
+                    mySounder.Predict( SoundInput( modelBaseToAnimate.rotation, (float) baseInput[0], (float) baseInput[1] ) );
                 }
 
                 // since we are playing back recorded animations,
@@ -366,7 +361,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             // newDatum.rotationDelta = AngleMinify( modelBaseDataSource.rotation.eulerAngles - prevRotation );
             // Debug.Log( "DATA: " + newDatum.rotationDelta.ToString() );
             newDatum.rotation = modelBaseDataSource.rotation;
-            Debug.Log( "DATA: " + newDatum.rotation.eulerAngles.ToString() );
+            // Debug.Log( "DATA: " + newDatum.rotation.eulerAngles.ToString() );
             newDatum.terrainHeight = currentHeight;
             newDatum.terrainSteepness = currentSteepness;
             newDatum.label = currentLabel;
@@ -376,9 +371,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             // sound
             if( mySounder )
             {
-                // TODO: do we want different input features for sounds?
-                // mySounder.ProvideExample( BaseInput( newDatum ) );
-                mySounder.ProvideExample( RotationArray( newDatum.rotation ) );
+                mySounder.ProvideExample( SoundInput( newDatum.rotation, newDatum.terrainHeight, newDatum.terrainSteepness ) );
             }
 
             // other data
@@ -513,13 +506,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         return i;
     }
 
-    double[] RotationArray( Quaternion rotation )
+    double[] SoundInput( Quaternion baseRotation, float terrainHeight, float terrainSteepness )
     {
         return new double[] {
-            rotation.x,
-            rotation.y,
-            rotation.z,
-            rotation.w
+            baseRotation.x, baseRotation.y, baseRotation.z, baseRotation.w,
+            terrainHeight, terrainSteepness
         };
     }
 

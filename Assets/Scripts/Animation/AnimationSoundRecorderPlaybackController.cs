@@ -79,13 +79,12 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
                 fun void SetGrainPosition( int g )
                 {
                     Std.clamp( g, 0, (lisa.duration() / samp) $ int - 1 ) => grainPosition;
-                    <<< ""audio set to"", grainPosition >>>;
                 }
 
 				
 				// LiSa params
 				20 => lisa.maxVoices;
-				0.1 => lisa.gain;
+				0.5 => lisa.gain;
 				true => lisa.loop;
 				false => lisa.record;
 				
@@ -218,7 +217,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     {
         // regression --> output is whatever our recorder has recorded most frequently
         myRegression.RecordDataPoint( input, new double[] { myCurrentRecordedSampleSyncer.GetCurrentValue() } );
-        Debug.Log( "AUDIO DATA: " + myCurrentRecordedSampleSyncer.GetCurrentValue().ToString() );
+        // Debug.Log( "AUDIO DATA: " + myCurrentRecordedSampleSyncer.GetCurrentValue().ToString() );
     }
 
     public void StopRecordingExamples()
@@ -240,6 +239,5 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         double[] o = myRegression.Run( input );
         myChuck.SetInt( "newSamplePosition", (int) o[0] );
         myChuck.BroadcastEvent( "newSamplePositionReady" );
-        Debug.Log( "AUDIO PREDICT: " + o[0] );
     }
 }

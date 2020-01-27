@@ -30,6 +30,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour
     // and, have a maximum amount that each thing can actually move -- maybe a slew per frame.
     public float globalSlew = 0.1f;
 
+    public float motionSpeedupSlew = 0.08f;
+    public float motionSlowdownSlew = 0.03f;
+    public float maxSpeed = 1;
+
     // and, specify a data collection rate and a prediction output rate.
     public float dataCollectionRate = 0.1f;
 
@@ -72,24 +76,49 @@ public class AnimationByRecordedExampleController : MonoBehaviour
 
     }
 
+    float goalSpeedMultiplier = 0, currentSpeedMultiplier = 0;
+
     // Update is called once per frame
     void Update()
     {
         if( runtimeMode )
         {
-            // slew base
-            // TODO: move in the forward direction, perhaps with speed according to limb movement or delayed from it
-            // modelBaseToAnimate.position += globalSlew * ( goalBasePosition - modelBaseToAnimate.position );
-            modelBaseToAnimate.position += 0.05f * modelBaseToAnimate.forward;
-            modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, goalBaseRotation, globalSlew );
+            // keep track of how much movement happens
+            float movementThisFrame = 0;
 
-            // slew the relative positions
+            // slew the relative positions while computing movement 
             for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
             {
+                Vector3 oldPosition = modelRelativePointsToAnimate[i].position;
                 Vector3 currentDifference = modelRelativePointsToAnimate[i].position - modelBaseToAnimate.position;
                 Vector3 nextDifference = currentDifference + globalSlew * ( goalRelativePositions[i] - currentDifference );
                 modelRelativePointsToAnimate[i].position = modelBaseToAnimate.position + nextDifference;
+
+                movementThisFrame += ( modelRelativePointsToAnimate[i].position - oldPosition ).magnitude;
             }
+
+            // derive ideal movement speed from movement of the limbs
+            movementThisFrame /= modelRelativePointsToAnimate.Length;
+            goalSpeedMultiplier = 10 * Mathf.Clamp( movementThisFrame, 0, 0.1f );
+
+            // current speed is delayed from ideal
+            if( currentSpeedMultiplier < goalSpeedMultiplier )
+            {
+                currentSpeedMultiplier += motionSpeedupSlew * ( goalSpeedMultiplier - currentSpeedMultiplier );
+            }
+            else
+            {
+                currentSpeedMultiplier += motionSlowdownSlew * ( goalSpeedMultiplier - currentSpeedMultiplier );
+            }
+
+            Debug.Log( "goal: " + goalSpeedMultiplier.ToString()  + " ; current: " + currentSpeedMultiplier.ToString() );
+
+            // slew base
+            modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, goalBaseRotation, globalSlew );
+            
+            // move in the forward direction, with speed according to delayed limb movement
+            modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * modelBaseToAnimate.forward;
+
         }
         else
         {
@@ -180,6 +209,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
 
     Vector3[] goalRelativePositions;
 
+
     private IEnumerator Run()
     {
         int currentFrame = 0;
@@ -201,7 +231,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                 currentFrame = currentFrame % modelBasePositionData[whichAnimation].Count;
 
                 goalBaseRotation = modelBasePositionData[whichAnimation][currentFrame].rotation;
-                Debug.Log( "PREDICT: " + goalBaseRotation.eulerAngles.ToString() );
 
                 // compute the relative position goals
                 for( int i = 0; i < goalRelativePositions.Length; i++ )
@@ -246,7 +275,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                 // see: https://stackoverflow.com/questions/12374087/average-of-multiple-quaternions
                 // average of many requires finding eigenvectors
                 // --> just slerp between the largest 2 -- we can still do a weighted avg of 2
-                
+
                 // find top two indices
                 int mostProminent = 0, secondMostProminent = 0;
                 double mpAmount = 0;
@@ -283,7 +312,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                     {
                         // weighted sum
                         goalRelativePositions[i] += (float) o[whichAnimation] * GetRelativePosition( i, whichAnimation, currentFrame );
-                        
+
                     }
                 }
 
@@ -399,7 +428,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         };
     }
 
-    
+
 
     ModelBaseDatum _dummy = new ModelBaseDatum();
     double[] FindBaseInput( Vector3 worldPos )

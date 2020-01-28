@@ -80,7 +80,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
     }
 
     float goalSpeedMultiplier = 0, currentSpeedMultiplier = 0;
-    float goalAvoidanceAngle = 0, currentAvoidanceAngle = 0; 
+    float goalAvoidanceAngle = 0, currentAvoidanceAngle = 0;
 
     // Update is called once per frame
     void Update()
@@ -117,7 +117,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
 
             // slew base
             modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, goalBaseRotation, globalSlew );
-            
+
             // if the forward direction has land, avoid it
             if( WillCollideWithTerrainSoon() )
             {
@@ -200,6 +200,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         return ( Physics.Raycast( modelBaseToAnimate.position, modelBaseToAnimate.forward, out hit, avoidTerrainDetection, layerMask ) );
     }
 
+    Vector3 mostRecentTerrainFoundPoint;
     private Terrain FindTerrain()
     {
         // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
@@ -209,9 +210,26 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         // Check from a point really high above us, in the downward direction (in case we are below terrain)
         if( Physics.Raycast( transform.position + 400 * Vector3.up, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
         {
+            mostRecentTerrainFoundPoint = hit.point;
             return hit.transform.GetComponentInParent<Terrain>();
         }
         return null;
+    }
+
+    private void FindTerrainInformation( out float height, out float steepness, out float distanceAbove )
+    {
+        Terrain currentTerrain = FindTerrain();
+        if( currentTerrain )
+        {
+            Vector2 terrainCoords = CoordinatesToIndices( currentTerrain, modelBaseDataSource.position );
+            height = currentTerrain.terrainData.GetInterpolatedHeight( terrainCoords.x, terrainCoords.y );
+            steepness = currentTerrain.terrainData.GetSteepness( terrainCoords.x, terrainCoords.y );
+            distanceAbove = transform.position.y - mostRecentTerrainFoundPoint.y;
+        }
+        else
+        {
+            height = steepness = distanceAbove = 0;
+        }
     }
 
     private Vector2 CoordinatesToIndices( Terrain t, Vector3 worldPos )
@@ -266,9 +284,15 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                 // sound
                 if( mySounder )
                 {
-                    // TODO do we want different features?
-                    // mySounder.Predict( baseInput );
-                    mySounder.Predict( SoundInput( modelBaseToAnimate.rotation, (float) baseInput[0], (float) baseInput[1] ) );
+                    // compute features
+                    float currentHeight = 0, currentSteepness = 0, heightAboveTerrain = 0;
+                    FindTerrainInformation( out currentHeight, out currentSteepness, out heightAboveTerrain );
+                    mySounder.Predict( SoundInput(
+                        modelBaseToAnimate.rotation,
+                        currentHeight,
+                        currentSteepness,
+                        heightAboveTerrain
+                    ) );
                 }
 
                 // since we are playing back recorded animations,
@@ -344,8 +368,15 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                 // sound
                 if( mySounder )
                 {
-                    // mySounder.Predict( baseInput );
-                    mySounder.Predict( SoundInput( modelBaseToAnimate.rotation, (float) baseInput[0], (float) baseInput[1] ) );
+                    // compute features
+                    float currentHeight = 0, currentSteepness = 0, heightAboveTerrain = 0;
+                    FindTerrainInformation( out currentHeight, out currentSteepness, out heightAboveTerrain );
+                    mySounder.Predict( SoundInput(
+                        modelBaseToAnimate.rotation,
+                        currentHeight,
+                        currentSteepness,
+                        heightAboveTerrain
+                    ) );
                 }
 
                 // since we are playing back recorded animations,
@@ -398,14 +429,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             yield return new WaitForSecondsRealtime( dataCollectionRate );
 
             // fetch terrain values
-            float currentHeight = 0, currentSteepness = 0;
-            Terrain currentTerrain = FindTerrain();
-            if( currentTerrain )
-            {
-                Vector2 terrainCoords = CoordinatesToIndices( currentTerrain, modelBaseDataSource.position );
-                currentHeight = currentTerrain.terrainData.GetInterpolatedHeight( terrainCoords.x, terrainCoords.y );
-                currentSteepness = currentTerrain.terrainData.GetSteepness( terrainCoords.x, terrainCoords.y );
-            }
+            float currentHeight = 0, currentSteepness = 0, heightAboveTerrain = 0;
+            FindTerrainInformation( out currentHeight, out currentSteepness, out heightAboveTerrain );
 
             float timeElapsed = Time.time - startTime;
 
@@ -425,7 +450,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             // sound
             if( mySounder )
             {
-                mySounder.ProvideExample( SoundInput( newDatum.rotation, newDatum.terrainHeight, newDatum.terrainSteepness ) );
+                mySounder.ProvideExample( SoundInput( newDatum.rotation, newDatum.terrainHeight, newDatum.terrainSteepness, heightAboveTerrain ) );
             }
 
             // other data
@@ -562,11 +587,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         return i;
     }
 
-    double[] SoundInput( Quaternion baseRotation, float terrainHeight, float terrainSteepness )
+    double[] SoundInput( Quaternion baseRotation, float terrainHeight, float terrainSteepness, float heightAboveTerrain )
     {
         return new double[] {
             baseRotation.x, baseRotation.y, baseRotation.z, baseRotation.w,
-            terrainHeight, terrainSteepness
+            terrainHeight, terrainSteepness, heightAboveTerrain
         };
     }
 

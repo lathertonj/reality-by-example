@@ -33,6 +33,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour
     public float motionSpeedupSlew = 0.08f;
     public float motionSlowdownSlew = 0.03f;
     public float maxSpeed = 1;
+    public float avoidTerrainAngle = 30;
+    public float avoidTerrainDetection = 2f;
+    public float avoidTerrainSlew = 0.01f;
 
     // and, specify a data collection rate and a prediction output rate.
     public float dataCollectionRate = 0.1f;
@@ -77,6 +80,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
     }
 
     float goalSpeedMultiplier = 0, currentSpeedMultiplier = 0;
+    float goalAvoidanceAngle = 0, currentAvoidanceAngle = 0; 
 
     // Update is called once per frame
     void Update()
@@ -114,8 +118,21 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             // slew base
             modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, goalBaseRotation, globalSlew );
             
+            // if the forward direction has land, avoid it
+            if( WillCollideWithTerrainSoon() )
+            {
+                goalAvoidanceAngle = -avoidTerrainAngle;
+            }
+            else
+            {
+                goalAvoidanceAngle = 0;
+            }
+            currentAvoidanceAngle += avoidTerrainSlew * ( goalAvoidanceAngle - currentAvoidanceAngle );
+            modelBaseToAnimate.rotation *= Quaternion.AngleAxis( currentAvoidanceAngle, modelBaseToAnimate.right );
+
             // move in the forward direction, with speed according to delayed limb movement
             modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * modelBaseToAnimate.forward;
+
 
         }
         else
@@ -171,6 +188,16 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             runtimeMode = true;
         }
 
+    }
+
+    private bool WillCollideWithTerrainSoon()
+    {
+        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
+        int layerMask = 1 << 8;
+
+        RaycastHit hit;
+        // check if the model will hit anything in its forward direction
+        return ( Physics.Raycast( modelBaseToAnimate.position, modelBaseToAnimate.forward, out hit, avoidTerrainDetection, layerMask ) );
     }
 
     private Terrain FindTerrain()

@@ -30,6 +30,23 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
     public void FinalizeMovement()
     {
         // tell the controller to recompute tempo
+        Rescan();
+    }
+
+    public void Randomize( bool informRegressor = false )
+    {
+        // pick a new value 
+        UpdateMyTempo( Random.Range( minTempo, maxTempo ) );
+
+        // inform regressor
+        if( informRegressor )
+        {
+            Rescan();
+        }
+    }
+
+    public void Rescan()
+    {
         myRegressor.RescanProvidedExamples();
     }
 
@@ -50,16 +67,21 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
     public void FinalizeMovement( Vector3 endPosition )
     {
         // tell the controller to recompute tempo
-        myRegressor.RescanProvidedExamples();
+        Rescan();
     }
 
     public void JustPlaced()
     {
-        // there should only be one...
-        myRegressor = FindObjectOfType<SoundEngineTempoRegressor>();
-
+        Initialize();
+        
         // inform it
         myRegressor.ProvideExample( this );
+    }
+
+    public void Initialize()
+    {
+        // there should only be one...
+        myRegressor = FindObjectOfType<SoundEngineTempoRegressor>();
 
         // update text too
         myText = GetComponentInChildren<TextMesh>();

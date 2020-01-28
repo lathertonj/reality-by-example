@@ -29,8 +29,20 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
 
     public void FinalizeMovement()
     {
-        // tell the controller to recompute tempo
+        // tell the controller to recompute parameter
         myRegressor.RescanProvidedExamples();
+    }
+
+    public void Randomize( bool informRegressor = false )
+    {
+        // pick a random value
+        UpdateMyValue( Random.Range( 0f, 1f ) );
+
+        // update my regressor
+        if( informRegressor )
+        {
+            myRegressor.RescanProvidedExamples();
+        }
     }
 
     private void UpdateMyValue( float newValue )
@@ -66,6 +78,14 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
 
     public void JustPlaced()
     {
+        Initialize();
+
+        // inform it
+        myRegressor.ProvideExample( this );
+    }
+
+    public void Initialize()
+    {
         // there should only be one...
         switch( myType )
         {
@@ -79,9 +99,6 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
                 myRegressor = SoundEngine0To1Regressor.volumeRegressor;
                 break;
         }
-
-        // inform it
-        myRegressor.ProvideExample( this );
 
         // update text too
         myText = GetComponentInChildren<TextMesh>();

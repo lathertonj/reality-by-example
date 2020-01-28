@@ -107,6 +107,12 @@ public class ConnectedTerrainController : MonoBehaviour
         RescanProvidedExamples();
     }
 
+    public void ProvideExampleEfficient( TerrainHeightExample example )
+    {
+        // remember
+        myRegressionExamples.Add( example );
+    }
+
     public void ForgetExample( TerrainHeightExample example )
     {
         // forget
@@ -125,6 +131,13 @@ public class ConnectedTerrainController : MonoBehaviour
 
         // recompute
         RescanProvidedExamples();
+    }
+
+    public void ProvideExampleEfficient( TerrainGISExample example )
+    {
+        if( !addGISTexture ) return;
+        // remember
+        myGISRegressionExamples.Add( example );
     }
 
     public void ForgetExample( TerrainGISExample example )

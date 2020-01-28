@@ -100,6 +100,11 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
         }
     }
 
+    public void ManuallySpecifyTerrain( ConnectedTerrainTextureController c )
+    {
+        myTerrain = c;
+    }
+
     void GripPlaceDeleteInteractable.AboutToBeDeleted()
     {
         myTerrain.ForgetExample( this );
@@ -138,6 +143,19 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
         else
         {
             // stick with myTerrain
+            myTerrain.RescanProvidedExamples();
+        }
+    }
+
+    public void Randomize( bool informMyTerrain = false )
+    {
+        // choose a random material
+        int n = Random.Range( 0, myMaterials.Length );
+        for( int i = 0; i < n; i++ ) { SwitchToNextMaterial(); }
+
+        // inform my terrain
+        if( informMyTerrain )
+        {
             myTerrain.RescanProvidedExamples();
         }
     }

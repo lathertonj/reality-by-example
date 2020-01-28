@@ -101,6 +101,11 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
         }
     }
 
+    public void ManuallySpecifyTerrain( ConnectedTerrainController c )
+    {
+        myTerrain = c;
+    }
+
     void GripPlaceDeleteInteractable.AboutToBeDeleted()
     {
         myTerrain.ForgetExample( this );
@@ -162,6 +167,22 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
         myTerrain.RescanProvidedExamples();
     }
 
+
+    public void Randomize( bool informMyTerrain = false )
+    {
+        // get random new value
+        UpdateMyValue( myType, Random.Range( 0f, 1f ) );
+
+        // get random new type (future proofed and thus somewhat skewed)
+        int numSwitches = Random.Range( 0, 8 );
+        for( int i = 0; i < numSwitches; i++ ) { SwitchToNextGISType(); }
+
+        // inform my terrain
+        if( informMyTerrain )
+        {
+            myTerrain.RescanProvidedExamples();
+        }
+    }
     
 }
 

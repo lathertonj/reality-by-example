@@ -41,6 +41,11 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
             myTerrain.ProvideExample( this );
         }
     }
+
+    public void ManuallySpecifyTerrain( ConnectedTerrainController c )
+    {
+        myTerrain = c;
+    }
     
     void GripPlaceDeleteInteractable.JustPlaced()
     {

@@ -15,7 +15,22 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
     private TextMesh myText;
 
 
+    public void Randomize( bool informClassifier = false )
+    {
+        // pick a new chord
+        UpdateMyChord( Random.Range( 0, numChords ) );
 
+        // update classifier
+        if( informClassifier )
+        {
+            Rescan();
+        }
+    }
+
+    public void Rescan()
+    {
+        myClassifier.RescanProvidedExamples();
+    }
 
     private void UpdateMyChord( int newChord )
     {
@@ -34,16 +49,21 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
     public void FinalizeMovement( Vector3 endPosition )
     {
         // tell the controller to recompute tempo
-        myClassifier.RescanProvidedExamples();
+        Rescan();
     }
 
     public void JustPlaced()
     {
-        // there should only be one...
-        myClassifier = FindObjectOfType<SoundEngineChordClassifier>();
-
+        Initialize();
+        
         // inform it
         myClassifier.ProvideExample( this );
+    }
+
+    public void Initialize()
+    {
+        // there should only be one...
+        myClassifier = FindObjectOfType<SoundEngineChordClassifier>();
 
         // update text too
         myText = GetComponentInChildren<TextMesh>();
@@ -59,12 +79,12 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
     public void InformOfLeftClick()
     {
         UpdateMyChord( myChord + numChords - 1 );
-        myClassifier.RescanProvidedExamples();
+        Rescan();
     }
 
     public void InformOfRightClick()
     {
         UpdateMyChord( myChord + 1 );
-        myClassifier.RescanProvidedExamples();
+        Rescan();
     }
 }

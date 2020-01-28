@@ -61,7 +61,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             myAnimationRegression = gameObject.AddComponent<RapidMixRegression>();
         }
         modelRelativePositionData = new List<List<ModelRelativeDatum>>[modelRelativePointsDataSource.Length];
-        goalRelativePositions = new Vector3[modelRelativePointsDataSource.Length];
+        goalLocalPositions = new Vector3[modelRelativePointsDataSource.Length];
 
         for( int i = 0; i < modelRelativePointsDataSource.Length; i++ )
         {
@@ -89,12 +89,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             // slew the relative positions while computing movement 
             for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
             {
+                Vector3 goalPosition = modelBaseToAnimate.TransformPoint( goalLocalPositions[i] );
                 Vector3 oldPosition = modelRelativePointsToAnimate[i].position;
-                Vector3 currentDifference = modelRelativePointsToAnimate[i].position - modelBaseToAnimate.position;
-                Vector3 nextDifference = currentDifference + globalSlew * ( goalRelativePositions[i] - currentDifference );
-                modelRelativePointsToAnimate[i].position = modelBaseToAnimate.position + nextDifference;
+                Vector3 currentPosition = oldPosition + globalSlew * ( goalPosition - oldPosition );
+                modelRelativePointsToAnimate[i].position = currentPosition;
 
-                movementThisFrame += ( modelRelativePointsToAnimate[i].position - oldPosition ).magnitude;
+                movementThisFrame += ( currentPosition - oldPosition ).magnitude;
             }
 
             // derive ideal movement speed from movement of the limbs
@@ -110,8 +110,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             {
                 currentSpeedMultiplier += motionSlowdownSlew * ( goalSpeedMultiplier - currentSpeedMultiplier );
             }
-
-            Debug.Log( "goal: " + goalSpeedMultiplier.ToString()  + " ; current: " + currentSpeedMultiplier.ToString() );
 
             // slew base
             modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, goalBaseRotation, globalSlew );
@@ -207,7 +205,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
     // Vector3 goalBasePosition;
     Quaternion goalBaseRotation;
 
-    Vector3[] goalRelativePositions;
+    Vector3[] goalLocalPositions;
 
 
     private IEnumerator Run()
@@ -233,9 +231,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                 goalBaseRotation = modelBasePositionData[whichAnimation][currentFrame].rotation;
 
                 // compute the relative position goals
-                for( int i = 0; i < goalRelativePositions.Length; i++ )
+                for( int i = 0; i < goalLocalPositions.Length; i++ )
                 {
-                    goalRelativePositions[i] = modelRelativePositionData[i][whichAnimation][currentFrame].positionRelativeToBase;
+                    goalLocalPositions[i] = modelRelativePositionData[i][whichAnimation][currentFrame].positionRelativeToBase;
                 }
 
                 // sound
@@ -304,14 +302,14 @@ public class AnimationByRecordedExampleController : MonoBehaviour
 
                 // weighted average of vectors:
                 // compute the relative position goals
-                for( int i = 0; i < goalRelativePositions.Length; i++ )
+                for( int i = 0; i < goalLocalPositions.Length; i++ )
                 {
-                    goalRelativePositions[i] = Vector3.zero;
+                    goalLocalPositions[i] = Vector3.zero;
 
                     for( int whichAnimation = 0; whichAnimation < modelRelativePositionData[i].Count; whichAnimation++ )
                     {
                         // weighted sum
-                        goalRelativePositions[i] += (float) o[whichAnimation] * GetRelativePosition( i, whichAnimation, currentFrame );
+                        goalLocalPositions[i] += (float) o[whichAnimation] * GetLocalPosition( i, whichAnimation, currentFrame );
 
                     }
                 }
@@ -338,7 +336,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         return modelBasePositionData[whichAnimation][currentFrame % modelBasePositionData[whichAnimation].Count].rotation;
     }
 
-    private Vector3 GetRelativePosition( int i, int whichAnimation, int currentFrame )
+    private Vector3 GetLocalPosition( int i, int whichAnimation, int currentFrame )
     {
         return modelRelativePositionData[i][whichAnimation][currentFrame % modelRelativePositionData[i][whichAnimation].Count].positionRelativeToBase;
     }
@@ -407,7 +405,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             for( int i = 0; i < modelRelativePointsDataSource.Length; i++ )
             {
                 ModelRelativeDatum newRelativeDatum = new ModelRelativeDatum();
-                newRelativeDatum.positionRelativeToBase = modelRelativePointsDataSource[i].position - modelBaseDataSource.position;
+                // find local position: local position of X relative to B is B.inverseTransformPoint(X.position);
+                Vector3 localPosition = modelBaseDataSource.InverseTransformPoint( modelRelativePointsDataSource[i].position );
+                newRelativeDatum.positionRelativeToBase = localPosition;
 
                 relativePhrases[i].Add( newRelativeDatum );
             }

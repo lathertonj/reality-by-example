@@ -30,6 +30,8 @@ public class RandomizeTerrain : MonoBehaviour
     public SoundTempoExample tempoPrefab;
     public Sound0To1Example densityPrefab, timbrePrefab, volumePrefab;
     
+    private bool haveInitialized = false;
+
 
     // Start is called before the first frame update
     void Start()
@@ -69,7 +71,8 @@ public class RandomizeTerrain : MonoBehaviour
 
     bool ShouldRandomize()
     {
-        return true;
+        // disallow randomization during initialization
+        return haveInitialized;
     }
 
     IEnumerator InitializeAll()
@@ -78,6 +81,7 @@ public class RandomizeTerrain : MonoBehaviour
         yield return StartCoroutine( InitializeTerrainBumps() );
         yield return StartCoroutine( InitializeTerrainTextures() );
         InitializeMusicalParameters();
+        haveInitialized = true;
     }
 
     IEnumerator InitializeTerrainHeights()

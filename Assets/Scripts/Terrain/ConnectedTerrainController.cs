@@ -153,12 +153,11 @@ public class ConnectedTerrainController : MonoBehaviour
 
     // TODO: can this be split into two phases: the base data and the GIS data,
     // so that we can only recompute one when it changes? :|
-    public void RescanProvidedExamples( bool lazy = false )
+    public void RescanProvidedExamples( bool lazy = false, int framesToSpreadOver = 15 )
     {
         // train and recompute
         TrainRegression();
         if( addGISTexture ) { TrainGISRegression(); }
-        int framesToSpreadOver = 15;
         StartCoroutine( ComputeLandHeight( lazy, framesToSpreadOver ) );
     }
 

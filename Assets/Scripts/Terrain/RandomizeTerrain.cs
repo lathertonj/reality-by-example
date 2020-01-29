@@ -52,13 +52,7 @@ public class RandomizeTerrain : MonoBehaviour
         myTimbreExamples = new List<Sound0To1Example>();
         myVolumeExamples = new List<Sound0To1Example>();
 
-        InitializeTerrainHeights();
-        // TODO: do we have to wait until ^ has finished before we do v? 
-        // it will be inaccurate otherwise... 
-        // at any rate this is gonna be a lot of computation!
-        InitializeTerrainBumps();
-        InitializeTerrainTextures();
-        InitializeMusicalParameters();
+        StartCoroutine( InitializeAll() );
     }
 
     // Update is called once per frame
@@ -78,7 +72,15 @@ public class RandomizeTerrain : MonoBehaviour
         return true;
     }
 
-    void InitializeTerrainHeights()
+    IEnumerator InitializeAll()
+    {
+        yield return StartCoroutine( InitializeTerrainHeights() );
+        yield return StartCoroutine( InitializeTerrainBumps() );
+        yield return StartCoroutine( InitializeTerrainTextures() );
+        InitializeMusicalParameters();
+    }
+
+    IEnumerator InitializeTerrainHeights()
     {
         // for each terrain
         for( int i = 0; i < terrainHeightControllers.Length; i++ )
@@ -100,14 +102,19 @@ public class RandomizeTerrain : MonoBehaviour
                 // remember
                 myHeightExamples[i].Add( e );
             }
-            // then rescan the terrain
-            terrainHeightControllers[i].RescanProvidedExamples();
+            // then rescan the terrain (lazy = true, compute frames = 15)
+            // int computeFrames = 15;
+            // terrainHeightControllers[i].RescanProvidedExamples( true, computeFrames );
+
+            // // wait before moving on
+            // for( int f = 0; f < computeFrames + 1; f++ ) { yield return null; }
+            yield return null;
         }
 
 
     }
 
-    void InitializeTerrainBumps()
+    IEnumerator InitializeTerrainBumps()
     {
         // for each terrain
         for( int i = 0; i < terrainHeightControllers.Length; i++ )
@@ -133,12 +140,17 @@ public class RandomizeTerrain : MonoBehaviour
                 // remember
                 myBumpExamples[i].Add( b );
             }
-            // rescan terrain (function is the same as for height map, unfortunately)
-            terrainHeightControllers[i].RescanProvidedExamples();
+
+            // then rescan the terrain (lazy = false, compute frames = 15)
+            int computeFrames = 15;
+            terrainHeightControllers[i].RescanProvidedExamples( false, computeFrames );
+
+            // wait before moving on
+            for( int f = 0; f < computeFrames + 1; f++ ) { yield return null; }
         }
     }
 
-    void InitializeTerrainTextures()
+    IEnumerator InitializeTerrainTextures()
     {
         // for each terrain
         for( int i = 0; i < terrainTextureControllers.Length; i++ )
@@ -166,6 +178,9 @@ public class RandomizeTerrain : MonoBehaviour
             }
             // rescan terrain
             terrainTextureControllers[i].RescanProvidedExamples();
+
+            // wait a frame before doing the next one
+            yield return null;
         }
     }
 

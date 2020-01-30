@@ -6,6 +6,10 @@ using Valve.VR;
 public class RandomizeTerrain : MonoBehaviour 
 {
 
+    public enum ActionType { RandomizeAll, RandomizeCurrent, PerturbCurrent, CopyCurrent };
+    public ActionType currentAction = ActionType.RandomizeAll;
+
+
     public SteamVR_Input_Sources handType;
     public SteamVR_Action_Boolean gripPress;
 
@@ -30,7 +34,7 @@ public class RandomizeTerrain : MonoBehaviour
     public SoundTempoExample tempoPrefab;
     public Sound0To1Example densityPrefab, timbrePrefab, volumePrefab;
     
-    private bool haveInitialized = false;
+    private bool currentlyComputing = true;
 
 
     // Start is called before the first frame update
@@ -57,14 +61,13 @@ public class RandomizeTerrain : MonoBehaviour
         StartCoroutine( InitializeAll() );
     }
 
-    // Update is called once per frame
     void Update()
     {
         if( gripPress.GetStateDown( handType ) )
         {
             if( ShouldRandomize() )
             {
-                // TODO
+                TakeAction();
             }
         }
     }
@@ -72,16 +75,47 @@ public class RandomizeTerrain : MonoBehaviour
     bool ShouldRandomize()
     {
         // disallow randomization during initialization
-        return haveInitialized;
+        return !currentlyComputing;
+    }
+
+    void TakeAction()
+    {
+        switch( currentAction )
+        {
+            case ActionType.RandomizeAll:
+                // randomize all terrains and musical parameters
+                StartCoroutine( ReRandomizeAll() );
+                break;
+            case ActionType.RandomizeCurrent:
+                // find the terrain we're above
+
+                // randomize it
+
+                break;
+            case ActionType.PerturbCurrent:
+                // find the terrain we're above
+
+                // perturb it
+                break;
+            case ActionType.CopyCurrent:
+                // find the terrain we're above
+
+                // find the terrain we're laser pointing to
+
+                // transfer properties
+
+                break;
+        }
     }
 
     IEnumerator InitializeAll()
     {
+        currentlyComputing = true;
         yield return StartCoroutine( InitializeTerrainHeights() );
         yield return StartCoroutine( InitializeTerrainBumps() );
         yield return StartCoroutine( InitializeTerrainTextures() );
         InitializeMusicalParameters();
-        haveInitialized = true;
+        currentlyComputing = false;
     }
 
     IEnumerator InitializeTerrainHeights()
@@ -249,24 +283,118 @@ public class RandomizeTerrain : MonoBehaviour
         
     }
 
-    void ReRandomizeTerrainHeight()
+    IEnumerator ReRandomizeAll()
     {
-
+        for( int i = 0; i < terrainHeightControllers.Length; i++ )
+        {
+            yield return StartCoroutine( ReRandomizeTerrain( i ) );
+        }
+        ReRandomizeMusicalParameters();
     }
 
-    void ReRandomizeTerrainBumpiness()
+    IEnumerator ReRandomizeTerrain( int which )
     {
+        currentlyComputing = true;
 
+        ReRandomizeTerrainHeight( which );
+        ReRandomizeTerrainBumpiness( which );
+        ReRandomizeTerrainTexture( which );
+
+        // rescan the terrain (lazy = false, compute frames = 15)
+        int computeFrames = 15;
+        terrainHeightControllers[which].RescanProvidedExamples( false, computeFrames );
+        for( int i = 0; i < computeFrames + 1; i++ ) { yield return null; }
+
+        currentlyComputing = false;
     }
 
-    void ReRandomizeTerrainTexture()
+    void ReRandomizeTerrainHeight( int which )
     {
+        // generate N points in random locations
+        for( int j = 0; j < myHeightExamples[which].Count; j++ )
+        {
+            myHeightExamples[which][j].transform.position = 
+                terrainHeightControllers[which].transform.position + GetRandomLocationWithinRadius( landRadius );
+            // if it had something to randomize
+            // myHeightExamples[which][j].Randomize();
+        }
+        // We don't rescan the terrain because we will do it after the bumps are randomized too
+    }
 
+    void ReRandomizeTerrainBumpiness( int which )
+    {
+        // generate N points in random locations
+        for( int j = 0; j < myBumpExamples[which].Count; j++ )
+        {
+            // position
+            myBumpExamples[which][j].transform.position = 
+                terrainHeightControllers[which].transform.position + GetRandomLocationWithinRadius( landRadius );
+            // stats
+            myBumpExamples[which][j].Randomize();
+        }
+        // We don't rescan the terrain because we will do it in the above function
+    }
+
+    void ReRandomizeTerrainTexture( int which )
+    {
+        // generate N points in random locations
+        for( int j = 0; j < myTextureExamples[which].Count; j++ )
+        {
+            // position
+            myTextureExamples[which][j].transform.position = 
+                terrainHeightControllers[which].transform.position + GetRandomLocationWithinRadius( landRadius );
+            // stats
+            myTextureExamples[which][j].Randomize();
+        }
+        // We don't rescan the terrain because we will do it in the above function
     }
 
     void ReRandomizeMusicalParameters()
     {
+        // volume:
+        for( int i = 0; i < myVolumeExamples.Count; i++ )
+        {
+            myVolumeExamples[i].Randomize();
+            myVolumeExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
+        }
+        // rescan to check for new random values
+        SoundEngine0To1Regressor.volumeRegressor.RescanProvidedExamples();
 
+        // density:
+        for( int i = 0; i < myDensityExamples.Count; i++ )
+        {
+            myDensityExamples[i].Randomize();
+            myDensityExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
+        }
+        // rescan to check for new random values
+        SoundEngine0To1Regressor.densityRegressor.RescanProvidedExamples();
+
+        // timbre:
+        for( int i = 0; i < myTimbreExamples.Count; i++ )
+        {
+            myTimbreExamples[i].Randomize();
+            myTimbreExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
+        }
+        // rescan to check for new random values
+        SoundEngine0To1Regressor.timbreRegressor.RescanProvidedExamples();
+
+        // tempo:
+        for( int i = 0; i < myTempoExamples.Count; i++ )
+        {
+            myTempoExamples[i].Randomize();
+            myTempoExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
+        }
+        // rescan to check for new random values
+        myTempoExamples[0].Rescan();
+
+        // chord:
+        for( int i = 0; i < myChordExamples.Count; i++ )
+        {
+            myChordExamples[i].Randomize();
+            myChordExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
+        }
+        // rescan to check for new random values
+        myChordExamples[0].Rescan();
     }
 
     Vector3 GetRandomLocationWithinRadius( Vector3 radius )

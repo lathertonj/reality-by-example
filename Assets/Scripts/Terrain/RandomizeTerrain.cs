@@ -36,6 +36,8 @@ public class RandomizeTerrain : MonoBehaviour
     
     private bool currentlyComputing = true;
 
+    private Dictionary< ConnectedTerrainController, int > indices;
+
 
     // Start is called before the first frame update
     void Start()
@@ -45,12 +47,14 @@ public class RandomizeTerrain : MonoBehaviour
         myHeightExamples = new List<TerrainHeightExample>[ terrainHeightControllers.Length ];
         myBumpExamples = new List<TerrainGISExample>[ terrainHeightControllers.Length ];
         myTextureExamples = new List<TerrainTextureExample>[ terrainHeightControllers.Length ];
+        indices = new Dictionary<ConnectedTerrainController, int>();
         for( int i = 0; i < terrainHeightControllers.Length; i++ )
         {
             terrainTextureControllers[i] = terrainHeightControllers[i].GetComponent< ConnectedTerrainTextureController >();
             myHeightExamples[i] = new List<TerrainHeightExample>();
             myBumpExamples[i] = new List<TerrainGISExample>();
             myTextureExamples[i] = new List<TerrainTextureExample>();
+            indices[terrainHeightControllers[i]] = i;
         }
         myChordExamples = new List<SoundChordExample>();
         myTempoExamples = new List<SoundTempoExample>();
@@ -88,9 +92,14 @@ public class RandomizeTerrain : MonoBehaviour
                 break;
             case ActionType.RandomizeCurrent:
                 // find the terrain we're above
+                ConnectedTerrainController maybeTerrain = FindTerrain();
 
                 // randomize it
-
+                if( maybeTerrain != null && indices.ContainsKey( maybeTerrain ) )
+                {
+                    int which = indices[ maybeTerrain ];
+                    StartCoroutine( ReRandomizeTerrain( which ) );
+                }
                 break;
             case ActionType.PerturbCurrent:
                 // find the terrain we're above
@@ -395,6 +404,24 @@ public class RandomizeTerrain : MonoBehaviour
         }
         // rescan to check for new random values
         myChordExamples[0].Rescan();
+    }
+
+    ConnectedTerrainController FindTerrain()
+    {
+        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
+        int layerMask = 1 << 8;
+
+        RaycastHit hit;
+        // Check from a point really high above us, in the downward direction (in case we are below terrain)
+        if( Physics.Raycast( transform.position + 400 * Vector3.up, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
+        {
+            ConnectedTerrainController foundTerrain = hit.transform.GetComponentInParent<ConnectedTerrainController>();
+            if( foundTerrain != null )
+            {
+                return foundTerrain;
+            }
+        }
+        return null;
     }
 
     Vector3 GetRandomLocationWithinRadius( Vector3 radius )

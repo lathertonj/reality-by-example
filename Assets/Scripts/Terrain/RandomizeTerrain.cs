@@ -76,7 +76,7 @@ public class RandomizeTerrain : MonoBehaviour
         {
             if( ShouldRandomize() )
             {
-                TakeAction();
+                TakeGripAction();
             }
         }
     }
@@ -87,7 +87,7 @@ public class RandomizeTerrain : MonoBehaviour
         return !currentlyComputing;
     }
 
-    void TakeAction()
+    void TakeGripAction()
     {
         ConnectedTerrainController maybeTerrain;
         switch( currentAction )
@@ -132,14 +132,45 @@ public class RandomizeTerrain : MonoBehaviour
                 // randomize it
                 break;
             case ActionType.CopyCurrent:
-                // find the terrain we're above
-
-                // find the terrain we're laser pointing to
-
-                // transfer properties
-
+                // copy it!
+                CopyCurrent();
                 break;
         }
+    }
+
+    void CopyCurrent()
+    {
+        // find the terrain we're above
+        ConnectedTerrainController ourTerrain = FindTerrain();
+
+        // find the terrain we're laser pointing to
+        ConnectedTerrainController otherTerrain = FindTerrain(
+            FindLocationToCopyFrom()
+        );
+
+        // transfer properties
+        if( ourTerrain != null && otherTerrain != null && ourTerrain != otherTerrain )
+        {
+            int from = indices[ourTerrain];
+            int to = indices[otherTerrain];
+            StartCoroutine( CopyTerrainExamples( from, to ) );
+        }
+    }
+
+    Vector3 FindLocationToCopyFrom()
+    {
+        // TODO: how?
+        return Vector3.zero;
+    }
+
+    IEnumerator RescanTerrain( ConnectedTerrainController t )
+    {
+        // rescan entire terrain -- it will do the texture at the end
+        int computeFrames = 15;
+        t.RescanProvidedExamples( false, computeFrames );
+
+        // wait before moving on
+        for( int f = 0; f < computeFrames + 1; f++ ) { yield return null; }
     }
 
     IEnumerator InitializeAll()
@@ -174,9 +205,6 @@ public class RandomizeTerrain : MonoBehaviour
                 // remember
                 myHeightExamples[i].Add( e );
             }
-            // then rescan the terrain (lazy = true, compute frames = 15)
-            // int computeFrames = 15;
-            // terrainHeightControllers[i].RescanProvidedExamples( true, computeFrames );
 
             // // wait before moving on
             // for( int f = 0; f < computeFrames + 1; f++ ) { yield return null; }
@@ -212,13 +240,7 @@ public class RandomizeTerrain : MonoBehaviour
                 // remember
                 myBumpExamples[i].Add( b );
             }
-
-            // Don't rescan -- wait until after textures. then rescan the terrain (lazy = false, compute frames = 15)
-            // int computeFrames = 15;
-            // terrainHeightControllers[i].RescanProvidedExamples( false, computeFrames );
-
-            // // wait before moving on
-            // for( int f = 0; f < computeFrames + 1; f++ ) { yield return null; }
+            // wait before moving on
             yield return null;
         }
     }
@@ -255,12 +277,7 @@ public class RandomizeTerrain : MonoBehaviour
             // yield return null;
 
             // rescan entire terrain -- it will do the texture at the end
-            int computeFrames = 15;
-            terrainHeightControllers[i].RescanProvidedExamples( false, computeFrames );
-
-            // wait before moving on
-            for( int f = 0; f < computeFrames + 1; f++ ) { yield return null; }
-
+            yield return StartCoroutine( RescanTerrain( terrainHeightControllers[i] ) );
         }
     }
 
@@ -342,12 +359,8 @@ public class RandomizeTerrain : MonoBehaviour
         ReRandomizeTerrainBumpiness( which, amount );
         ReRandomizeTerrainTexture( which, amount );
 
-        // rescan the terrain (lazy = false, compute frames = 15)
-        int computeFrames = 15;
-        terrainHeightControllers[which].RescanProvidedExamples( false, computeFrames );
-        for( int i = 0; i < computeFrames + 1; i++ ) { yield return null; }
-
-        currentlyComputing = false;
+        // rescan
+        yield return StartCoroutine( RescanTerrain( terrainHeightControllers[ which ] ) );
     }
 
     void ReRandomizeTerrainHeight( int which, RandomizeAmount amount )
@@ -483,14 +496,71 @@ public class RandomizeTerrain : MonoBehaviour
         myChordExamples[0].Rescan();
     }
 
+    IEnumerator CopyTerrainExamples( int from, int to )
+    {
+        currentlyComputing = true;
+
+        CopyExampleLocations<TerrainHeightExample>( terrainHeightControllers[from], terrainHeightControllers[to], myHeightExamples[from], myHeightExamples[to] );
+        CopyExampleLocations<TerrainGISExample>( terrainHeightControllers[from], terrainHeightControllers[to], myBumpExamples[from], myBumpExamples[to] );
+        CopyBumpParameters( myBumpExamples[from], myBumpExamples[to] );
+        CopyExampleLocations<TerrainTextureExample>( terrainHeightControllers[from], terrainHeightControllers[to], myTextureExamples[from], myTextureExamples[to] );
+        CopyTextureParameters( myTextureExamples[from], myTextureExamples[to] );
+
+        // rescan terrain
+        yield return StartCoroutine( RescanTerrain( terrainHeightControllers[ to ] ) );
+
+        currentlyComputing = false;
+    }
+
+
+    void CopyExampleLocations<T>( 
+        ConnectedTerrainController from, 
+        ConnectedTerrainController to, 
+        List<T> sourceExamples, 
+        List<T> toOverWrite 
+    ) where T : MonoBehaviour 
+    {
+        if( sourceExamples.Count != toOverWrite.Count )
+        {
+            Debug.LogError( "different numbers of examples!" );
+            return;
+        }
+        for( int i = 0; i < sourceExamples.Count; i++ )
+        {
+            toOverWrite[i].transform.position = sourceExamples[i].transform.position
+                - from.transform.position + to.transform.position;
+        }
+    }
+
+    void CopyBumpParameters( List<TerrainGISExample> from, List<TerrainGISExample> to )
+    {
+        for( int i = 0; i < from.Count; i++ )
+        {
+            to[i].CopyFrom( from[i] );
+        }
+    }
+
+    void CopyTextureParameters( List<TerrainTextureExample> from, List<TerrainTextureExample> to )
+    {
+        for( int i = 0; i < from.Count; i++ )
+        {
+            to[i].CopyFrom( from[i] );
+        }
+    }
+
     ConnectedTerrainController FindTerrain()
+    {
+        return FindTerrain( transform.position );
+    }
+
+    ConnectedTerrainController FindTerrain( Vector3 nearLocation )
     {
         // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
         int layerMask = 1 << 8;
 
         RaycastHit hit;
         // Check from a point really high above us, in the downward direction (in case we are below terrain)
-        if( Physics.Raycast( transform.position + 400 * Vector3.up, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
+        if( Physics.Raycast( nearLocation + 400 * Vector3.up, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
         {
             ConnectedTerrainController foundTerrain = hit.transform.GetComponentInParent<ConnectedTerrainController>();
             if( foundTerrain != null )

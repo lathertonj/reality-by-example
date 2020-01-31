@@ -198,6 +198,11 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
             myTerrain.RescanProvidedExamples();
         }
     }
+
+    public void CopyFrom( TerrainGISExample other )
+    {
+        UpdateMyValue( other.myType, other.myValue );
+    }
     
 }
 

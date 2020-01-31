@@ -159,6 +159,14 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
             myTerrain.RescanProvidedExamples();
         }
     }
+
+    public void CopyFrom( TerrainTextureExample from )
+    {
+        while( myCurrentValue != from.myCurrentValue )
+        {
+            SwitchToNextMaterial();
+        }
+    }
 }
 
 [System.Serializable]

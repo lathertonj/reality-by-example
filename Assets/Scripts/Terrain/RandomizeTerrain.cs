@@ -6,8 +6,9 @@ using Valve.VR;
 public class RandomizeTerrain : MonoBehaviour 
 {
 
-    public enum ActionType { RandomizeAll, RandomizeCurrent, PerturbCurrent, CopyCurrent };
+    public enum ActionType { RandomizeAll, RandomizeCurrent, PerturbBig, PerturbSmall, CopyCurrent };
     public ActionType currentAction = ActionType.RandomizeAll;
+    private enum RandomizeAmount { Full, PerturbBig, PerturbSmall };
 
 
     public SteamVR_Input_Sources handType;
@@ -18,6 +19,10 @@ public class RandomizeTerrain : MonoBehaviour
 
     public Vector3 landRadius = new Vector3( 50, 100, 50 );
     public Vector3 musicRadius = new Vector3( 150, 100, 150 );
+    public Vector3 perturbBigRadius = new Vector3( 5, 5, 5 );
+    public Vector3 perturbSmallRadius = new Vector3( 0.2f, 0.2f, 0.2f );
+    public float perturbBigBumpRange = 0.2f;
+    public float perturbSmallBumpRange = 0.02f;
     public int heightExamples = 5, bumpExamples = 5, textureExamples = 5, musicalParamExamples = 5;
 
     private List< TerrainHeightExample >[] myHeightExamples;
@@ -84,6 +89,7 @@ public class RandomizeTerrain : MonoBehaviour
 
     void TakeAction()
     {
+        ConnectedTerrainController maybeTerrain;
         switch( currentAction )
         {
             case ActionType.RandomizeAll:
@@ -92,7 +98,7 @@ public class RandomizeTerrain : MonoBehaviour
                 break;
             case ActionType.RandomizeCurrent:
                 // find the terrain we're above
-                ConnectedTerrainController maybeTerrain = FindTerrain();
+                maybeTerrain = FindTerrain();
 
                 // randomize it
                 if( maybeTerrain != null && indices.ContainsKey( maybeTerrain ) )
@@ -101,10 +107,29 @@ public class RandomizeTerrain : MonoBehaviour
                     StartCoroutine( ReRandomizeTerrain( which ) );
                 }
                 break;
-            case ActionType.PerturbCurrent:
+            case ActionType.PerturbBig:
                 // find the terrain we're above
+                maybeTerrain = FindTerrain();
 
                 // perturb it
+                if( maybeTerrain != null && indices.ContainsKey( maybeTerrain ) )
+                {
+                    int which = indices[ maybeTerrain ];
+                    StartCoroutine( ReRandomizeTerrain( which, RandomizeAmount.PerturbBig ) );
+                }
+                // randomize it
+                break;
+            case ActionType.PerturbSmall:
+                // find the terrain we're above
+                maybeTerrain = FindTerrain();
+
+                // perturb it
+                if( maybeTerrain != null && indices.ContainsKey( maybeTerrain ) )
+                {
+                    int which = indices[ maybeTerrain ];
+                    StartCoroutine( ReRandomizeTerrain( which, RandomizeAmount.PerturbSmall ) );
+                }
+                // randomize it
                 break;
             case ActionType.CopyCurrent:
                 // find the terrain we're above
@@ -188,12 +213,13 @@ public class RandomizeTerrain : MonoBehaviour
                 myBumpExamples[i].Add( b );
             }
 
-            // then rescan the terrain (lazy = false, compute frames = 15)
-            int computeFrames = 15;
-            terrainHeightControllers[i].RescanProvidedExamples( false, computeFrames );
+            // Don't rescan -- wait until after textures. then rescan the terrain (lazy = false, compute frames = 15)
+            // int computeFrames = 15;
+            // terrainHeightControllers[i].RescanProvidedExamples( false, computeFrames );
 
-            // wait before moving on
-            for( int f = 0; f < computeFrames + 1; f++ ) { yield return null; }
+            // // wait before moving on
+            // for( int f = 0; f < computeFrames + 1; f++ ) { yield return null; }
+            yield return null;
         }
     }
 
@@ -223,11 +249,18 @@ public class RandomizeTerrain : MonoBehaviour
                 // remember
                 myTextureExamples[i].Add( t );
             }
-            // rescan terrain
-            terrainTextureControllers[i].RescanProvidedExamples();
-
+            // don't rescan just texture
+            // terrainTextureControllers[i].RescanProvidedExamples();
             // wait a frame before doing the next one
-            yield return null;
+            // yield return null;
+
+            // rescan entire terrain -- it will do the texture at the end
+            int computeFrames = 15;
+            terrainHeightControllers[i].RescanProvidedExamples( false, computeFrames );
+
+            // wait before moving on
+            for( int f = 0; f < computeFrames + 1; f++ ) { yield return null; }
+
         }
     }
 
@@ -301,13 +334,13 @@ public class RandomizeTerrain : MonoBehaviour
         ReRandomizeMusicalParameters();
     }
 
-    IEnumerator ReRandomizeTerrain( int which )
+    IEnumerator ReRandomizeTerrain( int which, RandomizeAmount amount = RandomizeAmount.Full )
     {
         currentlyComputing = true;
 
-        ReRandomizeTerrainHeight( which );
-        ReRandomizeTerrainBumpiness( which );
-        ReRandomizeTerrainTexture( which );
+        ReRandomizeTerrainHeight( which, amount );
+        ReRandomizeTerrainBumpiness( which, amount );
+        ReRandomizeTerrainTexture( which, amount );
 
         // rescan the terrain (lazy = false, compute frames = 15)
         int computeFrames = 15;
@@ -317,47 +350,91 @@ public class RandomizeTerrain : MonoBehaviour
         currentlyComputing = false;
     }
 
-    void ReRandomizeTerrainHeight( int which )
+    void ReRandomizeTerrainHeight( int which, RandomizeAmount amount )
     {
         // generate N points in random locations
         for( int j = 0; j < myHeightExamples[which].Count; j++ )
         {
-            myHeightExamples[which][j].transform.position = 
-                terrainHeightControllers[which].transform.position + GetRandomLocationWithinRadius( landRadius );
-            // if it had something to randomize
-            // myHeightExamples[which][j].Randomize();
+            switch( amount )
+            {
+                case RandomizeAmount.Full:
+                    myHeightExamples[which][j].transform.position = 
+                        terrainHeightControllers[which].transform.position + GetRandomLocationWithinRadius( landRadius );
+                    // if it had something to randomize
+                    // myHeightExamples[which][j].Randomize();
+                    break;
+                case RandomizeAmount.PerturbBig:
+                    myHeightExamples[which][j].transform.position += GetRandomLocationWithinTallRadius( perturbBigRadius );
+                    break;
+                case RandomizeAmount.PerturbSmall:
+                    myHeightExamples[which][j].transform.position += GetRandomLocationWithinTallRadius( perturbSmallRadius );
+                    break;
+            }
         }
         // We don't rescan the terrain because we will do it after the bumps are randomized too
     }
 
-    void ReRandomizeTerrainBumpiness( int which )
+    void ReRandomizeTerrainBumpiness( int which, RandomizeAmount amount )
     {
         // generate N points in random locations
         for( int j = 0; j < myBumpExamples[which].Count; j++ )
         {
-            // position
-            myBumpExamples[which][j].transform.position = 
-                terrainHeightControllers[which].transform.position + GetRandomLocationWithinRadius( landRadius );
-            // stats
-            myBumpExamples[which][j].Randomize();
+            switch( amount )
+            {
+                case RandomizeAmount.Full:
+                    // position
+                    myBumpExamples[which][j].transform.position = 
+                        terrainHeightControllers[which].transform.position + GetRandomLocationWithinRadius( landRadius );
+                    // stats
+                    myBumpExamples[which][j].Randomize();
+                    break;
+                case RandomizeAmount.PerturbBig:
+                    // position
+                    myBumpExamples[which][j].transform.position += GetRandomLocationWithinTallRadius( perturbBigRadius );
+                    // stats
+                    myBumpExamples[which][j].Perturb( perturbBigBumpRange );
+                    break;
+                case RandomizeAmount.PerturbSmall:
+                    // position
+                    myBumpExamples[which][j].transform.position += GetRandomLocationWithinTallRadius( perturbSmallRadius );
+                    // stats
+                    myBumpExamples[which][j].Perturb( perturbSmallBumpRange );
+                    break;
+            }
         }
         // We don't rescan the terrain because we will do it in the above function
     }
 
-    void ReRandomizeTerrainTexture( int which )
+    void ReRandomizeTerrainTexture( int which, RandomizeAmount amount )
     {
         // generate N points in random locations
         for( int j = 0; j < myTextureExamples[which].Count; j++ )
         {
-            // position
-            myTextureExamples[which][j].transform.position = 
-                terrainHeightControllers[which].transform.position + GetRandomLocationWithinRadius( landRadius );
-            // stats
-            myTextureExamples[which][j].Randomize();
+            switch( amount )
+            {
+                case RandomizeAmount.Full:
+                    // position
+                    myTextureExamples[which][j].transform.position = 
+                        terrainHeightControllers[which].transform.position + GetRandomLocationWithinRadius( landRadius );
+                    // color
+                    myTextureExamples[which][j].Randomize();
+                    break;
+                case RandomizeAmount.PerturbBig:
+                    // position
+                    myTextureExamples[which][j].transform.position += GetRandomLocationWithinTallRadius( perturbBigRadius );
+                    // DON'T perturb the color -- it's too drastic of a change for a "perturbation"
+                    break;
+                case RandomizeAmount.PerturbSmall:
+                    // position
+                    myTextureExamples[which][j].transform.position += GetRandomLocationWithinTallRadius( perturbSmallRadius );
+                    // DON'T perturb the color -- it's too drastic of a change for a "perturbation"
+                    break;
+            }
         }
         // We don't rescan the terrain because we will do it in the above function
     }
 
+    // TODO be able to perturb this?
     void ReRandomizeMusicalParameters()
     {
         // volume:
@@ -429,6 +506,15 @@ public class RandomizeTerrain : MonoBehaviour
         return new Vector3(
             Random.Range( -radius.x, radius.x ),
             Random.Range( 0, radius.y ),
+            Random.Range( -radius.z, radius.z )
+        );
+    }
+
+    Vector3 GetRandomLocationWithinTallRadius( Vector3 radius )
+    {
+        return new Vector3(
+            Random.Range( -radius.x, radius.x ),
+            Random.Range( -radius.y, radius.y ),
             Random.Range( -radius.z, radius.z )
         );
     }

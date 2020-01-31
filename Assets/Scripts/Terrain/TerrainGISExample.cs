@@ -183,6 +183,21 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
             myTerrain.RescanProvidedExamples();
         }
     }
+
+
+    public void Perturb( float amount, bool informMyTerrain = false )
+    {
+        // get random new value
+        UpdateMyValue( myType, myValue + Random.Range( -amount, amount ) );
+
+        // don't get new type -- too drastic
+
+        // inform my terrain
+        if( informMyTerrain )
+        {
+            myTerrain.RescanProvidedExamples();
+        }
+    }
     
 }
 

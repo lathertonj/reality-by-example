@@ -157,7 +157,6 @@ public class ConnectedTerrainController : MonoBehaviour
     {
         // train and recompute
         TrainRegression();
-        if( addGISTexture ) { TrainGISRegression(); }
         StartCoroutine( ComputeLandHeight( lazy, framesToSpreadOver ) );
     }
 
@@ -330,8 +329,8 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
         {
             for( int x = 0; x < myPureRegressionHeights.GetLength( 1 ); x++ )
             {
-                Vector3 worldCoords = IndicesToCoordinates( x - extraBorderPixels, y - extraBorderPixels );
-                float landHeightHere = (float)myRegression.Run( InputVector( worldCoords.x, worldCoords.z ) )[0];
+                Vector3 localCoords = IndicesToCoordinates( x - extraBorderPixels, y - extraBorderPixels );
+                float landHeightHere = (float)myRegression.Run( InputVector( localCoords.x, localCoords.z ) )[0];
                 myPureRegressionHeights[y, x] = landHeightHere / terrainHeight;
 
                 if( x >= extraBorderPixels && x < verticesPerSide + extraBorderPixels &&
@@ -377,17 +376,28 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
                 // add the data into the terrain component in a lazy way so we can compute features.. s a d
                 SetTerrainData( false );
 
+                // now that we have the data in place to compute features, train GIS
+                TrainGISRegression();
+
                 // compute GIS
                 ComputeGISAddition();
             }
+            // on a final pass, rescan the textures when the height is re-finalized
+            // do this BEFORE smoothing edges -- that way you can "copy" one terrain to another
+            // and the texture will look the same instead of wildly different
+            
+            // to do this,
+            // add the data into the terrain component in a lazy way so we can compute features.. s a d
+            SetTerrainData( false );
+            myTextureController.RescanProvidedExamples();
+
+            // smoothing
             SmoothEdgeRegion();
             SetTerrainData( true );
             SetNeighbors( true );
             StitchEdges();
             SetBottomTerrainData( true );
 
-            // on a final pass, rescan the textures when the height is re-finalized
-            myTextureController.RescanProvidedExamples();
         
         }
         else

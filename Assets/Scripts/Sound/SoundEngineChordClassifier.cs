@@ -20,13 +20,16 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
 
 
 
-    public void ProvideExample( SoundChordExample example )
+    public void ProvideExample( SoundChordExample example, bool rescan = true )
     {
         // remember
         myClassifierExamples.Add( example );
 
         // recompute
-        RescanProvidedExamples();
+        if( rescan )
+        {
+            RescanProvidedExamples();
+        }
     }
 
     public void ForgetExample( SoundChordExample example )

@@ -54,13 +54,10 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
 
     public void JustPlaced()
     {
-        Initialize();
-        
-        // inform it
-        myClassifier.ProvideExample( this );
+        Initialize( true );
     }
 
-    public void Initialize()
+    public void Initialize( bool rescan )
     {
         // there should only be one...
         myClassifier = FindObjectOfType<SoundEngineChordClassifier>();
@@ -68,6 +65,9 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
         // update text too
         myText = GetComponentInChildren<TextMesh>();
         UpdateMyChord( myChord );
+
+        // inform it
+        myClassifier.ProvideExample( this, rescan );
     }
 
     public void AboutToBeDeleted()

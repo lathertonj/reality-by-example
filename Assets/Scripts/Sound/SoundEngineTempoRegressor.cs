@@ -18,13 +18,16 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
     private static SoundEngineTempoRegressor me;
 
 
-    public void ProvideExample( SoundTempoExample example )
+    public void ProvideExample( SoundTempoExample example, bool rescan = true )
     {
         // remember
         myRegressionExamples.Add( example );
 
         // recompute
-        RescanProvidedExamples();
+        if( rescan )
+        {
+            RescanProvidedExamples();
+        }
     }
 
     public void ForgetExample( SoundTempoExample example )

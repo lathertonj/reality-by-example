@@ -299,7 +299,7 @@ public class RandomizeTerrain : MonoBehaviour
         for( int i = 0; i < musicalParamExamples; i++ )
         {
             Sound0To1Example v = Instantiate( volumePrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
-            v.Initialize();
+            v.Initialize( false );
             v.Randomize();
             myVolumeExamples.Add( v );
         }
@@ -310,7 +310,7 @@ public class RandomizeTerrain : MonoBehaviour
         for( int i = 0; i < musicalParamExamples; i++ )
         {
             Sound0To1Example d = Instantiate( densityPrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
-            d.Initialize();
+            d.Initialize( false );
             d.Randomize();
             myDensityExamples.Add( d );
         }
@@ -321,7 +321,7 @@ public class RandomizeTerrain : MonoBehaviour
         for( int i = 0; i < musicalParamExamples; i++ )
         {
             Sound0To1Example t = Instantiate( timbrePrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
-            t.Initialize();
+            t.Initialize( false );
             t.Randomize();
             myTimbreExamples.Add( t );
         }
@@ -332,7 +332,7 @@ public class RandomizeTerrain : MonoBehaviour
         for( int i = 0; i < musicalParamExamples; i++ )
         {
             SoundTempoExample t = Instantiate( tempoPrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
-            t.Initialize();
+            t.Initialize( false );
             t.Randomize();
             myTempoExamples.Add( t );
         }
@@ -343,7 +343,7 @@ public class RandomizeTerrain : MonoBehaviour
         for( int i = 0; i < musicalParamExamples; i++ )
         {
             SoundChordExample c = Instantiate( chordPrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
-            c.Initialize();
+            c.Initialize( false );
             c.Randomize();
             myChordExamples.Add( c );
         }

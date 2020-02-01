@@ -23,13 +23,16 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
 
 
 
-    public void ProvideExample( Sound0To1Example example )
+    public void ProvideExample( Sound0To1Example example, bool rescan = true )
     {
         // remember
         myRegressionExamples.Add( example );
 
         // recompute
-        RescanProvidedExamples();
+        if( rescan )
+        { 
+            RescanProvidedExamples();
+        }
     }
 
     public void ForgetExample( Sound0To1Example example )

@@ -78,13 +78,10 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
 
     public void JustPlaced()
     {
-        Initialize();
-
-        // inform it
-        myRegressor.ProvideExample( this );
+        Initialize( true );
     }
 
-    public void Initialize()
+    public void Initialize( bool rescan )
     {
         // there should only be one...
         switch( myType )
@@ -103,6 +100,9 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
         // update text too
         myText = GetComponentInChildren<TextMesh>();
         UpdateMyValue( myValue );
+
+        // inform it
+        myRegressor.ProvideExample( this, rescan );
     }
 
     public void AboutToBeDeleted()

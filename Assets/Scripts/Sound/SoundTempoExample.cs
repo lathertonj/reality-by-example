@@ -72,13 +72,10 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
 
     public void JustPlaced()
     {
-        Initialize();
-        
-        // inform it
-        myRegressor.ProvideExample( this );
+        Initialize( true );
     }
 
-    public void Initialize()
+    public void Initialize( bool rescan )
     {
         // there should only be one...
         myRegressor = FindObjectOfType<SoundEngineTempoRegressor>();
@@ -86,6 +83,9 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
         // update text too
         myText = GetComponentInChildren<TextMesh>();
         UpdateMyTempo( myTempo );
+        
+        // inform it
+        myRegressor.ProvideExample( this, rescan );
     }
 
     public void AboutToBeDeleted()

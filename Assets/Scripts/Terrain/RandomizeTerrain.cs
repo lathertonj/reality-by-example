@@ -6,13 +6,15 @@ using Valve.VR;
 public class RandomizeTerrain : MonoBehaviour 
 {
 
-    public enum ActionType { RandomizeAll, RandomizeCurrent, PerturbBig, PerturbSmall, CopyCurrent };
+    public enum ActionType { RandomizeAll, RandomizeCurrent, PerturbBig, PerturbSmall, Copy };
     public ActionType currentAction = ActionType.RandomizeAll;
     private enum RandomizeAmount { Full, PerturbBig, PerturbSmall };
 
 
-    public SteamVR_Input_Sources handType;
+    public SteamVR_Input_Sources leftHand, rightHand;
     public SteamVR_Action_Boolean gripPress;
+
+    public LaserPointerDragAndDrop leftHandLaser, rightHandLaser;
 
     ConnectedTerrainController[] terrainHeightControllers;
     ConnectedTerrainTextureController[] terrainTextureControllers;
@@ -72,11 +74,23 @@ public class RandomizeTerrain : MonoBehaviour
 
     void Update()
     {
-        if( gripPress.GetStateDown( handType ) )
+        if( ShouldRandomize() )
         {
-            if( ShouldRandomize() )
+            if( gripPress.GetStateDown( leftHand ) || gripPress.GetStateDown( rightHand ) )
             {
                 TakeGripAction();
+            }
+        }
+
+        if( currentAction == ActionType.Copy )
+        {
+            if( gripPress.GetStateUp( leftHand ) )
+            {
+                Copy( leftHandLaser );
+            }
+            else if( gripPress.GetStateUp( rightHand ) )
+            {
+                Copy( rightHandLaser );
             }
         }
     }
@@ -131,28 +145,25 @@ public class RandomizeTerrain : MonoBehaviour
                 }
                 // randomize it
                 break;
-            case ActionType.CopyCurrent:
-                // copy it!
-                CopyCurrent();
+            case ActionType.Copy:
+                // don't do this here. copy on grip up, not down                
                 break;
         }
     }
 
-    void CopyCurrent()
+    void Copy( LaserPointerDragAndDrop dragDrop )
     {
-        // find the terrain we're above
-        ConnectedTerrainController ourTerrain = FindTerrain();
+        // find the terrain to copy from
+        ConnectedTerrainController fromTerrain = dragDrop.GetStartObject<ConnectedTerrainController>();
 
-        // find the terrain we're laser pointing to
-        ConnectedTerrainController otherTerrain = FindTerrain(
-            FindLocationToCopyFrom()
-        );
+        // find the terrain to copy to
+        ConnectedTerrainController toTerrain = dragDrop.GetEndObject<ConnectedTerrainController>();
 
         // transfer properties
-        if( ourTerrain != null && otherTerrain != null && ourTerrain != otherTerrain )
+        if( fromTerrain != null && toTerrain != null && fromTerrain != toTerrain )
         {
-            int from = indices[ourTerrain];
-            int to = indices[otherTerrain];
+            int from = indices[fromTerrain];
+            int to = indices[toTerrain];
             StartCoroutine( CopyTerrainExamples( from, to ) );
         }
     }

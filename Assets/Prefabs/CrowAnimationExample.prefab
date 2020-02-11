@@ -234,6 +234,9 @@ MonoBehaviour:
   - {fileID: 5678428367173514187}
   - {fileID: 5678428366531740160}
   globalSlew: 0.25
+  unactivated: {r: 0.9056604, g: 0.9056604, b: 0.9056604, a: 0.27450982}
+  fullyActivated: {r: 1, g: 0, b: 0.9532509, a: 0.49019608}
+  activationDisplay: {fileID: 5678428368553091051}
 --- !u!1 &5678428368553091048
 GameObject:
   m_ObjectHideFlags: 0

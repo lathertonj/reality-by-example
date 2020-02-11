@@ -18,6 +18,9 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
 
     private Vector3[] goalLocalPositions;
 
+    public Color unactivated, fullyActivated;
+    public MeshRenderer activationDisplay;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -106,5 +109,14 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         
         // and tell my animator to update
         myAnimator.RescanProvidedExamples();
+    }
+
+    public void SetActivation( float a )
+    {
+        // clamp
+        a = Mathf.Clamp01( a );
+
+        // compute and set
+        activationDisplay.material.color = Color.Lerp( unactivated, fullyActivated, a );
     }
 }

@@ -321,8 +321,16 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                 double sum = 0;
                 // clamp to [0, inf)
                 for( int i = 0; i < o.Length; i++ ) { o[i] = Mathf.Clamp( (float) o[i], 0, float.MaxValue ); }
+                // compute sum
                 for( int i = 0; i < o.Length; i++ ) { sum += o[i]; }
+                // divide by sum
                 for( int i = 0; i < o.Length; i++ ) { o[i] /= sum; }
+
+                // show activation
+                for( int i = 0; i < examples.Count; i++ ) 
+                {
+                    examples[i].SetActivation( (float) o[i] );
+                }
 
                 // TODO: how to do a weighted average of Quaternion? maybe with slerp?
                 // see: https://stackoverflow.com/questions/12374087/average-of-multiple-quaternions

@@ -6,6 +6,7 @@ TagManager:
   tags:
   - TerrainExample
   - TerrainTextureExample
+  - MenuItem
   layers:
   - Default
   - TransparentFX

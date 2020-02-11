@@ -1,127 +1,144 @@
 {
-  "app_key": "application.generated.unity.slorkbirdpiece.exe",
-  "bindings": {
-    "/actions/buggy": {
-      "chords": [],
-      "poses": [],
-      "haptics": [],
-      "sources": [],
-      "skeleton": []
-    },
-    "/actions/default": {
-      "chords": [],
-      "poses": [],
-      "haptics": [],
-      "sources": [],
-      "skeleton": []
-    },
-    "/actions/platformer": {
-      "chords": [],
-      "poses": [],
-      "haptics": [],
-      "sources": [],
-      "skeleton": []
-    },
-    "/actions/terraingenerate": {
-      "chords": [],
-      "poses": [
-        {
-          "output": "/actions/terraingenerate/in/pose",
-          "path": "/user/hand/left/pose/raw"
-        },
-        {
-          "output": "/actions/terraingenerate/in/pose",
-          "path": "/user/hand/right/pose/raw"
-        }
-      ],
-      "haptics": [
-        {
-          "output": "/actions/terraingenerate/out/haptic",
-          "path": "/user/hand/left/output/haptic"
-        },
-        {
-          "output": "/actions/terraingenerate/out/haptic",
-          "path": "/user/hand/right/output/haptic"
-        }
-      ],
-      "sources": [
-        {
-          "path": "/user/hand/left/input/trackpad",
-          "mode": "trackpad",
-          "parameters": {},
-          "inputs": {
-            "click": {
-              "output": "/actions/terraingenerate/in/touchpadpressed"
+   "action_manifest_version" : 0,
+   "alias_info" : {},
+   "app_key" : "application.generated.unity.slorkbirdpiece.exe",
+   "bindings" : {
+      "/actions/buggy" : {
+         "chords" : [],
+         "haptics" : [],
+         "poses" : [],
+         "skeleton" : [],
+         "sources" : []
+      },
+      "/actions/default" : {
+         "chords" : [],
+         "haptics" : [],
+         "poses" : [],
+         "skeleton" : [],
+         "sources" : []
+      },
+      "/actions/platformer" : {
+         "chords" : [],
+         "haptics" : [],
+         "poses" : [],
+         "skeleton" : [],
+         "sources" : []
+      },
+      "/actions/terraingenerate" : {
+         "chords" : [],
+         "haptics" : [
+            {
+               "output" : "/actions/terraingenerate/out/haptic",
+               "path" : "/user/hand/left/output/haptic"
             },
-            "position": {
-              "output": "/actions/terraingenerate/in/touchpad_xy"
+            {
+               "output" : "/actions/terraingenerate/out/haptic",
+               "path" : "/user/hand/right/output/haptic"
+            }
+         ],
+         "poses" : [
+            {
+               "output" : "/actions/terraingenerate/in/pose",
+               "path" : "/user/hand/left/pose/raw"
             },
-            "touch": {
-              "output": "/actions/terraingenerate/in/touchpadpreview"
+            {
+               "output" : "/actions/terraingenerate/in/pose",
+               "path" : "/user/hand/right/pose/raw"
             }
-          }
-        },
-        {
-          "path": "/user/hand/right/input/trackpad",
-          "mode": "trackpad",
-          "parameters": {},
-          "inputs": {
-            "click": {
-              "output": "/actions/terraingenerate/in/touchpadpressed"
+         ],
+         "skeleton" : [],
+         "sources" : [
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/terraingenerate/in/touchpadpressed"
+                  },
+                  "position" : {
+                     "output" : "/actions/terraingenerate/in/touchpad_xy"
+                  },
+                  "touch" : {
+                     "output" : "/actions/terraingenerate/in/touchpadpreview"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/left/input/trackpad"
             },
-            "position": {
-              "output": "/actions/terraingenerate/in/touchpad_xy"
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/terraingenerate/in/touchpadpressed"
+                  },
+                  "position" : {
+                     "output" : "/actions/terraingenerate/in/touchpad_xy"
+                  },
+                  "touch" : {
+                     "output" : "/actions/terraingenerate/in/touchpadpreview"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/right/input/trackpad"
             },
-            "touch": {
-              "output": "/actions/terraingenerate/in/touchpadpreview"
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/terraingenerate/in/grabobject"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/terraingenerate/in/grabobject"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/terraingenerate/in/generatepoint"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/grip"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/terraingenerate/in/generatepoint"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/grip"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/terraingenerate/in/menu"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/application_menu"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/terraingenerate/in/menu"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/application_menu"
             }
-          }
-        },
-        {
-          "path": "/user/hand/left/input/trigger",
-          "mode": "button",
-          "parameters": {},
-          "inputs": {
-            "click": {
-              "output": "/actions/terraingenerate/in/grabobject"
-            }
-          }
-        },
-        {
-          "path": "/user/hand/right/input/trigger",
-          "mode": "button",
-          "parameters": {},
-          "inputs": {
-            "click": {
-              "output": "/actions/terraingenerate/in/grabobject"
-            }
-          }
-        },
-        {
-          "path": "/user/hand/left/input/grip",
-          "mode": "button",
-          "parameters": {},
-          "inputs": {
-            "click": {
-              "output": "/actions/terraingenerate/in/generatepoint"
-            }
-          }
-        },
-        {
-          "path": "/user/hand/right/input/grip",
-          "mode": "button",
-          "parameters": {},
-          "inputs": {
-            "click": {
-              "output": "/actions/terraingenerate/in/generatepoint"
-            }
-          }
-        }
-      ],
-      "skeleton": []
-    }
-  },
-  "controller_type": "vive_controller",
-  "description": "",
-  "name": "My Terrain By Example [Testing] configuration for Vive Controller"
+         ]
+      }
+   },
+   "category" : "steamvr_input",
+   "controller_type" : "vive_controller",
+   "description" : "",
+   "name" : "My Terrain By Example [Testing] configuration for Vive Controller",
+   "options" : {},
+   "simulated_actions" : []
 }

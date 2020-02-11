@@ -108,6 +108,7 @@ public class RandomizeTerrain : MonoBehaviour
         {
             case ActionType.RandomizeAll:
                 // randomize all terrains and musical parameters
+                Debug.Log( "about to randomize all" );
                 StartCoroutine( ReRandomizeAll() );
                 break;
             case ActionType.RandomizeCurrent:
@@ -372,6 +373,8 @@ public class RandomizeTerrain : MonoBehaviour
 
         // rescan
         yield return StartCoroutine( RescanTerrain( terrainHeightControllers[ which ] ) );
+
+        currentlyComputing = false;
     }
 
     void ReRandomizeTerrainHeight( int which, RandomizeAmount amount )

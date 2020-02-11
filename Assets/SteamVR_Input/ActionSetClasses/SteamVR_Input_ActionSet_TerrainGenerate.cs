@@ -65,6 +65,14 @@ namespace Valve.VR
             }
         }
         
+        public virtual SteamVR_Action_Boolean Menu
+        {
+            get
+            {
+                return SteamVR_Actions.terraingenerate_Menu;
+            }
+        }
+        
         public virtual SteamVR_Action_Vibration Haptic
         {
             get

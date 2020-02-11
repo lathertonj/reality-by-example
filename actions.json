@@ -31,6 +31,11 @@
       "requirement": "mandatory"
     },
     {
+      "name": "/actions/terraingenerate/in/Menu",
+      "type": "boolean",
+      "requirement": "mandatory"
+    },
+    {
       "name": "/actions/terraingenerate/out/Haptic",
       "type": "vibration",
       "requirement": "mandatory"

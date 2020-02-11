@@ -178,11 +178,12 @@ public class RandomizeTerrain : MonoBehaviour
     IEnumerator RescanTerrain( ConnectedTerrainController t )
     {
         // rescan entire terrain -- it will do the texture at the end
-        int computeFrames = 15;
-        t.RescanProvidedExamples( false, computeFrames );
+        int computeFrames = 20;
+        int gisFrames = 20;
+        t.RescanProvidedExamples( false, computeFrames, gisFrames );
 
         // wait before moving on
-        for( int f = 0; f < computeFrames + 1; f++ ) { yield return null; }
+        for( int f = 0; f < computeFrames + gisFrames + 1; f++ ) { yield return null; }
     }
 
     IEnumerator InitializeAll()

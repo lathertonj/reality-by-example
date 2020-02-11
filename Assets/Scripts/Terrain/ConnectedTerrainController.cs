@@ -153,11 +153,11 @@ public class ConnectedTerrainController : MonoBehaviour
 
     // TODO: can this be split into two phases: the base data and the GIS data,
     // so that we can only recompute one when it changes? :|
-    public void RescanProvidedExamples( bool lazy = false, int framesToSpreadOver = 15 )
+    public void RescanProvidedExamples( bool lazy = false, int framesToSpreadOver = 15, int framesToSpreadGISOver = 15 )
     {
         // train and recompute
         TrainRegression();
-        StartCoroutine( ComputeLandHeight( lazy, framesToSpreadOver ) );
+        StartCoroutine( ComputeLandHeight( lazy, framesToSpreadOver, framesToSpreadGISOver ) );
     }
 
 
@@ -311,7 +311,7 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
     }
 
 
-    private IEnumerator ComputeLandHeight( bool lazy, int framesToSpreadOver )
+    private IEnumerator ComputeLandHeight( bool lazy, int framesToSpreadOver, int framesToSpreadGISOver )
     {
         if( !haveTrained ) { yield break; }
 
@@ -380,7 +380,7 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
                 TrainGISRegression();
 
                 // compute GIS
-                ComputeGISAddition();
+                yield return StartCoroutine( ComputeGISAddition( framesToSpreadGISOver ) );
             }
             // on a final pass, rescan the textures when the height is re-finalized
             // do this BEFORE smoothing edges -- that way you can "copy" one terrain to another
@@ -411,9 +411,15 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
         }
     }
 
-    private void ComputeGISAddition()
+    private IEnumerator ComputeGISAddition( int framesToSpreadOver )
     {
-        if( !haveTrainedGIS ) { return; }
+        if( !haveTrainedGIS ) { yield break; }
+
+        // Added for coroutine
+        int totalRuns = myPureRegressionHeights.GetLength( 0 ) * myPureRegressionHeights.GetLength( 1 );
+        int runsPerFrame = totalRuns / framesToSpreadOver + 1;
+        int runsSoFar = 0;
+        // End added for coroutine
 
         for( int y = 0; y < myPureRegressionHeights.GetLength( 0 ); y++ )
         {
@@ -456,6 +462,21 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
                 {
                     myModifiedRegressionHeights[y - extraBorderPixels, x - extraBorderPixels] = myPureRegressionHeights[y, x];
                 }
+
+
+                // Added for coroutine
+                runsSoFar++;
+                if( runsSoFar == runsPerFrame )
+                {
+                    runsSoFar = 0;
+
+                    // lazy terrain set
+                    SetTerrainData( false );
+                    ReducedStitchEdges();
+
+                    yield return null;
+                }
+                // End added for coroutine
 
             }
         }

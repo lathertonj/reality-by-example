@@ -38,7 +38,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour
     public float maxSpeed = 1;
     public float avoidTerrainAngle = 30;
     public float avoidTerrainDetection = 2f;
-    public float avoidTerrainSlew = 0.01f;
+    public float avoidTerrainMinheight = 1.5f;
+    public float boidSlew = 0.01f;
+
+    public float maxDistanceFromAnyExample = 15f;
 
     // and, specify a data collection rate and a prediction output rate.
     public float dataCollectionRate = 0.1f;
@@ -76,8 +79,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
 
     }
 
-    float goalSpeedMultiplier = 0, currentSpeedMultiplier = 0;
-    float goalAvoidanceAngle = 0, currentAvoidanceAngle = 0;
+    
 
     // Update is called once per frame
     void Update()
@@ -115,20 +117,22 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             // slew base
             modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, goalBaseRotation, globalSlew );
 
-            // if the forward direction has land, avoid it
-            if( WillCollideWithTerrainSoon() )
-            {
-                goalAvoidanceAngle = -avoidTerrainAngle;
-            }
-            else
-            {
-                goalAvoidanceAngle = 0;
-            }
-            currentAvoidanceAngle += avoidTerrainSlew * ( goalAvoidanceAngle - currentAvoidanceAngle );
-            modelBaseToAnimate.rotation *= Quaternion.AngleAxis( currentAvoidanceAngle, modelBaseToAnimate.right );
+            // get base velocity
+            Vector3 baseVelocity = modelBaseToAnimate.forward;
+
+            // boids
+            Vector3 groundAvoidance = ProcessBoidsGroundAvoidance();
+            Vector3 examplesAttraction = ProcessBoidsExamplesAttraction();
+
+            // overall velocity
+            Vector3 velocity = baseVelocity + groundAvoidance + examplesAttraction;
 
             // move in the forward direction, with speed according to delayed limb movement
-            modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * modelBaseToAnimate.forward;
+            modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * velocity;
+
+            // change the rotation to be looking in that direction
+            // TODO: does this negatively impact animation overall?
+            modelBaseToAnimate.rotation = Quaternion.LookRotation( velocity, modelBaseToAnimate.up );
 
 
         }
@@ -190,15 +194,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
 
     }
 
-    private bool WillCollideWithTerrainSoon()
-    {
-        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
-        int layerMask = 1 << 8;
-
-        RaycastHit hit;
-        // check if the model will hit anything in its forward direction
-        return ( Physics.Raycast( modelBaseToAnimate.position, modelBaseToAnimate.forward, out hit, avoidTerrainDetection, layerMask ) );
-    }
+    
 
     Vector3 mostRecentTerrainFoundPoint;
     private Terrain FindTerrain( Vector3 nearPoint )
@@ -564,6 +560,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             return;
         }
 
+        // compute boids features
+        ComputeStaticBoidsFeatures();
+
         // train the base 
         if( predictionType == PredictionType.Classification )
         {
@@ -596,6 +595,59 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         }
 
         haveTrained = true;
+    }
+
+    Vector3 averageExamplePosition;
+    private void ComputeStaticBoidsFeatures()
+    {
+        Vector3 sum = Vector3.zero;
+        for( int i = 0; i < examples.Count; i++ ) { sum += examples[i].transform.position; }
+        averageExamplePosition = sum / examples.Count;
+    }
+
+    private bool WillCollideWithTerrainSoon()
+    {
+        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
+        int layerMask = 1 << 8;
+
+        RaycastHit hit;
+        // check if the model will hit anything in its forward direction
+        return ( Physics.Raycast( modelBaseToAnimate.position, modelBaseToAnimate.forward, out hit, avoidTerrainDetection, layerMask ) );
+    }
+
+    private bool TooLowAboveTerrain()
+    {
+        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
+        int layerMask = 1 << 8;
+
+        RaycastHit hit;
+        // check if the model will hit anything in its forward direction
+        return ( Physics.Raycast( modelBaseToAnimate.position, Vector3.down, out hit, avoidTerrainMinheight, layerMask ) );
+    }
+
+    float goalSpeedMultiplier = 0, currentSpeedMultiplier = 0;
+    float goalAvoidanceAngle = 0, currentAvoidanceAngle = 0;
+    Vector3 ProcessBoidsGroundAvoidance()
+    {
+        // if the forward direction has land, avoid it
+        if( WillCollideWithTerrainSoon() || TooLowAboveTerrain() )
+        {
+            goalAvoidanceAngle = avoidTerrainAngle;
+        }
+        else
+        {
+            goalAvoidanceAngle = 0;
+        }
+        currentAvoidanceAngle += boidSlew * ( goalAvoidanceAngle - currentAvoidanceAngle );
+        
+        return Mathf.Sin( (Mathf.PI / 2) * currentAvoidanceAngle / avoidTerrainAngle ) * Vector3.up;
+    }
+
+    Vector3 ProcessBoidsExamplesAttraction()
+    {
+        // if we are too far away from any of the examples, steer toward the middle of the examples
+        // TODO
+        return Vector3.zero;
     }
 
     private double[] LabelToRegressionOutput( int label, int maxLabel )

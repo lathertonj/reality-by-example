@@ -42,6 +42,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour
     public float boidSlew = 0.01f;
 
     public float maxDistanceFromAnyExample = 15f;
+    public float distanceRampUpRange = 10f;
+    public float rampUpSeverity = 1.5f;
 
     // and, specify a data collection rate and a prediction output rate.
     public float dataCollectionRate = 0.1f;
@@ -646,8 +648,26 @@ public class AnimationByRecordedExampleController : MonoBehaviour
     Vector3 ProcessBoidsExamplesAttraction()
     {
         // if we are too far away from any of the examples, steer toward the middle of the examples
-        // TODO
-        return Vector3.zero;
+        float minDistance = float.MaxValue;
+        for( int i = 0; i < examples.Count; i++ )
+        {
+            float d = ( modelBaseToAnimate.position - examples[i].transform.position ).magnitude;
+            if( d < maxDistanceFromAnyExample )
+            {
+                // we don't have to do anything
+                return Vector3.zero;
+            }
+            else if( d < minDistance )
+            {
+                minDistance = d;
+            }
+        }
+
+        float severity = minDistance.PowMapClamp( maxDistanceFromAnyExample, maxDistanceFromAnyExample + distanceRampUpRange, 0, 1, rampUpSeverity );
+        Debug.Log( severity );
+        Vector3 correctionVelocity = ( averageExamplePosition - modelBaseToAnimate.position ).normalized;
+
+        return severity * correctionVelocity;
     }
 
     private double[] LabelToRegressionOutput( int label, int maxLabel )

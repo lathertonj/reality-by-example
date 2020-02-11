@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AnimationExample : MonoBehaviour
+public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , TriggerGrabMoveInteractable
 {
 
     public Transform myBaseToAnimate;
     public Transform[] myRelativePointsToAnimate;
     [HideInInspector] public List<AnimationByRecordedExampleController.ModelBaseDatum> baseExamples;
     [HideInInspector] public List<AnimationByRecordedExampleController.ModelRelativeDatum>[] relativeExamples;
+    private AnimationByRecordedExampleController myAnimator;
 
     bool shouldAnimate = false;
     public float globalSlew = 0.25f;
@@ -44,11 +45,13 @@ public class AnimationExample : MonoBehaviour
 
     public void Initiate( 
         List<AnimationByRecordedExampleController.ModelBaseDatum> baseData,
-        List<AnimationByRecordedExampleController.ModelRelativeDatum>[] relativeData
+        List<AnimationByRecordedExampleController.ModelRelativeDatum>[] relativeData,
+        AnimationByRecordedExampleController animator
     )
     {
         baseExamples = baseData;
         relativeExamples = relativeData;
+        myAnimator = animator;
     }
 
     public void Animate( float interFrameTime )
@@ -72,5 +75,36 @@ public class AnimationExample : MonoBehaviour
             frame %= baseExamples.Count;
             yield return new WaitForSeconds( interFrameTime );
         }
+    }
+
+    void GripPlaceDeleteInteractable.JustPlaced()
+    {
+        // do nothing; we will not place this with a grip
+    }
+
+    void GripPlaceDeleteInteractable.AboutToBeDeleted()
+    {
+        // forget me
+        myAnimator.ForgetExample( this );
+    }
+
+    void TriggerGrabMoveInteractable.InformOfTemporaryMovement( Vector3 currentPosition )
+    {
+        // ignore temporary movement
+    }
+
+    void TriggerGrabMoveInteractable.FinalizeMovement( Vector3 endPosition )
+    {
+        // rewrite my examples
+        float height, steepness, distanceAbove;
+        myAnimator.FindTerrainInformation( transform.position, out height, out steepness, out distanceAbove );
+        for( int i = 0; i < baseExamples.Count; i++ )
+        {
+            myAnimator.UpdateBaseDatum( baseExamples[i], height, steepness );
+        }
+        
+        
+        // and tell my animator to update
+        myAnimator.RescanProvidedExamples();
     }
 }

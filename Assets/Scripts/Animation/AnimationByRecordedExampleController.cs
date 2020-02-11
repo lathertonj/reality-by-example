@@ -201,14 +201,14 @@ public class AnimationByRecordedExampleController : MonoBehaviour
     }
 
     Vector3 mostRecentTerrainFoundPoint;
-    private Terrain FindTerrain()
+    private Terrain FindTerrain( Vector3 nearPoint )
     {
         // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
         int layerMask = 1 << 8;
 
         RaycastHit hit;
         // Check from a point really high above us, in the downward direction (in case we are below terrain)
-        if( Physics.Raycast( transform.position + 400 * Vector3.up, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
+        if( Physics.Raycast( nearPoint + 400 * Vector3.up, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
         {
             mostRecentTerrainFoundPoint = hit.point;
             return hit.transform.GetComponentInParent<Terrain>();
@@ -218,7 +218,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour
 
     private void FindTerrainInformation( out float height, out float steepness, out float distanceAbove )
     {
-        Terrain currentTerrain = FindTerrain();
+        FindTerrainInformation( transform.position, out height, out steepness, out distanceAbove );
+    }
+
+    public void FindTerrainInformation( Vector3 fromPosition, out float height, out float steepness, out float distanceAbove )
+    {
+        Terrain currentTerrain = FindTerrain( fromPosition );
         if( currentTerrain )
         {
             Vector2 terrainCoords = CoordinatesToIndices( currentTerrain, modelBaseDataSource.position );
@@ -423,7 +428,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         AnimationExample newExample = Instantiate( examplePrefab, modelBaseDataSource.position, Quaternion.identity );
         examples.Add( newExample );
         // TODO ensure this is a shallow copy and that the lists are identical
-        newExample.Initiate( basePhrase, relativePhrases );
+        newExample.Initiate( basePhrase, relativePhrases, this );
 
 
         // start sound
@@ -477,6 +482,37 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         }
     }
 
+    public void ForgetExample( AnimationExample e )
+    {
+        if( examples.Remove( e ) )
+        {
+            // successfully removed example --> rescan remaining ones
+            ResetLabels();
+            RescanProvidedExamples();
+        }
+    }
+
+    private void ResetLabels()
+    {
+        int currentLabel = 0;
+        foreach( AnimationExample e in examples )
+        {
+            for( int i = 0; i < e.baseExamples.Count; i++ )
+            {
+                e.baseExamples[i].label = currentLabel;
+            }
+            currentLabel++;
+        }
+        nextLabel = currentLabel;
+    }
+
+    public void RescanProvidedExamples()
+    {
+        // just reset the training... hopefully if we're in runtime already everything 
+        // will be fine
+        Train();
+    }
+
     // base:
     // predict the increment to modelBase location and rotation
     // input features: y, steepness of terrain; previous location / rotation.
@@ -493,15 +529,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour
     ModelBaseDatum _dummy = new ModelBaseDatum();
     double[] FindBaseInput( Vector3 worldPos )
     {
-        _dummy.terrainHeight = 0;
-        _dummy.terrainSteepness = 0;
-        Terrain currentTerrain = FindTerrain();
-        if( currentTerrain )
-        {
-            Vector2 terrainCoords = CoordinatesToIndices( currentTerrain, modelBaseToAnimate.position );
-            _dummy.terrainHeight = currentTerrain.terrainData.GetInterpolatedHeight( terrainCoords.x, terrainCoords.y );
-            _dummy.terrainSteepness = currentTerrain.terrainData.GetSteepness( terrainCoords.x, terrainCoords.y );
-        }
+        float h, s, da;
+        FindTerrainInformation( out h, out s, out da );
+        _dummy.terrainHeight = h;
+        _dummy.terrainSteepness = s;
 
         return BaseInput( _dummy );
     }
@@ -509,6 +540,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour
     string BaseOutput( ModelBaseDatum d )
     {
         return d.label.ToString();
+    }
+
+    public void UpdateBaseDatum( ModelBaseDatum d, float newHeight, float newSteepness )
+    {
+        d.terrainHeight = newHeight;
+        d.terrainSteepness = newSteepness;
     }
 
     void Train()

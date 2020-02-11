@@ -8,6 +8,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour
     public enum PredictionType { Classification, Regression };
     public PredictionType predictionType;
 
+    public AnimationExample examplePrefab;
+
     public SteamVR_Input_Sources handType;
     public SteamVR_Action_Boolean startStopDataCollection;
 
@@ -18,14 +20,15 @@ public class AnimationByRecordedExampleController : MonoBehaviour
     // predict the increment to modelBase location and rotation
     // input features: y, steepness of terrain; previous location / rotation.
     // --> 2 regressions for modelBase
-    private List<List<ModelBaseDatum>> modelBasePositionData;
+    private List<AnimationExample> examples;
+    //private List<List<ModelBaseDatum>> modelBasePositionData;
     private RapidMixClassifier myAnimationClassifier;
     private RapidMixRegression myAnimationRegression;
 
 
     // predict the position of each modelRelativePoint, relative to modelBase
     // input features: y, steepness of terrain, quaternion of current rotation
-    private List<List<ModelRelativeDatum>>[] modelRelativePositionData;
+    //private List<List<ModelRelativeDatum>>[] modelRelativePositionData;
 
     // and, have a maximum amount that each thing can actually move -- maybe a slew per frame.
     public float globalSlew = 0.1f;
@@ -54,7 +57,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
 
     void Awake()
     {
-        modelBasePositionData = new List<List<ModelBaseDatum>>();
+        examples = new List<AnimationExample>();
         if( predictionType == PredictionType.Classification )
         {
             myAnimationClassifier = gameObject.AddComponent<RapidMixClassifier>();
@@ -63,13 +66,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         {
             myAnimationRegression = gameObject.AddComponent<RapidMixRegression>();
         }
-        modelRelativePositionData = new List<List<ModelRelativeDatum>>[modelRelativePointsDataSource.Length];
         goalLocalPositions = new Vector3[modelRelativePointsDataSource.Length];
-
-        for( int i = 0; i < modelRelativePointsDataSource.Length; i++ )
-        {
-            modelRelativePositionData[i] = new List<List<ModelRelativeDatum>>();
-        }
 
         mySounder = GetComponent<AnimationSoundRecorderPlaybackController>();
     }
@@ -171,6 +168,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                 StopCoroutine( dataCollectionCoroutine );
                 dataCollectionCoroutine = null;
 
+                // finished collecting data --> tell the new phrase to animate itself
+                examples[ examples.Count - 1 ].Animate( dataCollectionRate );
+
                 // sound
                 if( mySounder )
                 {
@@ -271,14 +271,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                 // animation
                 string o = myAnimationClassifier.Run( baseInput );
                 int whichAnimation = System.Convert.ToInt32( o );
-                currentFrame = currentFrame % modelBasePositionData[whichAnimation].Count;
 
-                goalBaseRotation = modelBasePositionData[whichAnimation][currentFrame].rotation;
+                goalBaseRotation = GetBaseQuaternion( whichAnimation, currentFrame );
 
                 // compute the relative position goals
                 for( int i = 0; i < goalLocalPositions.Length; i++ )
                 {
-                    goalLocalPositions[i] = modelRelativePositionData[i][whichAnimation][currentFrame].positionRelativeToBase;
+                    goalLocalPositions[i] = GetLocalPosition( i, whichAnimation, currentFrame );
                 }
 
                 // sound
@@ -357,7 +356,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour
                 {
                     goalLocalPositions[i] = Vector3.zero;
 
-                    for( int whichAnimation = 0; whichAnimation < modelRelativePositionData[i].Count; whichAnimation++ )
+                    // TODO: number of examples not necessarily same as number of animations..??? some examples may reuse the same animation
+                    // but in different positions. I smell a redesign!
+                    for( int whichAnimation = 0; whichAnimation < examples.Count; whichAnimation++ )
                     {
                         // weighted sum
                         goalLocalPositions[i] += (float) o[whichAnimation] * GetLocalPosition( i, whichAnimation, currentFrame );
@@ -391,12 +392,14 @@ public class AnimationByRecordedExampleController : MonoBehaviour
 
     private Quaternion GetBaseQuaternion( int whichAnimation, int currentFrame )
     {
-        return modelBasePositionData[whichAnimation][currentFrame % modelBasePositionData[whichAnimation].Count].rotation;
+        int numFrames = examples[whichAnimation].baseExamples.Count;
+        return examples[whichAnimation].baseExamples[ currentFrame % numFrames ].rotation;
     }
 
     private Vector3 GetLocalPosition( int i, int whichAnimation, int currentFrame )
     {
-        return modelRelativePositionData[i][whichAnimation][currentFrame % modelRelativePositionData[i][whichAnimation].Count].positionRelativeToBase;
+        int numFrames = examples[whichAnimation].relativeExamples[i].Count;
+        return examples[whichAnimation].relativeExamples[i][ currentFrame % numFrames ].positionRelativeToBase;
     }
 
 
@@ -411,12 +414,17 @@ public class AnimationByRecordedExampleController : MonoBehaviour
 
         List<ModelBaseDatum> basePhrase = new List<ModelBaseDatum>();
         List<ModelRelativeDatum>[] relativePhrases = new List<ModelRelativeDatum>[modelRelativePointsDataSource.Length];
-        modelBasePositionData.Add( basePhrase );
         for( int i = 0; i < relativePhrases.Length; i++ )
         {
             relativePhrases[i] = new List<ModelRelativeDatum>();
-            modelRelativePositionData[i].Add( relativePhrases[i] );
         }
+
+        // store the data in the example!
+        AnimationExample newExample = Instantiate( examplePrefab, modelBaseDataSource.position, Quaternion.identity );
+        examples.Add( newExample );
+        // TODO ensure this is a shallow copy and that the lists are identical
+        newExample.Initiate( basePhrase, relativePhrases );
+
 
         // start sound
         if( mySounder )
@@ -505,7 +513,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
 
     void Train()
     {
-        if( modelBasePositionData.Count <= 0 )
+        if( examples.Count <= 0 )
         {
             haveTrained = false;
             return;
@@ -515,8 +523,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         if( predictionType == PredictionType.Classification )
         {
             myAnimationClassifier.ResetClassifier();
-            foreach( List<ModelBaseDatum> phrase in modelBasePositionData )
+            foreach( AnimationExample e in examples )
             {
+                List<ModelBaseDatum> phrase = e.baseExamples;
                 for( int i = 0; i < phrase.Count; i++ )
                 {
                     myAnimationClassifier.RecordDataPoint( BaseInput( phrase[i] ), BaseOutput( phrase[i] ) );
@@ -527,9 +536,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         else
         {
             myAnimationRegression.ResetRegression();
-            int numRecordings = modelBasePositionData.Count;
-            foreach( List<ModelBaseDatum> phrase in modelBasePositionData )
+            // TODO: some examples can have multiple inputs! but we want to REUSE
+            // the recording data. so numRecordings != examples.Count
+            int numRecordings = examples.Count;
+            foreach( AnimationExample e in examples )
             {
+                List<ModelBaseDatum> phrase = e.baseExamples;
                 for( int i = 0; i < phrase.Count; i++ )
                 {
                     myAnimationRegression.RecordDataPoint( BaseInput( phrase[i] ), LabelToRegressionOutput( phrase[i].label, numRecordings ) );
@@ -595,14 +607,14 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         };
     }
 
-    private class ModelBaseDatum
+    public class ModelBaseDatum
     {
         public Quaternion rotation;
         public float terrainHeight, terrainSteepness;
         public int label;
     }
 
-    private class ModelRelativeDatum
+    public class ModelRelativeDatum
     {
         public Vector3 positionRelativeToBase;
     }

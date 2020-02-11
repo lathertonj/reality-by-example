@@ -110,9 +110,14 @@ public class ConnectedTerrainTextureController : MonoBehaviour
 
     public void RescanProvidedExamples()
     {
+        StartCoroutine( RescanProvidedExamples( 3 ) );
+    }
+
+    public IEnumerator RescanProvidedExamples( int framesToSpreadOver )
+    {
         // train and recompute
         TrainRegression();
-        ComputeTerrainSplatMaps();
+        yield return StartCoroutine( ComputeTerrainSplatMaps( framesToSpreadOver ) );
     }
 
     private void TrainRegression()
@@ -139,13 +144,19 @@ public class ConnectedTerrainTextureController : MonoBehaviour
         }
     }
 
-    private void ComputeTerrainSplatMaps()
+    private IEnumerator ComputeTerrainSplatMaps( int framesToSpreadOver )
     {
-        if( !haveTrained ) { return; }
+        if( !haveTrained ) { yield break; }
         if( myTerrainData.alphamapLayers != myRegressionExamples[0].myValues.Length )
         {
             Debug.Log( "Terrain has a different number of layers than the examples know about." );
         }
+
+        // Added for coroutine
+        int totalRuns = myTerrainData.alphamapWidth * myTerrainData.alphamapHeight;
+        int runsPerFrame = totalRuns / framesToSpreadOver + 1;
+        int runsSoFar = 0;
+        // End added for coroutine
 
         for( int x = 0; x < myTerrainData.alphamapWidth; x++ )
         {
@@ -169,6 +180,21 @@ public class ConnectedTerrainTextureController : MonoBehaviour
                 }
 
                 NormSplatWeights( pureSplatmapData, y, x );
+
+
+                // Added for coroutine
+                runsSoFar++;
+                if( runsSoFar == runsPerFrame )
+                {
+                    runsSoFar = 0;
+
+                    // lazy terrain set
+                    CopyPureIntoBlended();
+                    SetTerrainData();
+
+                    yield return null;
+                }
+                // End added for coroutine
             }
         }
 

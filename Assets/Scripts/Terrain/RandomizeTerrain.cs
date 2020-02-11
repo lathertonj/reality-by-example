@@ -180,7 +180,9 @@ public class RandomizeTerrain : MonoBehaviour
         // rescan entire terrain -- it will do the texture at the end
         int computeFrames = 20;
         int gisFrames = 20;
-        t.RescanProvidedExamples( false, computeFrames, gisFrames );
+        // unfortunately the visual display copying in is what takes all the time :/
+        int textureFrames = 5;
+        t.RescanProvidedExamples( false, computeFrames, gisFrames, textureFrames );
 
         // wait before moving on
         for( int f = 0; f < computeFrames + gisFrames + 1; f++ ) { yield return null; }

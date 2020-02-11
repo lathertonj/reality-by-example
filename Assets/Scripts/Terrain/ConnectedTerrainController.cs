@@ -153,11 +153,11 @@ public class ConnectedTerrainController : MonoBehaviour
 
     // TODO: can this be split into two phases: the base data and the GIS data,
     // so that we can only recompute one when it changes? :|
-    public void RescanProvidedExamples( bool lazy = false, int framesToSpreadOver = 15, int framesToSpreadGISOver = 15 )
+    public void RescanProvidedExamples( bool lazy = false, int framesToSpreadOver = 15, int framesToSpreadGISOver = 15, int framesToSpreadTextureOver = 3 )
     {
         // train and recompute
         TrainRegression();
-        StartCoroutine( ComputeLandHeight( lazy, framesToSpreadOver, framesToSpreadGISOver ) );
+        StartCoroutine( ComputeLandHeight( lazy, framesToSpreadOver, framesToSpreadGISOver, framesToSpreadTextureOver ) );
     }
 
 
@@ -311,7 +311,7 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
     }
 
 
-    private IEnumerator ComputeLandHeight( bool lazy, int framesToSpreadOver, int framesToSpreadGISOver )
+    private IEnumerator ComputeLandHeight( bool lazy, int framesToSpreadOver, int framesToSpreadGISOver, int framesToSpreadTextureOver )
     {
         if( !haveTrained ) { yield break; }
 
@@ -389,7 +389,8 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
             // to do this,
             // add the data into the terrain component in a lazy way so we can compute features.. s a d
             SetTerrainData( false );
-            myTextureController.RescanProvidedExamples();
+            // do it!
+            yield return StartCoroutine( myTextureController.RescanProvidedExamples( framesToSpreadTextureOver ) );
 
             // smoothing
             SmoothEdgeRegion();

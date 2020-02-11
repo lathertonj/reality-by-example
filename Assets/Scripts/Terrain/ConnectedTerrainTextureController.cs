@@ -188,9 +188,9 @@ public class ConnectedTerrainTextureController : MonoBehaviour
                 {
                     runsSoFar = 0;
 
-                    // lazy terrain set
-                    CopyPureIntoBlended();
-                    SetTerrainData();
+                    // do not lazy terrain set
+                    // CopyPureIntoBlended();
+                    // SetTerrainData();
 
                     yield return null;
                 }

@@ -20,11 +20,13 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
 
     public Color unactivated, fullyActivated;
     public MeshRenderer activationDisplay;
+    private float prevEulerY;
 
     // Start is called before the first frame update
     void Start()
     {
         goalLocalPositions = new Vector3[ myRelativePointsToAnimate.Length ];
+        prevEulerY = transform.rotation.eulerAngles.y;
     }
 
     // Update is called once per frame
@@ -99,11 +101,18 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
     void TriggerGrabMoveInteractable.FinalizeMovement( Vector3 endPosition )
     {
         // rewrite my examples
+        // new features
         float height, steepness, distanceAbove;
         myAnimator.FindTerrainInformation( transform.position, out height, out steepness, out distanceAbove );
+
+        // rotate rotations
+        float newEulerY = transform.rotation.eulerAngles.y;
+        Quaternion spinRotation = Quaternion.AngleAxis( newEulerY - prevEulerY, Vector3.up );
+        prevEulerY = newEulerY;
+
         for( int i = 0; i < baseExamples.Count; i++ )
         {
-            myAnimator.UpdateBaseDatum( baseExamples[i], height, steepness );
+            myAnimator.UpdateBaseDatum( baseExamples[i], height, steepness, spinRotation );
         }
         
         

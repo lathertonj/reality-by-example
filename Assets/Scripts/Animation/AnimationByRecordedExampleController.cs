@@ -548,10 +548,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         return d.label.ToString();
     }
 
-    public void UpdateBaseDatum( ModelBaseDatum d, float newHeight, float newSteepness )
+    public void UpdateBaseDatum( ModelBaseDatum d, float newHeight, float newSteepness, Quaternion spinRotation )
     {
         d.terrainHeight = newHeight;
         d.terrainSteepness = newSteepness;
+        d.rotation *= spinRotation;
     }
 
     void Train()

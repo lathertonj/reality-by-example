@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , TriggerGrabMoveInteractable
+public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , TriggerGrabMoveInteractable , CloneMoveInteractable
 {
 
     public Transform myBaseToAnimate;
@@ -14,6 +14,8 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
     bool shouldAnimate = false;
     public float globalSlew = 0.25f;
 
+    private float animationIntertime;
+
     private Quaternion goalBaseRotation;
 
     private Vector3[] goalLocalPositions;
@@ -22,11 +24,22 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
     public MeshRenderer activationDisplay;
     private float prevEulerY;
 
+    // can't have a reference to the prefab itself. very frustrating.
+    public string prefabName;
+    private GameObject animationExamplePrefab;
+
+
+    // awake is called during Instantiate()
+    void Awake()
+    {
+        goalLocalPositions = new Vector3[ myRelativePointsToAnimate.Length ];
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        goalLocalPositions = new Vector3[ myRelativePointsToAnimate.Length ];
         prevEulerY = transform.rotation.eulerAngles.y;
+        animationExamplePrefab = (GameObject) Resources.Load( "Prefabs/" + prefabName );
     }
 
     // Update is called once per frame
@@ -61,11 +74,12 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
 
     public void Animate( float interFrameTime )
     {
-        StartCoroutine( AdvanceThroughData( interFrameTime ) );
+        animationIntertime = interFrameTime;
+        StartCoroutine( AdvanceThroughData() );
         shouldAnimate = true;
     }
 
-    private IEnumerator AdvanceThroughData( float interFrameTime )
+    private IEnumerator AdvanceThroughData()
     {
         int frame = 0;
         while( true )
@@ -78,7 +92,7 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
 
             frame++;
             frame %= baseExamples.Count;
-            yield return new WaitForSeconds( interFrameTime );
+            yield return new WaitForSeconds( animationIntertime );
         }
     }
 
@@ -101,6 +115,15 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
     void TriggerGrabMoveInteractable.FinalizeMovement( Vector3 endPosition )
     {
         // rewrite my examples
+        UpdateFeatures();
+        
+        
+        // and tell my animator to update
+        myAnimator.RescanProvidedExamples();
+    }
+
+    void UpdateFeatures()
+    {
         // new features
         float height, steepness, distanceAbove;
         myAnimator.FindTerrainInformation( transform.position, out height, out steepness, out distanceAbove );
@@ -114,10 +137,6 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         {
             myAnimator.UpdateBaseDatum( baseExamples[i], height, steepness, spinRotation );
         }
-        
-        
-        // and tell my animator to update
-        myAnimator.RescanProvidedExamples();
     }
 
     public void SetActivation( float a )
@@ -127,5 +146,55 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
 
         // compute and set
         activationDisplay.material.color = Color.Lerp( unactivated, fullyActivated, a );
+    }
+
+    CloneMoveInteractable CloneMoveInteractable.Clone()
+    {
+        // make a new version
+        AnimationExample cloned = Instantiate( animationExamplePrefab, transform.position, transform.rotation ).GetComponent<AnimationExample>();
+
+        // clone data
+        List<AnimationByRecordedExampleController.ModelBaseDatum> clonedBaseExamples =
+            new List<AnimationByRecordedExampleController.ModelBaseDatum>();
+        for( int i = 0; i < baseExamples.Count; i++ )
+        {
+            clonedBaseExamples.Add( baseExamples[i].Clone() );
+        }
+
+        List<AnimationByRecordedExampleController.ModelRelativeDatum>[] clonedRelativeExamples =
+            new List<AnimationByRecordedExampleController.ModelRelativeDatum>[ relativeExamples.Length ];
+        for( int i = 0; i < relativeExamples.Length; i++ )
+        {
+            clonedRelativeExamples[i] = new List<AnimationByRecordedExampleController.ModelRelativeDatum>();
+            for( int j = 0; j < relativeExamples[i].Count; j++ )
+            {
+                clonedRelativeExamples[i].Add( relativeExamples[i][j].Clone() );
+            }
+        }
+
+        // copy over data
+        cloned.Initiate(
+            clonedBaseExamples,
+            clonedRelativeExamples,
+            myAnimator
+        );
+
+        // start animating
+        cloned.Animate( animationIntertime );
+
+        return cloned;
+    }
+
+    void CloneMoveInteractable.InformOfTemporaryMovement( Vector3 currentPosition )
+    {
+        // don't do anything while I'm being moved
+    }
+
+    void CloneMoveInteractable.FinalizeMovement( Vector3 endPosition )
+    {
+        // find new features
+        UpdateFeatures(); 
+        // tell my animator I exist, finally
+        myAnimator.ProvideExample( this );
     }
 }

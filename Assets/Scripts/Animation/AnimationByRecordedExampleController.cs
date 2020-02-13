@@ -8,6 +8,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour
     public enum PredictionType { Classification, Regression };
     public PredictionType predictionType;
 
+    public enum AnimationAction { RecordAnimation, DoNothing };
+    public AnimationAction nextAction = AnimationAction.DoNothing;
+
     public AnimationExample examplePrefab;
 
     public SteamVR_Input_Sources handType;
@@ -54,6 +57,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour
     // other stuff
     bool haveTrained = false;
     bool runtimeMode = false;
+
+    bool currentlyRecording = false;
 
     IEnumerator dataCollectionCoroutine = null, runtimeCoroutine = null;
 
@@ -151,7 +156,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         }
 
         // grips == have to start / stop coroutines BOTH for data collection AND for running
-        if( startStopDataCollection.GetStateDown( handType ) )
+        if( nextAction == AnimationAction.RecordAnimation && startStopDataCollection.GetStateDown( handType ) )
         {
             // stop runtime if it's running
             if( runtimeCoroutine != null )
@@ -164,8 +169,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             // start data collection
             dataCollectionCoroutine = CollectPhrase();
             StartCoroutine( dataCollectionCoroutine );
+
+            // remember
+            currentlyRecording = true;
         }
-        else if( startStopDataCollection.GetStateUp( handType ) )
+        else if( currentlyRecording && startStopDataCollection.GetStateUp( handType ) )
         {
             // stop data collection if it's going
             if( dataCollectionCoroutine != null )
@@ -192,6 +200,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             runtimeCoroutine = Run();
             StartCoroutine( runtimeCoroutine );
             runtimeMode = true;
+
+            // remember
+            currentlyRecording = false;
         }
 
     }
@@ -414,11 +425,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour
     }
 
 
-    private int nextLabel = 0;
+    
     private IEnumerator CollectPhrase()
     {
-        int currentLabel = nextLabel;
-        nextLabel++;
         float startTime = Time.time;
         Vector3 prevPosition = modelBaseDataSource.position;
         Vector3 prevRotation = modelBaseDataSource.rotation.eulerAngles;
@@ -462,7 +471,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             // Debug.Log( "DATA: " + newDatum.rotation.eulerAngles.ToString() );
             newDatum.terrainHeight = currentHeight;
             newDatum.terrainSteepness = currentSteepness;
-            newDatum.label = currentLabel;
 
             basePhrase.Add( newDatum );
 
@@ -488,29 +496,25 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         }
     }
 
+    public void ProvideExample( AnimationExample e, bool shouldRescan = true )
+    {
+        examples.Add( e );
+
+        if( shouldRescan )
+        {
+            RescanProvidedExamples();
+        }
+    }
+
     public void ForgetExample( AnimationExample e )
     {
         if( examples.Remove( e ) )
         {
             // successfully removed example --> rescan remaining ones
-            ResetLabels();
             RescanProvidedExamples();
         }
     }
 
-    private void ResetLabels()
-    {
-        int currentLabel = 0;
-        foreach( AnimationExample e in examples )
-        {
-            for( int i = 0; i < e.baseExamples.Count; i++ )
-            {
-                e.baseExamples[i].label = currentLabel;
-            }
-            currentLabel++;
-        }
-        nextLabel = currentLabel;
-    }
 
     public void RescanProvidedExamples()
     {
@@ -543,9 +547,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         return BaseInput( _dummy );
     }
 
-    string BaseOutput( ModelBaseDatum d )
+    string BaseOutput( int label )
     {
-        return d.label.ToString();
+        return label.ToString();
     }
 
     public void UpdateBaseDatum( ModelBaseDatum d, float newHeight, float newSteepness, Quaternion spinRotation )
@@ -570,12 +574,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         if( predictionType == PredictionType.Classification )
         {
             myAnimationClassifier.ResetClassifier();
-            foreach( AnimationExample e in examples )
+            for( int j = 0; j < examples.Count; j++ )
             {
+                AnimationExample e = examples[j];
                 List<ModelBaseDatum> phrase = e.baseExamples;
                 for( int i = 0; i < phrase.Count; i++ )
                 {
-                    myAnimationClassifier.RecordDataPoint( BaseInput( phrase[i] ), BaseOutput( phrase[i] ) );
+                    myAnimationClassifier.RecordDataPoint( BaseInput( phrase[i] ), BaseOutput( j ) );
                 }
             }
             myAnimationClassifier.Train();
@@ -583,15 +588,14 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         else
         {
             myAnimationRegression.ResetRegression();
-            // TODO: some examples can have multiple inputs! but we want to REUSE
-            // the recording data. so numRecordings != examples.Count
-            int numRecordings = examples.Count;
-            foreach( AnimationExample e in examples )
+            
+            for( int j = 0; j < examples.Count; j++ )
             {
+                AnimationExample e = examples[j];
                 List<ModelBaseDatum> phrase = e.baseExamples;
                 for( int i = 0; i < phrase.Count; i++ )
                 {
-                    myAnimationRegression.RecordDataPoint( BaseInput( phrase[i] ), LabelToRegressionOutput( phrase[i].label, numRecordings ) );
+                    myAnimationRegression.RecordDataPoint( BaseInput( phrase[i] ), LabelToRegressionOutput( j, examples.Count ) );
                 }
             }
             myAnimationRegression.Train();
@@ -665,7 +669,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         }
 
         float severity = minDistance.PowMapClamp( maxDistanceFromAnyExample, maxDistanceFromAnyExample + distanceRampUpRange, 0, 1, rampUpSeverity );
-        Debug.Log( severity );
         Vector3 correctionVelocity = ( averageExamplePosition - modelBaseToAnimate.position ).normalized;
 
         return severity * correctionVelocity;
@@ -729,11 +732,26 @@ public class AnimationByRecordedExampleController : MonoBehaviour
     {
         public Quaternion rotation;
         public float terrainHeight, terrainSteepness;
-        public int label;
+
+        public ModelBaseDatum Clone()
+        {
+            ModelBaseDatum c = new ModelBaseDatum();
+            c.rotation = rotation;
+            c.terrainHeight = terrainHeight;
+            c.terrainSteepness = terrainSteepness;
+            return c;
+        }
     }
 
     public class ModelRelativeDatum
     {
         public Vector3 positionRelativeToBase;
+
+        public ModelRelativeDatum Clone()
+        {
+            ModelRelativeDatum c = new ModelRelativeDatum();
+            c.positionRelativeToBase = positionRelativeToBase;
+            return c;
+        }
     }
 }

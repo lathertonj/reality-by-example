@@ -148,7 +148,7 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         activationDisplay.material.color = Color.Lerp( unactivated, fullyActivated, a );
     }
 
-    CloneMoveInteractable CloneMoveInteractable.Clone()
+    CloneMoveInteractable CloneMoveInteractable.Clone( out Transform t )
     {
         // make a new version
         AnimationExample cloned = Instantiate( animationExamplePrefab, transform.position, transform.rotation ).GetComponent<AnimationExample>();
@@ -181,6 +181,8 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
 
         // start animating
         cloned.Animate( animationIntertime );
+
+        t = cloned.transform;
 
         return cloned;
     }

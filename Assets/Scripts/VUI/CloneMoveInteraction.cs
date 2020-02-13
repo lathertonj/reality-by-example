@@ -44,11 +44,9 @@ public class CloneMoveInteraction : MonoBehaviour
     private void CloneAndStartMoveGesture()
     {
         // clone
-        interactingObject = collidingObject.Clone();
+        interactingObject = collidingObject.Clone( out interactingTransform );
 
         // store
-        interactingObject = collidingObject;
-        interactingTransform = collidingGameObject.transform;
         interactingOriginalParent = interactingTransform.parent;
 
         // parent it to me
@@ -138,7 +136,7 @@ public class CloneMoveInteraction : MonoBehaviour
 
 public interface CloneMoveInteractable
 {
-    CloneMoveInteractable Clone();
+    CloneMoveInteractable Clone( out Transform t );
     void InformOfTemporaryMovement( Vector3 currentPosition );
     void FinalizeMovement( Vector3 endPosition );
 }

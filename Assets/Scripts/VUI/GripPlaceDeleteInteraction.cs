@@ -5,7 +5,7 @@ using Valve.VR;
 
 public class GripPlaceDeleteInteraction : MonoBehaviour
 {
-    public static Transform currentPrefabToUse;
+    public Transform currentPrefabToUse;
 
     public SteamVR_Input_Sources handType;
     public SteamVR_Action_Boolean gripPress;
@@ -16,6 +16,8 @@ public class GripPlaceDeleteInteraction : MonoBehaviour
     private TouchpadUpDownInteraction myUpDownInteraction;
     private TriggerGrabMoveInteraction myGrabMoveInteraction;
     private TouchpadLeftRightClickInteraction myLeftRightClickInteraction;
+
+    private GameObject mostRecentlyCreated;
 
 
 
@@ -60,6 +62,7 @@ public class GripPlaceDeleteInteraction : MonoBehaviour
 
         // instantiate prefab
         Transform newObject = Instantiate( currentPrefabToUse, transform.position, Quaternion.identity );
+        mostRecentlyCreated = newObject.gameObject;
 
         // tell it that it has been instantiated
         GripPlaceDeleteInteractable shouldBeGrippable = newObject.GetComponent<GripPlaceDeleteInteractable>();
@@ -128,6 +131,11 @@ public class GripPlaceDeleteInteraction : MonoBehaviour
     {
         collidingObject = null;
         collidingGameObject = null;
+    }
+
+    public GameObject GetRecentlyCreated()
+    {
+        return mostRecentlyCreated;
     }
 
 }

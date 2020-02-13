@@ -24,7 +24,7 @@ public class SwitchToComponent : MonoBehaviour
             switch( switchTo )
             {
                 case InteractionType.PlaceTerrainImmediate:
-                    GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
+                    SetPrefab( o );
                     break;
                 case InteractionType.PlaceTerrainGrowth:
                     o.GetComponent<TerrainGradualInteractor>().enabled = true;
@@ -38,10 +38,10 @@ public class SwitchToComponent : MonoBehaviour
                     o.GetComponent<LaserPointerColliderSelector>().enabled = true;
                     break;
                 case InteractionType.PlaceTexture:
-                    GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
+                    SetPrefab( o );
                     break;
                 case InteractionType.PlaceGIS:
-                    GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
+                    SetPrefab( o );
                     break;
                 case InteractionType.MoveTeleport:
                     o.GetComponent<FlyingTeleporter>().enabled = true;
@@ -54,23 +54,23 @@ public class SwitchToComponent : MonoBehaviour
                     break;
                 case InteractionType.PlaceTempo:
                     SoundEngineTempoRegressor.Activate();
-                    GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
+                    SetPrefab( o );
                     break;
                 case InteractionType.PlaceTimbre:
                     SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.timbreRegressor );
-                    GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
+                    SetPrefab( o );
                     break;
                 case InteractionType.PlaceDensity:
                     SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.densityRegressor );
-                    GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
+                    SetPrefab( o );
                     break;
                 case InteractionType.PlaceVolume:
                     SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.volumeRegressor );
-                    GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
+                    SetPrefab( o );
                     break;
                 case InteractionType.PlaceChord:
                     SoundEngineChordClassifier.Activate();
-                    GripPlaceDeleteInteraction.currentPrefabToUse = givenPrefab;
+                    SetPrefab( o );
                     break;
                 default:
                     break;
@@ -87,6 +87,11 @@ public class SwitchToComponent : MonoBehaviour
         }
     }
 
+    private void SetPrefab( GameObject o )
+    {
+        o.GetComponent<GripPlaceDeleteInteraction>().currentPrefabToUse = givenPrefab;
+    }
+
     private void DisableMovementInteractors( GameObject o )
     {
         o.GetComponent<FlyingTeleporter>().HideLasers();
@@ -101,7 +106,7 @@ public class SwitchToComponent : MonoBehaviour
 
     private void DisablePlacementInteractors( GameObject o )
     {
-        GripPlaceDeleteInteraction.currentPrefabToUse = null;
+        o.GetComponent<GripPlaceDeleteInteraction>().currentPrefabToUse = null;
         
         o.GetComponent<LaserPointerColliderSelector>().HideLaser();
         o.GetComponent<LaserPointerColliderSelector>().enabled = false;

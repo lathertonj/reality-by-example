@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
 
-public class AnimationByRecordedExampleController : MonoBehaviour
+public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDeleteInteractable
 {
     public enum PredictionType { Classification, Regression };
     public PredictionType predictionType;
@@ -79,6 +79,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour
         goalLocalPositions = new Vector3[modelRelativePointsDataSource.Length];
 
         mySounder = GetComponent<AnimationSoundRecorderPlaybackController>();
+
+        // free the dummy points
+        modelBaseToAnimate.parent = null;
+        for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
+        {
+            modelRelativePointsToAnimate[i].parent = null;
+        }
     }
 
     void Start()
@@ -726,6 +733,27 @@ public class AnimationByRecordedExampleController : MonoBehaviour
             baseRotation.x, baseRotation.y, baseRotation.z, baseRotation.w,
             terrainHeight, terrainSteepness, heightAboveTerrain
         };
+    }
+
+    void GripPlaceDeleteInteractable.JustPlaced()
+    {
+        // do nothing
+    }
+
+    void GripPlaceDeleteInteractable.AboutToBeDeleted()
+    {
+        // delete my animation points, which are now outside my transform
+        Destroy( modelBaseToAnimate.gameObject );
+        for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
+        {
+            Destroy( modelRelativePointsToAnimate[i].gameObject );
+        }
+
+        // delete all my examples
+        for( int i = 0; i < examples.Count; i++ )
+        {
+            Destroy( examples[i].gameObject );
+        }
     }
 
     public class ModelBaseDatum

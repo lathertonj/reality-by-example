@@ -20,6 +20,8 @@ public class AnimationModeSwitcher : MonoBehaviour
     
     public AnimationByRecordedExampleController currentCreature;
 
+    public Transform creaturePrefab;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -80,6 +82,7 @@ public class AnimationModeSwitcher : MonoBehaviour
         {
             return;
         }
+        
 
         // disable grip delete interactor
         myDeleter.enabled = false;
@@ -88,10 +91,7 @@ public class AnimationModeSwitcher : MonoBehaviour
         // disable grip laser pointer selector
         // TODO
         // set animator mode to "do not respond to grip"
-        if( currentCreature != null )
-        {
-            currentCreature.nextAction = AnimationByRecordedExampleController.AnimationAction.DoNothing;
-        }
+        DisableCurrentCreatureAction();
         // disable new bird creation
         switch( other.gameObject.name )
         {
@@ -108,15 +108,28 @@ public class AnimationModeSwitcher : MonoBehaviour
                 // TODO
                 break;
             case "CreateNewBird":
+                // forget current bird
+                currentCreature = null;
                 // turn on create new bird
-                // (when new bird is created, select it)
-                // TODO: coopt grip place delete interaction?
+                myDeleter.currentPrefabToUse = creaturePrefab;
+                myDeleter.enabled = true;
                 break;
             case "RecordBirdAnimation":
+                // try selecting most recently created 
+                if( currentCreature == null )
+                {
+                    // try selecting most recently created bird
+                    GameObject maybeCreature = myDeleter.GetRecentlyCreated();
+                    if( maybeCreature != null ) { currentCreature = maybeCreature.GetComponent<AnimationByRecordedExampleController>(); }
+                }
                 // turn on create new animation (in selected bird animator)
                 if( currentCreature != null )
                 {
                     currentCreature.nextAction = AnimationByRecordedExampleController.AnimationAction.RecordAnimation;
+                }
+                else
+                {
+                    // TODO: inform debug somehow that there is no creature selected
                 }
                 break;
             default:
@@ -127,5 +140,13 @@ public class AnimationModeSwitcher : MonoBehaviour
 
         // also hide the UI when we're done with it
         HideMenu();
+    }
+
+    void DisableCurrentCreatureAction()
+    {
+        if( currentCreature != null )
+        {
+            currentCreature.nextAction = AnimationByRecordedExampleController.AnimationAction.DoNothing;
+        }
     }
 }

@@ -143,9 +143,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour
 
 
         }
-        else
+        else if( nextAction == AnimationAction.RecordAnimation )
         {
-            // animate it as just following the data sources
+            // animate it as just following the data sources, only if we're recording data or might again soon
             modelBaseToAnimate.position = modelBaseDataSource.position;
             modelBaseToAnimate.rotation = modelBaseDataSource.rotation;
 

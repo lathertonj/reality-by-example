@@ -23,6 +23,8 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     private ChuckSubInstance myChuck;
     private ChuckIntSyncer myCurrentRecordedSampleSyncer;
 
+    private bool haveTrained = false;
+
 
     void Start()
     {
@@ -211,6 +213,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     {
         // chuck should start recording examples (and stop playing back)
         myChuck.BroadcastEvent( "startRecording" );
+        haveTrained = false;
     }
 
     public void ProvideExample( double[] input )
@@ -231,10 +234,12 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     void Train()
     {
         myRegression.Train();
+        haveTrained = true;
     }
 
     public void Predict( double[] input )
     {
+        if( !haveTrained ) { return; }
         // predict output and then set new chuck thing
         double[] o = myRegression.Run( input );
         myChuck.SetInt( "newSamplePosition", (int) o[0] );

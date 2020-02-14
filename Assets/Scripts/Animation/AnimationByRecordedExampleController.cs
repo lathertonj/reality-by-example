@@ -23,7 +23,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     // predict the increment to modelBase location and rotation
     // input features: y, steepness of terrain; previous location / rotation.
     // --> 2 regressions for modelBase
-    private List<AnimationExample> examples;
+    public List<AnimationExample> examples;
     //private List<List<ModelBaseDatum>> modelBasePositionData;
     private RapidMixClassifier myAnimationClassifier;
     private RapidMixRegression myAnimationRegression;
@@ -200,13 +200,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             }
 
 
-            // train
-            Train();
-
-            // start runtime
-            runtimeCoroutine = Run();
-            StartCoroutine( runtimeCoroutine );
-            runtimeMode = true;
+            // train and run
+            RescanProvidedExamples();
 
             // remember
             currentlyRecording = false;
@@ -528,6 +523,14 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         // just reset the training... hopefully if we're in runtime already everything 
         // will be fine
         Train();
+
+        // start runtime
+        if( !runtimeMode )
+        {
+            runtimeCoroutine = Run();
+            StartCoroutine( runtimeCoroutine );
+            runtimeMode = true;
+        }
     }
 
     // base:

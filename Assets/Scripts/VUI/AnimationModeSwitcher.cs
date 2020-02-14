@@ -28,7 +28,9 @@ public class AnimationModeSwitcher : MonoBehaviour
 
     public Transform creaturePrefab;
 
-    private bool shouldSelect = false;
+
+    private enum CurrentAction{ Select, Clone, Nothing };
+    private CurrentAction currentAction = CurrentAction.Nothing;
 
     // Start is called before the first frame update
     void Start()
@@ -62,21 +64,34 @@ public class AnimationModeSwitcher : MonoBehaviour
         if( actionButton.GetStateUp( hand ) )
         {
             // only do this if we're in select mode
-            if( shouldSelect )
+            switch( currentAction )
             {
-                HideCurrentCreatureExamples();
-                DisableCurrentCreatureAction();
-                GameObject maybeCreature = myLaser.GetMostRecentIntersectedObject();
-                if( maybeCreature != null )
+                case CurrentAction.Select:
+                if( myLaser.IsIntersecting() )
                 {
-                    currentCreature = maybeCreature.GetComponent<AnimationByRecordedExampleController>();
-                    ShowCurrentCreatureExamples();
+                    HideCurrentCreatureExamples();
+                    DisableCurrentCreatureAction();
+                    GameObject maybeCreature = myLaser.GetMostRecentIntersectedObject();
+                    if( maybeCreature != null )
+                    {
+                        currentCreature = maybeCreature.GetComponent<AnimationByRecordedExampleController>();
+                        ShowCurrentCreatureExamples();
 
-                    // TODO: is it the right thing to switch into recording mode?
-                    shouldSelect = false;
-                    myLaser.enabled = false;
-                    EnableCurrentCreatureAction();
+                        // TODO: is it the right thing to switch into recording mode?
+                        currentAction = CurrentAction.Nothing;
+                        myLaser.HideLaser();
+                        myLaser.enabled = false;
+                        EnableCurrentCreatureAction();
+                    }
+
                 }
+                    break;
+                case CurrentAction.Clone:
+                    CloneCurrentCreature();
+                    break;
+                case CurrentAction.Nothing:
+                    // nothing
+                    break;
             }
         }
     }
@@ -119,8 +134,9 @@ public class AnimationModeSwitcher : MonoBehaviour
         // disable grip cloner
         myCloner.enabled = false;
         // disable grip laser pointer selector
+        if( myLaser.enabled ) { myLaser.HideLaser(); }
         myLaser.enabled = false;
-        shouldSelect = false;
+        currentAction = CurrentAction.Nothing;
         // set animator mode to "do not respond to grip"
         DisableCurrentCreatureAction();
         // disable new bird creation
@@ -137,7 +153,7 @@ public class AnimationModeSwitcher : MonoBehaviour
             case "SelectBird":
                 // turn on laser pointer selector
                 myLaser.enabled = true;
-                shouldSelect = true;
+                currentAction = CurrentAction.Select;
                 break;
             case "CreateNewBird":
                 // hide examples
@@ -155,6 +171,9 @@ public class AnimationModeSwitcher : MonoBehaviour
                 // {
                 //     // TODO: inform debug somehow that there is no creature selected
                 // }
+                break;
+            case "CloneBird":
+                currentAction = CurrentAction.Clone;
                 break;
             default:
                 // do nothing
@@ -195,6 +214,31 @@ public class AnimationModeSwitcher : MonoBehaviour
         if( currentCreature != null )
         {
             currentCreature.ShowExamples();
+        }
+    }
+
+    void CloneCurrentCreature()
+    {
+        if( currentCreature != null )
+        {
+            // create new one 
+            AnimationByRecordedExampleController newCreature = 
+                Instantiate( creaturePrefab, transform.position, Quaternion.identity )
+                .GetComponent<AnimationByRecordedExampleController>();
+            
+            // set data sources
+            newCreature.modelBaseDataSource = baseDataSource;
+            newCreature.modelRelativePointsDataSource = relativePointsDataSources;
+            
+            Transform _ = null;
+            // clone each example and tell newCreature not to rescan provided examples yet
+            foreach( AnimationExample e in currentCreature.examples )
+            {
+                newCreature.ProvideExample( e.CloneExample( newCreature, out _ ), false );
+            }
+
+            newCreature.RescanProvidedExamples();
+            newCreature.HideExamples();
         }
     }
 }

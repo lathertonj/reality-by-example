@@ -150,6 +150,11 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
 
     CloneMoveInteractable CloneMoveInteractable.Clone( out Transform t )
     {
+        return CloneExample( myAnimator, out t );
+    }
+
+    public AnimationExample CloneExample( AnimationByRecordedExampleController newAnimator, out Transform t )
+    {
         // make a new version
         AnimationExample cloned = Instantiate( animationExamplePrefab, transform.position, transform.rotation ).GetComponent<AnimationExample>();
 
@@ -176,7 +181,7 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         cloned.Initiate(
             clonedBaseExamples,
             clonedRelativeExamples,
-            myAnimator
+            newAnimator
         );
 
         // start animating

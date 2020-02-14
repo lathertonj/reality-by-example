@@ -93,6 +93,14 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     }
 
+    public void CloneAudioSystem( AnimationByRecordedExampleController toCloneFrom )
+    {
+        if( mySounder != null && toCloneFrom.mySounder != null )
+        {
+            mySounder.CloneFrom( toCloneFrom.mySounder );
+        }
+    }
+
     
 
     // Update is called once per frame
@@ -791,7 +799,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             Destroy( examples[i].gameObject );
         }
     }
-    
+
     public void HideExamples()
     {
         foreach( AnimationExample e in examples )

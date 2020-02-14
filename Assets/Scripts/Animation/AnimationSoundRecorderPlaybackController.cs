@@ -23,17 +23,73 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     private ChuckSubInstance myChuck;
     private ChuckIntSyncer myCurrentRecordedSampleSyncer;
 
+    string myLisa, myCurrentRecordedSample, myNewSamplePositionReady, myNewSamplePosition, myStartRecording, myStopRecording;
+
     private bool haveTrained = false;
 
+    List< double[] > myInputData = new List< double[] >();
+    List< double[] > myOutputData = new List< double[] >();
+    private bool wereWeCloned = false;
+
+    public void CloneFrom( AnimationSoundRecorderPlaybackController other )
+    {
+        // flag for later
+        wereWeCloned = true;
+
+        // copy regression data
+        myInputData = other.myInputData;
+        myOutputData = other.myOutputData;
+        for( int i = 0; i < myInputData.Count; i++ )
+        {
+            myRegression.RecordDataPoint( myInputData[i], myOutputData[i] );
+        }
+        Train();
+
+        // copy chuck lisa samples
+        InitChuckVariableNames();
+
+        myChuck.RunCode( string.Format( @"
+            global LiSa {0}, {1};
+            {1}.duration() => {0}.duration;
+            int currentSample;
+
+            // copy samples
+            for( int i; i < ({0}.duration() / samp ) $ int; i++ )
+            {{
+                {0}.valueAt( {1}.valueAt( i::samp ), i::samp );
+            }}
+        ", myLisa, other.myLisa ) );
+    }
+
+    private bool variableNamesInit = false;
+    void InitChuckVariableNames()
+    {
+        if( variableNamesInit ) { return; }
+
+        myChuck = GetComponent<ChuckSubInstance>();
+        myLisa = myChuck.GetUniqueVariableName( "lisa" );
+        myCurrentRecordedSample = myChuck.GetUniqueVariableName( "currentRecordedSample" );
+        myNewSamplePositionReady = myChuck.GetUniqueVariableName( "newSamplePositionReady" );
+        myNewSamplePosition = myChuck.GetUniqueVariableName( "newSamplePosition" );
+        myStartRecording = myChuck.GetUniqueVariableName( "startRecording" );
+        myStopRecording = myChuck.GetUniqueVariableName( "stopRecording" );
+        variableNamesInit = true;
+    }
+
+    void Awake()
+    {
+        myRegression = gameObject.AddComponent<RapidMixRegression>();
+    }
 
     void Start()
     {
-        myRegression = gameObject.AddComponent<RapidMixRegression>();
-        myChuck = GetComponent<ChuckSubInstance>();
-        myChuck.RunCode( @"
+        InitChuckVariableNames();
+        string clonedAddition = wereWeCloned ? @"true => synth.shouldPlayGrains;" : "";
+        myChuck.RunCode( string.Format( @"
+            global LiSa {0};
             class AnimationSynth extends Chubgraph
-			{
-				LiSa lisa => outlet;
+			{{
+                {0} => outlet;
 				
 				// spawn rate: how often a new grain is spawned (ms)
 				25 =>  float grainSpawnRateMS;
@@ -57,50 +113,52 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
 				
 				
 				fun float gain( float g )
-				{
-					g => lisa.gain;
+				{{
+					g => {0}.gain;
 					return g;
-				}
+				}}
 				
 				fun float gain()
-				{
-					return lisa.gain();
-				}
+				{{
+					return {0}.gain();
+				}}
 				
 				
-				
-				5::minute => lisa.duration;
+				if( {0}.duration() != 5::minute )
+                {{
+				    5::minute => {0}.duration;
+                }}
                 int currentSample;
 
                 fun void AddSample( float s )
-                {
-                    lisa.valueAt( s, currentSample::samp );
+                {{
+                    {0}.valueAt( s, currentSample::samp );
                     currentSample++;
-                }
+                }}
 
                 fun void SetGrainPosition( int g )
-                {
-                    Std.clamp( g, 0, (lisa.duration() / samp) $ int - 1 ) => grainPosition;
-                }
+                {{
+                    Std.clamp( g, 0, ({0}.duration() / samp) $ int - 1 ) => grainPosition;
+                }}
 
 				
 				// LiSa params
-				20 => lisa.maxVoices;
-				0.5 => lisa.gain;
-				true => lisa.loop;
-				false => lisa.record;
+				20 => {0}.maxVoices;
+				0.5 => {0}.gain;
+				true => {0}.loop;
+				false => {0}.record;
 				
                 
 				// only spawn grains if a flag is on
                 false => int shouldPlayGrains;
 				
 				fun void SpawnGrains()
-				{
+				{{
 					// create grains
 					while( true )
-					{
+					{{
                         if( shouldPlayGrains )
-                        {
+                        {{
                             // grain length
                             ( grainLengthMS + Math.random2f( -grainLengthRandomnessMS / 2, grainLengthRandomnessMS / 2 ) )
                             * 1::ms => dur grainLength;
@@ -114,84 +172,84 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
                             
                             // grain: grainlen, rampup, rampdown, rate, playPos
                             spork ~ PlayGrain( grainLength, rampUpMS::ms, rampDownMS::ms, grainRate, playPos);
-                        }
+                        }}
 						
 						
 						// advance time (time per grain)
 						// PARAM: GRAIN SPAWN RATE
 						grainSpawnRateMS::ms => now;
-					}
-				}
+					}}
+				}}
 				spork ~ SpawnGrains();
 				
 				// sporkee
 				fun void PlayGrain( dur grainlen, dur rampup, dur rampdown, float rate, dur playPos )
-				{
-					lisa.getVoice() => int newvoice;
+				{{
+					{0}.getVoice() => int newvoice;
 					
 					if( newvoice > -1 )
-					{
-						lisa.rate( newvoice, rate );
-						lisa.playPos( newvoice, playPos );
-						lisa.rampUp( newvoice, rampup );
+					{{
+						{0}.rate( newvoice, rate );
+						{0}.playPos( newvoice, playPos );
+						{0}.rampUp( newvoice, rampup );
 						( grainlen - ( rampup + rampdown ) ) => now;
-						lisa.rampDown( newvoice, rampdown) ;
+						{0}.rampDown( newvoice, rampdown) ;
 						rampdown => now;
-					}
-				}
+					}}
+				}}
 
-			}
+			}}
 
             false => int shouldRecord;
 
-            global Event startRecording, stopRecording;
+            global Event {4}, {5};
             fun void CheckIfShouldRecord( AnimationSynth synth )
-            {
+            {{
                 while( true )
-                {
-                    startRecording => now;
+                {{
+                    {4} => now;
                     false => synth.shouldPlayGrains;
                     true => shouldRecord;
-                    stopRecording => now;
+                    {5} => now;
                     false => shouldRecord;
                     true => synth.shouldPlayGrains;
-                }
-            }
+                }}
+            }}
 
             fun void AddSamplesToLisa( AnimationSynth synth )
-            {
+            {{
                 while( true )
-                {
+                {{
                     if( shouldRecord )
-                    {
+                    {{
                         adc.last() => synth.AddSample;
-                    }
+                    }}
                     1::samp => now;
-                }
-            }
+                }}
+            }}
 
-            global int currentRecordedSample;
+            global int {1};
             fun void RecordCurrentRecordedSample( AnimationSynth synth )
-            {
+            {{
                 while( true )
-                {
-                    synth.currentSample => currentRecordedSample;
+                {{
+                    synth.currentSample => {1};
                     // TODO: what time fidelity is necessary?
                     10::ms => now; 
-                }
-            }
+                }}
+            }}
 
 
-            global Event newSamplePositionReady;
-            global int newSamplePosition;
+            global Event {2};
+            global int {3};
             fun void ListenForNewSamplePositions( AnimationSynth synth )
-            {
+            {{
                 while( true )
-                {
-                    newSamplePositionReady => now;
-                    newSamplePosition => synth.SetGrainPosition;
-                }
-            }
+                {{
+                    {2} => now;
+                    {3} => synth.SetGrainPosition;
+                }}
+            }}
 
 
             AnimationSynth synth => dac;
@@ -199,34 +257,39 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
             spork ~ RecordCurrentRecordedSample( synth );
             spork ~ CheckIfShouldRecord( synth );
             spork ~ ListenForNewSamplePositions( synth );
+            // if we were cloned, start playing grains right away
+            {6}
 
 
-            while( true ) { 1::second => now; }
+            while( true ) {{ 1::second => now; }}
 
             
-        " );
+        ", myLisa, myCurrentRecordedSample, myNewSamplePositionReady, myNewSamplePosition, myStartRecording, myStopRecording, clonedAddition ) );
         myCurrentRecordedSampleSyncer = gameObject.AddComponent<ChuckIntSyncer>();
-        myCurrentRecordedSampleSyncer.SyncInt( myChuck, "currentRecordedSample" );
+        myCurrentRecordedSampleSyncer.SyncInt( myChuck, myCurrentRecordedSample );
     }
 
     public void StartRecordingExamples()
     {
         // chuck should start recording examples (and stop playing back)
-        myChuck.BroadcastEvent( "startRecording" );
+        myChuck.BroadcastEvent( myStartRecording );
         haveTrained = false;
     }
 
     public void ProvideExample( double[] input )
     {
+        myInputData.Add( input );
         // regression --> output is whatever our recorder has recorded most frequently
-        myRegression.RecordDataPoint( input, new double[] { myCurrentRecordedSampleSyncer.GetCurrentValue() } );
-        // Debug.Log( "AUDIO DATA: " + myCurrentRecordedSampleSyncer.GetCurrentValue().ToString() );
+        double[] output = new double[] { myCurrentRecordedSampleSyncer.GetCurrentValue() };
+        myOutputData.Add( output );
+        // also record directly
+        myRegression.RecordDataPoint( input, output );
     }
 
     public void StopRecordingExamples()
     {
         // chuck should stop recording examples and start playing back
-        myChuck.BroadcastEvent( "stopRecording" );
+        myChuck.BroadcastEvent( myStopRecording );
 
         Train();
     }
@@ -239,10 +302,11 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
 
     public void Predict( double[] input )
     {
-        if( !haveTrained ) { return; }
+        if( !haveTrained ) { Debug.Log( "sadness one" ); return; }
         // predict output and then set new chuck thing
         double[] o = myRegression.Run( input );
-        myChuck.SetInt( "newSamplePosition", (int) o[0] );
-        myChuck.BroadcastEvent( "newSamplePositionReady" );
+        while( o[0] < 0 ) { o[0] += 20000; }
+        myChuck.SetInt( myNewSamplePosition, (int) o[0] );
+        myChuck.BroadcastEvent( myNewSamplePositionReady );
     }
 }

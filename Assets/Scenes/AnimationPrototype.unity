@@ -211,662 +211,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1 &626935523
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 626935524}
-  m_Layer: 8
-  m_Name: TestingTerrain
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &626935524
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 626935523}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1587341762}
-  m_Father: {fileID: 0}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &797154076
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 132594, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
-      propertyPath: m_Name
-      value: '[SteamVR]'
-      objectReference: {fileID: 0}
-    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
-      propertyPath: m_RootOrder
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
---- !u!21 &874138093
-Material:
-  serializedVersion: 6
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Sprites/Default
-  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: 
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _AlphaTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats:
-    - PixelSnap: 0
-    - _EnableExternalAlpha: 0
-    m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
---- !u!1001 &969850571
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 146900, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
-      propertyPath: m_Name
-      value: '[CameraRig]'
-      objectReference: {fileID: 0}
-    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 10.67
-      objectReference: {fileID: 0}
-    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
-      propertyPath: m_RootOrder
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2348914, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 874138093}
-    - target: {fileID: 3380982, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
-      propertyPath: m_Mesh
-      value: 
-      objectReference: {fileID: 1348454555}
-    - target: {fileID: 114000010876603736, guid: 4d293c8e162f3874b982baadd71153d2,
-        type: 3}
-      propertyPath: poseAction.actionPath
-      value: /actions/terraingenerate/in/Pose
-      objectReference: {fileID: 0}
-    - target: {fileID: 114000010110554832, guid: 4d293c8e162f3874b982baadd71153d2,
-        type: 3}
-      propertyPath: poseAction.actionPath
-      value: /actions/terraingenerate/in/Pose
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
---- !u!4 &969850572 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2,
-    type: 3}
-  m_PrefabInstance: {fileID: 969850571}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &969850573 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4000013889601590, guid: 4d293c8e162f3874b982baadd71153d2,
-    type: 3}
-  m_PrefabInstance: {fileID: 969850571}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &969850574 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1000014254142504, guid: 4d293c8e162f3874b982baadd71153d2,
-    type: 3}
-  m_PrefabInstance: {fileID: 969850571}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &969850575 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 159396, guid: 4d293c8e162f3874b982baadd71153d2,
-    type: 3}
-  m_PrefabInstance: {fileID: 969850571}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &969850576 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 124034, guid: 4d293c8e162f3874b982baadd71153d2,
-    type: 3}
-  m_PrefabInstance: {fileID: 969850571}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &969850577
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850574}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 27640b2de967cd74fab216d6100d748a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!81 &969850578
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850574}
-  m_Enabled: 1
---- !u!114 &969850579
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850575}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b182e069867c41446ae7c6b2501b7535, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 2
-  click:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
-    needsReinit: 0
-  touchpadXY:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
-    needsReinit: 0
---- !u!114 &969850580
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850575}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c08da0df8abdf0c4babd0e97aa3e1b36, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 2
-  triggerPress:
-    actionPath: /actions/terraingenerate/in/GrabObject
-    needsReinit: 0
---- !u!114 &969850581
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850575}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48e2f6fb9f5509e4e953f4f2f5192783, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentPrefabToUse: {fileID: 0}
-  handType: 2
-  gripPress:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
-    needsReinit: 0
---- !u!114 &969850582
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850575}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8400b5d7cfc04ea48912387c268be090, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 2
-  preview:
-    actionPath: /actions/terraingenerate/in/TouchpadPreview
-    needsReinit: 0
-  stopShowingLaser:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
-    needsReinit: 0
-  laserPrefab: {fileID: 4345626581362647167, guid: a34083df02d1caf40b65d7874e64b3f5,
-    type: 3}
---- !u!114 &969850583
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850575}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94804b2e7b5adb0478cf89bd2ef51c6f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 2
-  click:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
-    needsReinit: 0
---- !u!114 &969850584
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850575}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5bcdcb96265cdf44196af685207da4a3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 2
-  vibration:
-    actionPath: /actions/terraingenerate/out/Haptic
-    needsReinit: 0
---- !u!114 &969850585
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850575}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87c362a57c6a3c047b71a7f7a4ccd137, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 2
-  touchpadClick:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
-    needsReinit: 0
-  touchpadXY:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
-    needsReinit: 0
-  laserPrefab: {fileID: 4345626581362647167, guid: e72f3db236f33ff4e9b6aea4ecbf9382,
-    type: 3}
-  minTeleport: 0.1
-  maxTeleport: 5
-  room: {fileID: 969850572}
-  head: {fileID: 969850573}
-  teleportLaserEndPrefab: {fileID: 6743024261359457251, guid: 305b05985e091a54da7e5ea651647466,
-    type: 3}
---- !u!65 &969850586
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850575}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.14, y: 0.07, z: 0.05}
-  m_Center: {x: 0, y: -0.04, z: 0.02}
---- !u!54 &969850587
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850575}
-  serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
---- !u!114 &969850588
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b182e069867c41446ae7c6b2501b7535, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 1
-  click:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
-    needsReinit: 0
-  touchpadXY:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
-    needsReinit: 0
---- !u!114 &969850589
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c08da0df8abdf0c4babd0e97aa3e1b36, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 1
-  triggerPress:
-    actionPath: /actions/terraingenerate/in/GrabObject
-    needsReinit: 0
---- !u!114 &969850590
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850576}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48e2f6fb9f5509e4e953f4f2f5192783, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentPrefabToUse: {fileID: 0}
-  handType: 1
-  gripPress:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
-    needsReinit: 0
---- !u!114 &969850591
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850576}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8400b5d7cfc04ea48912387c268be090, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 1
-  preview:
-    actionPath: /actions/terraingenerate/in/TouchpadPreview
-    needsReinit: 0
-  stopShowingLaser:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
-    needsReinit: 0
-  laserPrefab: {fileID: 4345626581362647167, guid: a34083df02d1caf40b65d7874e64b3f5,
-    type: 3}
---- !u!114 &969850592
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94804b2e7b5adb0478cf89bd2ef51c6f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 1
-  click:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
-    needsReinit: 0
---- !u!114 &969850593
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5bcdcb96265cdf44196af685207da4a3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 1
-  vibration:
-    actionPath: /actions/terraingenerate/out/Haptic
-    needsReinit: 0
---- !u!114 &969850594
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87c362a57c6a3c047b71a7f7a4ccd137, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 1
-  touchpadClick:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
-    needsReinit: 0
-  touchpadXY:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
-    needsReinit: 0
-  laserPrefab: {fileID: 4345626581362647167, guid: e72f3db236f33ff4e9b6aea4ecbf9382,
-    type: 3}
-  minTeleport: 0.1
-  maxTeleport: 5
-  room: {fileID: 969850572}
-  head: {fileID: 969850573}
-  teleportLaserEndPrefab: {fileID: 6743024261359457251, guid: 305b05985e091a54da7e5ea651647466,
-    type: 3}
---- !u!65 &969850595
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850576}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.14, y: 0.07, z: 0.05}
-  m_Center: {x: 0, y: -0.04, z: 0.02}
---- !u!54 &969850596
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850576}
-  serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
---- !u!114 &969850597
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850575}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 03dd46ab6236cea4e8fac839dac54b5b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hand: 2
-  showHideMenu:
-    actionPath: /actions/terraingenerate/in/Menu
-    needsReinit: 0
-  menuPrefab: {fileID: 3163896295038715756, guid: e1ebc7d4fa5a52e46a59e90c90e9014e,
-    type: 3}
-  currentCreature: {fileID: 2056837120}
-  creaturePrefab: {fileID: 1119379321810116582, guid: 125213b617f509246b7ad5c716bff9cd,
-    type: 3}
---- !u!4 &969850598 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 402434, guid: 4d293c8e162f3874b982baadd71153d2,
-    type: 3}
-  m_PrefabInstance: {fileID: 969850571}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &969850599
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 03dd46ab6236cea4e8fac839dac54b5b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hand: 1
-  showHideMenu:
-    actionPath: /actions/terraingenerate/in/Menu
-    needsReinit: 0
-  menuPrefab: {fileID: 3163896295038715756, guid: e1ebc7d4fa5a52e46a59e90c90e9014e,
-    type: 3}
-  currentCreature: {fileID: 2056837120}
-  creaturePrefab: {fileID: 1119379321810116582, guid: 125213b617f509246b7ad5c716bff9cd,
-    type: 3}
---- !u!4 &969850600 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 458974, guid: 4d293c8e162f3874b982baadd71153d2,
-    type: 3}
-  m_PrefabInstance: {fileID: 969850571}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &969850601
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850575}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9487d23d8a6f43244aa3eb1046ad1205, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 2
-  vrAction:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
-    needsReinit: 0
---- !u!114 &969850602
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969850576}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9487d23d8a6f43244aa3eb1046ad1205, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 1
-  vrAction:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
-    needsReinit: 0
---- !u!43 &1348454555
+--- !u!43 &425455895
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1029,6 +374,651 @@ Mesh:
     offset: 0
     size: 0
     path: 
+--- !u!1 &626935523
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 626935524}
+  m_Layer: 8
+  m_Name: TestingTerrain
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &626935524
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 626935523}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 1587341762}
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &797154076
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 132594, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
+      propertyPath: m_Name
+      value: '[SteamVR]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
+      propertyPath: m_RootOrder
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 458990, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4f35fa249b5008c44ac2998be6f82d4d, type: 3}
+--- !u!1001 &969850571
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 146900, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
+      propertyPath: m_Name
+      value: '[CameraRig]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 10.67
+      objectReference: {fileID: 0}
+    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
+      propertyPath: m_RootOrder
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2348914, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 1787300001}
+    - target: {fileID: 3380982, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 425455895}
+    - target: {fileID: 114000010876603736, guid: 4d293c8e162f3874b982baadd71153d2,
+        type: 3}
+      propertyPath: poseAction.actionPath
+      value: /actions/terraingenerate/in/Pose
+      objectReference: {fileID: 0}
+    - target: {fileID: 114000010110554832, guid: 4d293c8e162f3874b982baadd71153d2,
+        type: 3}
+      propertyPath: poseAction.actionPath
+      value: /actions/terraingenerate/in/Pose
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4d293c8e162f3874b982baadd71153d2, type: 3}
+--- !u!4 &969850572 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 420908, guid: 4d293c8e162f3874b982baadd71153d2,
+    type: 3}
+  m_PrefabInstance: {fileID: 969850571}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &969850573 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4000013889601590, guid: 4d293c8e162f3874b982baadd71153d2,
+    type: 3}
+  m_PrefabInstance: {fileID: 969850571}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &969850574 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1000014254142504, guid: 4d293c8e162f3874b982baadd71153d2,
+    type: 3}
+  m_PrefabInstance: {fileID: 969850571}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &969850575 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 159396, guid: 4d293c8e162f3874b982baadd71153d2,
+    type: 3}
+  m_PrefabInstance: {fileID: 969850571}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &969850576 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 124034, guid: 4d293c8e162f3874b982baadd71153d2,
+    type: 3}
+  m_PrefabInstance: {fileID: 969850571}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &969850577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27640b2de967cd74fab216d6100d748a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!81 &969850578
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850574}
+  m_Enabled: 1
+--- !u!114 &969850579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b182e069867c41446ae7c6b2501b7535, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handType: 2
+  click:
+    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    needsReinit: 0
+  touchpadXY:
+    actionPath: /actions/terraingenerate/in/Touchpad_XY
+    needsReinit: 0
+--- !u!114 &969850580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c08da0df8abdf0c4babd0e97aa3e1b36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handType: 2
+  triggerPress:
+    actionPath: /actions/terraingenerate/in/GrabObject
+    needsReinit: 0
+--- !u!114 &969850581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850575}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48e2f6fb9f5509e4e953f4f2f5192783, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentPrefabToUse: {fileID: 0}
+  handType: 2
+  gripPress:
+    actionPath: /actions/terraingenerate/in/GeneratePoint
+    needsReinit: 0
+--- !u!114 &969850582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850575}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8400b5d7cfc04ea48912387c268be090, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handType: 2
+  preview:
+    actionPath: /actions/terraingenerate/in/GeneratePoint
+    needsReinit: 0
+  stopShowingLaser:
+    actionPath: /actions/terraingenerate/in/GeneratePoint
+    needsReinit: 0
+  laserPrefab: {fileID: 8191968368830265266, guid: a34083df02d1caf40b65d7874e64b3f5,
+    type: 3}
+  mask:
+    serializedVersion: 2
+    m_Bits: 512
+  notFound: {r: 1, g: 0, b: 0, a: 1}
+  found: {r: 0.2971698, g: 1, b: 0.2971698, a: 1}
+--- !u!114 &969850583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94804b2e7b5adb0478cf89bd2ef51c6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handType: 2
+  click:
+    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    needsReinit: 0
+--- !u!114 &969850584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bcdcb96265cdf44196af685207da4a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handType: 2
+  vibration:
+    actionPath: /actions/terraingenerate/out/Haptic
+    needsReinit: 0
+--- !u!114 &969850585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87c362a57c6a3c047b71a7f7a4ccd137, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handType: 2
+  touchpadClick:
+    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    needsReinit: 0
+  touchpadXY:
+    actionPath: /actions/terraingenerate/in/Touchpad_XY
+    needsReinit: 0
+  laserPrefab: {fileID: 4345626581362647167, guid: e72f3db236f33ff4e9b6aea4ecbf9382,
+    type: 3}
+  minTeleport: 0.1
+  maxTeleport: 5
+  room: {fileID: 969850572}
+  head: {fileID: 969850573}
+  teleportLaserEndPrefab: {fileID: 6743024261359457251, guid: 305b05985e091a54da7e5ea651647466,
+    type: 3}
+--- !u!65 &969850586
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850575}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.14, y: 0.07, z: 0.05}
+  m_Center: {x: 0, y: -0.04, z: 0.02}
+--- !u!54 &969850587
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850575}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &969850588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b182e069867c41446ae7c6b2501b7535, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handType: 1
+  click:
+    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    needsReinit: 0
+  touchpadXY:
+    actionPath: /actions/terraingenerate/in/Touchpad_XY
+    needsReinit: 0
+--- !u!114 &969850589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c08da0df8abdf0c4babd0e97aa3e1b36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handType: 1
+  triggerPress:
+    actionPath: /actions/terraingenerate/in/GrabObject
+    needsReinit: 0
+--- !u!114 &969850590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850576}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48e2f6fb9f5509e4e953f4f2f5192783, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentPrefabToUse: {fileID: 0}
+  handType: 1
+  gripPress:
+    actionPath: /actions/terraingenerate/in/GeneratePoint
+    needsReinit: 0
+--- !u!114 &969850591
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850576}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8400b5d7cfc04ea48912387c268be090, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handType: 1
+  preview:
+    actionPath: /actions/terraingenerate/in/GeneratePoint
+    needsReinit: 0
+  stopShowingLaser:
+    actionPath: /actions/terraingenerate/in/GeneratePoint
+    needsReinit: 0
+  laserPrefab: {fileID: 8191968368830265266, guid: a34083df02d1caf40b65d7874e64b3f5,
+    type: 3}
+  mask:
+    serializedVersion: 2
+    m_Bits: 512
+  notFound: {r: 1, g: 0, b: 0, a: 1}
+  found: {r: 0.2971698, g: 1, b: 0.2971698, a: 1}
+--- !u!114 &969850592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94804b2e7b5adb0478cf89bd2ef51c6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handType: 1
+  click:
+    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    needsReinit: 0
+--- !u!114 &969850593
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bcdcb96265cdf44196af685207da4a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handType: 1
+  vibration:
+    actionPath: /actions/terraingenerate/out/Haptic
+    needsReinit: 0
+--- !u!114 &969850594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87c362a57c6a3c047b71a7f7a4ccd137, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handType: 1
+  touchpadClick:
+    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    needsReinit: 0
+  touchpadXY:
+    actionPath: /actions/terraingenerate/in/Touchpad_XY
+    needsReinit: 0
+  laserPrefab: {fileID: 4345626581362647167, guid: e72f3db236f33ff4e9b6aea4ecbf9382,
+    type: 3}
+  minTeleport: 0.1
+  maxTeleport: 5
+  room: {fileID: 969850572}
+  head: {fileID: 969850573}
+  teleportLaserEndPrefab: {fileID: 6743024261359457251, guid: 305b05985e091a54da7e5ea651647466,
+    type: 3}
+--- !u!65 &969850595
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850576}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.14, y: 0.07, z: 0.05}
+  m_Center: {x: 0, y: -0.04, z: 0.02}
+--- !u!54 &969850596
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850576}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &969850597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03dd46ab6236cea4e8fac839dac54b5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hand: 2
+  showHideMenu:
+    actionPath: /actions/terraingenerate/in/Menu
+    needsReinit: 0
+  actionButton:
+    actionPath: /actions/terraingenerate/in/GeneratePoint
+    needsReinit: 0
+  menuPrefab: {fileID: 3163896295038715756, guid: e1ebc7d4fa5a52e46a59e90c90e9014e,
+    type: 3}
+  baseDataSource: {fileID: 969850573}
+  relativePointsDataSources:
+  - {fileID: 969850600}
+  - {fileID: 969850598}
+  currentCreature: {fileID: 0}
+  creaturePrefab: {fileID: 1119379321810116582, guid: 125213b617f509246b7ad5c716bff9cd,
+    type: 3}
+--- !u!4 &969850598 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 402434, guid: 4d293c8e162f3874b982baadd71153d2,
+    type: 3}
+  m_PrefabInstance: {fileID: 969850571}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &969850599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03dd46ab6236cea4e8fac839dac54b5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hand: 1
+  showHideMenu:
+    actionPath: /actions/terraingenerate/in/Menu
+    needsReinit: 0
+  actionButton:
+    actionPath: /actions/terraingenerate/in/GeneratePoint
+    needsReinit: 0
+  menuPrefab: {fileID: 3163896295038715756, guid: e1ebc7d4fa5a52e46a59e90c90e9014e,
+    type: 3}
+  baseDataSource: {fileID: 969850573}
+  relativePointsDataSources:
+  - {fileID: 969850600}
+  - {fileID: 969850598}
+  currentCreature: {fileID: 0}
+  creaturePrefab: {fileID: 1119379321810116582, guid: 125213b617f509246b7ad5c716bff9cd,
+    type: 3}
+--- !u!4 &969850600 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 458974, guid: 4d293c8e162f3874b982baadd71153d2,
+    type: 3}
+  m_PrefabInstance: {fileID: 969850571}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &969850601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850575}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9487d23d8a6f43244aa3eb1046ad1205, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handType: 2
+  vrAction:
+    actionPath: /actions/terraingenerate/in/GeneratePoint
+    needsReinit: 0
+--- !u!114 &969850602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969850576}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9487d23d8a6f43244aa3eb1046ad1205, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handType: 1
+  vrAction:
+    actionPath: /actions/terraingenerate/in/GeneratePoint
+    needsReinit: 0
 --- !u!1 &1587341761
 GameObject:
   m_ObjectHideFlags: 0
@@ -1109,18 +1099,40 @@ Terrain:
   m_LightmapParameters: {fileID: 15203, guid: 0000000000000000f000000000000000, type: 0}
   m_GroupingID: 0
   m_AllowAutoConnect: 1
---- !u!114 &2056837120 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3197902673507219445, guid: 125213b617f509246b7ad5c716bff9cd,
-    type: 3}
-  m_PrefabInstance: {fileID: 3197902672861835253}
+--- !u!21 &1787300001
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 95a5d421699a71240810772a8b23e205, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name: Sprites/Default
+  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AlphaTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - PixelSnap: 0
+    - _EnableExternalAlpha: 0
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Flip: {r: 1, g: 1, b: 1, a: 1}
+    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &2092002755
 GameObject:
   m_ObjectHideFlags: 0
@@ -1275,107 +1287,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b44887418978244fea00d1ae6aa8703a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1001 &3197902672861835253
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1119379321810116576, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: m_Name
-      value: AnimatedCrow
-      objectReference: {fileID: 0}
-    - target: {fileID: 1119379321810116582, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.00000066345
-      objectReference: {fileID: 0}
-    - target: {fileID: 1119379321810116582, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 10.702
-      objectReference: {fileID: 0}
-    - target: {fileID: 1119379321810116582, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.078351
-      objectReference: {fileID: 0}
-    - target: {fileID: 1119379321810116582, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1119379321810116582, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1119379321810116582, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1119379321810116582, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1119379321810116582, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1119379321810116582, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1119379321810116582, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1119379321810116582, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3197902673507219467, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: modelBaseDataSource
-      value: 
-      objectReference: {fileID: 969850573}
-    - target: {fileID: 3197902673507219467, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: modelRelativePointsDataSource.Array.data[0]
-      value: 
-      objectReference: {fileID: 969850600}
-    - target: {fileID: 3197902673507219467, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: modelRelativePointsDataSource.Array.data[1]
-      value: 
-      objectReference: {fileID: 969850598}
-    - target: {fileID: 3197902673507219445, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: modelBaseDataSource
-      value: 
-      objectReference: {fileID: 969850573}
-    - target: {fileID: 3197902673507219445, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: modelRelativePointsDataSource.Array.data[0]
-      value: 
-      objectReference: {fileID: 969850600}
-    - target: {fileID: 3197902673507219445, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: modelRelativePointsDataSource.Array.data[1]
-      value: 
-      objectReference: {fileID: 969850598}
-    - target: {fileID: 3197902673507219444, guid: 125213b617f509246b7ad5c716bff9cd,
-        type: 3}
-      propertyPath: chuckMainInstance
-      value: 
-      objectReference: {fileID: 2092002756}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 125213b617f509246b7ad5c716bff9cd, type: 3}

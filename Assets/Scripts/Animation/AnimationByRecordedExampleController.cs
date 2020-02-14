@@ -750,9 +750,28 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         }
 
         // delete all my examples
+        // TODO: only if others aren't relying on them!
+        // if I make it possible to clone birds, then need
+        // to be careful here.
         for( int i = 0; i < examples.Count; i++ )
         {
             Destroy( examples[i].gameObject );
+        }
+    }
+
+    public void HideExamples()
+    {
+        foreach( AnimationExample e in examples )
+        {
+            e.gameObject.SetActive( false );
+        }
+    }
+
+    public void ShowExamples()
+    {
+        foreach( AnimationExample e in examples )
+        {
+            e.gameObject.SetActive( true );
         }
     }
 

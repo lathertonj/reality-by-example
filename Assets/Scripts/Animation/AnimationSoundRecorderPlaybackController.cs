@@ -24,6 +24,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     private ChuckIntSyncer myCurrentRecordedSampleSyncer;
 
     string myLisa, myCurrentRecordedSample, myNewSamplePositionReady, myNewSamplePosition, myStartRecording, myStopRecording;
+    string mySamples;
 
     private bool haveTrained = false;
 
@@ -51,14 +52,16 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         myChuck.RunCode( string.Format( @"
             global LiSa {0}, {1};
             {1}.duration() => {0}.duration;
-            int currentSample;
+            global int {2};
+            global float {3}[];
+
 
             // copy samples
-            for( int i; i < ({0}.duration() / samp ) $ int; i++ )
+            for( int i; i < {2}; i++ )
             {{
-                {0}.valueAt( {1}.valueAt( i::samp ), i::samp );
+                {0}.valueAt( {3}[i], i::samp );
             }}
-        ", myLisa, other.myLisa ) );
+        ", myLisa, other.myLisa, other.myCurrentRecordedSample, other.mySamples ) );
     }
 
     private bool variableNamesInit = false;
@@ -73,6 +76,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         myNewSamplePosition = myChuck.GetUniqueVariableName( "newSamplePosition" );
         myStartRecording = myChuck.GetUniqueVariableName( "startRecording" );
         myStopRecording = myChuck.GetUniqueVariableName( "stopRecording" );
+        mySamples = myChuck.GetUniqueVariableName( "mySamples" );
         variableNamesInit = true;
     }
 
@@ -87,6 +91,8 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         string clonedAddition = wereWeCloned ? @"true => synth.shouldPlayGrains;" : "";
         myChuck.RunCode( string.Format( @"
             global LiSa {0};
+            global float {7}[ (5::minute/samp) $ int];
+            global int {1};
             class AnimationSynth extends Chubgraph
 			{{
                 {0} => outlet;
@@ -128,12 +134,13 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
                 {{
 				    5::minute => {0}.duration;
                 }}
-                int currentSample;
 
                 fun void AddSample( float s )
                 {{
-                    {0}.valueAt( s, currentSample::samp );
-                    currentSample++;
+                    {0}.valueAt( s, {1}::samp );
+                    // store in global variable too
+                    s => {7}[{1}];
+                    {1}++;
                 }}
 
                 fun void SetGrainPosition( int g )
@@ -228,17 +235,6 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
                 }}
             }}
 
-            global int {1};
-            fun void RecordCurrentRecordedSample( AnimationSynth synth )
-            {{
-                while( true )
-                {{
-                    synth.currentSample => {1};
-                    // TODO: what time fidelity is necessary?
-                    10::ms => now; 
-                }}
-            }}
-
 
             global Event {2};
             global int {3};
@@ -254,17 +250,15 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
 
             AnimationSynth synth => dac;
             spork ~ AddSamplesToLisa( synth );
-            spork ~ RecordCurrentRecordedSample( synth );
             spork ~ CheckIfShouldRecord( synth );
             spork ~ ListenForNewSamplePositions( synth );
             // if we were cloned, start playing grains right away
             {6}
 
-
             while( true ) {{ 1::second => now; }}
 
             
-        ", myLisa, myCurrentRecordedSample, myNewSamplePositionReady, myNewSamplePosition, myStartRecording, myStopRecording, clonedAddition ) );
+        ", myLisa, myCurrentRecordedSample, myNewSamplePositionReady, myNewSamplePosition, myStartRecording, myStopRecording, clonedAddition, mySamples ) );
         myCurrentRecordedSampleSyncer = gameObject.AddComponent<ChuckIntSyncer>();
         myCurrentRecordedSampleSyncer.SyncInt( myChuck, myCurrentRecordedSample );
     }

@@ -2330,7 +2330,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chuckMainInstance: {fileID: 0}
-  spatialize: 0
+  spatialize: 1
 --- !u!114 &3197902673507219446
 MonoBehaviour:
   m_ObjectHideFlags: 0

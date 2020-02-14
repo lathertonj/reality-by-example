@@ -137,9 +137,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // boids
             Vector3 groundAvoidance = ProcessBoidsGroundAvoidance();
             Vector3 examplesAttraction = ProcessBoidsExamplesAttraction();
+            Vector3 boidAvoidance = ProcessBoidsOthersAvoidance();
 
             // overall velocity
-            Vector3 velocity = baseVelocity + groundAvoidance + examplesAttraction;
+            Vector3 velocity = baseVelocity + groundAvoidance + examplesAttraction + boidAvoidance;
 
             // move in the forward direction, with speed according to delayed limb movement
             modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * velocity;
@@ -684,6 +685,35 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return severity * correctionVelocity;
     }
 
+    List<Transform> nearOtherBoids = new List<Transform>();
+    Vector3 ProcessBoidsOthersAvoidance()
+    {
+        Vector3 desiredMovement = Vector3.zero;
+        foreach( Transform other in nearOtherBoids )
+        {
+            Vector3 direction = transform.position - other.position;
+            float intensity = direction.magnitude.PowMapClamp( 0, 2, 0.5f, 0, 0.6f );
+            desiredMovement += intensity * direction.normalized;
+        }
+        return desiredMovement;
+    }
+
+    void OnTriggerEnter( Collider other )
+    {
+        if( other.gameObject.CompareTag( "BoidAvoidance" ) ) 
+        {
+            nearOtherBoids.Add( other.transform );
+        }
+    }
+
+    void OnTriggerExit( Collider other )
+    {
+        if( other.gameObject.CompareTag( "BoidAvoidance" ) )
+        {
+            nearOtherBoids.Remove( other.transform );
+        }
+    }
+
     private double[] LabelToRegressionOutput( int label, int maxLabel )
     {
         double[] ret = new double[maxLabel];
@@ -761,7 +791,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             Destroy( examples[i].gameObject );
         }
     }
-
+    
     public void HideExamples()
     {
         foreach( AnimationExample e in examples )

@@ -2102,6 +2102,7 @@ Transform:
   - {fileID: 3197902672193238545}
   - {fileID: 3197902674014969114}
   - {fileID: 4299216280986889817}
+  - {fileID: 3915107011789751946}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2275,6 +2276,7 @@ MonoBehaviour:
   modelRelativePointsToAnimate:
   - {fileID: 3197902672193238545}
   - {fileID: 3197902674014969114}
+  examples: []
   globalSlew: 0.25
   motionSpeedupSlew: 0.08
   motionSlowdownSlew: 0.01
@@ -2572,6 +2574,50 @@ Transform:
   m_Father: {fileID: 1119379321810116582}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4217744060223801810
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3915107011789751946}
+  - component: {fileID: 9101791262470353199}
+  m_Layer: 0
+  m_Name: BoidSphere
+  m_TagString: BoidAvoidance
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3915107011789751946
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4217744060223801810}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.0371, z: -0.0313}
+  m_LocalScale: {x: 0.12240191, y: 0.12240191, z: 0.12240191}
+  m_Children: []
+  m_Father: {fileID: 1119379321810116582}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &9101791262470353199
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4217744060223801810}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6695858905450479506
 GameObject:
   m_ObjectHideFlags: 0
@@ -2583,7 +2629,7 @@ GameObject:
   - component: {fileID: 4299216280986889817}
   - component: {fileID: 6395472593038168169}
   m_Layer: 9
-  m_Name: Sphere (1)
+  m_Name: DeleteSphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

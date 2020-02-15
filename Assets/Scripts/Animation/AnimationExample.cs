@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , TriggerGrabMoveInteractable , CloneMoveInteractable
+public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , TriggerGrabMoveInteractable , CloneMoveInteractable , TouchpadLeftRightClickInteractable
 {
 
     public Transform myBaseToAnimate;
@@ -20,7 +20,7 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
 
     private Vector3[] goalLocalPositions;
 
-    public Color unactivated, fullyActivated;
+    public Color unactivated, fullyActivated, disabled;
     public MeshRenderer activationDisplay;
     private float prevEulerY;
 
@@ -141,6 +141,9 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
 
     public void SetActivation( float a )
     {
+        // don't set color if I'm disabled
+        if( !amEnabled ) { return; }
+        
         // clamp
         a = Mathf.Clamp01( a );
 
@@ -189,6 +192,11 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
 
         t = cloned.transform;
 
+        if( !amEnabled )
+        {
+            cloned.ToggleEnabled();
+        }
+
         return cloned;
     }
 
@@ -203,5 +211,39 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         UpdateFeatures(); 
         // tell my animator I exist, finally
         myAnimator.ProvideExample( this );
+    }
+
+    private bool amEnabled = true;
+    void ToggleEnabled()
+    {
+        amEnabled = !amEnabled;
+
+        if( amEnabled )
+        {
+            // go back to normal
+            SetActivation( 0 );
+        }
+        else
+        {
+            // disable
+            activationDisplay.material.color = disabled;
+        }
+
+        myAnimator.RescanProvidedExamples();
+    }
+
+    public bool IsEnabled()
+    {
+        return amEnabled;
+    }
+
+    void TouchpadLeftRightClickInteractable.InformOfLeftClick()
+    {
+        ToggleEnabled();
+    }
+
+    void TouchpadLeftRightClickInteractable.InformOfRightClick()
+    {
+        ToggleEnabled();
     }
 }

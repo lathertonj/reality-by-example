@@ -23,7 +23,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     // predict the increment to modelBase location and rotation
     // input features: y, steepness of terrain; previous location / rotation.
     // --> 2 regressions for modelBase
-    public List<AnimationExample> examples;
+    public List<AnimationExample> examples, currentlyUsedExamples;
     //private List<List<ModelBaseDatum>> modelBasePositionData;
     private RapidMixClassifier myAnimationClassifier;
     private RapidMixRegression myAnimationRegression;
@@ -68,6 +68,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     void Awake()
     {
         examples = new List<AnimationExample>();
+        currentlyUsedExamples = new List<AnimationExample>();
         if( predictionType == PredictionType.Classification )
         {
             myAnimationClassifier = gameObject.AddComponent<RapidMixClassifier>();
@@ -179,6 +180,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             {
                 StopCoroutine( runtimeCoroutine );
                 runtimeCoroutine = null;
+                // need to set this ourselves due to 
+                // artificially stopping runtimeCoroutine
                 runtimeMode = false;
             }
 
@@ -281,6 +284,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     private IEnumerator Run()
     {
         int currentFrame = 0;
+        runtimeMode = true;
         // collect data and predict
         if( predictionType == PredictionType.Classification )
         {
@@ -347,9 +351,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 for( int i = 0; i < o.Length; i++ ) { o[i] /= sum; }
 
                 // show activation
-                for( int i = 0; i < examples.Count; i++ ) 
+                for( int i = 0; i < currentlyUsedExamples.Count; i++ ) 
                 {
-                    examples[i].SetActivation( (float) o[i] );
+                    currentlyUsedExamples[i].SetActivation( (float) o[i] );
                 }
 
                 // TODO: how to do a weighted average of Quaternion? maybe with slerp?
@@ -391,7 +395,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
                     // TODO: number of examples not necessarily same as number of animations..??? some examples may reuse the same animation
                     // but in different positions. I smell a redesign!
-                    for( int whichAnimation = 0; whichAnimation < examples.Count; whichAnimation++ )
+                    for( int whichAnimation = 0; whichAnimation < currentlyUsedExamples.Count; whichAnimation++ )
                     {
                         // weighted sum
                         goalLocalPositions[i] += (float) o[whichAnimation] * GetLocalPosition( i, whichAnimation, currentFrame );
@@ -420,19 +424,19 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 currentFrame++;
             }
         }
-
+        runtimeMode = false;
     }
 
     private Quaternion GetBaseQuaternion( int whichAnimation, int currentFrame )
     {
-        int numFrames = examples[whichAnimation].baseExamples.Count;
-        return examples[whichAnimation].baseExamples[ currentFrame % numFrames ].rotation;
+        int numFrames = currentlyUsedExamples[whichAnimation].baseExamples.Count;
+        return currentlyUsedExamples[whichAnimation].baseExamples[ currentFrame % numFrames ].rotation;
     }
 
     private Vector3 GetLocalPosition( int i, int whichAnimation, int currentFrame )
     {
-        int numFrames = examples[whichAnimation].relativeExamples[i].Count;
-        return examples[whichAnimation].relativeExamples[i][ currentFrame % numFrames ].positionRelativeToBase;
+        int numFrames = currentlyUsedExamples[whichAnimation].relativeExamples[i].Count;
+        return currentlyUsedExamples[whichAnimation].relativeExamples[i][ currentFrame % numFrames ].positionRelativeToBase;
     }
 
 
@@ -538,7 +542,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         {
             runtimeCoroutine = Run();
             StartCoroutine( runtimeCoroutine );
-            runtimeMode = true;
         }
     }
 
@@ -580,7 +583,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     void Train()
     {
-        if( examples.Count <= 0 )
+        currentlyUsedExamples.Clear();
+        foreach( AnimationExample e in examples )
+        {
+            if( e.IsEnabled() ) { currentlyUsedExamples.Add( e ); }
+        }
+        if( currentlyUsedExamples.Count <= 0 )
         {
             haveTrained = false;
             return;
@@ -593,9 +601,14 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         if( predictionType == PredictionType.Classification )
         {
             myAnimationClassifier.ResetClassifier();
-            for( int j = 0; j < examples.Count; j++ )
+            for( int j = 0; j < currentlyUsedExamples.Count; j++ )
             {
-                AnimationExample e = examples[j];
+                AnimationExample e = currentlyUsedExamples[j];
+                if( !e.IsEnabled() )
+                {
+                    // skip it
+                    continue;
+                }
                 List<ModelBaseDatum> phrase = e.baseExamples;
                 for( int i = 0; i < phrase.Count; i++ )
                 {
@@ -608,13 +621,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         {
             myAnimationRegression.ResetRegression();
             
-            for( int j = 0; j < examples.Count; j++ )
+            for( int j = 0; j < currentlyUsedExamples.Count; j++ )
             {
-                AnimationExample e = examples[j];
+                AnimationExample e = currentlyUsedExamples[j];
                 List<ModelBaseDatum> phrase = e.baseExamples;
                 for( int i = 0; i < phrase.Count; i++ )
                 {
-                    myAnimationRegression.RecordDataPoint( BaseInput( phrase[i] ), LabelToRegressionOutput( j, examples.Count ) );
+                    myAnimationRegression.RecordDataPoint( BaseInput( phrase[i] ), LabelToRegressionOutput( j, currentlyUsedExamples.Count ) );
                 }
             }
             myAnimationRegression.Train();
@@ -627,8 +640,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     private void ComputeStaticBoidsFeatures()
     {
         Vector3 sum = Vector3.zero;
-        for( int i = 0; i < examples.Count; i++ ) { sum += examples[i].transform.position; }
-        averageExamplePosition = sum / examples.Count;
+        for( int i = 0; i < currentlyUsedExamples.Count; i++ ) { sum += currentlyUsedExamples[i].transform.position; }
+        averageExamplePosition = sum / currentlyUsedExamples.Count;
     }
 
     private bool WillCollideWithTerrainSoon()
@@ -673,9 +686,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     {
         // if we are too far away from any of the examples, steer toward the middle of the examples
         float minDistance = float.MaxValue;
-        for( int i = 0; i < examples.Count; i++ )
+        for( int i = 0; i < currentlyUsedExamples.Count; i++ )
         {
-            float d = ( modelBaseToAnimate.position - examples[i].transform.position ).magnitude;
+            float d = ( modelBaseToAnimate.position - currentlyUsedExamples[i].transform.position ).magnitude;
             if( d < maxDistanceFromAnyExample )
             {
                 // we don't have to do anything

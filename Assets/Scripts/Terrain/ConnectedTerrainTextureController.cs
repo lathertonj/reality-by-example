@@ -21,7 +21,8 @@ public class ConnectedTerrainTextureController : MonoBehaviour
 
     private int yMax, xMax, iMax;
     private float[,,] pureSplatmapData, blendedSplatmapData;
-    private int overlapPixels = 5, cornerOverlapPixels = 3;
+    private static float[,,] whiteSplatmapData = null;
+    private int overlapPixels = 5, cornerOverlapPixels = 3, edgeOverlapPixels = 8;
 
     // TODO: how to smooth texture?
     // I can't compute extra beyond the regions of the terrain
@@ -54,11 +55,17 @@ public class ConnectedTerrainTextureController : MonoBehaviour
 
         pureSplatmapData = new float[yMax, xMax, iMax];
         blendedSplatmapData = new float[yMax, xMax, iMax];
+        if( whiteSplatmapData == null )
+        {
+            whiteSplatmapData = new float[yMax, xMax, iMax ];
+        }
 
         for( int y = 0; y < yMax; y++ )
         {
             for( int x = 0; x < xMax; x++ )
             {
+                // white is currently the 2nd (0 indexed 3rd) material
+                whiteSplatmapData[y, x, 2] = 1;
                 pureSplatmapData[y, x, 0] = 1;
                 for( int i = 1; i < iMax; i++ )
                 {
@@ -248,25 +255,48 @@ public class ConnectedTerrainTextureController : MonoBehaviour
     private void BlendWithNeighbors()
     {
         // edges
+        // left
         if( leftNeighbor )
         {
             LerpColsLeftOntoRight( leftNeighbor.pureSplatmapData, pureSplatmapData, blendedSplatmapData, overlapPixels );
             LerpColsRightOntoLeft( pureSplatmapData, leftNeighbor.pureSplatmapData, leftNeighbor.blendedSplatmapData, overlapPixels );
         }
+        else
+        {
+            LerpColsLeftOntoRight( whiteSplatmapData, pureSplatmapData, blendedSplatmapData, edgeOverlapPixels, true );
+        }
+
+        // right
         if( rightNeighbor )
         {
             LerpColsLeftOntoRight( pureSplatmapData, rightNeighbor.pureSplatmapData, rightNeighbor.blendedSplatmapData, overlapPixels );
             LerpColsRightOntoLeft( rightNeighbor.pureSplatmapData, pureSplatmapData, blendedSplatmapData, overlapPixels );
         }
+        else
+        {
+            LerpColsRightOntoLeft( whiteSplatmapData, pureSplatmapData, blendedSplatmapData, edgeOverlapPixels, true );
+        }
+
+        // lower
         if( lowerNeighbor )
         {
             LerpRowsBottomOntoTop( lowerNeighbor.pureSplatmapData, pureSplatmapData, blendedSplatmapData, overlapPixels );
             LerpRowsTopOntoBottom( pureSplatmapData, lowerNeighbor.pureSplatmapData, lowerNeighbor.blendedSplatmapData, overlapPixels );
         }
+        else
+        {
+            LerpRowsBottomOntoTop( whiteSplatmapData, pureSplatmapData, blendedSplatmapData, edgeOverlapPixels, true );
+        }
+
+        // upper
         if( upperNeighbor )
         {
             LerpRowsBottomOntoTop( pureSplatmapData, upperNeighbor.pureSplatmapData, upperNeighbor.blendedSplatmapData, overlapPixels );
             LerpRowsTopOntoBottom( upperNeighbor.pureSplatmapData, pureSplatmapData, blendedSplatmapData, overlapPixels );
+        }
+        else
+        {
+            LerpRowsTopOntoBottom( whiteSplatmapData, pureSplatmapData, blendedSplatmapData, edgeOverlapPixels, true );
         }
 
         // corners
@@ -338,7 +368,7 @@ public class ConnectedTerrainTextureController : MonoBehaviour
         }
     }
 
-    private void LerpColsLeftOntoRight( float[,,] leftCols, float[,,] rightCols, float[,,] output, int samplesToLerp )
+    private void LerpColsLeftOntoRight( float[,,] leftCols, float[,,] rightCols, float[,,] output, int samplesToLerp, bool quicker = false )
     {
         for( int x = 0; x < samplesToLerp; x++ )
         {
@@ -350,7 +380,7 @@ public class ConnectedTerrainTextureController : MonoBehaviour
                     output[y, x, i] = Mathf.SmoothStep(
                         leftCols[y, xMax - 1 - x, i],
                         rightCols[y, x, i],
-                        0.5f + 0.5f * x / samplesToLerp
+                        quicker ? x * 1.0f / samplesToLerp : 0.5f + 0.5f * x / samplesToLerp
                     );
                 }
                 NormSplatWeights( output, y, x );
@@ -358,7 +388,7 @@ public class ConnectedTerrainTextureController : MonoBehaviour
         }
     }
 
-    private void LerpColsRightOntoLeft( float[,,] rightCols, float[,,] leftCols, float[,,] output, int samplesToLerp )
+    private void LerpColsRightOntoLeft( float[,,] rightCols, float[,,] leftCols, float[,,] output, int samplesToLerp, bool quicker = false )
     {
         for( int x = 0; x < samplesToLerp; x++ )
         {
@@ -370,7 +400,7 @@ public class ConnectedTerrainTextureController : MonoBehaviour
                     output[y, xMax - 1 - x, i] = Mathf.SmoothStep(
                         rightCols[y, x, i],
                         leftCols[y, xMax - 1 - x, i],
-                        0.5f + 0.5f * x / samplesToLerp
+                        quicker ? x * 1.0f / samplesToLerp : 0.5f + 0.5f * x / samplesToLerp
                     );
                 }
                 NormSplatWeights( output, y, x );
@@ -378,7 +408,7 @@ public class ConnectedTerrainTextureController : MonoBehaviour
         }
     }
 
-    private void LerpRowsBottomOntoTop( float[,,] bottomRows, float[,,] topRows, float[,,] output, int samplesToLerp )
+    private void LerpRowsBottomOntoTop( float[,,] bottomRows, float[,,] topRows, float[,,] output, int samplesToLerp, bool quicker = false )
     {
         for( int y = 0; y < samplesToLerp; y++ )
         {
@@ -390,7 +420,7 @@ public class ConnectedTerrainTextureController : MonoBehaviour
                     output[y, x, i] = Mathf.SmoothStep(
                         bottomRows[yMax - 1 - y, x, i],
                         topRows[y, x, i],
-                        0.5f + 0.5f * y / samplesToLerp
+                        quicker ? y * 1.0f / samplesToLerp : 0.5f + 0.5f * y / samplesToLerp
                     );
                 }
                 NormSplatWeights( output, y, x );
@@ -398,7 +428,7 @@ public class ConnectedTerrainTextureController : MonoBehaviour
         }
     }
 
-    private void LerpRowsTopOntoBottom( float[,,] topRows, float[,,] bottomRows, float[,,] output, int samplesToLerp )
+    private void LerpRowsTopOntoBottom( float[,,] topRows, float[,,] bottomRows, float[,,] output, int samplesToLerp, bool quicker = false )
     {
         for( int y = 0; y < samplesToLerp; y++ )
         {
@@ -410,7 +440,7 @@ public class ConnectedTerrainTextureController : MonoBehaviour
                     output[yMax - 1 - y, x, i] = Mathf.SmoothStep(
                         topRows[y, x, i],
                         bottomRows[yMax - 1 - y, x, i],
-                        0.5f + 0.5f * y / samplesToLerp
+                        quicker ? y * 1.0f / samplesToLerp : 0.5f + 0.5f * y / samplesToLerp
                     );
                 }
                 NormSplatWeights( output, y, x );

@@ -479,11 +479,23 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
             // base datum
             ModelBaseDatum newDatum = new ModelBaseDatum();
-            // newDatum.positionDelta = modelBaseDataSource.position - prevPosition;
-            // newDatum.rotationDelta = AngleMinify( modelBaseDataSource.rotation.eulerAngles - prevRotation );
-            // Debug.Log( "DATA: " + newDatum.rotationDelta.ToString() );
+            // direct way
             newDatum.rotation = modelBaseDataSource.rotation;
-            // Debug.Log( "DATA: " + newDatum.rotation.eulerAngles.ToString() );
+            
+            // indirect way: from the hand positions
+            // This can be used if we don't have a base data source,
+            // but it's not great
+            // Vector3 averageForward = Vector3.zero;
+            // Vector3 averageUp = Vector3.zero;
+            // for( int i = 0; i < modelRelativePointsDataSource.Length; i++ )
+            // {
+            //     averageForward += modelRelativePointsDataSource[i].forward;
+            //     averageUp += modelRelativePointsDataSource[i].up;
+            // }
+            // averageForward.Normalize();
+            // averageUp.Normalize();
+            // newDatum.rotation = Quaternion.LookRotation( averageForward, averageUp );
+
             newDatum.terrainHeight = currentHeight;
             newDatum.terrainSteepness = currentSteepness;
 

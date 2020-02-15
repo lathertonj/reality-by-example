@@ -654,6 +654,10 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
 
     private void StitchEdges()
     {
+        // Actually, use the companion class
+        StitchAllTerrains.Restitch();
+        return;
+
         // re-stitch the grid of 9 surrounding this square.
 
         // horizontal first

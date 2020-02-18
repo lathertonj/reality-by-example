@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpawnedObject : MonoBehaviour
+public class SpawnedObject : MonoBehaviour , GripPlaceDeleteInteractable
 {
 
     [HideInInspector] public LayerMask mask;
@@ -31,5 +31,17 @@ public class SpawnedObject : MonoBehaviour
             // set my position
             transform.position = hit.point;
         }
+    }
+
+    void GripPlaceDeleteInteractable.JustPlaced()
+    {
+        // this will likely not be placed with the Grip interaction, but in case it is
+        UpdateHeight();
+        Debug.LogError( "Spawned object placed with grip will not have the right Mask assigned!" );
+    }
+
+    void GripPlaceDeleteInteractable.AboutToBeDeleted()
+    {
+        allSpawnedObjects.Remove( this );
     }
 }

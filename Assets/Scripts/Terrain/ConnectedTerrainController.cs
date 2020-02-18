@@ -398,7 +398,9 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
             SetNeighbors( true );
             StitchEdges();
             SetBottomTerrainData( true );
-
+            
+            // finally, update all spawned object positions
+            SpawnedObject.ResetSpawnedObjectHeights();
         
         }
         else

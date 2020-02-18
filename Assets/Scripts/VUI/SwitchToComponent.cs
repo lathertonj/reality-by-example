@@ -7,7 +7,8 @@ public class SwitchToComponent : MonoBehaviour
     public enum InteractionType { PlaceTerrainImmediate, PlaceTerrainGrowth, PlaceTexture, 
         PlaceTerrainLocalRaiseLower, PlaceTerrainLaserPointerRaiseLower, MoveTeleport, MoveFly, MoveGroundFly,
         PlaceTempo, PlaceTimbre, PlaceDensity, PlaceVolume, PlaceChord,
-        PlaceGIS };
+        PlaceGIS,
+        SlowlySpawnPrefab };
     public InteractionType switchTo;
     public Transform givenPrefab;
 
@@ -72,6 +73,10 @@ public class SwitchToComponent : MonoBehaviour
                     SoundEngineChordClassifier.Activate();
                     SetPrefab( o );
                     break;
+                case InteractionType.SlowlySpawnPrefab:
+                    o.GetComponent<SlowlySpawnPrefab>().enabled = true;
+                    o.GetComponent<SlowlySpawnPrefab>().prefabToSpawn = givenPrefab;
+                    break;
                 default:
                     break;
             }
@@ -119,6 +124,8 @@ public class SwitchToComponent : MonoBehaviour
 
         o.GetComponent<TerrainLaserRaiseLowerInteractor>().Abort();
         o.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = false;
+
+        o.GetComponent<SlowlySpawnPrefab>().enabled = false;
 
         SoundEngineTempoRegressor.Deactivate();
         SoundEngineChordClassifier.Deactivate();

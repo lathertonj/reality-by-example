@@ -53,7 +53,7 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
         // grab component reference
         myRegression = gameObject.AddComponent<RapidMixRegression>();
         mySoundEngine = GetComponent<SoundEngine>();
-        myColorablePlane = GetComponentInChildren<ColorablePlane>();
+        myColorablePlane = GetComponentInChildren<ColorablePlane>( true );
 
         // initialize list
         myRegressionExamples = new List<SoundTempoExample>();

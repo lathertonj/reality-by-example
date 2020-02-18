@@ -58,7 +58,7 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
         // grab component reference
         myRegression = gameObject.AddComponent<RapidMixRegression>();
         mySoundEngine = GetComponent<SoundEngine>();
-        myColorablePlane = GetComponentInChildren<ColorablePlane>();
+        myColorablePlane = GetComponentInChildren<ColorablePlane>( true );
         
         switch( myParameter )
         {

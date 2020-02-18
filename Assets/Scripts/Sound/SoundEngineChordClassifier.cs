@@ -55,7 +55,7 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
         // grab component reference
         myClassifier = gameObject.AddComponent<RapidMixClassifier>();
         mySoundEngine = GetComponent<SoundEngine>();
-        myColorablePlane = GetComponentInChildren<ColorablePlane>();
+        myColorablePlane = GetComponentInChildren<ColorablePlane>( true );
         me = this;
 
         // initialize list

@@ -9,6 +9,7 @@ public class LaserPointerColliderSelector : MonoBehaviour
     public SteamVR_Input_Sources handType;
     public SteamVR_Action_Boolean preview;
     public SteamVR_Action_Boolean stopShowingLaser;
+    public bool stopShowingOnUp = true;
     private SteamVR_Behaviour_Pose controllerPose;
 
     public MeshRenderer laserPrefab;
@@ -23,6 +24,8 @@ public class LaserPointerColliderSelector : MonoBehaviour
 
     public Color notFound = Color.red, found = Color.green;
 
+    private bool canShowPreview = false;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -35,7 +38,12 @@ public class LaserPointerColliderSelector : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if( preview.GetState( handType ) && !stopShowingLaser.GetStateUp( handType ) )
+        if( preview.GetStateDown( handType ) )
+        {
+            canShowPreview = true; 
+        }
+
+        if( preview.GetState( handType ) && !ShouldStopShowing() )
         {
             RaycastHit hit;
             // show laser
@@ -54,6 +62,12 @@ public class LaserPointerColliderSelector : MonoBehaviour
         {
             HideLaser();
         }
+    }
+
+    bool ShouldStopShowing()
+    {
+        return !canShowPreview || ( stopShowingOnUp && stopShowingLaser.GetStateUp( handType ) )
+            || ( !stopShowingOnUp && stopShowingLaser.GetState( handType ) );
     }
 
     public Vector3 GetMostRecentIntersectionPoint()
@@ -102,5 +116,6 @@ public class LaserPointerColliderSelector : MonoBehaviour
     {
         laser.gameObject.SetActive( false ); 
         currentlyIntersecting = false;
+        canShowPreview = false;
     }
 }

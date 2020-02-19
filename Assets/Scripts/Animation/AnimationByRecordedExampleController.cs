@@ -5,11 +5,16 @@ using Valve.VR;
 
 public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDeleteInteractable
 {
+    private static List< AnimationByRecordedExampleController > allCreatures = new List< AnimationByRecordedExampleController >();
     [HideInInspector] public Transform prefabThatCreatedMe;
     public enum PredictionType { Classification, Regression };
     public PredictionType predictionType;
 
     public enum AnimationAction { RecordAnimation, DoNothing };
+
+    public enum RecordingType { ConstantTime, MusicTempo };
+    public RecordingType currentRecordingAndPlaybackMode = RecordingType.ConstantTime;
+    private static RecordingType recordingTypeForNewBirds = RecordingType.ConstantTime;
     public AnimationAction nextAction = AnimationAction.DoNothing;
 
     public AnimationExample examplePrefab;
@@ -68,6 +73,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     void Awake()
     {
+        allCreatures.Add( this );
+        currentRecordingAndPlaybackMode = recordingTypeForNewBirds;
+
         examples = new List<AnimationExample>();
         currentlyUsedExamples = new List<AnimationExample>();
         if( predictionType == PredictionType.Classification )
@@ -324,9 +332,19 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     ) );
                 }
 
-                // since we are playing back recorded animations,
-                // playback rate == collection rate
-                yield return new WaitForSecondsRealtime( dataCollectionRate );
+
+                switch( currentRecordingAndPlaybackMode )
+                {
+                    case RecordingType.ConstantTime:
+                        // since we are playing back recorded animations,
+                        // playback rate == collection rate
+                        yield return new WaitForSecondsRealtime( dataCollectionRate );
+                        break;
+                    case RecordingType.MusicTempo:
+                        // play back at 16th note rate
+                        yield return new WaitForSecondsRealtime( SoundEngine.GetQuarterNoteTime() / 4 );
+                        break;
+                }
 
                 currentFrame++;
             }
@@ -418,9 +436,18 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     ) );
                 }
 
-                // since we are playing back recorded animations,
-                // playback rate == collection rate
-                yield return new WaitForSecondsRealtime( dataCollectionRate );
+                switch( currentRecordingAndPlaybackMode )
+                {
+                    case RecordingType.ConstantTime:
+                        // since we are playing back recorded animations,
+                        // playback rate == collection rate
+                        yield return new WaitForSecondsRealtime( dataCollectionRate );
+                        break;
+                    case RecordingType.MusicTempo:
+                        // play back at 16th note rate
+                        yield return new WaitForSecondsRealtime( SoundEngine.GetQuarterNoteTime() / 4 );
+                        break;
+                }
 
                 currentFrame++;
             }
@@ -459,7 +486,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         AnimationExample newExample = Instantiate( examplePrefab, modelBaseDataSource.position, Quaternion.identity );
         examples.Add( newExample );
         // TODO ensure this is a shallow copy and that the lists are identical
-        newExample.Initiate( basePhrase, relativePhrases, this );
+        newExample.Initiate( basePhrase, relativePhrases, this, currentRecordingAndPlaybackMode );
 
 
         // start sound
@@ -470,7 +497,17 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
         while( true )
         {
-            yield return new WaitForSecondsRealtime( dataCollectionRate );
+            switch( currentRecordingAndPlaybackMode )
+            {
+                case RecordingType.ConstantTime:
+                    // collect at the data collection rate
+                    yield return new WaitForSecondsRealtime( dataCollectionRate );
+                    break;
+                case RecordingType.MusicTempo:
+                    // collect at 16th note rate
+                    yield return new WaitForSecondsRealtime( SoundEngine.GetQuarterNoteTime() / 4 );
+                    break;
+            }
 
             // fetch terrain values
             float currentHeight = 0, currentSteepness = 0, heightAboveTerrain = 0;
@@ -542,6 +579,34 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             RescanProvidedExamples();
         }
     }
+    
+
+    public void SwitchRecordingMode( RecordingType newMode )
+    {
+        // don't do anything if there's no change
+        if( newMode == currentRecordingAndPlaybackMode ) { return; }
+
+        // store
+        currentRecordingAndPlaybackMode = newMode;
+
+        // re-filter examples and retrain
+        RescanProvidedExamples();
+    }
+
+    public void SwitchRecordingMode( AnimationByRecordedExampleController matchCreature )
+    {
+        SwitchRecordingMode( matchCreature.currentRecordingAndPlaybackMode );
+    }
+
+
+    public static void SwitchGlobalRecordingMode( RecordingType newMode )
+    {
+        foreach( AnimationByRecordedExampleController creature in allCreatures )
+        {
+            creature.SwitchRecordingMode( newMode );
+        }
+        recordingTypeForNewBirds = newMode;
+    }
 
 
     public void RescanProvidedExamples()
@@ -599,7 +664,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         currentlyUsedExamples.Clear();
         foreach( AnimationExample e in examples )
         {
-            if( e.IsEnabled() ) { currentlyUsedExamples.Add( e ); }
+            if( e.IsEnabled() && currentRecordingAndPlaybackMode == e.myRecordingType ) 
+            { 
+                currentlyUsedExamples.Add( e );
+            }
         }
         if( currentlyUsedExamples.Count <= 0 )
         {
@@ -824,6 +892,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         {
             Destroy( examples[i].gameObject );
         }
+
+        // stop tracking
+        allCreatures.Remove( this );
     }
 
     public void HideExamples()

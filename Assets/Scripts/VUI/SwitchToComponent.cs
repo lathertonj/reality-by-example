@@ -10,7 +10,8 @@ public class SwitchToComponent : MonoBehaviour
         PlaceGIS,
         SlowlySpawnPrefab,
         RandomizePerturbSmall, RandomizePerturbBig, RandomizeCopy, RandomizeCurrent, RandomizeAll,
-        CreatureCreate, CreatureSelect, CreatureClone, CreatureExampleRecord, CreatureExampleClone, CreatureExampleDelete };
+        CreatureCreate, CreatureSelect, CreatureClone, CreatureExampleRecord, CreatureExampleClone, CreatureExampleDelete,
+        CreatureConstantTimeMode, CreatureMusicMode };
     public InteractionType switchTo;
     public Transform givenPrefab;
 
@@ -115,6 +116,8 @@ public class SwitchToComponent : MonoBehaviour
                 case InteractionType.CreatureExampleRecord: 
                 case InteractionType.CreatureExampleClone:
                 case InteractionType.CreatureExampleDelete:
+                case InteractionType.CreatureConstantTimeMode:
+                case InteractionType.CreatureMusicMode:
                     // we have another component for processing animation commands
                     if( animationAction )
                     {

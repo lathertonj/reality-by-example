@@ -4,12 +4,17 @@ using UnityEngine;
 
 public class SoundEngine : MonoBehaviour
 {
+    private static SoundEngine theEngine = null;
 
     ChuckSubInstance myChuck;
+    private float myQuarterNoteTime = 0.5f;
+
 
     // Start is called before the first frame update
     void Start()
     {
+        theEngine = this;
+
         myChuck = GetComponent<ChuckSubInstance>();
         myChuck.RunCode( @"
             // THINGS FOR THE INDIVIDUAL COMPONENTS TO RESPOND TO
@@ -159,11 +164,17 @@ public class SoundEngine : MonoBehaviour
     public void SetQuarterNoteTime( float inSeconds )
     {
         myChuck.SetFloat( "quarterNoteTempoSeconds", inSeconds );
+        myQuarterNoteTime = inSeconds;
     }
 
     public void SetSong( int TODOWHATARGS )
     {
 
+    }
+
+    public static float GetQuarterNoteTime()
+    {
+        return theEngine.myQuarterNoteTime;
     }
 
 

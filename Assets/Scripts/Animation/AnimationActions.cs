@@ -18,7 +18,7 @@ public class AnimationActions : MonoBehaviour
     public Transform baseDataSource;
     public Transform[] relativePointsDataSources;
 
-    public AnimationByRecordedExampleController currentCreature;
+    private static AnimationByRecordedExampleController currentCreature;
 
     public enum CurrentAction{ Select, Clone, Nothing };
     public CurrentAction currentAction = CurrentAction.Nothing;
@@ -134,6 +134,14 @@ public class AnimationActions : MonoBehaviour
                 // turn on the grip delete interactor 
                 myDeleter.enabled = true;
                 break;
+            case SwitchToComponent.InteractionType.CreatureConstantTimeMode:
+                // switch mode for all creatures
+                AnimationByRecordedExampleController.SwitchGlobalRecordingMode( AnimationByRecordedExampleController.RecordingType.ConstantTime );
+                break;
+            case SwitchToComponent.InteractionType.CreatureMusicMode:
+                // switch mode for all creatures
+                AnimationByRecordedExampleController.SwitchGlobalRecordingMode( AnimationByRecordedExampleController.RecordingType.MusicTempo );
+                break;
             default:
                 // do nothing
                 Debug.Log( "I don't recognize non-creature command" );
@@ -185,6 +193,7 @@ public class AnimationActions : MonoBehaviour
             // set data sources
             newCreature.modelBaseDataSource = baseDataSource;
             newCreature.modelRelativePointsDataSource = relativePointsDataSources;
+            newCreature.SwitchRecordingMode( currentCreature );
             
             Transform _ = null;
             // clone each example and tell newCreature not to rescan provided examples yet

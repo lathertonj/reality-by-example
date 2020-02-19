@@ -11,6 +11,8 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
     [HideInInspector] public List<AnimationByRecordedExampleController.ModelRelativeDatum>[] relativeExamples;
     private AnimationByRecordedExampleController myAnimator;
 
+    public AnimationByRecordedExampleController.RecordingType myRecordingType;
+
     bool shouldAnimate = false;
     public float globalSlew = 0.25f;
 
@@ -64,12 +66,14 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
     public void Initiate( 
         List<AnimationByRecordedExampleController.ModelBaseDatum> baseData,
         List<AnimationByRecordedExampleController.ModelRelativeDatum>[] relativeData,
-        AnimationByRecordedExampleController animator
+        AnimationByRecordedExampleController animator,
+        AnimationByRecordedExampleController.RecordingType recordingType
     )
     {
         baseExamples = baseData;
         relativeExamples = relativeData;
         myAnimator = animator;
+        myRecordingType = recordingType;
     }
 
     public void Animate( float interFrameTime )
@@ -184,7 +188,8 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         cloned.Initiate(
             clonedBaseExamples,
             clonedRelativeExamples,
-            newAnimator
+            newAnimator,
+            myRecordingType
         );
 
         // start animating

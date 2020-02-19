@@ -121,7 +121,7 @@ public class GripPlaceDeleteInteraction : MonoBehaviour
 
     public void OnTriggerExit( Collider other )
     {
-        if( other.transform.parent.gameObject == collidingGameObject )
+        if( other.transform.parent != null && other.transform.parent.gameObject == collidingGameObject )
         {
             ForgetCollidingObject();
         }

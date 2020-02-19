@@ -23,8 +23,9 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     private ChuckSubInstance myChuck;
     private ChuckIntSyncer myCurrentRecordedSampleSyncer;
 
-    string myLisa, myCurrentRecordedSample, myNewSamplePositionReady, myNewSamplePosition, myStartRecording, myStopRecording;
-    string mySamples;
+    string myLisa, myCurrentRecordedSample = "", myNewSamplePositionReady, myNewSamplePosition, myStartRecording, myStopRecording;
+    string mySamples = "";
+    string updateMyLisa;
 
     private bool haveTrained = false;
 
@@ -32,7 +33,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     List< double[] > myOutputData = new List< double[] >();
     private bool wereWeCloned = false;
 
-    public void CloneFrom( AnimationSoundRecorderPlaybackController other )
+    public void CloneFrom( AnimationSoundRecorderPlaybackController other, bool shareSamples )
     {
         // flag for later
         wereWeCloned = true;
@@ -47,6 +48,11 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         Train();
 
         // copy chuck lisa samples
+        if( shareSamples ) 
+        { 
+            mySamples = other.mySamples;
+            myCurrentRecordedSample = other.myCurrentRecordedSample;
+        }
         InitChuckVariableNames();
 
         myChuck.RunCode( string.Format( @"
@@ -71,12 +77,13 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
 
         myChuck = GetComponent<ChuckSubInstance>();
         myLisa = myChuck.GetUniqueVariableName( "lisa" );
-        myCurrentRecordedSample = myChuck.GetUniqueVariableName( "currentRecordedSample" );
+        if( myCurrentRecordedSample == "" ) { myCurrentRecordedSample = myChuck.GetUniqueVariableName( "currentRecordedSample" ); }
         myNewSamplePositionReady = myChuck.GetUniqueVariableName( "newSamplePositionReady" );
         myNewSamplePosition = myChuck.GetUniqueVariableName( "newSamplePosition" );
         myStartRecording = myChuck.GetUniqueVariableName( "startRecording" );
         myStopRecording = myChuck.GetUniqueVariableName( "stopRecording" );
-        mySamples = myChuck.GetUniqueVariableName( "mySamples" );
+        if( mySamples == "" ) { mySamples = myChuck.GetUniqueVariableName( "mySamples" ); }
+        updateMyLisa = myChuck.GetUniqueVariableName( "updateMyLisa" );
         variableNamesInit = true;
     }
 
@@ -91,8 +98,14 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         string clonedAddition = wereWeCloned ? @"true => synth.shouldPlayGrains;" : "";
         myChuck.RunCode( string.Format( @"
             global LiSa {0};
-            global float {7}[ (5::minute/samp) $ int];
+            global float {7}[];
+            if( {7} == null )
+            {{
+                float blankValues[ (5::minute/samp) $ int ];
+                blankValues @=> {7};
+            }}
             global int {1};
+            global Event {8};
             class AnimationSynth extends Chubgraph
 			{{
                 {0} => outlet;
@@ -135,13 +148,30 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
 				    5::minute => {0}.duration;
                 }}
 
+                int myPersonalSamplesAdded;
                 fun void AddSample( float s )
                 {{
                     {0}.valueAt( s, {1}::samp );
                     // store in global variable too
                     s => {7}[{1}];
                     {1}++;
+                    {1} => myPersonalSamplesAdded;
                 }}
+
+                
+                fun void UpdateSamples()
+                {{
+                    while( true )
+                    {{
+                        {8} => now;
+                        while( myPersonalSamplesAdded < {1} )
+                        {{
+                            {0}.valueAt( {7}[myPersonalSamplesAdded], myPersonalSamplesAdded::samp );
+                            myPersonalSamplesAdded++;
+                        }}
+                    }}
+                }}
+                spork ~ UpdateSamples();
 
                 fun void SetGrainPosition( int g )
                 {{
@@ -258,7 +288,8 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
             while( true ) {{ 1::second => now; }}
 
             
-        ", myLisa, myCurrentRecordedSample, myNewSamplePositionReady, myNewSamplePosition, myStartRecording, myStopRecording, clonedAddition, mySamples ) );
+        ", myLisa, myCurrentRecordedSample, myNewSamplePositionReady, myNewSamplePosition, 
+        myStartRecording, myStopRecording, clonedAddition, mySamples, updateMyLisa ) );
         myCurrentRecordedSampleSyncer = gameObject.AddComponent<ChuckIntSyncer>();
         myCurrentRecordedSampleSyncer.SyncInt( myChuck, myCurrentRecordedSample );
     }
@@ -270,11 +301,22 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         haveTrained = false;
     }
 
-    public void ProvideExample( double[] input )
+    public double[] ProvideExample( double[] input )
+    {
+        // make our own output
+        double[] output = new double[] { myCurrentRecordedSampleSyncer.GetCurrentValue() };
+        
+        // record it
+        ProvideExample( input, output );
+        
+        // return output
+        return output;
+    }
+
+    public void ProvideExample( double[] input, double[] output )
     {
         myInputData.Add( input );
         // regression --> output is whatever our recorder has recorded most frequently
-        double[] output = new double[] { myCurrentRecordedSampleSyncer.GetCurrentValue() };
         myOutputData.Add( output );
         // also record directly
         myRegression.RecordDataPoint( input, output );
@@ -302,5 +344,11 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         while( o[0] < 0 ) { o[0] += Random.Range( 1000, 20000 ); }
         myChuck.SetInt( myNewSamplePosition, (int) o[0] );
         myChuck.BroadcastEvent( myNewSamplePositionReady );
+    }
+
+    public void CatchUpToGroup()
+    {
+        // catch up the audio samples
+        myChuck.BroadcastEvent( updateMyLisa );
     }
 }

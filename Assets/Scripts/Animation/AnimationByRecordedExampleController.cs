@@ -113,11 +113,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         examples = new List<AnimationExample>();
     }
 
-    public void CloneAudioSystem( AnimationByRecordedExampleController toCloneFrom )
+    public void CloneAudioSystem( AnimationByRecordedExampleController toCloneFrom, bool shareSamples )
     {
         if( mySounder != null && toCloneFrom.mySounder != null )
         {
-            mySounder.CloneFrom( toCloneFrom.mySounder );
+            mySounder.CloneFrom( toCloneFrom.mySounder, shareSamples );
         }
     }
 
@@ -227,6 +227,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 if( mySounder )
                 {
                     mySounder.StopRecordingExamples();
+                    // copy new examples into others 
+                    foreach( AnimationByRecordedExampleController creature in myGroup )
+                    {
+                        creature.mySounder.CatchUpToGroup();
+                    }
                 }
             }
 
@@ -552,7 +557,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // sound
             if( mySounder )
             {
-                mySounder.ProvideExample( SoundInput( newDatum.rotation, newDatum.terrainHeight, newDatum.terrainSteepness, heightAboveTerrain ) );
+                double[] input = SoundInput( newDatum.rotation, newDatum.terrainHeight, newDatum.terrainSteepness, heightAboveTerrain );
+                double[] output = mySounder.ProvideExample( input );
+                foreach( AnimationByRecordedExampleController creature in myGroup )
+                {
+                    if( creature == this ) { continue; }
+                    creature.mySounder.ProvideExample( input, output );
+                }
             }
 
             // other data

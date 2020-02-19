@@ -216,7 +216,7 @@ public class AnimationActions : MonoBehaviour
                 newCreature.HideExamples();
             }
 
-            newCreature.CloneAudioSystem( currentCreature );
+            newCreature.CloneAudioSystem( currentCreature, intoGroup );
             newCreature.RescanMyProvidedExamples();
         }
     }

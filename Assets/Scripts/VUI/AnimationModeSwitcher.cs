@@ -237,7 +237,7 @@ public class AnimationModeSwitcher : MonoBehaviour
                 newCreature.ProvideExample( e.CloneExample( newCreature, out _ ), false );
             }
 
-            newCreature.CloneAudioSystem( currentCreature );
+            newCreature.CloneAudioSystem( currentCreature, false );
             newCreature.RescanProvidedExamples();
             newCreature.HideExamples();
         }

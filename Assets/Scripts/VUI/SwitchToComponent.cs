@@ -9,7 +9,8 @@ public class SwitchToComponent : MonoBehaviour
         PlaceTempo, PlaceTimbre, PlaceDensity, PlaceVolume, PlaceChord,
         PlaceGIS,
         SlowlySpawnPrefab,
-        RandomizePerturbSmall, RandomizePerturbBig, RandomizeCopy, RandomizeCurrent, RandomizeAll };
+        RandomizePerturbSmall, RandomizePerturbBig, RandomizeCopy, RandomizeCurrent, RandomizeAll,
+        CreatureCreate, CreatureSelect, CreatureClone, CreatureExampleRecord, CreatureExampleClone, CreatureExampleDelete };
     public InteractionType switchTo;
     public Transform givenPrefab;
 
@@ -26,6 +27,9 @@ public class SwitchToComponent : MonoBehaviour
             randomizer.currentAction = RandomizeTerrain.ActionType.DoNothing;
             DisablePlacementInteractors( o );
             DisableMovementInteractors( o );
+            // disable animation interactors
+            AnimationActions animationAction = o.GetComponent<AnimationActions>();
+            if( animationAction ) { animationAction.DisablePreUIChange(); }
             switch( switchTo )
             {
                 case InteractionType.PlaceTerrainImmediate:
@@ -40,7 +44,14 @@ public class SwitchToComponent : MonoBehaviour
                 case InteractionType.PlaceTerrainLaserPointerRaiseLower:
                     // enable the components we need
                     o.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = true;
-                    o.GetComponent<LaserPointerColliderSelector>().enabled = true;
+                    // hacky way to distinguish between two laser pointers
+                    foreach( LaserPointerColliderSelector l in o.GetComponents<LaserPointerColliderSelector>() )
+                    {
+                        if( !l.stopShowingOnUp )
+                        {
+                            l.enabled = true;
+                        }
+                    }
                     break;
                 case InteractionType.PlaceTexture:
                     SetPrefab( o );
@@ -98,6 +109,18 @@ public class SwitchToComponent : MonoBehaviour
                 case InteractionType.RandomizeAll:
                     randomizer.currentAction = RandomizeTerrain.ActionType.RandomizeAll;
                     break;
+                case InteractionType.CreatureCreate:
+                case InteractionType.CreatureSelect:
+                case InteractionType.CreatureClone:
+                case InteractionType.CreatureExampleRecord: 
+                case InteractionType.CreatureExampleClone:
+                case InteractionType.CreatureExampleDelete:
+                    // we have another component for processing animation commands
+                    if( animationAction )
+                    {
+                        animationAction.ProcessUIChange( switchTo, givenPrefab );
+                    }
+                    break;
                 default:
                     break;
             }
@@ -133,9 +156,14 @@ public class SwitchToComponent : MonoBehaviour
     private void DisablePlacementInteractors( GameObject o )
     {
         o.GetComponent<GripPlaceDeleteInteraction>().currentPrefabToUse = null;
+        // enable the grip deleter; some may disable it later if they need it disabled
+        o.GetComponent<GripPlaceDeleteInteraction>().enabled = true;
         
-        o.GetComponent<LaserPointerColliderSelector>().HideLaser();
-        o.GetComponent<LaserPointerColliderSelector>().enabled = false;
+        foreach( LaserPointerColliderSelector l in o.GetComponents<LaserPointerColliderSelector>() )
+        {
+            l.HideLaser();
+            l.enabled = false;
+        }
 
         o.GetComponent<TerrainGradualInteractor>().Abort();
         o.GetComponent<TerrainGradualInteractor>().enabled = false;

@@ -2072,7 +2072,6 @@ GameObject:
   - component: {fileID: 1119379321810116582}
   - component: {fileID: 5049750273414863310}
   - component: {fileID: 3197902673507219447}
-  - component: {fileID: 3197902673507219467}
   - component: {fileID: 3197902673507219445}
   - component: {fileID: 3197902673507219444}
   - component: {fileID: 3197902673507219446}
@@ -2247,34 +2246,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &3197902673507219467
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1119379321810116576}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e3f344845953244bad4f1363549e9fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handType: 0
-  startStopDataCollection:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
-    needsReinit: 0
-  modelBaseDataSource: {fileID: 0}
-  modelBaseToAnimate: {fileID: 3197902672222810673}
-  modelRelativePointsDataSource:
-  - {fileID: 0}
-  - {fileID: 0}
-  modelRelativePointsToAnimate:
-  - {fileID: 3197902672193238545}
-  - {fileID: 3197902674014969114}
-  globalSlew: 0.04
-  dataCollectionRate: 0.1
-  predictionOutputRate: 0.1
-  maxEulerAnglesChange: {x: 20, y: 20, z: 20}
 --- !u!114 &3197902673507219445
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2304,6 +2275,7 @@ MonoBehaviour:
   - {fileID: 3197902672193238545}
   - {fileID: 3197902674014969114}
   examples: []
+  currentlyUsedExamples: []
   globalSlew: 0.25
   motionSpeedupSlew: 0.08
   motionSlowdownSlew: 0.01
@@ -2312,7 +2284,7 @@ MonoBehaviour:
   avoidTerrainDetection: 5
   avoidTerrainMinheight: 1.5
   boidSlew: 0.01
-  maxDistanceFromAnyExample: 10
+  maxDistanceFromAnyExample: 50
   distanceRampUpRange: 7
   rampUpSeverity: 1.5
   dataCollectionRate: 0.1

@@ -5,6 +5,7 @@ using Valve.VR;
 
 public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDeleteInteractable
 {
+    [HideInInspector] public Transform prefabThatCreatedMe;
     public enum PredictionType { Classification, Regression };
     public PredictionType predictionType;
 

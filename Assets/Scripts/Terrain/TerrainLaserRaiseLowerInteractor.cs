@@ -23,7 +23,14 @@ public class TerrainLaserRaiseLowerInteractor : MonoBehaviour
     void Start()
     {
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
-        laser = GetComponent<LaserPointerColliderSelector>();
+        // hacky way to distinguish between two laser pointers :(
+        foreach( LaserPointerColliderSelector l in GetComponents<LaserPointerColliderSelector>() )
+        {
+            if( !l.stopShowingOnUp )
+            {
+                laser = l;
+            }
+        }
     }
 
     void Update()

@@ -2260,6 +2260,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabThatCreatedMe: {fileID: 0}
   predictionType: 1
+  currentRecordingAndPlaybackMode: 0
   nextAction: 1
   examplePrefab: {fileID: 5678428368102247849, guid: dd2c198e1fc285e428219acdae5c8a3b,
     type: 3}

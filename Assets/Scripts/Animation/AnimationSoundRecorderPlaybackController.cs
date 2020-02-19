@@ -296,10 +296,10 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
 
     public void Predict( double[] input )
     {
-        if( !haveTrained ) { Debug.Log( "sadness one" ); return; }
+        if( !haveTrained ) { return; }
         // predict output and then set new chuck thing
         double[] o = myRegression.Run( input );
-        while( o[0] < 0 ) { o[0] += 20000; }
+        while( o[0] < 0 ) { o[0] += Random.Range( 1000, 20000 ); }
         myChuck.SetInt( myNewSamplePosition, (int) o[0] );
         myChuck.BroadcastEvent( myNewSamplePositionReady );
     }

@@ -27,17 +27,4 @@ public class ControlBird : MonoBehaviour
         transform.position = trackHead.position + headOffset;
         transform.rotation = trackHead.rotation;
     }
-
-    void OnDisable()
-    {
-        // make the left/right arms start tracking something else
-        // TODO
-    }
-
-    void OnEnable()
-    {
-        // make the left/right arms start tracking my left/right hands instead
-        myLeft.Target = trackLeft;
-        myRight.Target = trackRight;
-    }
 }

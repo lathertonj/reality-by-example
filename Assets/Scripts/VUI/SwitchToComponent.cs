@@ -33,7 +33,7 @@ public class SwitchToComponent : MonoBehaviour
             switch( switchTo )
             {
                 case InteractionType.PlaceTerrainImmediate:
-                    SetPrefab( o );
+                    SetGripPlacePrefab( o );
                     break;
                 case InteractionType.PlaceTerrainGrowth:
                     o.GetComponent<TerrainGradualInteractor>().enabled = true;
@@ -54,10 +54,10 @@ public class SwitchToComponent : MonoBehaviour
                     }
                     break;
                 case InteractionType.PlaceTexture:
-                    SetPrefab( o );
+                    SetGripPlacePrefab( o );
                     break;
                 case InteractionType.PlaceGIS:
-                    SetPrefab( o );
+                    SetGripPlacePrefab( o );
                     break;
                 case InteractionType.MoveTeleport:
                     o.GetComponent<FlyingTeleporter>().enabled = true;
@@ -70,23 +70,23 @@ public class SwitchToComponent : MonoBehaviour
                     break;
                 case InteractionType.PlaceTempo:
                     SoundEngineTempoRegressor.Activate();
-                    SetPrefab( o );
+                    SetGripPlacePrefab( o );
                     break;
                 case InteractionType.PlaceTimbre:
                     SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.timbreRegressor );
-                    SetPrefab( o );
+                    SetGripPlacePrefab( o );
                     break;
                 case InteractionType.PlaceDensity:
                     SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.densityRegressor );
-                    SetPrefab( o );
+                    SetGripPlacePrefab( o );
                     break;
                 case InteractionType.PlaceVolume:
                     SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.volumeRegressor );
-                    SetPrefab( o );
+                    SetGripPlacePrefab( o );
                     break;
                 case InteractionType.PlaceChord:
                     SoundEngineChordClassifier.Activate();
-                    SetPrefab( o );
+                    SetGripPlacePrefab( o );
                     break;
                 case InteractionType.SlowlySpawnPrefab:
                     o.GetComponent<SlowlySpawnPrefab>().enabled = true;
@@ -136,7 +136,7 @@ public class SwitchToComponent : MonoBehaviour
         }
     }
 
-    private void SetPrefab( GameObject o )
+    private void SetGripPlacePrefab( GameObject o )
     {
         o.GetComponent<GripPlaceDeleteInteraction>().currentPrefabToUse = givenPrefab;
     }

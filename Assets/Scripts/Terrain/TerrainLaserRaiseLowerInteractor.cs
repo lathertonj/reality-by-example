@@ -81,7 +81,7 @@ public class TerrainLaserRaiseLowerInteractor : MonoBehaviour
         }
 
         // reenable the mode switcher
-        DisableModeSwitcher.SetEnabled( true );
+        // DisableModeSwitcher.SetEnabled( true );
     }
 
     private IEnumerator LazilyRecomputeTerrain()

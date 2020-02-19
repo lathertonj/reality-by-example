@@ -82,8 +82,6 @@ public class AnimationActions : MonoBehaviour
     {
         // do nothing
         currentAction = CurrentAction.Nothing;
-        // disable grip delete interactor
-        myDeleter.enabled = false;
         // disable grip cloner
         myCloner.enabled = false;
         // disable grip laser pointer selector
@@ -97,6 +95,9 @@ public class AnimationActions : MonoBehaviour
     // hacky custom UI...
     public void ProcessUIChange( SwitchToComponent.InteractionType interaction, Transform prefab )
     {
+        // only for our own actions, disable grip
+        myDeleter.enabled = false;
+
         switch( interaction )
         {
             case SwitchToComponent.InteractionType.CreatureCreate:

@@ -38,7 +38,7 @@ public class ConnectedTerrainController : MonoBehaviour
 
     // regression
     private RapidMixRegression myRegression;
-    private List<TerrainHeightExample> myRegressionExamples;
+    [HideInInspector] public List<TerrainHeightExample> myRegressionExamples;
     private bool haveTrained = false;
 
     private UnderTerrainController myBottom;
@@ -47,7 +47,7 @@ public class ConnectedTerrainController : MonoBehaviour
     public bool debugGISFeatures = false;
     public TextMesh debugUI;
     private RapidMixRegression myGISRegression;
-    private List<TerrainGISExample> myGISRegressionExamples;
+    [HideInInspector] public List<TerrainGISExample> myGISRegressionExamples;
     private bool haveTrainedGIS = false;
     private float[,,] loadedGISData;
     private int gisDataFileSideLength = 513;

@@ -9,7 +9,7 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
     
     // regression
     private RapidMixClassifier myClassifier;
-    private List<SoundChordExample> myClassifierExamples;
+    [HideInInspector] public List<SoundChordExample> myClassifierExamples;
     private bool haveTrained = false;
     private int myDefaultChord = 0;
     private ColorablePlane myColorablePlane;

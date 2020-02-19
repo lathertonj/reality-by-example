@@ -9,7 +9,7 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
     
     // regression
     private RapidMixRegression myRegression;
-    private List<SoundTempoExample> myRegressionExamples;
+    [HideInInspector] public List<SoundTempoExample> myRegressionExamples;
     private bool haveTrained = false;
     private float myDefaultTempo;
     private ColorablePlane myColorablePlane;

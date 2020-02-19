@@ -12,7 +12,7 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
     
     // regression
     private RapidMixRegression myRegression;
-    private List<Sound0To1Example> myRegressionExamples;
+    [HideInInspector] public List<Sound0To1Example> myRegressionExamples;
     private bool haveTrained = false;
     private float myDefaultValue;
     private ColorablePlane myColorablePlane;

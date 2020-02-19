@@ -19,6 +19,11 @@ public class RandomizeTerrain : MonoBehaviour
     ConnectedTerrainController[] terrainHeightControllers;
     ConnectedTerrainTextureController[] terrainTextureControllers;
 
+    public SoundEngine soundEngine;
+    private SoundEngineChordClassifier chordClassifier;
+    private SoundEngineTempoRegressor tempoRegressor;
+    private SoundEngine0To1Regressor timbreRegressor, densityRegressor, volumeRegressor; 
+
     public Vector3 landRadius = new Vector3( 50, 100, 50 );
     public Vector3 musicRadius = new Vector3( 150, 100, 150 );
     public Vector3 perturbBigRadius = new Vector3( 5, 5, 5 );
@@ -26,13 +31,6 @@ public class RandomizeTerrain : MonoBehaviour
     public float perturbBigBumpRange = 0.2f;
     public float perturbSmallBumpRange = 0.02f;
     public int heightExamples = 5, bumpExamples = 5, textureExamples = 5, musicalParamExamples = 5;
-
-    private List< TerrainHeightExample >[] myHeightExamples;
-    private List< TerrainGISExample >[] myBumpExamples;
-    private List< TerrainTextureExample >[] myTextureExamples;
-    private List< SoundChordExample > myChordExamples;
-    private List< SoundTempoExample > myTempoExamples;
-    private List< Sound0To1Example > myDensityExamples, myTimbreExamples, myVolumeExamples;
 
     public TerrainHeightExample heightPrefab;
     public TerrainGISExample bumpPrefab;
@@ -51,23 +49,31 @@ public class RandomizeTerrain : MonoBehaviour
     {
         terrainHeightControllers = FindObjectsOfType<ConnectedTerrainController>();
         terrainTextureControllers = new ConnectedTerrainTextureController[ terrainHeightControllers.Length ];
-        myHeightExamples = new List<TerrainHeightExample>[ terrainHeightControllers.Length ];
-        myBumpExamples = new List<TerrainGISExample>[ terrainHeightControllers.Length ];
-        myTextureExamples = new List<TerrainTextureExample>[ terrainHeightControllers.Length ];
         indices = new Dictionary<ConnectedTerrainController, int>();
         for( int i = 0; i < terrainHeightControllers.Length; i++ )
         {
             terrainTextureControllers[i] = terrainHeightControllers[i].GetComponent< ConnectedTerrainTextureController >();
-            myHeightExamples[i] = new List<TerrainHeightExample>();
-            myBumpExamples[i] = new List<TerrainGISExample>();
-            myTextureExamples[i] = new List<TerrainTextureExample>();
             indices[terrainHeightControllers[i]] = i;
         }
-        myChordExamples = new List<SoundChordExample>();
-        myTempoExamples = new List<SoundTempoExample>();
-        myDensityExamples = new List<Sound0To1Example>();
-        myTimbreExamples = new List<Sound0To1Example>();
-        myVolumeExamples = new List<Sound0To1Example>();
+
+        // get references to the audio ML
+        chordClassifier = soundEngine.GetComponent<SoundEngineChordClassifier>();
+        tempoRegressor = soundEngine.GetComponent<SoundEngineTempoRegressor>();
+        foreach( SoundEngine0To1Regressor r in soundEngine.GetComponents<SoundEngine0To1Regressor>() )
+        {
+            switch( r.myParameter )
+            {
+                case SoundEngine0To1Regressor.Parameter.Timbre:
+                    timbreRegressor = r;
+                    break;
+                case SoundEngine0To1Regressor.Parameter.Density:
+                    densityRegressor = r;
+                    break;
+                case SoundEngine0To1Regressor.Parameter.Volume:
+                    volumeRegressor = r;
+                    break;
+            }
+        }
 
         StartCoroutine( InitializeAll() );
     }
@@ -217,9 +223,6 @@ public class RandomizeTerrain : MonoBehaviour
                 e.ManuallySpecifyTerrain( terrainHeightControllers[i] );
 
                 terrainHeightControllers[i].ProvideExampleEfficient( e );
-
-                // remember
-                myHeightExamples[i].Add( e );
             }
 
             // // wait before moving on
@@ -252,9 +255,6 @@ public class RandomizeTerrain : MonoBehaviour
 
                 // inform terrain of example
                 terrainHeightControllers[i].ProvideExampleEfficient( b );
-
-                // remember
-                myBumpExamples[i].Add( b );
             }
             // wait before moving on
             yield return null;
@@ -283,9 +283,6 @@ public class RandomizeTerrain : MonoBehaviour
 
                 // inform terrain of example (shouldRetrain = false)
                 terrainTextureControllers[i].ProvideExample( t, false );
-
-                // remember
-                myTextureExamples[i].Add( t );
             }
             // don't rescan just texture
             // terrainTextureControllers[i].RescanProvidedExamples();
@@ -306,10 +303,9 @@ public class RandomizeTerrain : MonoBehaviour
             Sound0To1Example v = Instantiate( volumePrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
             v.Initialize( false );
             v.Randomize();
-            myVolumeExamples.Add( v );
         }
         // rescan to check for new random values
-        SoundEngine0To1Regressor.volumeRegressor.RescanProvidedExamples();
+        volumeRegressor.RescanProvidedExamples();
 
         // density:
         for( int i = 0; i < musicalParamExamples; i++ )
@@ -317,10 +313,9 @@ public class RandomizeTerrain : MonoBehaviour
             Sound0To1Example d = Instantiate( densityPrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
             d.Initialize( false );
             d.Randomize();
-            myDensityExamples.Add( d );
         }
         // rescan to check for new random values
-        SoundEngine0To1Regressor.densityRegressor.RescanProvidedExamples();
+        densityRegressor.RescanProvidedExamples();
 
         // timbre:
         for( int i = 0; i < musicalParamExamples; i++ )
@@ -328,10 +323,9 @@ public class RandomizeTerrain : MonoBehaviour
             Sound0To1Example t = Instantiate( timbrePrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
             t.Initialize( false );
             t.Randomize();
-            myTimbreExamples.Add( t );
         }
         // rescan to check for new random values
-        SoundEngine0To1Regressor.timbreRegressor.RescanProvidedExamples();
+        timbreRegressor.RescanProvidedExamples();
 
         // tempo:
         for( int i = 0; i < musicalParamExamples; i++ )
@@ -339,10 +333,9 @@ public class RandomizeTerrain : MonoBehaviour
             SoundTempoExample t = Instantiate( tempoPrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
             t.Initialize( false );
             t.Randomize();
-            myTempoExamples.Add( t );
         }
         // rescan to check for new random values
-        myTempoExamples[0].Rescan();
+        tempoRegressor.RescanProvidedExamples();
 
         // chord:
         for( int i = 0; i < musicalParamExamples; i++ )
@@ -350,10 +343,9 @@ public class RandomizeTerrain : MonoBehaviour
             SoundChordExample c = Instantiate( chordPrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
             c.Initialize( false );
             c.Randomize();
-            myChordExamples.Add( c );
         }
         // rescan to check for new random values
-        myChordExamples[0].Rescan();
+        chordClassifier.RescanProvidedExamples();
 
         
     }
@@ -384,21 +376,22 @@ public class RandomizeTerrain : MonoBehaviour
     void ReRandomizeTerrainHeight( int which, RandomizeAmount amount )
     {
         // generate N points in random locations
-        for( int j = 0; j < myHeightExamples[which].Count; j++ )
+        List< TerrainHeightExample > examples = terrainHeightControllers[which].myRegressionExamples;
+        for( int j = 0; j < examples.Count; j++ )
         {
             switch( amount )
             {
                 case RandomizeAmount.Full:
-                    myHeightExamples[which][j].transform.position = 
+                    examples[j].transform.position = 
                         terrainHeightControllers[which].transform.position + GetRandomLocationWithinRadius( landRadius );
                     // if it had something to randomize
                     // myHeightExamples[which][j].Randomize();
                     break;
                 case RandomizeAmount.PerturbBig:
-                    myHeightExamples[which][j].transform.position += GetRandomLocationWithinTallRadius( perturbBigRadius );
+                    examples[j].transform.position += GetRandomLocationWithinTallRadius( perturbBigRadius );
                     break;
                 case RandomizeAmount.PerturbSmall:
-                    myHeightExamples[which][j].transform.position += GetRandomLocationWithinTallRadius( perturbSmallRadius );
+                    examples[j].transform.position += GetRandomLocationWithinTallRadius( perturbSmallRadius );
                     break;
             }
         }
@@ -407,29 +400,30 @@ public class RandomizeTerrain : MonoBehaviour
 
     void ReRandomizeTerrainBumpiness( int which, RandomizeAmount amount )
     {
+        List< TerrainGISExample > examples = terrainHeightControllers[which].myGISRegressionExamples;
         // generate N points in random locations
-        for( int j = 0; j < myBumpExamples[which].Count; j++ )
+        for( int j = 0; j < examples.Count; j++ )
         {
             switch( amount )
             {
                 case RandomizeAmount.Full:
                     // position
-                    myBumpExamples[which][j].transform.position = 
+                    examples[j].transform.position = 
                         terrainHeightControllers[which].transform.position + GetRandomLocationWithinRadius( landRadius );
                     // stats
-                    myBumpExamples[which][j].Randomize();
+                    examples[j].Randomize();
                     break;
                 case RandomizeAmount.PerturbBig:
                     // position
-                    myBumpExamples[which][j].transform.position += GetRandomLocationWithinTallRadius( perturbBigRadius );
+                    examples[j].transform.position += GetRandomLocationWithinTallRadius( perturbBigRadius );
                     // stats
-                    myBumpExamples[which][j].Perturb( perturbBigBumpRange );
+                    examples[j].Perturb( perturbBigBumpRange );
                     break;
                 case RandomizeAmount.PerturbSmall:
                     // position
-                    myBumpExamples[which][j].transform.position += GetRandomLocationWithinTallRadius( perturbSmallRadius );
+                    examples[j].transform.position += GetRandomLocationWithinTallRadius( perturbSmallRadius );
                     // stats
-                    myBumpExamples[which][j].Perturb( perturbSmallBumpRange );
+                    examples[j].Perturb( perturbSmallBumpRange );
                     break;
             }
         }
@@ -438,26 +432,27 @@ public class RandomizeTerrain : MonoBehaviour
 
     void ReRandomizeTerrainTexture( int which, RandomizeAmount amount )
     {
+        List< TerrainTextureExample > examples = terrainTextureControllers[which].myRegressionExamples;
         // generate N points in random locations
-        for( int j = 0; j < myTextureExamples[which].Count; j++ )
+        for( int j = 0; j < examples.Count; j++ )
         {
             switch( amount )
             {
                 case RandomizeAmount.Full:
                     // position
-                    myTextureExamples[which][j].transform.position = 
+                    examples[j].transform.position = 
                         terrainHeightControllers[which].transform.position + GetRandomLocationWithinRadius( landRadius );
                     // color
-                    myTextureExamples[which][j].Randomize();
+                    examples[j].Randomize();
                     break;
                 case RandomizeAmount.PerturbBig:
                     // position
-                    myTextureExamples[which][j].transform.position += GetRandomLocationWithinTallRadius( perturbBigRadius );
+                    examples[j].transform.position += GetRandomLocationWithinTallRadius( perturbBigRadius );
                     // DON'T perturb the color -- it's too drastic of a change for a "perturbation"
                     break;
                 case RandomizeAmount.PerturbSmall:
                     // position
-                    myTextureExamples[which][j].transform.position += GetRandomLocationWithinTallRadius( perturbSmallRadius );
+                    examples[j].transform.position += GetRandomLocationWithinTallRadius( perturbSmallRadius );
                     // DON'T perturb the color -- it's too drastic of a change for a "perturbation"
                     break;
             }
@@ -469,60 +464,77 @@ public class RandomizeTerrain : MonoBehaviour
     void ReRandomizeMusicalParameters()
     {
         // volume:
-        for( int i = 0; i < myVolumeExamples.Count; i++ )
+        for( int i = 0; i < volumeRegressor.myRegressionExamples.Count; i++ )
         {
-            myVolumeExamples[i].Randomize();
-            myVolumeExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
+            volumeRegressor.myRegressionExamples[i].Randomize();
+            volumeRegressor.myRegressionExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
         }
         // rescan to check for new random values
-        SoundEngine0To1Regressor.volumeRegressor.RescanProvidedExamples();
+        volumeRegressor.RescanProvidedExamples();
 
         // density:
-        for( int i = 0; i < myDensityExamples.Count; i++ )
+        for( int i = 0; i < densityRegressor.myRegressionExamples.Count; i++ )
         {
-            myDensityExamples[i].Randomize();
-            myDensityExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
+            densityRegressor.myRegressionExamples[i].Randomize();
+            densityRegressor.myRegressionExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
         }
         // rescan to check for new random values
-        SoundEngine0To1Regressor.densityRegressor.RescanProvidedExamples();
+        densityRegressor.RescanProvidedExamples();
 
         // timbre:
-        for( int i = 0; i < myTimbreExamples.Count; i++ )
+        for( int i = 0; i < timbreRegressor.myRegressionExamples.Count; i++ )
         {
-            myTimbreExamples[i].Randomize();
-            myTimbreExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
+            timbreRegressor.myRegressionExamples[i].Randomize();
+            timbreRegressor.myRegressionExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
         }
         // rescan to check for new random values
-        SoundEngine0To1Regressor.timbreRegressor.RescanProvidedExamples();
+        timbreRegressor.RescanProvidedExamples();
 
         // tempo:
-        for( int i = 0; i < myTempoExamples.Count; i++ )
+        for( int i = 0; i < tempoRegressor.myRegressionExamples.Count; i++ )
         {
-            myTempoExamples[i].Randomize();
-            myTempoExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
+            tempoRegressor.myRegressionExamples[i].Randomize();
+            tempoRegressor.myRegressionExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
         }
         // rescan to check for new random values
-        myTempoExamples[0].Rescan();
+        tempoRegressor.RescanProvidedExamples();
 
         // chord:
-        for( int i = 0; i < myChordExamples.Count; i++ )
+        for( int i = 0; i < chordClassifier.myClassifierExamples.Count; i++ )
         {
-            myChordExamples[i].Randomize();
-            myChordExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
+            chordClassifier.myClassifierExamples[i].Randomize();
+            chordClassifier.myClassifierExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
         }
         // rescan to check for new random values
-        myChordExamples[0].Rescan();
+        chordClassifier.RescanProvidedExamples();
     }
 
     IEnumerator CopyTerrainExamples( int from, int to )
     {
         currentlyComputing = true;
 
-        CopyExampleLocations<TerrainHeightExample>( terrainHeightControllers[from], terrainHeightControllers[to], myHeightExamples[from], myHeightExamples[to] );
-        CopyExampleLocations<TerrainGISExample>( terrainHeightControllers[from], terrainHeightControllers[to], myBumpExamples[from], myBumpExamples[to] );
-        CopyBumpParameters( myBumpExamples[from], myBumpExamples[to] );
-        CopyExampleLocations<TerrainTextureExample>( terrainHeightControllers[from], terrainHeightControllers[to], myTextureExamples[from], myTextureExamples[to] );
-        CopyTextureParameters( myTextureExamples[from], myTextureExamples[to] );
+        CopyExampleLocations<TerrainHeightExample>( 
+            terrainHeightControllers[from], 
+            terrainHeightControllers[to], 
+            terrainHeightControllers[from].myRegressionExamples,
+            terrainHeightControllers[to].myRegressionExamples
+        );
+        CopyExampleLocations<TerrainGISExample>( 
+            terrainHeightControllers[from], 
+            terrainHeightControllers[to],
+            terrainHeightControllers[from].myGISRegressionExamples, 
+            terrainHeightControllers[to].myGISRegressionExamples
+        );
+        CopyBumpParameters( terrainHeightControllers[from].myGISRegressionExamples, 
+            terrainHeightControllers[to].myGISRegressionExamples );
+        CopyExampleLocations<TerrainTextureExample>( 
+            terrainHeightControllers[from], 
+            terrainHeightControllers[to], 
+            terrainTextureControllers[from].myRegressionExamples, 
+            terrainTextureControllers[to].myRegressionExamples
+        );
+        CopyTextureParameters( terrainTextureControllers[from].myRegressionExamples, 
+            terrainTextureControllers[to].myRegressionExamples );
 
         // rescan terrain
         yield return StartCoroutine( RescanTerrain( terrainHeightControllers[ to ] ) );

@@ -90,7 +90,7 @@ public class ConnectedTerrainTextureController : MonoBehaviour
         }
     }
 
-    private List<TerrainTextureExample> myRegressionExamples;
+    [HideInInspector] public List<TerrainTextureExample> myRegressionExamples;
     private bool haveTrained = false;
 
     public void ProvideExample( TerrainTextureExample example, bool shouldRetrain = true )

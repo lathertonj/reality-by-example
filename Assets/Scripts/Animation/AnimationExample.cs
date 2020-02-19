@@ -76,6 +76,11 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         myRecordingType = recordingType;
     }
 
+    public void ResetAnimator( AnimationByRecordedExampleController animator )
+    {
+        myAnimator = animator;
+    }
+
     public void Animate( float interFrameTime )
     {
         animationIntertime = interFrameTime;

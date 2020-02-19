@@ -6,6 +6,7 @@ using Valve.VR;
 public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDeleteInteractable
 {
     private static List< AnimationByRecordedExampleController > allCreatures = new List< AnimationByRecordedExampleController >();
+    private List< AnimationByRecordedExampleController > myGroup = null;
     [HideInInspector] public Transform prefabThatCreatedMe;
     public enum PredictionType { Classification, Regression };
     public PredictionType predictionType;
@@ -29,7 +30,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     // predict the increment to modelBase location and rotation
     // input features: y, steepness of terrain; previous location / rotation.
     // --> 2 regressions for modelBase
-    public List<AnimationExample> examples, currentlyUsedExamples;
+    public List<AnimationExample> examples = null, currentlyUsedExamples;
     //private List<List<ModelBaseDatum>> modelBasePositionData;
     private RapidMixClassifier myAnimationClassifier;
     private RapidMixRegression myAnimationRegression;
@@ -75,8 +76,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     {
         allCreatures.Add( this );
         currentRecordingAndPlaybackMode = recordingTypeForNewBirds;
+        InitializeIndependently();
 
-        examples = new List<AnimationExample>();
         currentlyUsedExamples = new List<AnimationExample>();
         if( predictionType == PredictionType.Classification )
         {
@@ -98,9 +99,18 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         }
     }
 
-    void Start()
+    public void AddToGroup( AnimationByRecordedExampleController groupLeader )
     {
+        myGroup = groupLeader.myGroup;
+        myGroup.Add( this );
+        examples = groupLeader.examples;
+    }
 
+    private void InitializeIndependently()
+    {
+        myGroup = new List< AnimationByRecordedExampleController >();
+        myGroup.Add( this );
+        examples = new List<AnimationExample>();
     }
 
     public void CloneAudioSystem( AnimationByRecordedExampleController toCloneFrom )
@@ -611,6 +621,15 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     public void RescanProvidedExamples()
     {
+        foreach( AnimationByRecordedExampleController creature in myGroup )
+        {
+            creature.RescanMyProvidedExamples();
+        }
+    }
+
+
+    public void RescanMyProvidedExamples()
+    {
         // just reset the training... hopefully if we're in runtime already everything 
         // will be fine
         Train();
@@ -790,6 +809,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     List<Transform> nearOtherBoids = new List<Transform>();
     Vector3 ProcessBoidsOthersAvoidance()
     {
+        // remove junk 
+        nearOtherBoids.RemoveAll( other => other == null );
+
+        // compute on what's left
         Vector3 desiredMovement = Vector3.zero;
         foreach( Transform other in nearOtherBoids )
         {
@@ -877,6 +900,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     void GripPlaceDeleteInteractable.AboutToBeDeleted()
     {
+        // stop tracking
+        allCreatures.Remove( this );
+        myGroup.Remove( this );
+
         // delete my animation points, which are now outside my transform
         Destroy( modelBaseToAnimate.gameObject );
         for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
@@ -884,17 +911,23 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             Destroy( modelRelativePointsToAnimate[i].gameObject );
         }
 
-        // delete all my examples
-        // TODO: only if others aren't relying on them!
-        // if I make it possible to clone birds, then need
-        // to be careful here.
-        for( int i = 0; i < examples.Count; i++ )
+        if( myGroup.Count == 0 )
         {
-            Destroy( examples[i].gameObject );
+            // delete all my examples, only if I'm the last one left
+            for( int i = 0; i < examples.Count; i++ )
+            {
+                Destroy( examples[i].gameObject );
+            }
         }
-
-        // stop tracking
-        allCreatures.Remove( this );
+        else
+        {
+            // make sure all my examples have an animator,
+            // in case their example was me
+            for( int i = 0; i < examples.Count; i++ )
+            {
+                examples[i].ResetAnimator( myGroup[0] );
+            } 
+        }
     }
 
     public void HideExamples()

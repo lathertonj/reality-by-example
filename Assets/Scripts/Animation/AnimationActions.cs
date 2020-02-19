@@ -67,7 +67,7 @@ public class AnimationActions : MonoBehaviour
                 }
                     break;
                 case CurrentAction.Clone:
-                    CloneCurrentCreature();
+                    CloneCurrentCreature( true );
                     break;
                 case CurrentAction.Nothing:
                     // nothing
@@ -181,7 +181,7 @@ public class AnimationActions : MonoBehaviour
         }
     }
 
-    void CloneCurrentCreature()
+    void CloneCurrentCreature( bool intoGroup )
     {
         if( currentCreature != null )
         {
@@ -194,17 +194,31 @@ public class AnimationActions : MonoBehaviour
             newCreature.modelBaseDataSource = baseDataSource;
             newCreature.modelRelativePointsDataSource = relativePointsDataSources;
             newCreature.SwitchRecordingMode( currentCreature );
+            newCreature.prefabThatCreatedMe = currentCreature.prefabThatCreatedMe;
             
-            Transform _ = null;
-            // clone each example and tell newCreature not to rescan provided examples yet
-            foreach( AnimationExample e in currentCreature.examples )
+
+            if( intoGroup )
             {
-                newCreature.ProvideExample( e.CloneExample( newCreature, out _ ), false );
+                // initialize within a group
+                newCreature.AddToGroup( currentCreature );
+            }
+            else
+            {
+                // make independent. give it its own examples
+                Transform _ = null;
+                // clone each example and tell newCreature not to rescan provided examples yet
+                foreach( AnimationExample e in currentCreature.examples )
+                {
+                    newCreature.ProvideExample( e.CloneExample( newCreature, out _ ), false );
+                }
+                
+                // and hide them for clarity
+                newCreature.HideExamples();
             }
 
             newCreature.CloneAudioSystem( currentCreature );
-            newCreature.RescanProvidedExamples();
-            newCreature.HideExamples();
+            newCreature.RescanMyProvidedExamples();
         }
     }
+
 }

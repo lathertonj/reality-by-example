@@ -8,7 +8,8 @@ public class SwitchToComponent : MonoBehaviour
         PlaceTerrainLocalRaiseLower, PlaceTerrainLaserPointerRaiseLower, MoveTeleport, MoveFly, MoveGroundFly,
         PlaceTempo, PlaceTimbre, PlaceDensity, PlaceVolume, PlaceChord,
         PlaceGIS,
-        SlowlySpawnPrefab };
+        SlowlySpawnPrefab,
+        RandomizePerturbSmall, RandomizePerturbBig, RandomizeCopy, RandomizeCurrent, RandomizeAll };
     public InteractionType switchTo;
     public Transform givenPrefab;
 
@@ -20,6 +21,9 @@ public class SwitchToComponent : MonoBehaviour
         if( maybeController )
         {
             GameObject o = maybeController.gameObject;
+            // get and disable randomizer
+            RandomizeTerrain randomizer = o.transform.root.GetComponentInChildren<RandomizeTerrain>();
+            randomizer.currentAction = RandomizeTerrain.ActionType.DoNothing;
             DisablePlacementInteractors( o );
             DisableMovementInteractors( o );
             switch( switchTo )
@@ -77,6 +81,23 @@ public class SwitchToComponent : MonoBehaviour
                     o.GetComponent<SlowlySpawnPrefab>().enabled = true;
                     o.GetComponent<SlowlySpawnPrefab>().prefabToSpawn = givenPrefab;
                     break;
+                case InteractionType.RandomizePerturbSmall:
+                    randomizer.currentAction = RandomizeTerrain.ActionType.PerturbSmall;
+                    break;
+                case InteractionType.RandomizePerturbBig:
+                    randomizer.currentAction = RandomizeTerrain.ActionType.PerturbBig;
+                    break;
+                case InteractionType.RandomizeCopy:
+                    randomizer.currentAction = RandomizeTerrain.ActionType.Copy;
+                    // we need the drag and drop for this one only
+                    o.GetComponent<LaserPointerDragAndDrop>().enabled = true;
+                    break;
+                case InteractionType.RandomizeCurrent:
+                    randomizer.currentAction = RandomizeTerrain.ActionType.RandomizeCurrent;
+                    break;
+                case InteractionType.RandomizeAll:
+                    randomizer.currentAction = RandomizeTerrain.ActionType.RandomizeAll;
+                    break;
                 default:
                     break;
             }
@@ -127,6 +148,9 @@ public class SwitchToComponent : MonoBehaviour
 
         o.GetComponent<SlowlySpawnPrefab>().enabled = false;
 
+        LaserPointerDragAndDrop maybeDragDrop = o.GetComponent<LaserPointerDragAndDrop>();
+        if( maybeDragDrop ) { maybeDragDrop.enabled = false; }
+
         SoundEngineTempoRegressor.Deactivate();
         SoundEngineChordClassifier.Deactivate();
         SoundEngine0To1Regressor.Deactivate( SoundEngine0To1Regressor.timbreRegressor );
@@ -136,26 +160,28 @@ public class SwitchToComponent : MonoBehaviour
 
     private IEnumerator AnimateSwell( float upSeconds, float upSlew, float downSlew, float increaseSizeBy )
     {
-        float startSize = transform.localScale.x;
-        float currentSize = startSize;
-        float maxSize = startSize * increaseSizeBy;
+        Vector3 startSize = transform.localScale;
+        float startSizeMultiplier = 1f;
+        float currentSizeMultiplier = startSizeMultiplier;
+        float maxSizeMultiplier = currentSizeMultiplier * increaseSizeBy;
         float startTime = Time.time;
 
         while( Time.time < startTime + upSeconds )
         {
-            currentSize += ( maxSize - currentSize ) * upSlew;
-            transform.localScale = currentSize * Vector3.one;
+            currentSizeMultiplier += ( maxSizeMultiplier - currentSizeMultiplier ) * upSlew;
+            transform.localScale = currentSizeMultiplier * startSize;
             yield return null;
         }
 
-        while( currentSize - startSize > 0.001f )
+        // currentSizeMultiplier started at 1
+        while( currentSizeMultiplier - startSizeMultiplier > 0.001f )
         {
-            currentSize += ( startSize - currentSize ) * downSlew;
-            transform.localScale = currentSize * Vector3.one;
+            currentSizeMultiplier += ( startSizeMultiplier - currentSizeMultiplier ) * downSlew;
+            transform.localScale = currentSizeMultiplier * startSize;
             yield return null;
         }
 
-        transform.localScale = startSize * Vector3.one;
+        transform.localScale = startSize;
     }
 
 }

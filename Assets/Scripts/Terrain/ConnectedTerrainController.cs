@@ -294,7 +294,7 @@ public class ConnectedTerrainController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if( debugGISFeatures && haveTrainedGIS )
+        if( debugGISFeatures && haveTrainedGIS && debugUI != null )
         {
             double[] gisWeights = myGISRegression.Run( GISInputVector( debugUI.transform.position ) );
             debugUI.text = string.Format( @"Smooth:{0:0.000}

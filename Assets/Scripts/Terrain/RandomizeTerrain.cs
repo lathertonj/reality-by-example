@@ -6,7 +6,7 @@ using Valve.VR;
 public class RandomizeTerrain : MonoBehaviour 
 {
 
-    public enum ActionType { RandomizeAll, RandomizeCurrent, PerturbBig, PerturbSmall, Copy };
+    public enum ActionType { RandomizeAll, RandomizeCurrent, PerturbBig, PerturbSmall, Copy, DoNothing };
     public ActionType currentAction = ActionType.RandomizeAll;
     private enum RandomizeAmount { Full, PerturbBig, PerturbSmall };
 
@@ -98,7 +98,7 @@ public class RandomizeTerrain : MonoBehaviour
     bool ShouldRandomize()
     {
         // disallow randomization during initialization
-        return !currentlyComputing;
+        return !currentlyComputing && currentAction != ActionType.DoNothing;
     }
 
     void TakeGripAction()
@@ -148,6 +148,8 @@ public class RandomizeTerrain : MonoBehaviour
                 break;
             case ActionType.Copy:
                 // don't do this here. copy on grip up, not down                
+                break;
+            case ActionType.DoNothing:
                 break;
         }
     }

@@ -16,6 +16,17 @@ public class SwitchToComponent : MonoBehaviour
     public Transform givenPrefab;
 
     private IEnumerator previousAnimation = null;
+    private Vector3 originalScale;
+
+    void Awake()
+    {
+        originalScale = transform.localScale;
+    }
+
+    void OnEnable()
+    {
+        transform.localScale = originalScale;
+    }
 
     private void OnTriggerEnter( Collider other )
     {
@@ -191,7 +202,6 @@ public class SwitchToComponent : MonoBehaviour
 
     private IEnumerator AnimateSwell( float upSeconds, float upSlew, float downSlew, float increaseSizeBy )
     {
-        Vector3 startSize = transform.localScale;
         float startSizeMultiplier = 1f;
         float currentSizeMultiplier = startSizeMultiplier;
         float maxSizeMultiplier = currentSizeMultiplier * increaseSizeBy;
@@ -200,7 +210,7 @@ public class SwitchToComponent : MonoBehaviour
         while( Time.time < startTime + upSeconds )
         {
             currentSizeMultiplier += ( maxSizeMultiplier - currentSizeMultiplier ) * upSlew;
-            transform.localScale = currentSizeMultiplier * startSize;
+            transform.localScale = currentSizeMultiplier * originalScale;
             yield return null;
         }
 
@@ -208,11 +218,11 @@ public class SwitchToComponent : MonoBehaviour
         while( currentSizeMultiplier - startSizeMultiplier > 0.001f )
         {
             currentSizeMultiplier += ( startSizeMultiplier - currentSizeMultiplier ) * downSlew;
-            transform.localScale = currentSizeMultiplier * startSize;
+            transform.localScale = currentSizeMultiplier * originalScale;
             yield return null;
         }
 
-        transform.localScale = startSize;
+        transform.localScale = originalScale;
     }
 
 }

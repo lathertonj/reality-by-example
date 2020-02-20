@@ -5,7 +5,7 @@ using UnityEngine;
 public class SwitchToComponent : MonoBehaviour
 {
     public enum InteractionType { PlaceTerrainImmediate, PlaceTerrainGrowth, PlaceTexture, 
-        PlaceTerrainLocalRaiseLower, PlaceTerrainLaserPointerRaiseLower, MoveTeleport, MoveFly, MoveGroundFly,
+        PlaceTerrainLocalRaiseLower, PlaceTerrainLaserPointerRaiseLower, MoveTeleport, MoveFly, MoveGroundFly, MoveFollowCreature,
         PlaceTempo, PlaceTimbre, PlaceDensity, PlaceVolume, PlaceChord,
         PlaceGIS,
         SlowlySpawnPrefab,
@@ -129,6 +129,7 @@ public class SwitchToComponent : MonoBehaviour
                 case InteractionType.CreatureExampleDelete:
                 case InteractionType.CreatureConstantTimeMode:
                 case InteractionType.CreatureMusicMode:
+                case InteractionType.MoveFollowCreature:
                     // we have another component for processing animation commands
                     if( animationAction )
                     {
@@ -163,6 +164,9 @@ public class SwitchToComponent : MonoBehaviour
         o.GetComponent<FlyingMovement>().enabled = false;
         o.GetComponent<GroundFlyingMovement>().HideLasers();
         o.GetComponent<GroundFlyingMovement>().enabled = false;
+        SlewToTransform slew = o.GetComponentInParent<SlewToTransform>();
+        slew.objectToTrack = null;
+        slew.enabled = false;
     }
 
     

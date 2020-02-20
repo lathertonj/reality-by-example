@@ -20,7 +20,7 @@ public class AnimationActions : MonoBehaviour
 
     private static AnimationByRecordedExampleController currentCreature;
 
-    public enum CurrentAction{ Select, Clone, Nothing };
+    public enum CurrentAction{ Select, SelectAndFollow, Clone, Nothing };
     public CurrentAction currentAction = CurrentAction.Nothing;
 
     // Start is called before the first frame update
@@ -47,24 +47,15 @@ public class AnimationActions : MonoBehaviour
             switch( currentAction )
             {
                 case CurrentAction.Select:
-                if( myLaser.IsIntersecting() )
-                {
-                    HideCurrentCreatureExamples();
-                    DisableCurrentCreatureAction();
-                    GameObject maybeCreature = myLaser.GetMostRecentIntersectedObject();
-                    if( maybeCreature != null )
+                    SelectCreature( true );
+                    break;
+                case CurrentAction.SelectAndFollow:
+                    if( SelectCreature( false ) )
                     {
-                        currentCreature = maybeCreature.GetComponent<AnimationByRecordedExampleController>();
-                        ShowCurrentCreatureExamples();
-
-                        // TODO: is it the right thing to switch into recording mode?
-                        currentAction = CurrentAction.Nothing;
-                        myLaser.HideLaser();
-                        myLaser.enabled = false;
-                        EnableCurrentCreatureAction();
+                        SlewToTransform slew = GetComponentInParent<SlewToTransform>();
+                        slew.objectToTrack = currentCreature.transform;
+                        slew.enabled = true;
                     }
-
-                }
                     break;
                 case CurrentAction.Clone:
                     CloneCurrentCreature( true );
@@ -89,7 +80,6 @@ public class AnimationActions : MonoBehaviour
         myLaser.enabled = false;
         // set animator mode to "do not respond to grip"
         DisableCurrentCreatureAction();
-        // TODO: disable new bird creation?
     }
 
     // hacky custom UI...
@@ -142,11 +132,43 @@ public class AnimationActions : MonoBehaviour
                 // switch mode for all creatures
                 AnimationByRecordedExampleController.SwitchGlobalRecordingMode( AnimationByRecordedExampleController.RecordingType.MusicTempo );
                 break;
+            case SwitchToComponent.InteractionType.MoveFollowCreature:
+                // turn on laser pointer selector
+                myLaser.enabled = true;
+                currentAction = CurrentAction.SelectAndFollow;
+                break;
             default:
                 // do nothing
                 Debug.Log( "I don't recognize non-creature command" );
                 break;
         }
+    }
+
+    bool SelectCreature( bool enableRecordingIfFound )
+    {
+        if( myLaser.IsIntersecting() )
+        {
+            HideCurrentCreatureExamples();
+            DisableCurrentCreatureAction();
+            GameObject maybeCreature = myLaser.GetMostRecentIntersectedObject();
+            if( maybeCreature != null )
+            {
+                currentCreature = maybeCreature.GetComponent<AnimationByRecordedExampleController>();
+                ShowCurrentCreatureExamples();
+
+                myLaser.HideLaser();
+                if( enableRecordingIfFound )
+                {
+                    // switch into recording mode
+                    currentAction = CurrentAction.Nothing;
+                    myLaser.enabled = false;
+                    EnableCurrentCreatureAction();
+                }
+                return true;
+            }
+
+        }
+        return false;
     }
 
     void DisableCurrentCreatureAction()

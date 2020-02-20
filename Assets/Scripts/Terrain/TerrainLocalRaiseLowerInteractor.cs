@@ -105,7 +105,7 @@ public class TerrainLocalRaiseLowerInteractor : MonoBehaviour
             if( foundTerrain != null )
             {
                 currentlyPlacingExample = Instantiate( examplePrefab, hit.point, Quaternion.identity );
-                currentlyPlacingExample.myTerrain = foundTerrain;
+                currentlyPlacingExample.ManuallySpecifyTerrain( foundTerrain );
                 foundTerrain.ProvideExample( currentlyPlacingExample );
                 return foundTerrain;
             }

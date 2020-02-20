@@ -14,7 +14,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Texture by Example.unity
     guid: b01652fcab51fb145bed5ac81a9d0dd4
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/WithVR.unity
     guid: a15fc7a967d96ae4785c7a32762ac8a4
+  - enabled: 1
+    path: Assets/Scenes/CombinedUI.unity
+    guid: ebdcbbbfed4a2c24c9147d8973709b10
   m_configObjects: {}

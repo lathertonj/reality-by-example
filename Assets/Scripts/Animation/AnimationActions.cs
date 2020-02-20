@@ -50,6 +50,8 @@ public class AnimationActions : MonoBehaviour
             {
                 case CurrentAction.Select:
                     SelectCreature( false );
+                    // also, show hints if creature was selected
+                    ShowCurrentCreatureHints();
                     break;
                 case CurrentAction.SelectAndFollow:
                     if( SelectCreature( false ) )
@@ -166,8 +168,6 @@ public class AnimationActions : MonoBehaviour
             {
                 currentCreature = maybeCreature.GetComponent<AnimationByRecordedExampleController>();
                 ShowCurrentCreatureExamples();
-                // display hints
-                ShowCurrentCreatureHints();
 
                 // vibrate if found
                 if( currentCreature != null )

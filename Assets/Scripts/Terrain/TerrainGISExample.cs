@@ -5,6 +5,8 @@ using UnityEngine;
 public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, TouchpadLeftRightClickInteractable, TriggerGrabMoveInteractable, GripPlaceDeleteInteractable
 {
     public enum GISType { Smooth = 0, Hilly = 1, River = 2, Boulder = 3, Mountain = 4, Spines = 5 };
+
+    private static List< TerrainGISExample > allExamples = new List< TerrainGISExample >();
     
 
     [HideInInspector] public double[] myValues = new double[6];
@@ -89,14 +91,15 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
 
     void GripPlaceDeleteInteractable.JustPlaced()
     {
-        myTerrain = FindTerrain();
+        ConnectedTerrainController maybeTerrain = FindTerrain();
 
-        if( myTerrain == null )
+        if( maybeTerrain == null )
         {
             Destroy( gameObject );
         }
         else
         {
+            ManuallySpecifyTerrain( maybeTerrain );
             myTerrain.ProvideExample( this );
         }
     }
@@ -104,11 +107,13 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
     public void ManuallySpecifyTerrain( ConnectedTerrainController c )
     {
         myTerrain = c;
+        allExamples.Add( this );
     }
 
     void GripPlaceDeleteInteractable.AboutToBeDeleted()
     {
         myTerrain.ForgetExample( this );
+        allExamples.Remove( this );
     }
 
     void TouchpadLeftRightClickInteractable.InformOfLeftClick()
@@ -202,6 +207,32 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
     public void CopyFrom( TerrainGISExample other )
     {
         UpdateMyValue( other.myType, other.myValue );
+    }
+
+
+
+    public static void ShowHints( float pauseTimeBeforeFade )
+    {
+        foreach( TerrainGISExample e in allExamples )
+        {
+            e.ShowHint( pauseTimeBeforeFade );
+        }
+    }
+
+    public MeshRenderer myHint;
+    private Coroutine hintCoroutine;
+    private void ShowHint( float pauseTimeBeforeFade )
+    {
+        StopHintAnimation();
+        hintCoroutine = StartCoroutine( AnimateHint.AnimateHintFade( myHint, pauseTimeBeforeFade ) );
+    }
+
+    private void StopHintAnimation()
+    {
+        if( hintCoroutine != null )
+        {
+            StopCoroutine( hintCoroutine );
+        }
     }
     
 }

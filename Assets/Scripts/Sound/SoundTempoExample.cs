@@ -8,7 +8,8 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
     // default to 100
     [HideInInspector] public float myTempo = 100;
 
-    private SoundEngineTempoRegressor myRegressor;
+    // there should only be one
+    private static SoundEngineTempoRegressor myRegressor = null;
 
     public static float minTempo = 30, maxTempo = 250;
     private TextMesh myText;
@@ -78,7 +79,10 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
     public void Initialize( bool rescan )
     {
         // there should only be one...
-        myRegressor = FindObjectOfType<SoundEngineTempoRegressor>();
+        if( myRegressor == null )
+        {
+            myRegressor = FindObjectOfType<SoundEngineTempoRegressor>();
+        }
 
         // update text too
         myText = GetComponentInChildren<TextMesh>();
@@ -92,5 +96,30 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
     {
         // inform it
         myRegressor.ForgetExample( this );
+    }
+
+
+    public static void ShowHints( float pauseTimeBeforeFade )
+    {
+        foreach( SoundTempoExample e in myRegressor.myRegressionExamples )
+        {
+            e.ShowHint( pauseTimeBeforeFade );
+        }
+    }
+
+    public MeshRenderer myHint;
+    private Coroutine hintCoroutine;
+    private void ShowHint( float pauseTimeBeforeFade )
+    {
+        StopHintAnimation();
+        hintCoroutine = StartCoroutine( AnimateHint.AnimateHintFade( myHint, pauseTimeBeforeFade ) );
+    }
+
+    private void StopHintAnimation()
+    {
+        if( hintCoroutine != null )
+        {
+            StopCoroutine( hintCoroutine );
+        }
     }
 }

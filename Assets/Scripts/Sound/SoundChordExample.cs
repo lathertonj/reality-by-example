@@ -10,7 +10,8 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
 
     public static int numChords = 6;
 
-    private SoundEngineChordClassifier myClassifier;
+    // static: there should only be one classifier
+    private static SoundEngineChordClassifier myClassifier = null;
 
     private TextMesh myText;
 
@@ -60,7 +61,10 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
     public void Initialize( bool rescan )
     {
         // there should only be one...
-        myClassifier = FindObjectOfType<SoundEngineChordClassifier>();
+        if( myClassifier == null )
+        {
+            myClassifier = FindObjectOfType<SoundEngineChordClassifier>();
+        }
 
         // update text too
         myText = GetComponentInChildren<TextMesh>();
@@ -86,5 +90,30 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
     {
         UpdateMyChord( myChord + 1 );
         Rescan();
+    }
+
+
+    public static void ShowHints( float pauseTimeBeforeFade )
+    {
+        foreach( SoundChordExample e in myClassifier.myClassifierExamples )
+        {
+            e.ShowHint( pauseTimeBeforeFade );
+        }
+    }
+
+    public MeshRenderer myHint;
+    private Coroutine hintCoroutine;
+    private void ShowHint( float pauseTimeBeforeFade )
+    {
+        StopHintAnimation();
+        hintCoroutine = StartCoroutine( AnimateHint.AnimateHintFade( myHint, pauseTimeBeforeFade ) );
+    }
+
+    private void StopHintAnimation()
+    {
+        if( hintCoroutine != null )
+        {
+            StopCoroutine( hintCoroutine );
+        }
     }
 }

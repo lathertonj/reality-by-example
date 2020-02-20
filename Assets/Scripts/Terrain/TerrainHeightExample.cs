@@ -6,6 +6,9 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
 {
     [HideInInspector] public ConnectedTerrainController myTerrain;
 
+    private static List< TerrainHeightExample > allExamples = new List< TerrainHeightExample >();
+
+
 
     void TriggerGrabMoveInteractable.InformOfTemporaryMovement( Vector3 currentPosition )
     {
@@ -31,13 +34,14 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
 
     public void JustPlaced()
     {
-        myTerrain = FindTerrain();
-        if( myTerrain == null )
+        ConnectedTerrainController maybeTerrain = FindTerrain();
+        if( maybeTerrain == null )
         {
             Destroy( gameObject );
         }
         else
         {
+            ManuallySpecifyTerrain( maybeTerrain );
             myTerrain.ProvideExample( this );
         }
     }
@@ -45,6 +49,7 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
     public void ManuallySpecifyTerrain( ConnectedTerrainController c )
     {
         myTerrain = c;
+        allExamples.Add( this );
     }
     
     void GripPlaceDeleteInteractable.JustPlaced()
@@ -55,6 +60,7 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
     void GripPlaceDeleteInteractable.AboutToBeDeleted()
     {
         myTerrain.ForgetExample( this );
+        allExamples.Remove( this );
     }
 
     ConnectedTerrainController FindTerrain()
@@ -73,6 +79,31 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
             }
         }
         return null;
+    }
+
+
+    public static void ShowHints( float pauseTimeBeforeFade )
+    {
+        foreach( TerrainHeightExample e in allExamples )
+        {
+            e.ShowHint( pauseTimeBeforeFade );
+        }
+    }
+
+    public MeshRenderer myHint;
+    private Coroutine hintCoroutine;
+    private void ShowHint( float pauseTimeBeforeFade )
+    {
+        StopHintAnimation();
+        hintCoroutine = StartCoroutine( AnimateHint.AnimateHintFade( myHint, pauseTimeBeforeFade ) );
+    }
+
+    private void StopHintAnimation()
+    {
+        if( hintCoroutine != null )
+        {
+            StopCoroutine( hintCoroutine );
+        }
     }
 
 }

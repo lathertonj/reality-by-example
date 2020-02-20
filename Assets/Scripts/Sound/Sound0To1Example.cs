@@ -110,4 +110,29 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
         // inform it
         myRegressor.ForgetExample( this );
     }
+
+
+    public static void ShowHints( SoundEngine0To1Regressor regressor, float pauseTimeBeforeFade )
+    {
+        foreach( Sound0To1Example e in regressor.myRegressionExamples )
+        {
+            e.ShowHint( pauseTimeBeforeFade );
+        }
+    }
+
+    public MeshRenderer myHint;
+    private Coroutine hintCoroutine;
+    private void ShowHint( float pauseTimeBeforeFade )
+    {
+        StopHintAnimation();
+        hintCoroutine = StartCoroutine( AnimateHint.AnimateHintFade( myHint, pauseTimeBeforeFade ) );
+    }
+
+    private void StopHintAnimation()
+    {
+        if( hintCoroutine != null )
+        {
+            StopCoroutine( hintCoroutine );
+        }
+    }
 }

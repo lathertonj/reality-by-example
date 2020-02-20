@@ -18,6 +18,8 @@ public class SwitchToComponent : MonoBehaviour
     private IEnumerator previousAnimation = null;
     private Vector3 originalScale;
 
+    private float hintTime = 1.1f;
+
     void Awake()
     {
         originalScale = transform.localScale;
@@ -46,12 +48,18 @@ public class SwitchToComponent : MonoBehaviour
             {
                 case InteractionType.PlaceTerrainImmediate:
                     SetGripPlacePrefab( o );
+                    // also, show height hint
+                    TerrainHeightExample.ShowHints( hintTime );
                     break;
                 case InteractionType.PlaceTerrainGrowth:
                     o.GetComponent<TerrainGradualInteractor>().enabled = true;
+                    // also, show height hint
+                    TerrainHeightExample.ShowHints( hintTime );
                     break;
                 case InteractionType.PlaceTerrainLocalRaiseLower:
                     o.GetComponent<TerrainLocalRaiseLowerInteractor>().enabled = true;
+                    // also, show height hint
+                    TerrainHeightExample.ShowHints( hintTime );
                     break;
                 case InteractionType.PlaceTerrainLaserPointerRaiseLower:
                     // enable the components we need
@@ -64,12 +72,18 @@ public class SwitchToComponent : MonoBehaviour
                             l.enabled = true;
                         }
                     }
+                    // also, show height hint
+                    TerrainHeightExample.ShowHints( hintTime );
                     break;
                 case InteractionType.PlaceTexture:
                     SetGripPlacePrefab( o );
+                    // also, show texture hint
+                    TerrainTextureExample.ShowHints( hintTime );
                     break;
                 case InteractionType.PlaceGIS:
                     SetGripPlacePrefab( o );
+                    // also, show GIS hint
+                    TerrainGISExample.ShowHints( hintTime );
                     break;
                 case InteractionType.MoveTeleport:
                     o.GetComponent<FlyingTeleporter>().enabled = true;
@@ -83,22 +97,32 @@ public class SwitchToComponent : MonoBehaviour
                 case InteractionType.PlaceTempo:
                     SoundEngineTempoRegressor.Activate();
                     SetGripPlacePrefab( o );
+                    // also, show tempo hint
+                    SoundTempoExample.ShowHints( hintTime );
                     break;
                 case InteractionType.PlaceTimbre:
                     SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.timbreRegressor );
                     SetGripPlacePrefab( o );
+                    // also, show timbre hint
+                    Sound0To1Example.ShowHints( SoundEngine0To1Regressor.timbreRegressor, hintTime );
                     break;
                 case InteractionType.PlaceDensity:
                     SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.densityRegressor );
                     SetGripPlacePrefab( o );
+                    // also, show density hint
+                    Sound0To1Example.ShowHints( SoundEngine0To1Regressor.densityRegressor, hintTime );
                     break;
                 case InteractionType.PlaceVolume:
                     SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.volumeRegressor );
                     SetGripPlacePrefab( o );
+                    // also, show volume hint
+                    Sound0To1Example.ShowHints( SoundEngine0To1Regressor.volumeRegressor, hintTime );
                     break;
                 case InteractionType.PlaceChord:
                     SoundEngineChordClassifier.Activate();
                     SetGripPlacePrefab( o );
+                    // also, show chord hint
+                    SoundChordExample.ShowHints( hintTime );
                     break;
                 case InteractionType.SlowlySpawnPrefab:
                     o.GetComponent<SlowlySpawnPrefab>().enabled = true;

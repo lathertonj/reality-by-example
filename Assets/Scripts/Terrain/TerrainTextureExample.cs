@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable
 {
+    private static List< TerrainTextureExample > allExamples = new List< TerrainTextureExample >();
+
     public Material[] myMaterials;
+    public Material[] myHintMaterials;
 
     [HideInInspector] public double[] myValues = new double[4];
     public string myLabel = "";
@@ -54,6 +57,7 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
     {
         // display
         myRenderer.material = myMaterials[ myCurrentValue ];
+        myHint.material = myHintMaterials[ myCurrentValue ];
 
         // store for serialize
         serializableObject.material = myCurrentValue;
@@ -88,14 +92,15 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
 
     void GripPlaceDeleteInteractable.JustPlaced()
     {
-        myTerrain = FindTerrain();
+        ConnectedTerrainTextureController maybeTerrain = FindTerrain();
         
-        if( myTerrain == null )
+        if( maybeTerrain == null )
         {
             Destroy( gameObject );
         }
         else
         {
+            ManuallySpecifyTerrain( maybeTerrain );
             myTerrain.ProvideExample( this );
         }
     }
@@ -103,11 +108,13 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
     public void ManuallySpecifyTerrain( ConnectedTerrainTextureController c )
     {
         myTerrain = c;
+        allExamples.Add( this );
     }
 
     void GripPlaceDeleteInteractable.AboutToBeDeleted()
     {
         myTerrain.ForgetExample( this );
+        allExamples.Remove( this );
     }
 
     void TouchpadLeftRightClickInteractable.InformOfLeftClick()
@@ -165,6 +172,31 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
         while( myCurrentValue != from.myCurrentValue )
         {
             SwitchToNextMaterial();
+        }
+    }
+
+
+    public static void ShowHints( float pauseTimeBeforeFade )
+    {
+        foreach( TerrainTextureExample e in allExamples )
+        {
+            e.ShowHint( pauseTimeBeforeFade );
+        }
+    }
+
+    public MeshRenderer myHint;
+    private Coroutine hintCoroutine;
+    private void ShowHint( float pauseTimeBeforeFade )
+    {
+        StopHintAnimation();
+        hintCoroutine = StartCoroutine( AnimateHint.AnimateHintFade( myHint, pauseTimeBeforeFade ) );
+    }
+
+    private void StopHintAnimation()
+    {
+        if( hintCoroutine != null )
+        {
+            StopCoroutine( hintCoroutine );
         }
     }
 }

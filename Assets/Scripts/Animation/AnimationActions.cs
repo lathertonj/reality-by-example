@@ -8,6 +8,7 @@ public class AnimationActions : MonoBehaviour
 
     public SteamVR_Input_Sources hand;
     public SteamVR_Action_Boolean actionButton;
+    private VibrateController vibration;
 
 
     GripPlaceDeleteInteraction myDeleter;
@@ -28,6 +29,7 @@ public class AnimationActions : MonoBehaviour
     {
         myDeleter = GetComponent<GripPlaceDeleteInteraction>();
         myCloner = GetComponent<CloneMoveInteraction>();
+        vibration = GetComponent<VibrateController>();
         // hacky way to select between 2 laser pointers :(
         foreach( LaserPointerColliderSelector l in GetComponents<LaserPointerColliderSelector>() )
         {
@@ -59,6 +61,8 @@ public class AnimationActions : MonoBehaviour
                     break;
                 case CurrentAction.Clone:
                     CloneCurrentCreature( true );
+                    // also, show hint to remind what was cloned
+                    ShowCurrentCreatureHints();
                     break;
                 case CurrentAction.Nothing:
                     // nothing
@@ -164,6 +168,12 @@ public class AnimationActions : MonoBehaviour
                 ShowCurrentCreatureExamples();
                 // display hints
                 ShowCurrentCreatureHints();
+
+                // vibrate if found
+                if( currentCreature != null )
+                {
+                    vibration.Vibrate( 0.1f, 100, 50 );
+                }
 
                 myLaser.HideLaser();
                 if( enableRecordingIfFound && currentCreature != null )

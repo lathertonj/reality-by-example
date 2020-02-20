@@ -11,6 +11,7 @@ public class LaserPointerColliderSelector : MonoBehaviour
     public SteamVR_Action_Boolean stopShowingLaser;
     public bool stopShowingOnUp = true;
     private SteamVR_Behaviour_Pose controllerPose;
+    private VibrateController vibration;
 
     public MeshRenderer laserPrefab;
     private MeshRenderer laser;
@@ -25,6 +26,7 @@ public class LaserPointerColliderSelector : MonoBehaviour
     public Color notFound = Color.red, found = Color.green;
 
     private bool canShowPreview = false;
+    private bool previousWasFound = false;
 
     // Start is called before the first frame update
     void Awake()
@@ -32,6 +34,7 @@ public class LaserPointerColliderSelector : MonoBehaviour
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
+        vibration = GetComponent<VibrateController>();
         HideLaser();
     }
 
@@ -51,6 +54,11 @@ public class LaserPointerColliderSelector : MonoBehaviour
             {
                 hitPoint = hit.point;
                 mostRecentHitObject = hit.collider.transform.root.gameObject;
+                if( !previousWasFound )
+                {
+                    // switched from unfound to found --> play a vibration
+                    vibration.Vibrate( 0.05f, 100, 50 );
+                }
                 ShowLaser( hit );
             }
             else
@@ -63,6 +71,7 @@ public class LaserPointerColliderSelector : MonoBehaviour
             HideLaser();
         }
     }
+
 
     bool ShouldStopShowing()
     {
@@ -89,6 +98,7 @@ public class LaserPointerColliderSelector : MonoBehaviour
     private void ShowLaser( RaycastHit hit )
     {
         ShowLaser( hit.point, hit.distance, found );
+        previousWasFound = true;
     }
 
     private void ShowUnfoundLaser()
@@ -96,6 +106,7 @@ public class LaserPointerColliderSelector : MonoBehaviour
         float dist = 1000;
         Vector3 endPoint = controllerPose.transform.position + dist * controllerPose.transform.forward;
         ShowLaser( endPoint, dist, notFound );
+        previousWasFound = false;
     }
 
     private void ShowLaser( Vector3 endPoint, float distance, Color c )

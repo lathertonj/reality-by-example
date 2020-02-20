@@ -18,7 +18,7 @@ public class SwitchToComponent : MonoBehaviour
     private IEnumerator previousAnimation = null;
     private Vector3 originalScale;
 
-    private float hintTime = 1.1f;
+    public static float hintTime = 1.1f;
 
     void Awake()
     {

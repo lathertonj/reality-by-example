@@ -256,4 +256,33 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
     {
         ToggleEnabled();
     }
+
+
+    public static void ShowHints( AnimationByRecordedExampleController creature, float pauseTimeBeforeFade )
+    {
+        // null check
+        if( creature == null ) { return; }
+        
+        // show a hint for all used examples, not just currently used ones
+        foreach( AnimationExample e in creature.examples )
+        {
+            e.ShowHint( pauseTimeBeforeFade );
+        }
+    }
+
+    public MeshRenderer myHint;
+    private Coroutine hintCoroutine;
+    private void ShowHint( float pauseTimeBeforeFade )
+    {
+        StopHintAnimation();
+        hintCoroutine = StartCoroutine( AnimateHint.AnimateHintFade( myHint, pauseTimeBeforeFade ) );
+    }
+
+    private void StopHintAnimation()
+    {
+        if( hintCoroutine != null )
+        {
+            StopCoroutine( hintCoroutine );
+        }
+    }
 }

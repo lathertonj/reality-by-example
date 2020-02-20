@@ -47,7 +47,7 @@ public class AnimationActions : MonoBehaviour
             switch( currentAction )
             {
                 case CurrentAction.Select:
-                    SelectCreature( true );
+                    SelectCreature( false );
                     break;
                 case CurrentAction.SelectAndFollow:
                     if( SelectCreature( false ) )
@@ -107,6 +107,8 @@ public class AnimationActions : MonoBehaviour
                 break;
             case SwitchToComponent.InteractionType.CreatureClone:
                 currentAction = CurrentAction.Clone;
+                // also, show hint for examples of the current creature
+                ShowCurrentCreatureHints();
                 break;
             case SwitchToComponent.InteractionType.CreatureExampleRecord:
                 // turn on create new animation (in selected bird animator)
@@ -115,6 +117,9 @@ public class AnimationActions : MonoBehaviour
                 // {
                 //     // TODO: inform debug somehow that there is no creature selected
                 // }
+
+                // also, show hint for examples of the current creature
+                ShowCurrentCreatureHints();
                 break;
             case SwitchToComponent.InteractionType.CreatureExampleClone:
                 // turn on cloning functionality
@@ -146,6 +151,8 @@ public class AnimationActions : MonoBehaviour
 
     bool SelectCreature( bool enableRecordingIfFound )
     {
+        // unstore current creature
+        currentCreature = null;
         if( myLaser.IsIntersecting() )
         {
             HideCurrentCreatureExamples();
@@ -155,9 +162,11 @@ public class AnimationActions : MonoBehaviour
             {
                 currentCreature = maybeCreature.GetComponent<AnimationByRecordedExampleController>();
                 ShowCurrentCreatureExamples();
+                // display hints
+                ShowCurrentCreatureHints();
 
                 myLaser.HideLaser();
-                if( enableRecordingIfFound )
+                if( enableRecordingIfFound && currentCreature != null )
                 {
                     // switch into recording mode
                     currentAction = CurrentAction.Nothing;
@@ -241,6 +250,11 @@ public class AnimationActions : MonoBehaviour
             newCreature.CloneAudioSystem( currentCreature, intoGroup );
             newCreature.RescanMyProvidedExamples();
         }
+    }
+
+    void ShowCurrentCreatureHints()
+    {
+        AnimationExample.ShowHints( currentCreature, SwitchToComponent.hintTime );
     }
 
 }

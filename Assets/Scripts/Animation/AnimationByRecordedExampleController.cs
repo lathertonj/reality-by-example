@@ -305,10 +305,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     Vector3[] goalLocalPositions;
 
 
+    private Quaternion seamHideRotation;
     private IEnumerator Run()
     {
         int currentFrame = 0;
         runtimeMode = true;
+        seamHideRotation = Quaternion.identity;
         // collect data and predict
         if( predictionType == PredictionType.Classification )
         {
@@ -417,8 +419,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     GetBaseQuaternion( secondMostProminent, currentFrame ),
                     slerpAmount
                 );
-                // Debug.Log( "PREDICT: " + goalBaseRotation.eulerAngles.ToString() );
 
+                // rotate the animation by whatever angle we were at when we started
+                // this loop
+                goalBaseRotation = seamHideRotation * goalBaseRotation;
 
 
                 // weighted average of vectors:
@@ -465,6 +469,16 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 }
 
                 currentFrame++;
+
+                // update seam hiding rotation:
+                // if the next frame represents "restarting" the most prominent animation
+                if( mostProminent < currentlyUsedExamples.Count && currentFrame % currentlyUsedExamples[ mostProminent ].baseExamples.Count == 0 )
+                {
+                    seamHideRotation = Quaternion.AngleAxis( 
+                        goalBaseRotation.eulerAngles.y - currentlyUsedExamples[ mostProminent ].baseExamples[0].rotation.eulerAngles.y, 
+                        Vector3.up
+                    );
+                }
             }
         }
         runtimeMode = false;
@@ -686,7 +700,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     {
         d.terrainHeight = newHeight;
         d.terrainSteepness = newSteepness;
-        d.rotation *= spinRotation;
+        d.rotation = spinRotation * d.rotation;
     }
 
     void Train()

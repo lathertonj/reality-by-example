@@ -202,6 +202,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 // need to set this ourselves due to 
                 // artificially stopping runtimeCoroutine
                 runtimeMode = false;
+                // stop animating frames to the 16th note
+                if( mySounder && currentRecordingAndPlaybackMode == RecordingType.MusicTempo )
+                {
+                    mySounder.StopDoingActionToTempo();
+                }
             }
 
             // start data collection
@@ -219,6 +224,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 // animation
                 StopCoroutine( dataCollectionCoroutine );
                 dataCollectionCoroutine = null;
+
+                // stop collecting frames to the 16th note
+                if( mySounder && currentRecordingAndPlaybackMode == RecordingType.MusicTempo )
+                {
+                    mySounder.StopDoingActionToTempo();
+                }
 
                 // finished collecting data --> tell the new phrase to animate itself
                 examples[ examples.Count - 1 ].Animate( dataCollectionRate );
@@ -312,35 +323,58 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         runtimeMode = true;
         seamHideRotation = Quaternion.identity;
         currentRuntimeFrame = 0;
-        // collect data and predict
-        while( haveTrained )
+
+        switch( currentRecordingAndPlaybackMode )
         {
-            // predict next frame
-            switch( predictionType )
-            {
-                case PredictionType.Classification:
-                    RunOneFrameClassifier();
-                    break;
-                case PredictionType.Regression:
-                    RunOneFrameRegression();
-                    break;
-            }
-            
-            // wait
-            switch( currentRecordingAndPlaybackMode )
-            {
-                case RecordingType.ConstantTime:
+            case RecordingType.MusicTempo:
+                // predict next frames
+                switch( predictionType )
+                {
+                    case PredictionType.Classification:
+                        if( mySounder )
+                        {
+                            mySounder.DoActionToTempo( RunOneFrameClassifier );
+                        }
+                        break;
+                    case PredictionType.Regression:
+                        if( mySounder )
+                        {
+                            mySounder.DoActionToTempo( RunOneFrameRegression );
+                        }
+                        break;
+                }
+                // stop when haveTrained = false
+                while( haveTrained )
+                {
+                    yield return new WaitForSecondsRealtime( dataCollectionRate );
+                }
+                if( mySounder ) 
+                { 
+                    mySounder.StopDoingActionToTempo(); 
+                }
+                break;
+            case RecordingType.ConstantTime:
+                // collect data and predict
+                while( haveTrained )
+                {
+                    // predict next frame
+                    switch( predictionType )
+                    {
+                        case PredictionType.Classification:
+                            RunOneFrameClassifier();
+                            break;
+                        case PredictionType.Regression:
+                            RunOneFrameRegression();
+                            break;
+                    }
                     // since we are playing back recorded animations,
                     // playback rate == collection rate
-                    yield return new WaitForSecondsRealtime( dataCollectionRate );
-                    break;
-                case RecordingType.MusicTempo:
-                    // play back at 16th note rate
-                    yield return new WaitForSecondsRealtime( SoundEngine.GetQuarterNoteTime() / 4 );
-                    break;
-            }
+                    yield return new WaitForSecondsRealtime( dataCollectionRate );        
+                }
+                
+                break;
         }
-        
+
         runtimeMode = false;
     }
 
@@ -496,25 +530,26 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     }
 
 
+    List<ModelBaseDatum> currentBasePhrase;
+    List<ModelRelativeDatum>[] currentRelativePhrases;
+    float currentPhraseStartTime;
     
     private IEnumerator CollectPhrase()
     {
-        float startTime = Time.time;
-        Vector3 prevPosition = modelBaseDataSource.position;
-        Vector3 prevRotation = modelBaseDataSource.rotation.eulerAngles;
+        currentPhraseStartTime = Time.time;
 
-        List<ModelBaseDatum> basePhrase = new List<ModelBaseDatum>();
-        List<ModelRelativeDatum>[] relativePhrases = new List<ModelRelativeDatum>[modelRelativePointsDataSource.Length];
-        for( int i = 0; i < relativePhrases.Length; i++ )
+        currentBasePhrase = new List<ModelBaseDatum>();
+        currentRelativePhrases = new List<ModelRelativeDatum>[modelRelativePointsDataSource.Length];
+        for( int i = 0; i < currentRelativePhrases.Length; i++ )
         {
-            relativePhrases[i] = new List<ModelRelativeDatum>();
+            currentRelativePhrases[i] = new List<ModelRelativeDatum>();
         }
 
         // store the data in the example!
         AnimationExample newExample = Instantiate( examplePrefab, modelBaseDataSource.position, Quaternion.identity );
         examples.Add( newExample );
         // TODO ensure this is a shallow copy and that the lists are identical
-        newExample.Initiate( basePhrase, relativePhrases, this, currentRecordingAndPlaybackMode );
+        newExample.Initiate( currentBasePhrase, currentRelativePhrases, this, currentRecordingAndPlaybackMode );
 
 
         // start sound
@@ -523,25 +558,35 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             mySounder.StartRecordingExamples();
         }
 
-        while( true )
+        switch( currentRecordingAndPlaybackMode )
         {
-            switch( currentRecordingAndPlaybackMode )
-            {
-                case RecordingType.ConstantTime:
-                    // collect at the data collection rate
+            case RecordingType.ConstantTime:
+                // collect at the data collection rate
+                while( true )
+                {
+                    CollectOnePhraseFrame();
                     yield return new WaitForSecondsRealtime( dataCollectionRate );
-                    break;
-                case RecordingType.MusicTempo:
-                    // collect at 16th note rate
-                    yield return new WaitForSecondsRealtime( SoundEngine.GetQuarterNoteTime() / 4 );
-                    break;
-            }
+                }
+                break;
+            case RecordingType.MusicTempo:
+                // collect at 16th note rate
+                if( mySounder )
+                {
+                    mySounder.DoActionToTempo( CollectOnePhraseFrame );
+                }
+                yield return null;
+                break;
+        }
+    }
 
-            // fetch terrain values
+
+    void CollectOnePhraseFrame()
+    {
+        // fetch terrain values
             float currentHeight = 0, currentSteepness = 0, heightAboveTerrain = 0;
             FindTerrainInformation( out currentHeight, out currentSteepness, out heightAboveTerrain );
 
-            float timeElapsed = Time.time - startTime;
+            float timeElapsed = Time.time - currentPhraseStartTime;
 
             // base datum
             ModelBaseDatum newDatum = new ModelBaseDatum();
@@ -565,7 +610,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             newDatum.terrainHeight = currentHeight;
             newDatum.terrainSteepness = currentSteepness;
 
-            basePhrase.Add( newDatum );
+            currentBasePhrase.Add( newDatum );
 
             // sound
             if( mySounder )
@@ -587,12 +632,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 Vector3 localPosition = modelBaseDataSource.InverseTransformPoint( modelRelativePointsDataSource[i].position );
                 newRelativeDatum.positionRelativeToBase = localPosition;
 
-                relativePhrases[i].Add( newRelativeDatum );
+                currentRelativePhrases[i].Add( newRelativeDatum );
             }
-
-            prevPosition = modelBaseDataSource.position;
-            prevRotation = modelBaseDataSource.rotation.eulerAngles;
-        }
     }
 
     public void ProvideExample( AnimationExample e, bool shouldRescan = true )

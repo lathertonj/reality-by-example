@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class AnimationSoundRecorderPlaybackController : MonoBehaviour
@@ -22,6 +23,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
 
     private ChuckSubInstance myChuck;
     private ChuckIntSyncer myCurrentRecordedSampleSyncer;
+    private ChuckEventListener myTempoListener;
 
     string myLisa, myCurrentRecordedSample = "", myNewSamplePositionReady, myNewSamplePosition, myStartRecording, myStopRecording;
     string mySamples = "";
@@ -90,6 +92,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     void Awake()
     {
         myRegression = gameObject.AddComponent<RapidMixRegression>();
+        myTempoListener = gameObject.AddComponent<ChuckEventListener>();
     }
 
     void Start()
@@ -341,7 +344,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         if( !haveTrained ) { return; }
         // predict output and then set new chuck thing
         double[] o = myRegression.Run( input );
-        while( o[0] < 0 ) { o[0] += Random.Range( 1000, 20000 ); }
+        while( o[0] < 0 ) { o[0] += UnityEngine.Random.Range( 1000, 20000 ); }
         myChuck.SetInt( myNewSamplePosition, (int) o[0] );
         myChuck.BroadcastEvent( myNewSamplePositionReady );
     }
@@ -350,5 +353,15 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     {
         // catch up the audio samples
         myChuck.BroadcastEvent( updateMyLisa );
+    }
+
+    public void DoActionToTempo( Action a )
+    {
+        myTempoListener.ListenForEvent( myChuck, "sixteenthNoteHappened", a );
+    }
+
+    public void StopDoingActionToTempo()
+    {
+        myTempoListener.StopListening();
     }
 }

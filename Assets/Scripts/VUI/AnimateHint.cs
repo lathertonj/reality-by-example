@@ -6,6 +6,10 @@ public class AnimateHint
 {
     public static IEnumerator AnimateHintFade( MeshRenderer hint, float pauseTimeBeforeFade )
     {
+        // reset orientation to vertical
+        hint.transform.rotation = Quaternion.identity;
+
+        // colors
         float goalAlpha = 0, currentAlpha = 1, alphaSlew = 0.15f;
         Color baseColor = hint.material.color;
         // reset to full opaque

@@ -306,49 +306,18 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
 
     private Quaternion seamHideRotation;
+    int currentRuntimeFrame = 0;
     private IEnumerator Run()
     {
-        int currentFrame = 0;
         runtimeMode = true;
         seamHideRotation = Quaternion.identity;
+        currentRuntimeFrame = 0;
         // collect data and predict
         if( predictionType == PredictionType.Classification )
         {
             while( haveTrained )
             {
-                // 1. Run classifier to see which animation we should pull from
-                // 2. Use a time offset to see which point in the animation we should be in
-                //    (OR enforce that the animation offset is the same as recording offset (duh)
-                //     and use an incrementing frame number -- computationally simpler.
-                //     don't forget to i % len(animation) in case we just changed animations)
-                // 3. Use that as the next goal position
-                double[] baseInput = FindBaseInput( modelBaseToAnimate.position );
-                // animation
-                string o = myAnimationClassifier.Run( baseInput );
-                int whichAnimation = System.Convert.ToInt32( o );
-
-                goalBaseRotation = GetBaseQuaternion( whichAnimation, currentFrame );
-
-                // compute the relative position goals
-                for( int i = 0; i < goalLocalPositions.Length; i++ )
-                {
-                    goalLocalPositions[i] = GetLocalPosition( i, whichAnimation, currentFrame );
-                }
-
-                // sound
-                if( mySounder )
-                {
-                    // compute features
-                    float currentHeight = 0, currentSteepness = 0, heightAboveTerrain = 0;
-                    FindTerrainInformation( out currentHeight, out currentSteepness, out heightAboveTerrain );
-                    mySounder.Predict( SoundInput(
-                        modelBaseToAnimate.rotation,
-                        currentHeight,
-                        currentSteepness,
-                        heightAboveTerrain
-                    ) );
-                }
-
+                RunOneFrameClassifier();
 
                 switch( currentRecordingAndPlaybackMode )
                 {
@@ -363,98 +332,14 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                         break;
                 }
 
-                currentFrame++;
             }
         }
         else
         {
             while( haveTrained )
             {
-                // 1. Run regression and normalize to get relative levels of each animation
-                // 2. Average together all the results of that frame offset
-                // 3. Use that as the next goal position / rotation
-                double[] baseInput = FindBaseInput( modelBaseToAnimate.position );
-
-                // animation
-                double[] o = myAnimationRegression.Run( baseInput );
-                // normalize o
-                double sum = 0;
-                // clamp to [0, inf)
-                for( int i = 0; i < o.Length; i++ ) { o[i] = Mathf.Clamp( (float) o[i], 0, float.MaxValue ); }
-                // compute sum
-                for( int i = 0; i < o.Length; i++ ) { sum += o[i]; }
-                // divide by sum
-                for( int i = 0; i < o.Length; i++ ) { o[i] /= sum; }
-
-                // show activation
-                for( int i = 0; i < currentlyUsedExamples.Count; i++ ) 
-                {
-                    currentlyUsedExamples[i].SetActivation( (float) o[i] );
-                }
-
-                // TODO: how to do a weighted average of Quaternion? maybe with slerp?
-                // see: https://stackoverflow.com/questions/12374087/average-of-multiple-quaternions
-                // average of many requires finding eigenvectors
-                // --> just slerp between the largest 2 -- we can still do a weighted avg of 2
-
-                // find top two indices
-                int mostProminent = 0, secondMostProminent = 0;
-                double mpAmount = 0;
-                for( int i = 0; i < o.Length; i++ )
-                {
-                    if( o[i] > mpAmount )
-                    {
-                        mpAmount = o[i];
-                        secondMostProminent = mostProminent;
-                        mostProminent = i;
-                    }
-                }
-
-                // re normalize 
-                float slerpAmount = (float) o[secondMostProminent] / (float) ( o[mostProminent] + o[secondMostProminent] );
-
-                // goal rotation is weighted average between the two most prominent animations
-                goalBaseRotation = Quaternion.Slerp(
-                    GetBaseQuaternion( mostProminent, currentFrame ),
-                    GetBaseQuaternion( secondMostProminent, currentFrame ),
-                    slerpAmount
-                );
-
-                // rotate the animation by whatever angle we were at when we started
-                // this loop
-                goalBaseRotation = seamHideRotation * goalBaseRotation;
-
-
-                // weighted average of vectors:
-                // compute the relative position goals
-                for( int i = 0; i < goalLocalPositions.Length; i++ )
-                {
-                    goalLocalPositions[i] = Vector3.zero;
-
-                    // TODO: number of examples not necessarily same as number of animations..??? some examples may reuse the same animation
-                    // but in different positions. I smell a redesign!
-                    for( int whichAnimation = 0; whichAnimation < currentlyUsedExamples.Count; whichAnimation++ )
-                    {
-                        // weighted sum
-                        goalLocalPositions[i] += (float) o[whichAnimation] * GetLocalPosition( i, whichAnimation, currentFrame );
-
-                    }
-                }
-
-                // sound
-                if( mySounder )
-                {
-                    // compute features
-                    float currentHeight = 0, currentSteepness = 0, heightAboveTerrain = 0;
-                    FindTerrainInformation( out currentHeight, out currentSteepness, out heightAboveTerrain );
-                    mySounder.Predict( SoundInput(
-                        modelBaseToAnimate.rotation,
-                        currentHeight,
-                        currentSteepness,
-                        heightAboveTerrain
-                    ) );
-                }
-
+            
+                RunOneFrameRegression();
                 switch( currentRecordingAndPlaybackMode )
                 {
                     case RecordingType.ConstantTime:
@@ -468,20 +353,148 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                         break;
                 }
 
-                currentFrame++;
-
-                // update seam hiding rotation:
-                // if the next frame represents "restarting" the most prominent animation
-                if( mostProminent < currentlyUsedExamples.Count && currentFrame % currentlyUsedExamples[ mostProminent ].baseExamples.Count == 0 )
-                {
-                    seamHideRotation = Quaternion.AngleAxis( 
-                        goalBaseRotation.eulerAngles.y - currentlyUsedExamples[ mostProminent ].baseExamples[0].rotation.eulerAngles.y, 
-                        Vector3.up
-                    );
-                }
             }
         }
         runtimeMode = false;
+    }
+
+    private void RunOneFrameRegression()
+    {
+            // 1. Run regression and normalize to get relative levels of each animation
+            // 2. Average together all the results of that frame offset
+            // 3. Use that as the next goal position / rotation
+            double[] baseInput = FindBaseInput( modelBaseToAnimate.position );
+
+            // animation
+            double[] o = myAnimationRegression.Run( baseInput );
+            // normalize o
+            double sum = 0;
+            // clamp to [0, inf)
+            for( int i = 0; i < o.Length; i++ ) { o[i] = Mathf.Clamp( (float) o[i], 0, float.MaxValue ); }
+            // compute sum
+            for( int i = 0; i < o.Length; i++ ) { sum += o[i]; }
+            // divide by sum
+            for( int i = 0; i < o.Length; i++ ) { o[i] /= sum; }
+
+            // show activation
+            for( int i = 0; i < currentlyUsedExamples.Count; i++ ) 
+            {
+                currentlyUsedExamples[i].SetActivation( (float) o[i] );
+            }
+
+            // TODO: how to do a weighted average of Quaternion? maybe with slerp?
+            // see: https://stackoverflow.com/questions/12374087/average-of-multiple-quaternions
+            // average of many requires finding eigenvectors
+            // --> just slerp between the largest 2 -- we can still do a weighted avg of 2
+
+            // find top two indices
+            int mostProminent = 0, secondMostProminent = 0;
+            double mpAmount = 0;
+            for( int i = 0; i < o.Length; i++ )
+            {
+                if( o[i] > mpAmount )
+                {
+                    mpAmount = o[i];
+                    secondMostProminent = mostProminent;
+                    mostProminent = i;
+                }
+            }
+
+            // re normalize 
+            float slerpAmount = (float) o[secondMostProminent] / (float) ( o[mostProminent] + o[secondMostProminent] );
+
+            // goal rotation is weighted average between the two most prominent animations
+            goalBaseRotation = Quaternion.Slerp(
+                GetBaseQuaternion( mostProminent, currentRuntimeFrame ),
+                GetBaseQuaternion( secondMostProminent, currentRuntimeFrame ),
+                slerpAmount
+            );
+
+            // rotate the animation by whatever angle we were at when we started
+            // this loop
+            goalBaseRotation = seamHideRotation * goalBaseRotation;
+
+
+            // weighted average of vectors:
+            // compute the relative position goals
+            for( int i = 0; i < goalLocalPositions.Length; i++ )
+            {
+                goalLocalPositions[i] = Vector3.zero;
+
+                // TODO: number of examples not necessarily same as number of animations..??? some examples may reuse the same animation
+                // but in different positions. I smell a redesign!
+                for( int whichAnimation = 0; whichAnimation < currentlyUsedExamples.Count; whichAnimation++ )
+                {
+                    // weighted sum
+                    goalLocalPositions[i] += (float) o[whichAnimation] * GetLocalPosition( i, whichAnimation, currentRuntimeFrame );
+
+                }
+            }
+
+            // sound
+            if( mySounder )
+            {
+                // compute features
+                float currentHeight = 0, currentSteepness = 0, heightAboveTerrain = 0;
+                FindTerrainInformation( out currentHeight, out currentSteepness, out heightAboveTerrain );
+                mySounder.Predict( SoundInput(
+                    modelBaseToAnimate.rotation,
+                    currentHeight,
+                    currentSteepness,
+                    heightAboveTerrain
+                ) );
+            }
+
+            currentRuntimeFrame++;
+
+            // update seam hiding rotation:
+            // if the next frame represents "restarting" the most prominent animation
+            if( mostProminent < currentlyUsedExamples.Count && currentRuntimeFrame % currentlyUsedExamples[ mostProminent ].baseExamples.Count == 0 )
+            {
+                seamHideRotation = Quaternion.AngleAxis( 
+                    goalBaseRotation.eulerAngles.y - currentlyUsedExamples[ mostProminent ].baseExamples[0].rotation.eulerAngles.y, 
+                    Vector3.up
+                );
+            }
+        
+    }
+
+    private void RunOneFrameClassifier()
+    {
+        // 1. Run classifier to see which animation we should pull from
+        // 2. Use a time offset to see which point in the animation we should be in
+        //    (OR enforce that the animation offset is the same as recording offset (duh)
+        //     and use an incrementing frame number -- computationally simpler.
+        //     don't forget to i % len(animation) in case we just changed animations)
+        // 3. Use that as the next goal position
+        double[] baseInput = FindBaseInput( modelBaseToAnimate.position );
+        // animation
+        string o = myAnimationClassifier.Run( baseInput );
+        int whichAnimation = System.Convert.ToInt32( o );
+
+        goalBaseRotation = GetBaseQuaternion( whichAnimation, currentRuntimeFrame );
+
+        // compute the relative position goals
+        for( int i = 0; i < goalLocalPositions.Length; i++ )
+        {
+            goalLocalPositions[i] = GetLocalPosition( i, whichAnimation, currentRuntimeFrame );
+        }
+
+        // sound
+        if( mySounder )
+        {
+            // compute features
+            float currentHeight = 0, currentSteepness = 0, heightAboveTerrain = 0;
+            FindTerrainInformation( out currentHeight, out currentSteepness, out heightAboveTerrain );
+            mySounder.Predict( SoundInput(
+                modelBaseToAnimate.rotation,
+                currentHeight,
+                currentSteepness,
+                heightAboveTerrain
+            ) );
+        }
+
+        currentRuntimeFrame++;
     }
 
     private Quaternion GetBaseQuaternion( int whichAnimation, int currentFrame )

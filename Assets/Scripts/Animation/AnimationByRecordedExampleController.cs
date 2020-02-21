@@ -313,48 +313,34 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         seamHideRotation = Quaternion.identity;
         currentRuntimeFrame = 0;
         // collect data and predict
-        if( predictionType == PredictionType.Classification )
+        while( haveTrained )
         {
-            while( haveTrained )
+            // predict next frame
+            switch( predictionType )
             {
-                RunOneFrameClassifier();
-
-                switch( currentRecordingAndPlaybackMode )
-                {
-                    case RecordingType.ConstantTime:
-                        // since we are playing back recorded animations,
-                        // playback rate == collection rate
-                        yield return new WaitForSecondsRealtime( dataCollectionRate );
-                        break;
-                    case RecordingType.MusicTempo:
-                        // play back at 16th note rate
-                        yield return new WaitForSecondsRealtime( SoundEngine.GetQuarterNoteTime() / 4 );
-                        break;
-                }
-
+                case PredictionType.Classification:
+                    RunOneFrameClassifier();
+                    break;
+                case PredictionType.Regression:
+                    RunOneFrameRegression();
+                    break;
             }
-        }
-        else
-        {
-            while( haveTrained )
-            {
             
-                RunOneFrameRegression();
-                switch( currentRecordingAndPlaybackMode )
-                {
-                    case RecordingType.ConstantTime:
-                        // since we are playing back recorded animations,
-                        // playback rate == collection rate
-                        yield return new WaitForSecondsRealtime( dataCollectionRate );
-                        break;
-                    case RecordingType.MusicTempo:
-                        // play back at 16th note rate
-                        yield return new WaitForSecondsRealtime( SoundEngine.GetQuarterNoteTime() / 4 );
-                        break;
-                }
-
+            // wait
+            switch( currentRecordingAndPlaybackMode )
+            {
+                case RecordingType.ConstantTime:
+                    // since we are playing back recorded animations,
+                    // playback rate == collection rate
+                    yield return new WaitForSecondsRealtime( dataCollectionRate );
+                    break;
+                case RecordingType.MusicTempo:
+                    // play back at 16th note rate
+                    yield return new WaitForSecondsRealtime( SoundEngine.GetQuarterNoteTime() / 4 );
+                    break;
             }
         }
+        
         runtimeMode = false;
     }
 

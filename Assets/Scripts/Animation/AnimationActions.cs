@@ -203,6 +203,7 @@ public class AnimationActions : MonoBehaviour
         if( currentCreature != null )
         {
             currentCreature.nextAction = AnimationByRecordedExampleController.AnimationAction.RecordAnimation;
+            currentCreature.handType = hand;
         }
     }
 

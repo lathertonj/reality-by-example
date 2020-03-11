@@ -177,7 +177,7 @@ public class LaserPointerSelector : MonoBehaviour
 
 
 
-    public GameObject GetSelectedObject()
+    public static GameObject GetSelectedObject()
     {
         return selectedObject;
     }

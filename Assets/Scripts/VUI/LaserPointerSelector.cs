@@ -161,7 +161,8 @@ public class LaserPointerSelector : MonoBehaviour
         {
             // non menu items get selected as per usual
             selectedObject = intersectingObjectRoot;
-            theSelectionMarker.transform.position = selectedObject.transform.position;
+            theSelectionMarker.position = selectedObject.transform.position;
+            theSelectionMarker.parent = selectedObject.transform;
             theSelectionMarker.gameObject.SetActive( true );
         }
 
@@ -172,6 +173,7 @@ public class LaserPointerSelector : MonoBehaviour
     void UnselectObject()
     {
         selectedObject = null;
+        theSelectionMarker.parent = null;
         theSelectionMarker.gameObject.SetActive( false );
     }
 

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1253047615649007792}
   - component: {fileID: 7557995561620796117}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: SoundChordExample
   m_TagString: TerrainTextureExample
   m_Icon: {fileID: 0}
@@ -60,7 +60,7 @@ GameObject:
   - component: {fileID: 1253047616070431138}
   - component: {fileID: 1253047616070431139}
   - component: {fileID: 1253047616070431136}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Cube
   m_TagString: TerrainTextureExample
   m_Icon: {fileID: 0}
@@ -149,7 +149,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7003467772586340132}
   - component: {fileID: 249820578997364109}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: TextHolder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -194,7 +194,7 @@ GameObject:
   - component: {fileID: 4503764513922875312}
   - component: {fileID: 4884611145783696965}
   - component: {fileID: 2903932106629132315}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: TempoText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -285,7 +285,7 @@ GameObject:
   - component: {fileID: 1615022066227478556}
   - component: {fileID: 7864430977191430686}
   - component: {fileID: 4580355646356569663}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: DisplayHint
   m_TagString: Untagged
   m_Icon: {fileID: 0}

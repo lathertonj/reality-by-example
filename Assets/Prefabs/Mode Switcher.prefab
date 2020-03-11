@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8788551697053100040}
   - component: {fileID: 6919556151725864579}
   - component: {fileID: 8343483502938029543}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: RandomizeCurrent
   m_TagString: MenuItem
   m_Icon: {fileID: 0}
@@ -211,7 +211,7 @@ GameObject:
   - component: {fileID: 956368022010492966}
   - component: {fileID: 1271995427877282465}
   - component: {fileID: 2671678751566089801}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: PerturbSmall
   m_TagString: MenuItem
   m_Icon: {fileID: 0}
@@ -444,7 +444,7 @@ GameObject:
   - component: {fileID: 3844386576189712526}
   - component: {fileID: 4399615371107841215}
   - component: {fileID: 2684132165447071348}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: RecordBirdAnimation
   m_TagString: MenuItem
   m_Icon: {fileID: 0}
@@ -642,7 +642,7 @@ GameObject:
   - component: {fileID: 7210435508971797017}
   - component: {fileID: 1987287659667966013}
   - component: {fileID: 9079127315479476166}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: CloneBird
   m_TagString: MenuItem
   m_Icon: {fileID: 0}
@@ -749,7 +749,7 @@ GameObject:
   - component: {fileID: 490171402737807567}
   - component: {fileID: 2762860967255574865}
   - component: {fileID: 5531612918557211936}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Copy
   m_TagString: MenuItem
   m_Icon: {fileID: 0}
@@ -951,7 +951,7 @@ GameObject:
   - component: {fileID: 74506952103002641}
   - component: {fileID: 5567946362158471866}
   - component: {fileID: 1167310060082651981}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: ConstantTimeMode
   m_TagString: MenuItem
   m_Icon: {fileID: 0}
@@ -1056,7 +1056,7 @@ GameObject:
   - component: {fileID: 2564551327223619262}
   - component: {fileID: 7230760862175999179}
   - component: {fileID: 7651924951925994969}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: GreenTree
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1086,7 +1086,7 @@ SphereCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2564551327223619261}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 1
@@ -1248,7 +1248,7 @@ GameObject:
   - component: {fileID: 3431848969718806342}
   - component: {fileID: 3431848969718806361}
   - component: {fileID: 3431848969718806340}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Texture
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1356,7 +1356,7 @@ GameObject:
   - component: {fileID: 3431848971204457352}
   - component: {fileID: 3431848971204457355}
   - component: {fileID: 3431848971204457334}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Land Gradual Height
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1739,7 +1739,7 @@ GameObject:
   - component: {fileID: 3818321291833997702}
   - component: {fileID: 4936209900664716466}
   - component: {fileID: 7649061905988426027}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: CloneExample
   m_TagString: MenuItem
   m_Icon: {fileID: 0}
@@ -1846,7 +1846,7 @@ GameObject:
   - component: {fileID: 5114123363035894991}
   - component: {fileID: 2869360605400760816}
   - component: {fileID: 3404325576896860311}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: MusicMode
   m_TagString: MenuItem
   m_Icon: {fileID: 0}
@@ -2317,7 +2317,7 @@ GameObject:
   - component: {fileID: 4820108429241687467}
   - component: {fileID: 4820108429241687468}
   - component: {fileID: 4820108429241687469}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Music Volume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2425,7 +2425,7 @@ GameObject:
   - component: {fileID: 4820108429540492795}
   - component: {fileID: 4820108429540492796}
   - component: {fileID: 4820108429540492797}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Land Height
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2533,7 +2533,7 @@ GameObject:
   - component: {fileID: 4820108429649898832}
   - component: {fileID: 4820108429649898833}
   - component: {fileID: 4820108429649898834}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: GIS
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2718,7 +2718,7 @@ GameObject:
   - component: {fileID: 4820108429932820966}
   - component: {fileID: 4820108429932820967}
   - component: {fileID: 4820108429932820968}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Music Timbre
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2826,7 +2826,7 @@ GameObject:
   - component: {fileID: 4820108430070523269}
   - component: {fileID: 4820108430070523270}
   - component: {fileID: 4820108430070523271}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Fly
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2934,7 +2934,7 @@ GameObject:
   - component: {fileID: 4820108430129703913}
   - component: {fileID: 4820108430129703914}
   - component: {fileID: 4820108430129703915}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Music Chord
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3042,7 +3042,7 @@ GameObject:
   - component: {fileID: 4820108430253072357}
   - component: {fileID: 4820108430253072358}
   - component: {fileID: 4820108430253072359}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Music Density
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3150,7 +3150,7 @@ GameObject:
   - component: {fileID: 4820108430366405279}
   - component: {fileID: 4820108430366405248}
   - component: {fileID: 4820108430366405249}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Music Tempo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3335,7 +3335,7 @@ GameObject:
   - component: {fileID: 4820108430732629591}
   - component: {fileID: 4820108430732629592}
   - component: {fileID: 4820108430732629593}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Land Laser Height
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3595,7 +3595,7 @@ GameObject:
   - component: {fileID: 4820108430907041969}
   - component: {fileID: 4820108430907041935}
   - component: {fileID: 4820108430907041968}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: YellowTree
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3658,7 +3658,7 @@ GameObject:
   - component: {fileID: 4820108430956573306}
   - component: {fileID: 4820108430956573307}
   - component: {fileID: 4820108430956573308}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Ground fly
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3766,7 +3766,7 @@ GameObject:
   - component: {fileID: 4820108431028249277}
   - component: {fileID: 4820108431028249278}
   - component: {fileID: 4820108431028249279}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Teleport
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4240,7 +4240,7 @@ GameObject:
   - component: {fileID: 1582236050918092060}
   - component: {fileID: 3580027861248038807}
   - component: {fileID: 550482472751979457}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Follow Creature
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4347,7 +4347,7 @@ GameObject:
   - component: {fileID: 5599965433744455705}
   - component: {fileID: 3318036101761336059}
   - component: {fileID: 3790890874616309011}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: RandomizeAll
   m_TagString: MenuItem
   m_Icon: {fileID: 0}
@@ -4547,7 +4547,7 @@ GameObject:
   - component: {fileID: 638228324392301226}
   - component: {fileID: 8667188413170150789}
   - component: {fileID: 6551620363476657051}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: PerturbBig
   m_TagString: MenuItem
   m_Icon: {fileID: 0}
@@ -4654,7 +4654,7 @@ GameObject:
   - component: {fileID: 7720291905046745871}
   - component: {fileID: 253527543701945697}
   - component: {fileID: 2367540126079310685}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: SelectBird
   m_TagString: MenuItem
   m_Icon: {fileID: 0}
@@ -4761,7 +4761,7 @@ GameObject:
   - component: {fileID: 9010638298341866702}
   - component: {fileID: 1525514056429064884}
   - component: {fileID: 6767672065669868682}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: CreateNewBird
   m_TagString: MenuItem
   m_Icon: {fileID: 0}
@@ -4869,7 +4869,7 @@ GameObject:
   - component: {fileID: 4835623185209299922}
   - component: {fileID: 3274928336163636156}
   - component: {fileID: 7093694676922760104}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: DeleteExample
   m_TagString: MenuItem
   m_Icon: {fileID: 0}
@@ -5533,7 +5533,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7809114161388968837}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.042, y: 0, z: 0.421}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4820108429540492798}

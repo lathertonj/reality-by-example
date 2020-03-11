@@ -50,7 +50,7 @@ public class TerrainLaserRaiseLowerInteractor : MonoBehaviour
                 lastHandPos = transform.position;
 
                 // since this is a placement-over-time technique, disable the mode switcher
-                DisableModeSwitcher.SetEnabled( false );
+                ModeSwitcherController.SetEnabled( false );
         }
         else if( currentlyPlacingExample != null && placeExample.GetState( handType ) )
         {

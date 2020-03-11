@@ -30,148 +30,152 @@ public class SwitchToComponent : MonoBehaviour
         transform.localScale = originalScale;
     }
 
+
+    public void ActivateMode( GameObject controller )
+    {
+        // get and disable randomizer
+        RandomizeTerrain randomizer = controller.transform.root.GetComponentInChildren<RandomizeTerrain>();
+        randomizer.currentAction = RandomizeTerrain.ActionType.DoNothing;
+        DisablePlacementInteractors( controller );
+        DisableMovementInteractors( controller );
+        // disable animation interactors
+        AnimationActions animationAction = controller.GetComponent<AnimationActions>();
+        if( animationAction ) { animationAction.DisablePreUIChange(); }
+        switch( switchTo )
+        {
+            case InteractionType.PlaceTerrainImmediate:
+                SetGripPlacePrefab( controller );
+                // also, show height hint
+                TerrainHeightExample.ShowHints( hintTime );
+                break;
+            case InteractionType.PlaceTerrainGrowth:
+                controller.GetComponent<TerrainGradualInteractor>().enabled = true;
+                // also, show height hint
+                TerrainHeightExample.ShowHints( hintTime );
+                break;
+            case InteractionType.PlaceTerrainLocalRaiseLower:
+                controller.GetComponent<TerrainLocalRaiseLowerInteractor>().enabled = true;
+                // also, show height hint
+                TerrainHeightExample.ShowHints( hintTime );
+                break;
+            case InteractionType.PlaceTerrainLaserPointerRaiseLower:
+                // enable the components we need
+                controller.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = true;
+                // hacky way to distinguish between two laser pointers
+                foreach( LaserPointerColliderSelector l in controller.GetComponents<LaserPointerColliderSelector>() )
+                {
+                    if( !l.stopShowingOnUp )
+                    {
+                        l.enabled = true;
+                    }
+                }
+                // also, show height hint
+                TerrainHeightExample.ShowHints( hintTime );
+                break;
+            case InteractionType.PlaceTexture:
+                SetGripPlacePrefab( controller );
+                // also, show texture hint
+                TerrainTextureExample.ShowHints( hintTime );
+                break;
+            case InteractionType.PlaceGIS:
+                SetGripPlacePrefab( controller );
+                // also, show GIS hint
+                TerrainGISExample.ShowHints( hintTime );
+                break;
+            case InteractionType.MoveTeleport:
+                controller.GetComponent<FlyingTeleporter>().enabled = true;
+                break;
+            case InteractionType.MoveFly:
+                controller.GetComponent<FlyingMovement>().enabled = true;
+                break;
+            case InteractionType.MoveGroundFly:
+                controller.GetComponent<GroundFlyingMovement>().enabled = true;
+                break;
+            case InteractionType.PlaceTempo:
+                SoundEngineTempoRegressor.Activate();
+                SetGripPlacePrefab( controller );
+                // also, show tempo hint
+                SoundTempoExample.ShowHints( hintTime );
+                break;
+            case InteractionType.PlaceTimbre:
+                SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.timbreRegressor );
+                SetGripPlacePrefab( controller );
+                // also, show timbre hint
+                Sound0To1Example.ShowHints( SoundEngine0To1Regressor.timbreRegressor, hintTime );
+                break;
+            case InteractionType.PlaceDensity:
+                SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.densityRegressor );
+                SetGripPlacePrefab( controller );
+                // also, show density hint
+                Sound0To1Example.ShowHints( SoundEngine0To1Regressor.densityRegressor, hintTime );
+                break;
+            case InteractionType.PlaceVolume:
+                SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.volumeRegressor );
+                SetGripPlacePrefab( controller );
+                // also, show volume hint
+                Sound0To1Example.ShowHints( SoundEngine0To1Regressor.volumeRegressor, hintTime );
+                break;
+            case InteractionType.PlaceChord:
+                SoundEngineChordClassifier.Activate();
+                SetGripPlacePrefab( controller );
+                // also, show chord hint
+                SoundChordExample.ShowHints( hintTime );
+                break;
+            case InteractionType.SlowlySpawnPrefab:
+                controller.GetComponent<SlowlySpawnPrefab>().enabled = true;
+                controller.GetComponent<SlowlySpawnPrefab>().prefabToSpawn = givenPrefab;
+                break;
+            case InteractionType.RandomizePerturbSmall:
+                randomizer.currentAction = RandomizeTerrain.ActionType.PerturbSmall;
+                break;
+            case InteractionType.RandomizePerturbBig:
+                randomizer.currentAction = RandomizeTerrain.ActionType.PerturbBig;
+                break;
+            case InteractionType.RandomizeCopy:
+                randomizer.currentAction = RandomizeTerrain.ActionType.Copy;
+                // we need the drag and drop for this one only
+                controller.GetComponent<LaserPointerDragAndDrop>().enabled = true;
+                break;
+            case InteractionType.RandomizeCurrent:
+                randomizer.currentAction = RandomizeTerrain.ActionType.RandomizeCurrent;
+                break;
+            case InteractionType.RandomizeAll:
+                randomizer.currentAction = RandomizeTerrain.ActionType.RandomizeAll;
+                break;
+            case InteractionType.CreatureCreate:
+            case InteractionType.CreatureSelect:
+            case InteractionType.CreatureClone:
+            case InteractionType.CreatureExampleRecord: 
+            case InteractionType.CreatureExampleClone:
+            case InteractionType.CreatureExampleDelete:
+            case InteractionType.CreatureConstantTimeMode:
+            case InteractionType.CreatureMusicMode:
+            case InteractionType.MoveFollowCreature:
+                // we have another component for processing animation commands
+                if( animationAction )
+                {
+                    animationAction.ProcessUIChange( switchTo, givenPrefab );
+                }
+                break;
+            default:
+                break;
+        }
+
+        // trigger haptic pulse
+        controller.GetComponent<VibrateController>().Vibrate( 0.05f, 30, 0.8f );
+
+        // animate
+        if( previousAnimation != null ) { StopCoroutine( previousAnimation ); }
+        previousAnimation = AnimateSwell( 0.14f, 0.4f, 0.03f, 1.3f );
+        StartCoroutine( previousAnimation );
+    }
+
     private void OnTriggerEnter( Collider other )
     {
         FlyingTeleporter maybeController = other.GetComponent<FlyingTeleporter>();
         if( maybeController )
         {
-            GameObject o = maybeController.gameObject;
-            // get and disable randomizer
-            RandomizeTerrain randomizer = o.transform.root.GetComponentInChildren<RandomizeTerrain>();
-            randomizer.currentAction = RandomizeTerrain.ActionType.DoNothing;
-            DisablePlacementInteractors( o );
-            DisableMovementInteractors( o );
-            // disable animation interactors
-            AnimationActions animationAction = o.GetComponent<AnimationActions>();
-            if( animationAction ) { animationAction.DisablePreUIChange(); }
-            switch( switchTo )
-            {
-                case InteractionType.PlaceTerrainImmediate:
-                    SetGripPlacePrefab( o );
-                    // also, show height hint
-                    TerrainHeightExample.ShowHints( hintTime );
-                    break;
-                case InteractionType.PlaceTerrainGrowth:
-                    o.GetComponent<TerrainGradualInteractor>().enabled = true;
-                    // also, show height hint
-                    TerrainHeightExample.ShowHints( hintTime );
-                    break;
-                case InteractionType.PlaceTerrainLocalRaiseLower:
-                    o.GetComponent<TerrainLocalRaiseLowerInteractor>().enabled = true;
-                    // also, show height hint
-                    TerrainHeightExample.ShowHints( hintTime );
-                    break;
-                case InteractionType.PlaceTerrainLaserPointerRaiseLower:
-                    // enable the components we need
-                    o.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = true;
-                    // hacky way to distinguish between two laser pointers
-                    foreach( LaserPointerColliderSelector l in o.GetComponents<LaserPointerColliderSelector>() )
-                    {
-                        if( !l.stopShowingOnUp )
-                        {
-                            l.enabled = true;
-                        }
-                    }
-                    // also, show height hint
-                    TerrainHeightExample.ShowHints( hintTime );
-                    break;
-                case InteractionType.PlaceTexture:
-                    SetGripPlacePrefab( o );
-                    // also, show texture hint
-                    TerrainTextureExample.ShowHints( hintTime );
-                    break;
-                case InteractionType.PlaceGIS:
-                    SetGripPlacePrefab( o );
-                    // also, show GIS hint
-                    TerrainGISExample.ShowHints( hintTime );
-                    break;
-                case InteractionType.MoveTeleport:
-                    o.GetComponent<FlyingTeleporter>().enabled = true;
-                    break;
-                case InteractionType.MoveFly:
-                    o.GetComponent<FlyingMovement>().enabled = true;
-                    break;
-                case InteractionType.MoveGroundFly:
-                    o.GetComponent<GroundFlyingMovement>().enabled = true;
-                    break;
-                case InteractionType.PlaceTempo:
-                    SoundEngineTempoRegressor.Activate();
-                    SetGripPlacePrefab( o );
-                    // also, show tempo hint
-                    SoundTempoExample.ShowHints( hintTime );
-                    break;
-                case InteractionType.PlaceTimbre:
-                    SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.timbreRegressor );
-                    SetGripPlacePrefab( o );
-                    // also, show timbre hint
-                    Sound0To1Example.ShowHints( SoundEngine0To1Regressor.timbreRegressor, hintTime );
-                    break;
-                case InteractionType.PlaceDensity:
-                    SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.densityRegressor );
-                    SetGripPlacePrefab( o );
-                    // also, show density hint
-                    Sound0To1Example.ShowHints( SoundEngine0To1Regressor.densityRegressor, hintTime );
-                    break;
-                case InteractionType.PlaceVolume:
-                    SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.volumeRegressor );
-                    SetGripPlacePrefab( o );
-                    // also, show volume hint
-                    Sound0To1Example.ShowHints( SoundEngine0To1Regressor.volumeRegressor, hintTime );
-                    break;
-                case InteractionType.PlaceChord:
-                    SoundEngineChordClassifier.Activate();
-                    SetGripPlacePrefab( o );
-                    // also, show chord hint
-                    SoundChordExample.ShowHints( hintTime );
-                    break;
-                case InteractionType.SlowlySpawnPrefab:
-                    o.GetComponent<SlowlySpawnPrefab>().enabled = true;
-                    o.GetComponent<SlowlySpawnPrefab>().prefabToSpawn = givenPrefab;
-                    break;
-                case InteractionType.RandomizePerturbSmall:
-                    randomizer.currentAction = RandomizeTerrain.ActionType.PerturbSmall;
-                    break;
-                case InteractionType.RandomizePerturbBig:
-                    randomizer.currentAction = RandomizeTerrain.ActionType.PerturbBig;
-                    break;
-                case InteractionType.RandomizeCopy:
-                    randomizer.currentAction = RandomizeTerrain.ActionType.Copy;
-                    // we need the drag and drop for this one only
-                    o.GetComponent<LaserPointerDragAndDrop>().enabled = true;
-                    break;
-                case InteractionType.RandomizeCurrent:
-                    randomizer.currentAction = RandomizeTerrain.ActionType.RandomizeCurrent;
-                    break;
-                case InteractionType.RandomizeAll:
-                    randomizer.currentAction = RandomizeTerrain.ActionType.RandomizeAll;
-                    break;
-                case InteractionType.CreatureCreate:
-                case InteractionType.CreatureSelect:
-                case InteractionType.CreatureClone:
-                case InteractionType.CreatureExampleRecord: 
-                case InteractionType.CreatureExampleClone:
-                case InteractionType.CreatureExampleDelete:
-                case InteractionType.CreatureConstantTimeMode:
-                case InteractionType.CreatureMusicMode:
-                case InteractionType.MoveFollowCreature:
-                    // we have another component for processing animation commands
-                    if( animationAction )
-                    {
-                        animationAction.ProcessUIChange( switchTo, givenPrefab );
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-            // trigger haptic pulse
-            o.GetComponent<VibrateController>().Vibrate( 0.05f, 30, 0.8f );
-
-            // animate
-            if( previousAnimation != null ) { StopCoroutine( previousAnimation ); }
-            previousAnimation = AnimateSwell( 0.14f, 0.4f, 0.03f, 1.3f );
-            StartCoroutine( previousAnimation );
-
+            ActivateMode( maybeController.gameObject );
         }
     }
 

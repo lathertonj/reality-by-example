@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1624768221450866436}
   - component: {fileID: 609236126954125696}
   - component: {fileID: 7433104449420793554}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8906811359609665669}
   - component: {fileID: 5350410111881763879}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: TextHolder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -146,7 +146,7 @@ GameObject:
   - component: {fileID: 7395282352754749414}
   - component: {fileID: 9194496049955046158}
   - component: {fileID: 1049370581637301392}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: DisplayHint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -224,7 +224,7 @@ GameObject:
   - component: {fileID: 8077804455845214293}
   - component: {fileID: 8077804455845214292}
   - component: {fileID: 8077804455845214295}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Cube
   m_TagString: TerrainExample
   m_Icon: {fileID: 0}
@@ -314,7 +314,7 @@ GameObject:
   - component: {fileID: 8077804456191148359}
   - component: {fileID: 5524136468175125564}
   - component: {fileID: 2939087599369755246}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: TerrainGISExample
   m_TagString: TerrainExample
   m_Icon: {fileID: 0}

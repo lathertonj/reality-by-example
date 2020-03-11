@@ -181,7 +181,55 @@ public class SwitchToComponent : MonoBehaviour
 
     private void SetGripPlacePrefab( GameObject o )
     {
-        o.GetComponent<GripPlaceDeleteInteraction>().currentPrefabToUse = givenPrefab;
+        // do for standard grip
+        GripPlaceDeleteInteraction gripPlace = o.GetComponent<GripPlaceDeleteInteraction>();
+        if( gripPlace )
+        {
+            gripPlace.currentPrefabToUse = givenPrefab;
+        }
+
+        // and for remote grip
+        RemoteGripPlaceDeleteInteraction remoteGripPlace = o.GetComponent<RemoteGripPlaceDeleteInteraction>();
+        if( remoteGripPlace )
+        {
+            remoteGripPlace.currentPrefabToUse = givenPrefab;
+        }
+    }
+
+    private void ResetGripPlacers( GameObject o )
+    {
+        // do for standard grip
+        GripPlaceDeleteInteraction gripPlace = o.GetComponent<GripPlaceDeleteInteraction>();
+        if( gripPlace )
+        {
+            gripPlace.currentPrefabToUse = null;
+            gripPlace.enabled = true;
+        }
+
+        // and for remote grip
+        RemoteGripPlaceDeleteInteraction remoteGripPlace = o.GetComponent<RemoteGripPlaceDeleteInteraction>();
+        if( remoteGripPlace )
+        {
+            remoteGripPlace.currentPrefabToUse = null;
+            remoteGripPlace.enabled = true;
+        }
+    }
+
+    private void DisableGripPlacers( GameObject o )
+    {
+        // do for standard grip
+        GripPlaceDeleteInteraction gripPlace = o.GetComponent<GripPlaceDeleteInteraction>();
+        if( gripPlace )
+        {
+            gripPlace.enabled = false;
+        }
+
+        // and for remote grip
+        RemoteGripPlaceDeleteInteraction remoteGripPlace = o.GetComponent<RemoteGripPlaceDeleteInteraction>();
+        if( remoteGripPlace )
+        {
+            remoteGripPlace.enabled = false;
+        }
     }
 
     private void DisableMovementInteractors( GameObject o )
@@ -201,9 +249,8 @@ public class SwitchToComponent : MonoBehaviour
 
     private void DisablePlacementInteractors( GameObject o )
     {
-        o.GetComponent<GripPlaceDeleteInteraction>().currentPrefabToUse = null;
-        // enable the grip deleter; some may disable it later if they need it disabled
-        o.GetComponent<GripPlaceDeleteInteraction>().enabled = true;
+        // set prefab to null and ENABLE grip deleters
+        ResetGripPlacers( o );
         
         foreach( LaserPointerColliderSelector l in o.GetComponents<LaserPointerColliderSelector>() )
         {

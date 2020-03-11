@@ -79,5 +79,14 @@ public class RemoteTouchpadUpDownInteraction : MonoBehaviour
         return selectedObject != null;
     }
 
+    public void GameObjectBeingDeleted( GameObject other )
+    {
+        if( other == interactingGameObject )
+        {
+            // stop the gesture
+            EndUpDownGesture();
+        }
+    }
+
 
 }

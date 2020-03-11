@@ -160,17 +160,14 @@ public class LaserPointerSelector : MonoBehaviour
         else
         {
             // non menu items get selected as per usual
-            selectedObject = intersectingObjectRoot;
-            theSelectionMarker.position = selectedObject.transform.position;
-            theSelectionMarker.parent = selectedObject.transform;
-            theSelectionMarker.gameObject.SetActive( true );
+            SelectNewObject( intersectingObjectRoot );
         }
 
         // vibrate for everyone
         Vibrate();
     }
 
-    void UnselectObject()
+    static void UnselectObject()
     {
         selectedObject = null;
         theSelectionMarker.parent = null;
@@ -182,6 +179,19 @@ public class LaserPointerSelector : MonoBehaviour
     public static GameObject GetSelectedObject()
     {
         return selectedObject;
+    }
+
+    public static void AboutToDeleteSelectedObject()
+    {
+        UnselectObject();
+    }
+
+    public static void SelectNewObject( GameObject newObject )
+    {
+        selectedObject = newObject;
+        theSelectionMarker.position = selectedObject.transform.position;
+        theSelectionMarker.parent = selectedObject.transform;
+        theSelectionMarker.gameObject.SetActive( true );
     }
 
 

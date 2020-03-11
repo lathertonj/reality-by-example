@@ -40,8 +40,13 @@ public class RemoteTouchpadLeftRightClickInteraction : MonoBehaviour
         {
             selectedObject = null; 
         }
-        
+
         return selectedObject != null;
+    }
+
+    public void GameObjectBeingDeleted( GameObject other )
+    {
+        // nothing to forget as this interaction is not held over time
     }
 
 }

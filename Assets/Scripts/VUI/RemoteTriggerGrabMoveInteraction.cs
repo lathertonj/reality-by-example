@@ -84,4 +84,13 @@ public class RemoteTriggerGrabMoveInteraction : MonoBehaviour
         return selectedObject != null;
     }
 
+    public void GameObjectBeingDeleted( GameObject other )
+    {
+        // stop the gesture
+        if( interactingTransform && other == interactingTransform.gameObject )
+        {
+            EndMoveGesture();
+        }
+    }
+
 }

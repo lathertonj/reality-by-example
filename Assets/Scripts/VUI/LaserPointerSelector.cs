@@ -169,6 +169,14 @@ public class LaserPointerSelector : MonoBehaviour
 
     static void UnselectObject()
     {
+        // send message that selection is being unselected
+        if( selectedObject != null )
+        {
+            LaserPointerSelectable selectable = selectedObject.GetComponent< LaserPointerSelectable >();
+            if( selectable != null ) { selectable.Unselected(); }
+        }
+
+        // hide marker
         selectedObject = null;
         theSelectionMarker.parent = null;
         theSelectionMarker.gameObject.SetActive( false );
@@ -188,10 +196,15 @@ public class LaserPointerSelector : MonoBehaviour
 
     public static void SelectNewObject( GameObject newObject )
     {
+        if( selectedObject != null ) { UnselectObject(); }
+
         selectedObject = newObject;
         theSelectionMarker.position = selectedObject.transform.position;
         theSelectionMarker.parent = selectedObject.transform;
         theSelectionMarker.gameObject.SetActive( true );
+
+        LaserPointerSelectable selectable = selectedObject.GetComponent< LaserPointerSelectable >();
+        if( selectable != null ) { selectable.Selected(); }
     }
 
 
@@ -227,4 +240,10 @@ public class LaserPointerSelector : MonoBehaviour
         laser.gameObject.SetActive( false );
         previousWasFound = false;
     }
+}
+
+public interface LaserPointerSelectable
+{
+    void Selected();
+    void Unselected();
 }

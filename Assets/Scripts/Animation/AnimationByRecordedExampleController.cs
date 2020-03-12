@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
 
-public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDeleteInteractable
+public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDeleteInteractable , LaserPointerSelectable
 {
     private static List< AnimationByRecordedExampleController > allCreatures = new List< AnimationByRecordedExampleController >();
     private List< AnimationByRecordedExampleController > myGroup = null;
@@ -1009,6 +1009,24 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         {
             e.gameObject.SetActive( true );
         }
+    }
+
+    void LaserPointerSelectable.Selected()
+    {
+        // when selected, show my examples
+        ShowExamples();
+
+        // also show hints for my examples
+        AnimationExample.ShowHints( this, SwitchToComponent.hintTime );
+    }
+
+    void LaserPointerSelectable.Unselected()
+    {
+        // when unselected, hide my examples
+        HideExamples();
+
+        // also, disable recording
+        nextAction = AnimationAction.DoNothing;
     }
 
     public class ModelBaseDatum

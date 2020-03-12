@@ -68,16 +68,8 @@ public class SwitchToComponent : MonoBehaviour
             case InteractionType.PlaceTerrainLaserPointerRaiseLower:
                 // enable the components we need
                 EnableComponent<TerrainLaserRaiseLowerInteractor>( controller );
+                EnableComponent<LaserPointerColliderSelector>( controller );
                 touchpadInUse = true;
-                // hacky way to distinguish between two laser pointers
-                // TODO: remove when there is only one of these components left
-                foreach( LaserPointerColliderSelector l in controller.GetComponents<LaserPointerColliderSelector>() )
-                {
-                    if( !l.stopShowingOnUp )
-                    {
-                        l.enabled = true;
-                    }
-                }
                 // also, show height hint
                 TerrainHeightExample.ShowHints( hintTime );
                 break;
@@ -160,12 +152,14 @@ public class SwitchToComponent : MonoBehaviour
                 randomizer.currentAction = RandomizeTerrain.ActionType.RandomizeAll;
                 gripInUse = true;
                 break;
+            case InteractionType.CreatureExampleDelete:
+                // be sure to enable grip deletion below
+                gripInUse = false;
+                break;
             case InteractionType.CreatureCreate:
-            case InteractionType.CreatureSelect:
             case InteractionType.CreatureClone:
             case InteractionType.CreatureExampleRecord: 
             case InteractionType.CreatureExampleClone:
-            case InteractionType.CreatureExampleDelete:
             case InteractionType.CreatureConstantTimeMode:
             case InteractionType.CreatureMusicMode:
             case InteractionType.MoveFollowCreature:
@@ -174,9 +168,11 @@ public class SwitchToComponent : MonoBehaviour
                 {
                     animationAction.ProcessUIChange( switchTo, givenPrefab );
                 }
-                // TODO: enable the grip for some things like example delete..
+                // all these things use the grip (TODO except music mode / time mode... might remove those though)
                 gripInUse = true;
                 break;
+            // disabled
+            case InteractionType.CreatureSelect:
             default:
                 break;
         }
@@ -288,15 +284,11 @@ public class SwitchToComponent : MonoBehaviour
         DisableComponent<RemoteTouchpadUpDownInteraction>( o );
         DisableComponent<RemoteTriggerGrabMoveInteraction>( o );
         
-        // TODO: reset to DisableComponent when we delete one of these
-        foreach( LaserPointerColliderSelector l in o.GetComponents<LaserPointerColliderSelector>() )
-        {
-            l.enabled = false;
-        }
-
+        // special terrain height methods
         DisableComponent<TerrainGradualInteractor>( o );
         DisableComponent<TerrainLocalRaiseLowerInteractor>( o );
         DisableComponent<TerrainLaserRaiseLowerInteractor>( o );
+        DisableComponent<LaserPointerColliderSelector>( o );
         DisableComponent<SlowlySpawnPrefab>( o );
         DisableComponent<LaserPointerDragAndDrop>( o );
 

@@ -176,4 +176,9 @@ public class GroundFlyingMovement : MonoBehaviour
     {
         return Mathf.Abs( touchpadXY.GetAxis( handType ).x ) < 0.4f;
     }
+
+    void OnDisable()
+    {
+        HideLasers();
+    }
 }

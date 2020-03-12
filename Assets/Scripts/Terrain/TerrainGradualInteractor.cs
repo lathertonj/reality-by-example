@@ -102,4 +102,9 @@ public class TerrainGradualInteractor : MonoBehaviour
         }
         return null;
     }
+
+    void OnDisable()
+    {
+        Abort();
+    }
 }

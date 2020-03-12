@@ -112,4 +112,9 @@ public class TerrainLocalRaiseLowerInteractor : MonoBehaviour
         }
         return null;
     }
+
+    void OnDisable()
+    {
+        Abort();
+    }
 }

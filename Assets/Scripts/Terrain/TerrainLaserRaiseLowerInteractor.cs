@@ -117,4 +117,9 @@ public class TerrainLaserRaiseLowerInteractor : MonoBehaviour
         }
         return null;
     }
+
+    void OnDisable()
+    {
+        Abort();
+    }
 }

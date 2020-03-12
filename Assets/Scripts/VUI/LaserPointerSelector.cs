@@ -32,6 +32,8 @@ public class LaserPointerSelector : MonoBehaviour
     public float timeCutoffForMenu = 0.3f;
     private float clickStartTime = -10;
 
+    private static bool mostRecentButtonPressWasMenu = false;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -75,13 +77,14 @@ public class LaserPointerSelector : MonoBehaviour
                     // unselect
                     UnselectObject();
                 }
-
+                mostRecentButtonPressWasMenu = false;
             }
             else
             {
                 // TODO: just turn on instead?
                 // toggle the menu
                 ModeSwitcherController.ToggleEnabled();
+                mostRecentButtonPressWasMenu = true;
             }
         }
         
@@ -221,6 +224,12 @@ public class LaserPointerSelector : MonoBehaviour
 
         LaserPointerSelectable selectable = selectedObject.GetComponent< LaserPointerSelectable >();
         if( selectable != null ) { selectable.Selected(); }
+    }
+
+
+    public static bool WasPressMenu()
+    {
+        return mostRecentButtonPressWasMenu;
     }
 
 

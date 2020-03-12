@@ -54,7 +54,7 @@ public class AnimationActions : MonoBehaviour
 
     void LateUpdate()
     {
-        if( selectionButton.GetStateUp( hand ) )
+        if( selectionButton.GetStateUp( hand ) && !LaserPointerSelector.WasPressMenu() )
         {
             // respond to a potential selection
             if( FindSelectedCreature() )

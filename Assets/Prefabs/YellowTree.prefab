@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1959977730178342773}
   - component: {fileID: 4793263598355226218}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: YellowTree
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57,6 +57,10 @@ PrefabInstance:
     - target: {fileID: 1790015630011202, guid: d1510bcc3e7712d4ea89901d393ca8a4, type: 3}
       propertyPath: m_Name
       value: Big Tree 06
+      objectReference: {fileID: 0}
+    - target: {fileID: 1790015630011202, guid: d1510bcc3e7712d4ea89901d393ca8a4, type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 4430703207946392, guid: d1510bcc3e7712d4ea89901d393ca8a4, type: 3}
       propertyPath: m_LocalPosition.x
@@ -113,6 +117,10 @@ PrefabInstance:
     - target: {fileID: 4430703207946392, guid: d1510bcc3e7712d4ea89901d393ca8a4, type: 3}
       propertyPath: m_LocalScale.z
       value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 1648611088089622, guid: d1510bcc3e7712d4ea89901d393ca8a4, type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 64359794865747558, guid: d1510bcc3e7712d4ea89901d393ca8a4,
         type: 3}

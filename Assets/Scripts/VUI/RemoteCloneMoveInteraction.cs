@@ -50,6 +50,9 @@ public class RemoteCloneMoveInteraction : MonoBehaviour
         TriggerGrabMoveInteractable interactableReference = newObject.GetComponent<TriggerGrabMoveInteractable>();
         myTriggerMover.StartMoveGestureExternally( interactableReference, newObject );
 
+        // select it
+        LaserPointerSelector.SelectNewObject( newObject.gameObject );
+
         // remember
         triggerIsMovingForUs = true;
     }

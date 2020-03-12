@@ -118,8 +118,8 @@ public class FlyingMovement : MonoBehaviour
     public void HideLasers()
     {
         // hide lasers
-        laser.SetActive( false );
-        teleportLaserEnd.SetActive( false );
+        if( laser!= null ) { laser.SetActive( false ); }
+        if( teleportLaserEnd != null ) { teleportLaserEnd.SetActive( false ); }
     }
 
     private void Fly()

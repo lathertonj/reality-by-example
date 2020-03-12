@@ -87,7 +87,6 @@ public class RemoteGripPlaceDeleteInteraction : MonoBehaviour
         myGrabMoveInteraction.GameObjectBeingDeleted( selectedGameObject );
         myUpDownInteraction.GameObjectBeingDeleted( selectedGameObject );
         myLeftRightClickInteraction.GameObjectBeingDeleted( selectedGameObject );
-        myCloneMoveInteraction.GameObjectBeingDeleted( selectedGameObject );
 
         // destroy it
         Destroy( selectedGameObject );

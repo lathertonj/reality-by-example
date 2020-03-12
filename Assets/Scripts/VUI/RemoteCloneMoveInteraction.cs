@@ -5,14 +5,12 @@ using Valve.VR;
 
 public class RemoteCloneMoveInteraction : MonoBehaviour
 {
-    // NOTE: this class is largely copied from TriggerGrabMoveInteraction
-    // any bugfixes here should be propagated there, and vice versa
-
     public SteamVR_Input_Sources handType;
     public SteamVR_Action_Boolean vrAction;
     private SteamVR_Behaviour_Pose controllerPose;
-    private CloneMoveInteractable selectedObject = null, interactingObject = null;
-    private Transform interactingTransform = null, interactingOriginalParent = null;
+    private CloneMoveInteractable selectedObject = null;
+    private bool triggerIsMovingForUs = false;
+    private RemoteTriggerGrabMoveInteraction myTriggerMover = null;
 
 
 
@@ -20,6 +18,7 @@ public class RemoteCloneMoveInteraction : MonoBehaviour
     void Awake()
     {
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
+        myTriggerMover = GetComponent<RemoteTriggerGrabMoveInteraction>();
     }
 
     // Update is called once per frame
@@ -29,13 +28,14 @@ public class RemoteCloneMoveInteraction : MonoBehaviour
         {
             CloneAndStartMoveGesture();
         }
-        if( vrAction.GetState( handType ) && interactingObject != null )
+        if( vrAction.GetState( handType ) && triggerIsMovingForUs )
         {
-            ContinueMoveGesture();
+            myTriggerMover.ContinueMoveGestureExternally();
         }
-        if( vrAction.GetStateUp( handType ) && interactingObject != null )
+        if( vrAction.GetStateUp( handType ) && triggerIsMovingForUs )
         {
-            EndMoveGesture();
+            myTriggerMover.EndMoveGestureExternally();
+            triggerIsMovingForUs = false;
         }
     }
 
@@ -43,34 +43,17 @@ public class RemoteCloneMoveInteraction : MonoBehaviour
     private void CloneAndStartMoveGesture()
     {
         // clone
-        interactingObject = selectedObject.Clone( out interactingTransform );
+        Transform newObject = null;
+        selectedObject.Clone( out newObject );
+        
+        // tell trigger to move it
+        TriggerGrabMoveInteractable interactableReference = newObject.GetComponent<TriggerGrabMoveInteractable>();
+        myTriggerMover.StartMoveGestureExternally( interactableReference, newObject );
 
-        // store
-        interactingOriginalParent = interactingTransform.parent;
-
-        // parent it to me
-        interactingTransform.parent = transform;
+        // remember
+        triggerIsMovingForUs = true;
     }
 
-    private void ContinueMoveGesture()
-    {
-        // notify
-        interactingObject.InformOfTemporaryMovement( interactingTransform.position );
-    }
-
-    private void EndMoveGesture()
-    {
-        // unparent
-        interactingTransform.parent = interactingOriginalParent;
-
-        // notify
-        interactingObject.FinalizeMovement( interactingTransform.position );
-
-        // forget
-        interactingObject = null;
-        interactingTransform = null;
-        interactingOriginalParent = null;
-    }
 
     private bool FindSelectedObject()
     {
@@ -85,16 +68,6 @@ public class RemoteCloneMoveInteraction : MonoBehaviour
         }
         
         return selectedObject != null;
-    }
-
-
-    public void GameObjectBeingDeleted( GameObject other )
-    {
-        // stop the gesture
-        if( interactingTransform && other == interactingTransform.gameObject )
-        {
-            EndMoveGesture();
-        }
     }
 
 }

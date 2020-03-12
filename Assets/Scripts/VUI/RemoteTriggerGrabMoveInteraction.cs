@@ -30,7 +30,7 @@ public class RemoteTriggerGrabMoveInteraction : MonoBehaviour
     {
         if( triggerPress.GetStateDown( handType ) && FindSelectedObject() )
         {
-            StartMoveGesture();
+            StartMoveGesture( selectedObject, LaserPointerSelector.GetSelectedObject().transform );
         }
         if( triggerPress.GetState( handType ) && interactingObject != null )
         {
@@ -43,11 +43,11 @@ public class RemoteTriggerGrabMoveInteraction : MonoBehaviour
     }
 
     // 3 methods for doing the interaction
-    private void StartMoveGesture()
+    private void StartMoveGesture( TriggerGrabMoveInteractable objectToMove, Transform transformToMove )
     {
         // store
-        interactingObject = selectedObject;
-        interactingTransform = LaserPointerSelector.GetSelectedObject().transform;
+        interactingObject = objectToMove;
+        interactingTransform = transformToMove;
         interactingOriginalParent = interactingTransform.parent;
 
         // parent it to me
@@ -118,6 +118,21 @@ public class RemoteTriggerGrabMoveInteraction : MonoBehaviour
         interactingObject = null;
         interactingTransform = null;
         interactingOriginalParent = null;
+    }
+
+    public void StartMoveGestureExternally( TriggerGrabMoveInteractable objectToApplyTo, Transform transformOfTheObject )
+    {
+        StartMoveGesture( objectToApplyTo, transformOfTheObject );
+    }
+
+    public void ContinueMoveGestureExternally()
+    {
+        ContinueMoveGesture();
+    }
+
+    public void EndMoveGestureExternally()
+    {
+        EndMoveGesture();
     }
 
     private bool FindSelectedObject()

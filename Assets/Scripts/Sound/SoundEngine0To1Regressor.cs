@@ -21,6 +21,8 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
 
     public static SoundEngine0To1Regressor timbreRegressor, densityRegressor, volumeRegressor;
 
+    public bool displayPlaneVisualization = true;
+
 
 
     public void ProvideExample( Sound0To1Example example, bool rescan = true )
@@ -83,9 +85,17 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
 
     static public void Activate( SoundEngine0To1Regressor me )
     {
-        me.myColorablePlane.gameObject.SetActive( true );
-        me.myColorablePlane.SetDataSource( me );
-        me.currentlyShowingData = true;
+        me.ActivatePlane();
+    }
+
+    private void ActivatePlane()
+    {
+        if( displayPlaneVisualization )
+        {
+            myColorablePlane.gameObject.SetActive( true );
+            myColorablePlane.SetDataSource( this );
+            currentlyShowingData = true;
+        }
     }
 
     static public void Deactivate( SoundEngine0To1Regressor me )

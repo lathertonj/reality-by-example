@@ -18,6 +18,8 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
 
     private static SoundEngineChordClassifier me;
 
+    public bool displayPlaneVisualization = true;
+
 
 
     public void ProvideExample( SoundChordExample example, bool rescan = true )
@@ -68,9 +70,17 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
 
     static public void Activate()
     {
-        me.myColorablePlane.gameObject.SetActive( true );
-        me.myColorablePlane.SetDataSource( me );
-        me.currentlyShowingData = true;
+        me.ActivatePlane();
+    }
+
+    private void ActivatePlane()
+    {
+        if( displayPlaneVisualization )
+        {
+            myColorablePlane.gameObject.SetActive( true );
+            myColorablePlane.SetDataSource( this );
+            currentlyShowingData = true;
+        }
     }
 
     static public void Deactivate()

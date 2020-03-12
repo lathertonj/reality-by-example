@@ -17,6 +17,8 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
     private bool currentlyShowingData = false;
     private static SoundEngineTempoRegressor me;
 
+    public bool displayPlaneVisualization = true;
+
 
     public void ProvideExample( SoundTempoExample example, bool rescan = true )
     {
@@ -67,9 +69,17 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
 
     static public void Activate()
     {
-        me.myColorablePlane.gameObject.SetActive( true );
-        me.myColorablePlane.SetDataSource( me );
-        me.currentlyShowingData = true;
+        me.ActivatePlane();
+    }
+
+    private void ActivatePlane()
+    {
+        if( displayPlaneVisualization )
+        {
+            myColorablePlane.gameObject.SetActive( true );
+            myColorablePlane.SetDataSource( this );
+            currentlyShowingData = true;
+        }
     }
 
     static public void Deactivate()

@@ -22,6 +22,8 @@ public class RemoteGripPlaceDeleteInteraction : MonoBehaviour
 
     public float objectPlaceDistance = 1.5f;
 
+    public bool isDeleteEnabled = false;
+
 
 
     // Start is called before the first frame update
@@ -39,7 +41,7 @@ public class RemoteGripPlaceDeleteInteraction : MonoBehaviour
     {
         if( gripPress.GetStateDown( handType ) )
         {
-            if( FindSelectedObject() )
+            if( FindSelectedObject() && isDeleteEnabled )
             {
                 DeleteSelectedObject();
             }

@@ -156,8 +156,15 @@ public class SwitchToComponent : MonoBehaviour
                 gripInUse = true;
                 break;
             case InteractionType.CreatureExampleDelete:
-                // be sure to enable grip deletion below
-                gripInUse = false;
+                // enable grip deletion
+                EnableComponent<GripPlaceDeleteInteraction>( controller );
+                EnableComponent<RemoteGripPlaceDeleteInteraction>( controller );
+
+                // remote grip needs delete manually enabled so that it's not enabled otherwise
+                RemoteGripPlaceDeleteInteraction remoteGrip = controller.GetComponent<RemoteGripPlaceDeleteInteraction>();
+                if( remoteGrip ) { remoteGrip.isDeleteEnabled = true; }
+
+                gripInUse = true;
                 break;
             case InteractionType.CreatureCreate:
             case InteractionType.CreatureClone:
@@ -248,6 +255,7 @@ public class SwitchToComponent : MonoBehaviour
         {
             remoteGripPlace.enabled = true;
             remoteGripPlace.currentPrefabToUse = givenPrefab;
+            remoteGripPlace.isDeleteEnabled = false;
         }
 
         gripInUse = true;
@@ -268,6 +276,7 @@ public class SwitchToComponent : MonoBehaviour
         if( remoteGripPlace )
         {
             remoteGripPlace.currentPrefabToUse = null;
+            remoteGripPlace.isDeleteEnabled = false;
             remoteGripPlace.enabled = false;
         }
     }

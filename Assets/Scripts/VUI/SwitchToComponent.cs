@@ -85,14 +85,17 @@ public class SwitchToComponent : MonoBehaviour
                 break;
             case InteractionType.MoveTeleport:
                 EnableComponent<FlyingTeleporter>( controller );
+                EnableComponent<SnapTurn>( controller );
                 touchpadInUse = true;
                 break;
             case InteractionType.MoveFly:
                 EnableComponent<FlyingMovement>( controller );
+                EnableComponent<SnapTurn>( controller );
                 touchpadInUse = true;
                 break;
             case InteractionType.MoveGroundFly:
                 EnableComponent<GroundFlyingMovement>( controller );
+                EnableComponent<SnapTurn>( controller );
                 touchpadInUse = true;
                 break;
             case InteractionType.PlaceTempo:
@@ -170,6 +173,13 @@ public class SwitchToComponent : MonoBehaviour
                 }
                 // all these things use the grip (TODO except music mode / time mode... might remove those though)
                 gripInUse = true;
+
+                // annoyingly there is a special case for just this one
+                if( switchTo == InteractionType.MoveFollowCreature )
+                {
+                    EnableComponent<SnapTurn>( controller );
+                    touchpadInUse = true;
+                }
                 break;
             // disabled
             case InteractionType.CreatureSelect:
@@ -270,6 +280,7 @@ public class SwitchToComponent : MonoBehaviour
         DisableComponent<FlyingTeleporter>( o );
         DisableComponent<FlyingMovement>( o );
         DisableComponent<GroundFlyingMovement>( o );
+        DisableComponent<SnapTurn>( o );
 
         SlewToTransform slew = o.GetComponentInParent<SlewToTransform>();
         slew.objectToTrack = null;

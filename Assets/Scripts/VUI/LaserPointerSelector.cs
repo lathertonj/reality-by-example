@@ -220,6 +220,9 @@ public class LaserPointerSelector : MonoBehaviour
         selectedObject = newObject;
         theSelectionMarker.position = selectedObject.transform.position;
         theSelectionMarker.parent = selectedObject.transform;
+        // confusingly, because it's a particle system, the local scale affects the size rather than
+        // the overall scale
+        theSelectionMarker.localScale = Vector3.one;
         theSelectionMarker.gameObject.SetActive( true );
 
         LaserPointerSelectable selectable = selectedObject.GetComponent< LaserPointerSelectable >();

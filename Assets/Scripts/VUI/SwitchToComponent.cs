@@ -201,8 +201,15 @@ public class SwitchToComponent : MonoBehaviour
         if( !triggerInUse )
         {
             EnableComponent<TriggerGrabMoveInteraction>( controller );
-            EnableComponent<RemoteTriggerGrabMoveInteraction>( controller );
+            
+            RemoteTriggerGrabMoveInteraction remoteTrigger = controller.GetComponent<RemoteTriggerGrabMoveInteraction>();
+            if( remoteTrigger != null )
+            {
+                remoteTrigger.enabled = true;
+                remoteTrigger.touchpadMovingEnabled = !touchpadInUse;
+            }
         }
+
 
     }
 

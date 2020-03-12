@@ -153,9 +153,22 @@ public class LaserPointerSelector : MonoBehaviour
         
         if( menuItem )
         {
-            // activate it and select nothing
+            // activate it
             menuItem.ActivateMode( gameObject );
-            UnselectObject();
+
+            // for certain kinds of things, don't unselect the object
+            switch( menuItem.switchTo )
+            {
+                case SwitchToComponent.InteractionType.CreatureClone:
+                case SwitchToComponent.InteractionType.CreatureExampleRecord:
+                case SwitchToComponent.InteractionType.CreatureCreate:
+                    // for these, don't unselect selection
+                    break;
+                default:
+                    // for all others, unselect selection
+                    UnselectObject();
+                    break;
+            }   
         }
         else
         {

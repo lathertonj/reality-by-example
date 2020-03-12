@@ -21,8 +21,11 @@ public class AnimationActions : MonoBehaviour
 
     private AnimationByRecordedExampleController selectedCreature = null;
 
-    public enum CurrentAction{ FollowSelected, Clone, Nothing };
+    public enum CurrentAction{ Clone, Nothing };
+
     public CurrentAction currentAction = CurrentAction.Nothing;
+    public enum SelectionResponse{ FollowSelected, PrepareForRecording, Nothing };
+    private SelectionResponse currentSelectionResponse = SelectionResponse.Nothing;
 
     public float creationDistance = 1.5f;
 
@@ -42,9 +45,6 @@ public class AnimationActions : MonoBehaviour
             // only do this if we're in select mode
             switch( currentAction )
             {
-                case CurrentAction.FollowSelected:
-                    // do nothing in response to action button
-                    break;
                 case CurrentAction.Clone:
                     CloneCurrentCreature( true );
                     break;
@@ -60,9 +60,9 @@ public class AnimationActions : MonoBehaviour
         if( selectionButton.GetStateUp( hand ) )
         {
             // respond to a potential selection
-            switch( currentAction )
+            switch( currentSelectionResponse )
             {
-                case CurrentAction.FollowSelected:
+                case SelectionResponse.FollowSelected:
                     if( FindSelectedCreature() )
                     {
                         SlewToTransform slew = GetComponentInParent<SlewToTransform>();
@@ -70,8 +70,10 @@ public class AnimationActions : MonoBehaviour
                         slew.enabled = true;
                     }
                     break;
-                // TODO: things for recording new examples?
-                default:
+                case SelectionResponse.PrepareForRecording:
+                    EnableSelectedCreatureAction();
+                    break;
+                case SelectionResponse.Nothing:
                     break;
             }
         }
@@ -83,6 +85,7 @@ public class AnimationActions : MonoBehaviour
     {
         // do nothing
         currentAction = CurrentAction.Nothing;
+        currentSelectionResponse = SelectionResponse.Nothing;
         // disable grip cloner
         myCloner.enabled = false;
         // set animator mode to "do not respond to grip"
@@ -119,12 +122,8 @@ public class AnimationActions : MonoBehaviour
             case SwitchToComponent.InteractionType.CreatureExampleRecord:
                 // turn on create new animation (in selected bird animator)
                 EnableSelectedCreatureAction();
-                // else
-                // {
-                //     // TODO: inform debug somehow that there is no creature selected
-                // }
-
-                
+                // next time we hear a selection happened, try enabling it for recording
+                currentSelectionResponse = SelectionResponse.PrepareForRecording; 
                 break;
             case SwitchToComponent.InteractionType.CreatureExampleClone:
                 // turn on cloning functionality
@@ -142,8 +141,8 @@ public class AnimationActions : MonoBehaviour
                 AnimationByRecordedExampleController.SwitchGlobalRecordingMode( AnimationByRecordedExampleController.RecordingType.MusicTempo );
                 break;
             case SwitchToComponent.InteractionType.MoveFollowCreature:
-                // turn on laser pointer selector
-                currentAction = CurrentAction.FollowSelected;
+                // next time we hear a selection happened, try to follow it
+                currentSelectionResponse = SelectionResponse.FollowSelected;
                 break;
             default:
                 // do nothing

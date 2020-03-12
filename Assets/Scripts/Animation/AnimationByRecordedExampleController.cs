@@ -1023,7 +1023,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     void LaserPointerSelectable.Unselected()
     {
         // when unselected, hide my examples
-        HideExamples();
+        // TODO: this is not the right time to hide examples. this prevents us from
+        // selecting an example, because it is hidden when the creature is unselected
+        // instead, hide examples only when a new creature is selected
+        // HideExamples();
 
         // also, disable recording
         nextAction = AnimationAction.DoNothing;

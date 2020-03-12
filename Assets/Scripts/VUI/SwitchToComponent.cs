@@ -325,7 +325,7 @@ public class SwitchToComponent : MonoBehaviour
     }
 
 
-    private void EnableComponent<T>( GameObject o ) where T : MonoBehaviour
+    public static void EnableComponent<T>( GameObject o ) where T : MonoBehaviour
     {
         T component = o.GetComponent<T>();
         if( component != null )
@@ -335,7 +335,7 @@ public class SwitchToComponent : MonoBehaviour
     }
     
     
-    private void DisableComponent<T>( GameObject o ) where T : MonoBehaviour
+    public static void DisableComponent<T>( GameObject o ) where T : MonoBehaviour
     {
         T component = o.GetComponent<T>();
         if( component != null )

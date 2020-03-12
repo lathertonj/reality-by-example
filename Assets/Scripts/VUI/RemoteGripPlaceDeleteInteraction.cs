@@ -16,6 +16,7 @@ public class RemoteGripPlaceDeleteInteraction : MonoBehaviour
     private RemoteTouchpadUpDownInteraction myUpDownInteraction;
     private RemoteTriggerGrabMoveInteraction myGrabMoveInteraction;
     private RemoteTouchpadLeftRightClickInteraction myLeftRightClickInteraction;
+    private RemoteCloneMoveInteraction myCloneMoveInteraction;
 
 
 
@@ -30,6 +31,7 @@ public class RemoteGripPlaceDeleteInteraction : MonoBehaviour
         myUpDownInteraction = GetComponent<RemoteTouchpadUpDownInteraction>();
         myGrabMoveInteraction = GetComponent<RemoteTriggerGrabMoveInteraction>();
         myLeftRightClickInteraction = GetComponent<RemoteTouchpadLeftRightClickInteraction>();
+        myCloneMoveInteraction = GetComponent<RemoteCloneMoveInteraction>();
     }
 
     // Update is called once per frame
@@ -85,6 +87,7 @@ public class RemoteGripPlaceDeleteInteraction : MonoBehaviour
         myGrabMoveInteraction.GameObjectBeingDeleted( selectedGameObject );
         myUpDownInteraction.GameObjectBeingDeleted( selectedGameObject );
         myLeftRightClickInteraction.GameObjectBeingDeleted( selectedGameObject );
+        myCloneMoveInteraction.GameObjectBeingDeleted( selectedGameObject );
 
         // destroy it
         Destroy( selectedGameObject );

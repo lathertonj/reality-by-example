@@ -13,13 +13,11 @@ public class AnimationActions : MonoBehaviour
     private VibrateController vibration;
 
 
-    CloneMoveInteraction myCloner;
-
-
     public Transform baseDataSource;
     public Transform[] relativePointsDataSources;
 
     private AnimationByRecordedExampleController selectedCreature = null;
+    private AnimationByRecordedExampleController previouslySelectedCreature = null;
 
     public enum CurrentAction{ Clone, Nothing };
 
@@ -32,7 +30,6 @@ public class AnimationActions : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        myCloner = GetComponent<CloneMoveInteraction>();
         vibration = GetComponent<VibrateController>();
         controller = GetComponent<SteamVR_Behaviour_Pose>();
     }
@@ -60,21 +57,29 @@ public class AnimationActions : MonoBehaviour
         if( selectionButton.GetStateUp( hand ) )
         {
             // respond to a potential selection
-            switch( currentSelectionResponse )
+            if( FindSelectedCreature() )
             {
-                case SelectionResponse.FollowSelected:
-                    if( FindSelectedCreature() )
-                    {
-                        SlewToTransform slew = GetComponentInParent<SlewToTransform>();
-                        slew.objectToTrack = selectedCreature.transform;
-                        slew.enabled = true;
-                    }
-                    break;
-                case SelectionResponse.PrepareForRecording:
-                    EnableSelectedCreatureAction();
-                    break;
-                case SelectionResponse.Nothing:
-                    break;
+                // check if what we've selected is different than the previously selected creature
+                if( selectedCreature != previouslySelectedCreature )
+                {
+                    // hide the previously selected creature's examples
+                    if( previouslySelectedCreature != null ) { previouslySelectedCreature.HideExamples(); }
+                    
+                    previouslySelectedCreature = selectedCreature;
+                }
+                switch( currentSelectionResponse )
+                {
+                    case SelectionResponse.FollowSelected:
+                            SlewToTransform slew = GetComponentInParent<SlewToTransform>();
+                            slew.objectToTrack = selectedCreature.transform;
+                            slew.enabled = true;
+                        break;
+                    case SelectionResponse.PrepareForRecording:
+                        EnableSelectedCreatureAction();
+                        break;
+                    case SelectionResponse.Nothing:
+                        break;
+                }
             }
         }
     }
@@ -86,8 +91,9 @@ public class AnimationActions : MonoBehaviour
         // do nothing
         currentAction = CurrentAction.Nothing;
         currentSelectionResponse = SelectionResponse.Nothing;
-        // disable grip cloner
-        myCloner.enabled = false;
+        // disable grip cloners
+        SwitchToComponent.DisableComponent<CloneMoveInteraction>( gameObject );
+        SwitchToComponent.DisableComponent<RemoteCloneMoveInteraction>( gameObject );
         // set animator mode to "do not respond to grip"
         DisableSelectedCreatureAction();
         // reset selected creature
@@ -127,7 +133,8 @@ public class AnimationActions : MonoBehaviour
                 break;
             case SwitchToComponent.InteractionType.CreatureExampleClone:
                 // turn on cloning functionality
-                myCloner.enabled = true;
+                SwitchToComponent.EnableComponent<CloneMoveInteraction>( gameObject );
+                SwitchToComponent.EnableComponent<RemoteCloneMoveInteraction>( gameObject );
                 break;
             case SwitchToComponent.InteractionType.CreatureExampleDelete:
                 // pass -- handle this in SwitchToComponent

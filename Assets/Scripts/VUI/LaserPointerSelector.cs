@@ -162,6 +162,8 @@ public class LaserPointerSelector : MonoBehaviour
                 case SwitchToComponent.InteractionType.CreatureClone:
                 case SwitchToComponent.InteractionType.CreatureExampleRecord:
                 case SwitchToComponent.InteractionType.CreatureCreate:
+                case SwitchToComponent.InteractionType.CreatureExampleClone:
+                case SwitchToComponent.InteractionType.CreatureExampleDelete:
                     // for these, don't unselect selection
                     break;
                 default:

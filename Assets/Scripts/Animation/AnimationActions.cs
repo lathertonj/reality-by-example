@@ -174,7 +174,7 @@ public class AnimationActions : MonoBehaviour
     {
         if( FindSelectedCreature() )
         {
-            selectedCreature.nextAction = AnimationByRecordedExampleController.AnimationAction.DoNothing;
+            selectedCreature.SetNextAction( AnimationByRecordedExampleController.AnimationAction.DoNothing, controller );
         }
     }
 
@@ -182,7 +182,7 @@ public class AnimationActions : MonoBehaviour
     {
         if( FindSelectedCreature() )
         {
-            selectedCreature.nextAction = AnimationByRecordedExampleController.AnimationAction.RecordAnimation;
+            selectedCreature.SetNextAction( AnimationByRecordedExampleController.AnimationAction.RecordAnimation, controller );
             selectedCreature.handType = hand;
         }
 

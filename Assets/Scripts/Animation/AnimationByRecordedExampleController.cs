@@ -16,7 +16,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     public enum RecordingType { ConstantTime, MusicTempo };
     public RecordingType currentRecordingAndPlaybackMode = RecordingType.ConstantTime;
     private static RecordingType recordingTypeForNewBirds = RecordingType.ConstantTime;
-    public AnimationAction nextAction = AnimationAction.DoNothing;
+    private AnimationAction nextAction = AnimationAction.DoNothing;
 
     public AnimationExample examplePrefab;
 
@@ -70,6 +70,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     IEnumerator dataCollectionCoroutine = null, runtimeCoroutine = null;
 
     private AnimationSoundRecorderPlaybackController mySounder = null;
+
+    public bool useRecordingModeOffset = false;
+    public float recordingModeLateralOffset = 1.5f;
+    private Vector3 recordingModeOffset = Vector3.zero;
 
 
     void Awake()
@@ -182,12 +186,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         else if( nextAction == AnimationAction.RecordAnimation )
         {
             // animate it as just following the data sources, only if we're recording data or might again soon
-            modelBaseToAnimate.position = modelBaseDataSource.position;
+            modelBaseToAnimate.position = modelBaseDataSource.position + recordingModeOffset;
             modelBaseToAnimate.rotation = modelBaseDataSource.rotation;
 
             for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
             {
-                modelRelativePointsToAnimate[i].position = modelRelativePointsDataSource[i].position;
+                modelRelativePointsToAnimate[i].position = modelRelativePointsDataSource[i].position + recordingModeOffset;
             }
         }
 
@@ -529,6 +533,30 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return currentlyUsedExamples[whichAnimation].relativeExamples[i][ currentFrame % numFrames ].positionRelativeToBase;
     }
 
+    private void ComputeRecordingOffset( SteamVR_Behaviour_Pose controllerPose )
+    {
+        if( useRecordingModeOffset )
+        {
+            Vector3 direction = controllerPose.transform.forward;
+            direction.y = 0;
+            recordingModeOffset = direction.normalized * recordingModeLateralOffset;
+        }
+        else
+        {
+            recordingModeOffset = Vector3.zero;
+        }
+    }
+
+    public void SetNextAction( AnimationAction newAction, SteamVR_Behaviour_Pose associatedController )
+    {
+        nextAction = newAction;
+        
+        if( nextAction == AnimationAction.RecordAnimation )
+        {
+            ComputeRecordingOffset( associatedController );
+        }
+    }
+
 
     List<ModelBaseDatum> currentBasePhrase;
     List<ModelRelativeDatum>[] currentRelativePhrases;
@@ -546,7 +574,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         }
 
         // store the data in the example!
-        AnimationExample newExample = Instantiate( examplePrefab, modelBaseDataSource.position, Quaternion.identity );
+        AnimationExample newExample = Instantiate( examplePrefab, modelBaseDataSource.position + recordingModeOffset, Quaternion.identity );
         examples.Add( newExample );
         // TODO ensure this is a shallow copy and that the lists are identical
         newExample.Initiate( currentBasePhrase, currentRelativePhrases, this, currentRecordingAndPlaybackMode );
@@ -1029,7 +1057,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         // HideExamples();
 
         // also, disable recording
-        nextAction = AnimationAction.DoNothing;
+        SetNextAction( AnimationAction.DoNothing, null );
     }
 
     public class ModelBaseDatum

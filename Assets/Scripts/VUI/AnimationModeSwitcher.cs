@@ -189,7 +189,8 @@ public class AnimationModeSwitcher : MonoBehaviour
     {
         if( currentCreature != null )
         {
-            currentCreature.nextAction = AnimationByRecordedExampleController.AnimationAction.DoNothing;
+            // this will likely fail but also this script is not used in this branch
+            currentCreature.SetNextAction( AnimationByRecordedExampleController.AnimationAction.DoNothing, GetComponent<SteamVR_Behaviour_Pose>() );
         }
     }
 
@@ -197,7 +198,8 @@ public class AnimationModeSwitcher : MonoBehaviour
     {
         if( currentCreature != null )
         {
-            currentCreature.nextAction = AnimationByRecordedExampleController.AnimationAction.RecordAnimation;
+            // this will likely fail but also this script is not used in this branch
+            currentCreature.SetNextAction( AnimationByRecordedExampleController.AnimationAction.RecordAnimation, GetComponent<SteamVR_Behaviour_Pose>() );
         }
     }
 

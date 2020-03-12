@@ -2267,6 +2267,7 @@ MonoBehaviour:
   startStopDataCollection:
     actionPath: /actions/terraingenerate/in/GeneratePoint
     needsReinit: 0
+  controllerPose: {fileID: 0}
   modelBaseDataSource: {fileID: 0}
   modelBaseToAnimate: {fileID: 3197902672222810673}
   modelRelativePointsDataSource:
@@ -2290,6 +2291,8 @@ MonoBehaviour:
   rampUpSeverity: 1.5
   dataCollectionRate: 0.1
   maxEulerAnglesChange: {x: 20, y: 20, z: 20}
+  useRecordingModeOffset: 1
+  recordingModeLateralOffset: 1.5
 --- !u!114 &3197902673507219444
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -9,7 +9,6 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
     private static List< TerrainHeightExample > allExamples = new List< TerrainHeightExample >();
 
 
-
     void TriggerGrabMoveInteractable.InformOfTemporaryMovement( Vector3 currentPosition )
     {
         // don't respond to movements midway
@@ -106,4 +105,27 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
         }
     }
 
+    public SerializableTerrainHeightExample Serialize( ConnectedTerrainController myTerrain )
+    {
+        // myTerrain passed just in case!
+
+        SerializableTerrainHeightExample serial = new SerializableTerrainHeightExample();
+        
+        serial.localPosition = myTerrain.transform.InverseTransformPoint( transform.position );
+        return serial;
+    }
+
+    public void ResetFromSerial( SerializableTerrainHeightExample serialized, ConnectedTerrainController myTerrain )
+    {
+        transform.position = myTerrain.transform.TransformPoint( serialized.localPosition );
+    }
+
 }
+
+
+[System.Serializable]
+public class SerializableTerrainHeightExample
+{
+    public Vector3 localPosition;
+}
+

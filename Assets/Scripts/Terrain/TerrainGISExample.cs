@@ -16,6 +16,7 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
     [HideInInspector] public float myValue = 1.0f;
     [HideInInspector] public GISType myType = GISType.Smooth;
 
+
     private TextMesh myText;
 
     void Awake()
@@ -234,8 +235,34 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
             StopCoroutine( hintCoroutine );
         }
     }
+
+
+    public SerializableTerrainGISExample Serialize( ConnectedTerrainController myTerrain )
+    {
+        SerializableTerrainGISExample serial = new SerializableTerrainGISExample();
+        serial.localPosition = myTerrain.transform.InverseTransformPoint( transform.position );
+        serial.type = myType;
+        serial.value = myValue;
+        return serial;
+    }
+
+    public void ResetFromSerial( SerializableTerrainGISExample serialized, ConnectedTerrainController myTerrain )
+    {
+        transform.position = myTerrain.transform.TransformPoint( serialized.localPosition );
+        UpdateMyValue( serialized.type, serialized.value );
+    }
     
 }
+
+
+[System.Serializable]
+public class SerializableTerrainGISExample
+{
+    public Vector3 localPosition;
+    public TerrainGISExample.GISType type;
+    public float value;
+}
+
 
 public static class GISExtensions
 {

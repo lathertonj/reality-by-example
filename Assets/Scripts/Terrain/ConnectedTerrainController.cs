@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Stitchscape;
 
-public class ConnectedTerrainController : MonoBehaviour
+public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
 {
     // CRIT NOTES
     // - could do a comparison between this and linear regression and to non-ML interpolation
@@ -46,6 +46,14 @@ public class ConnectedTerrainController : MonoBehaviour
     public bool addGISTexture = true;
     public bool debugGISFeatures = false;
     public TextMesh debugUI;
+
+
+    public TerrainHeightExample heightPrefab;
+    public TerrainGISExample gisPrefab;
+
+    public string serializationIdentifier;
+
+
     private RapidMixRegression myGISRegression;
     [HideInInspector] public List<TerrainGISExample> myGISRegressionExamples;
     private bool haveTrainedGIS = false;
@@ -98,19 +106,16 @@ public class ConnectedTerrainController : MonoBehaviour
     }
 
 
-    public void ProvideExample( TerrainHeightExample example )
+    public void ProvideExample( TerrainHeightExample example, bool shouldRescan = true )
     {
         // remember
         myRegressionExamples.Add( example );
 
         // recompute
-        RescanProvidedExamples();
-    }
-
-    public void ProvideExampleEfficient( TerrainHeightExample example )
-    {
-        // remember
-        myRegressionExamples.Add( example );
+        if( shouldRescan )
+        {
+            RescanProvidedExamples();
+        }
     }
 
     public void ForgetExample( TerrainHeightExample example )
@@ -123,22 +128,19 @@ public class ConnectedTerrainController : MonoBehaviour
         }
     }
 
-    public void ProvideExample( TerrainGISExample example )
+    public void ProvideExample( TerrainGISExample example, bool shouldRescan = true )
     {
         if( !addGISTexture ) return;
         // remember
         myGISRegressionExamples.Add( example );
 
         // recompute
-        RescanProvidedExamples();
+        if( shouldRescan )
+        {
+            RescanProvidedExamples();
+        }
     }
 
-    public void ProvideExampleEfficient( TerrainGISExample example )
-    {
-        if( !addGISTexture ) return;
-        // remember
-        myGISRegressionExamples.Add( example );
-    }
 
     public void ForgetExample( TerrainGISExample example )
     {
@@ -155,9 +157,14 @@ public class ConnectedTerrainController : MonoBehaviour
     // so that we can only recompute one when it changes? :|
     public void RescanProvidedExamples( bool lazy = false, int framesToSpreadOver = 15, int framesToSpreadGISOver = 15, int framesToSpreadTextureOver = 3 )
     {
+        StartCoroutine( RescanProvidedExamplesCoroutine( lazy, framesToSpreadOver, framesToSpreadGISOver, framesToSpreadTextureOver ) );
+    }
+
+    private IEnumerator RescanProvidedExamplesCoroutine( bool lazy, int framesToSpreadOver, int framesToSpreadGISOver, int framesToSpreadTextureOver )
+    {
         // train and recompute
         TrainRegression();
-        StartCoroutine( ComputeLandHeight( lazy, framesToSpreadOver, framesToSpreadGISOver, framesToSpreadTextureOver ) );
+        yield return StartCoroutine( ComputeLandHeight( lazy, framesToSpreadOver, framesToSpreadGISOver, framesToSpreadTextureOver ) );
     }
 
 
@@ -892,8 +899,61 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
         }
     }
 
+    string SerializableByExample.SerializeExamples()
+    {
+        SerializableTerrainHeightTrainingExamples mySerializableExamples;
+        mySerializableExamples = new SerializableTerrainHeightTrainingExamples();
+        mySerializableExamples.heightExamples = new List<SerializableTerrainHeightExample>();
+        mySerializableExamples.gisExamples = new List<SerializableTerrainGISExample>();
+
+        foreach( TerrainHeightExample example in myRegressionExamples )
+        {
+            mySerializableExamples.heightExamples.Add( example.Serialize( this ) );
+        }
+        foreach( TerrainGISExample example in myGISRegressionExamples )
+        {
+            mySerializableExamples.gisExamples.Add( example.Serialize( this ) );
+        }
+
+        // convert to json
+        return SerializationManager.ConvertToJSON<SerializableTerrainHeightTrainingExamples>( mySerializableExamples );
+    }
+
+    IEnumerator SerializableByExample.LoadExamples( string serializedExamples )
+    {
+        SerializableTerrainHeightTrainingExamples examples = 
+            SerializationManager.ConvertFromJSON<SerializableTerrainHeightTrainingExamples>( serializedExamples );
+        for( int i = 0; i < examples.heightExamples.Count; i++ )
+        {
+            TerrainHeightExample newExample = Instantiate( heightPrefab );
+            newExample.ResetFromSerial( examples.heightExamples[i], this );
+            // don't retrain until end
+            ProvideExample( newExample, false );
+        }
+
+        for( int i = 0; i < examples.gisExamples.Count; i++ )
+        {
+            TerrainGISExample newExample = Instantiate( gisPrefab );
+            newExample.ResetFromSerial( examples.gisExamples[i], this );
+            // don't retrain until end
+            ProvideExample( newExample, false );
+        }
+
+        // retrain!
+        // not lazy, 15 frames for height, 15 frames for GIS, 3 frames for texture
+        yield return StartCoroutine( RescanProvidedExamplesCoroutine( false, 15, 15, 3 ) );
+    }
+
+    string SerializableByExample.FilenameIdentifier()
+    {
+        return "height_" + serializationIdentifier;
+    }
+}
 
 
-
-
+[System.Serializable]
+public class SerializableTerrainHeightTrainingExamples
+{
+    public List< SerializableTerrainHeightExample > heightExamples;
+    public List< SerializableTerrainGISExample > gisExamples;
 }

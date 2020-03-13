@@ -188,13 +188,13 @@ public class TerrainTextureController : MonoBehaviour
 
     void SaveExamples()
     {
-        SerializableTerrainTrainingExamples mySerializableExamples;
-        mySerializableExamples = new SerializableTerrainTrainingExamples();
+        SerializableTerrainTextureTrainingExamples mySerializableExamples;
+        mySerializableExamples = new SerializableTerrainTextureTrainingExamples();
         mySerializableExamples.examples = new List<SerializableTerrainTextureExample>();
 
         foreach( TerrainTextureExample example in myRegressionExamples )
         {
-            mySerializableExamples.examples.Add( example.serializableObject );
+            mySerializableExamples.examples.Add( example.Serialize( transform ) );
         }
 
         // open for overwriting (append = false)
@@ -217,12 +217,12 @@ public class TerrainTextureController : MonoBehaviour
     void LoadExamples( string examplesJSON )
     {
         Debug.Log( examplesJSON );
-        SerializableTerrainTrainingExamples examples = 
-            JsonUtility.FromJson<SerializableTerrainTrainingExamples>( examplesJSON );
+        SerializableTerrainTextureTrainingExamples examples = 
+            JsonUtility.FromJson<SerializableTerrainTextureTrainingExamples>( examplesJSON );
         for( int i = 0; i < examples.examples.Count; i++ )
         {
             TerrainTextureExample newExample = Instantiate( terrainExamplePrefab );
-            newExample.ResetFromSerial( examples.examples[i] );
+            newExample.ResetFromSerial( examples.examples[i], transform );
             // don't retrain until end
             ProvideExample( newExample, false );
         }
@@ -245,8 +245,3 @@ public class TerrainTextureController : MonoBehaviour
     }
 }
 
-[System.Serializable]
-public class SerializableTerrainTrainingExamples
-{
-    public List< SerializableTerrainTextureExample > examples;
-}

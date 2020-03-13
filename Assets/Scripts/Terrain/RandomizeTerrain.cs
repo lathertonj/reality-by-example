@@ -222,7 +222,7 @@ public class RandomizeTerrain : MonoBehaviour
                 // ~ JustPlaced
                 e.ManuallySpecifyTerrain( terrainHeightControllers[i] );
 
-                terrainHeightControllers[i].ProvideExampleEfficient( e );
+                terrainHeightControllers[i].ProvideExample( e, false );
             }
 
             // // wait before moving on
@@ -254,7 +254,7 @@ public class RandomizeTerrain : MonoBehaviour
                 b.Randomize();
 
                 // inform terrain of example
-                terrainHeightControllers[i].ProvideExampleEfficient( b );
+                terrainHeightControllers[i].ProvideExample( b, false );
             }
             // wait before moving on
             yield return null;

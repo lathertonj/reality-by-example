@@ -3,18 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-public class ConnectedTerrainTextureController : MonoBehaviour
+public class ConnectedTerrainTextureController : MonoBehaviour , SerializableByExample
 {
     private Terrain myTerrain;
     private TerrainData myTerrainData;
     private RapidMixRegression myRegression;
 
-    public bool saveExamplesOnQuit;
-    public string saveExamplesFilename;
     public TerrainTextureExample terrainExamplePrefab;
 
-    public bool loadExamples;
-    public string loadExamplesFilename;
 
     private ConnectedTerrainTextureController leftNeighbor, rightNeighbor, upperNeighbor, lowerNeighbor;
     private ConnectedTerrainController myHeightController;
@@ -23,6 +19,8 @@ public class ConnectedTerrainTextureController : MonoBehaviour
     private float[,,] pureSplatmapData, blendedSplatmapData;
     private static float[,,] whiteSplatmapData = null;
     private int overlapPixels = 5, cornerOverlapPixels = 3, edgeOverlapPixels = 8;
+
+    public string serializationIdentifier;
 
     // TODO: how to smooth texture?
     // I can't compute extra beyond the regions of the terrain
@@ -83,11 +81,6 @@ public class ConnectedTerrainTextureController : MonoBehaviour
         rightNeighbor = myHeightController.rightNeighbor ? myHeightController.rightNeighbor.GetComponent<ConnectedTerrainTextureController>() : null;
         upperNeighbor = myHeightController.upperNeighbor ? myHeightController.upperNeighbor.GetComponent<ConnectedTerrainTextureController>() : null;
         lowerNeighbor = myHeightController.lowerNeighbor ? myHeightController.lowerNeighbor.GetComponent<ConnectedTerrainTextureController>() : null;
-
-        if( loadExamples )
-        {
-            LoadExamplesFromFile();
-        }
     }
 
     [HideInInspector] public List<TerrainTextureExample> myRegressionExamples;
@@ -563,70 +556,47 @@ public class ConnectedTerrainTextureController : MonoBehaviour
         };
     }
 
-    void OnApplicationQuit()
-    {
-        if( saveExamplesOnQuit )
-        {
-            SaveExamples();
-        }
-    }
 
-    void SaveExamples()
+    string SerializableByExample.SerializeExamples()
     {
-        SerializableTerrainTrainingExamples mySerializableExamples;
-        mySerializableExamples = new SerializableTerrainTrainingExamples();
+        SerializableTerrainTextureTrainingExamples mySerializableExamples;
+        mySerializableExamples = new SerializableTerrainTextureTrainingExamples();
         mySerializableExamples.examples = new List<SerializableTerrainTextureExample>();
 
         foreach( TerrainTextureExample example in myRegressionExamples )
         {
-            mySerializableExamples.examples.Add( example.serializableObject );
+            mySerializableExamples.examples.Add( example.Serialize( transform ) );
         }
 
-        // open for overwriting (append = false)
-        StreamWriter writer = new StreamWriter( Application.streamingAssetsPath + "/" + saveExamplesFilename, false );
-        // convert to json and write
-        string theJSON = JsonUtility.ToJson( mySerializableExamples );
-        Debug.Log( theJSON );
-        writer.Write( theJSON );
-        writer.Close();
+        // convert to json
+        return SerializationManager.ConvertToJSON<SerializableTerrainTextureTrainingExamples>( mySerializableExamples );
     }
 
-    void LoadExamplesFromFile()
+    IEnumerator SerializableByExample.LoadExamples( string serializedExamples )
     {
-        StreamReader reader = new StreamReader( Application.streamingAssetsPath + "/" + loadExamplesFilename );
-        string json = reader.ReadToEnd();
-        reader.Close();
-        LoadExamples( json );
-    }
-
-    void LoadExamples( string examplesJSON )
-    {
-        Debug.Log( examplesJSON );
-        SerializableTerrainTrainingExamples examples =
-            JsonUtility.FromJson<SerializableTerrainTrainingExamples>( examplesJSON );
+        SerializableTerrainTextureTrainingExamples examples = 
+            SerializationManager.ConvertFromJSON<SerializableTerrainTextureTrainingExamples>( serializedExamples );
         for( int i = 0; i < examples.examples.Count; i++ )
         {
             TerrainTextureExample newExample = Instantiate( terrainExamplePrefab );
-            newExample.ResetFromSerial( examples.examples[i] );
+            newExample.ResetFromSerial( examples.examples[i], transform );
             // don't retrain until end
             ProvideExample( newExample, false );
         }
-        RescanProvidedExamples();
+        
+        // rescan over 3 frames
+        yield return StartCoroutine( RescanProvidedExamples( 3 ) );
     }
 
-    void ClearExamples()
+    string SerializableByExample.FilenameIdentifier()
     {
-        for( int i = 0; i < myRegressionExamples.Count; i++ )
-        {
-            Destroy( myRegressionExamples[i].gameObject );
-        }
-        myRegressionExamples.Clear();
-    }
-
-    public void ReplaceTrainingExamplesWithSerial( string examplesJSON )
-    {
-        ClearExamples();
-        LoadExamples( examplesJSON );
+        return "texture_" + serializationIdentifier;
     }
 }
 
+
+[System.Serializable]
+public class SerializableTerrainTextureTrainingExamples
+{
+    public List< SerializableTerrainTextureExample > examples;
+}

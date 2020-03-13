@@ -14,17 +14,13 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
     private int myCurrentValue;
     private MeshRenderer myRenderer;
 
-    [HideInInspector] public SerializableTerrainTextureExample serializableObject;
     [HideInInspector] private ConnectedTerrainTextureController myTerrain;
 
     void Awake()
     {
-        serializableObject = new SerializableTerrainTextureExample();
-
         myCurrentValue = 0;
         myRenderer = GetComponentInChildren<MeshRenderer>();
         UpdateMaterial();
-        UpdatePosition();
     }
 
     private void SwitchToNextMaterial()
@@ -47,11 +43,6 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
         UpdateMaterial();
     }
 
-    public void UpdatePosition()
-    {
-        serializableObject.position = transform.position;
-    }
-
     // Update is called once per frame
     void UpdateMaterial()
     {
@@ -59,22 +50,12 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
         myRenderer.material = myMaterials[ myCurrentValue ];
         myHint.material = myHintMaterials[ myCurrentValue ];
 
-        // store for serialize
-        serializableObject.material = myCurrentValue;
-
         // store for IML
         for( int i = 0; i < myValues.Length; i++ ) { myValues[i] = 0; }
         myValues[ myCurrentValue ] = 1;
         myLabel = myCurrentValue.ToString();
     }
 
-    public void ResetFromSerial( SerializableTerrainTextureExample serialized )
-    {
-        transform.position = serialized.position;
-        myCurrentValue = serialized.material;
-        UpdatePosition();
-        UpdateMaterial();
-    }
 
     private ConnectedTerrainTextureController FindTerrain()
     {
@@ -136,9 +117,6 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
 
     void TriggerGrabMoveInteractable.FinalizeMovement( Vector3 endPosition )
     {
-        // remember for serial
-        UpdatePosition();
-
         // see if we're on a new terrain
         ConnectedTerrainTextureController newTerrain = FindTerrain();
         if( newTerrain != null && newTerrain != myTerrain )
@@ -199,11 +177,27 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
             StopCoroutine( hintCoroutine );
         }
     }
+    
+
+    public SerializableTerrainTextureExample Serialize( Transform myTerrain )
+    {
+        SerializableTerrainTextureExample serial = new SerializableTerrainTextureExample();
+        serial.localPosition = myTerrain.InverseTransformPoint( transform.position );
+        serial.material = myCurrentValue;
+        return serial;
+    }
+
+    public void ResetFromSerial( SerializableTerrainTextureExample serialized, Transform myTerrain )
+    {
+        transform.position = myTerrain.TransformPoint( serialized.localPosition );
+        myCurrentValue = serialized.material;
+        UpdateMaterial();
+    }
 }
 
 [System.Serializable]
 public class SerializableTerrainTextureExample
 {
-    public Vector3 position;
+    public Vector3 localPosition;
     public int material;
 }

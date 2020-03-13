@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSource
+public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSource , SerializableByExample
 {
     public Transform objectToRunRegressionOn;
     private SoundEngine mySoundEngine;
@@ -18,6 +18,8 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
     private static SoundEngineTempoRegressor me;
 
     public bool displayPlaneVisualization = true;
+
+    public SoundTempoExample examplePrefab;
 
 
     public void ProvideExample( SoundTempoExample example, bool rescan = true )
@@ -172,4 +174,46 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
         return ((float) myRegression.Run( SoundEngineFeatures.InputVector( worldPos ) )[0])
             .MapClamp( SoundTempoExample.minTempo, SoundTempoExample.maxTempo, 0, 1 ); 
     }
+
+    string SerializableByExample.SerializeExamples()
+    {
+        SerializableTempoExamples examples = new SerializableTempoExamples();
+        examples.examples = new List<SerializableTempoExample>();
+
+        foreach( SoundTempoExample example in myRegressionExamples )
+        {
+            examples.examples.Add( example.Serialize() );
+        }
+
+        // convert to json
+        return SerializationManager.ConvertToJSON<SerializableTempoExamples>( examples );
+    }
+
+    IEnumerator SerializableByExample.LoadExamples( string serializedExamples )
+    {
+        SerializableTempoExamples examples = 
+            SerializationManager.ConvertFromJSON<SerializableTempoExamples>( serializedExamples );
+        
+        // height
+        for( int i = 0; i < examples.examples.Count; i++ )
+        {
+            SoundTempoExample newExample = Instantiate( examplePrefab );
+            newExample.ResetFromSerial( examples.examples[i] );
+            newExample.Initialize( false );
+        }
+
+        RescanProvidedExamples();
+        yield break;
+    }
+
+    string SerializableByExample.FilenameIdentifier()
+    {
+        return "tempo";
+    }
+}
+
+[System.Serializable]
+public class SerializableTempoExamples
+{
+    public List< SerializableTempoExample > examples;
 }

@@ -53,6 +53,8 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
 
     private void UpdateMyTempo( float newTempo )
     {
+        if( !myText ) { myText = GetComponentInChildren<TextMesh>(); }
+
         // clamp to min / max
         myTempo = Mathf.Clamp( newTempo, minTempo, maxTempo );
 
@@ -85,7 +87,6 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
         }
 
         // update text too
-        myText = GetComponentInChildren<TextMesh>();
         UpdateMyTempo( myTempo );
         
         // inform it
@@ -122,4 +123,26 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
             StopCoroutine( hintCoroutine );
         }
     }
+
+    public SerializableTempoExample Serialize()
+    {
+        SerializableTempoExample serial = new SerializableTempoExample();
+        serial.position = transform.position;
+        serial.tempo = myTempo;
+        return serial;
+    }
+
+    public void ResetFromSerial( SerializableTempoExample serialized )
+    {
+        transform.position = serialized.position;
+        UpdateMyTempo( serialized.tempo );
+    }
 }
+
+[System.Serializable]
+public class SerializableTempoExample
+{
+    public Vector3 position;
+    public float tempo;
+}
+

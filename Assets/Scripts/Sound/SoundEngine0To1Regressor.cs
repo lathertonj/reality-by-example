@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
+public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource , SerializableByExample
 {
     public enum Parameter { Timbre, Density, Volume };
     public Parameter myParameter;
@@ -22,6 +22,8 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
     public static SoundEngine0To1Regressor timbreRegressor, densityRegressor, volumeRegressor;
 
     public bool displayPlaneVisualization = true;
+
+    public Sound0To1Example examplePrefab;
 
 
 
@@ -195,4 +197,58 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
         if( !haveTrained ) { return 0; }
         return RunRegressionClamped( worldPos );
     }
+
+    string SerializableByExample.SerializeExamples()
+    {
+        Serializable0To1Examples examples = new Serializable0To1Examples();
+        examples.examples = new List<Serializable0To1Example>();
+
+        foreach( Sound0To1Example example in myRegressionExamples )
+        {
+            examples.examples.Add( example.Serialize() );
+        }
+
+        // convert to json
+        return SerializationManager.ConvertToJSON<Serializable0To1Examples>( examples );
+    }
+
+    IEnumerator SerializableByExample.LoadExamples( string serializedExamples )
+    {
+        Serializable0To1Examples examples = 
+            SerializationManager.ConvertFromJSON<Serializable0To1Examples>( serializedExamples );
+        
+        // height
+        for( int i = 0; i < examples.examples.Count; i++ )
+        {
+            Sound0To1Example newExample = Instantiate( examplePrefab );
+            newExample.ResetFromSerial( examples.examples[i] );
+            newExample.Initialize( false );
+        }
+
+        RescanProvidedExamples();
+        yield break;
+    }
+
+    string SerializableByExample.FilenameIdentifier()
+    {
+        switch( myParameter )
+        {
+            case Parameter.Density:
+                return "density";
+            case Parameter.Timbre:
+                return "timbre";
+            case Parameter.Volume:
+                return "volume";
+            default:
+                return "_";
+        }
+    }
+}
+
+
+
+[System.Serializable]
+public class Serializable0To1Examples
+{
+    public List< Serializable0To1Example > examples;
 }

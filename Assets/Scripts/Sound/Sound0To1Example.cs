@@ -47,6 +47,8 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
 
     private void UpdateMyValue( float newValue )
     {
+        if( !myText ) { myText = GetComponentInChildren<TextMesh>(); }
+        
         // clamp to min / max
         myValue = Mathf.Clamp01( newValue );
 
@@ -98,7 +100,6 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
         }
 
         // update text too
-        myText = GetComponentInChildren<TextMesh>();
         UpdateMyValue( myValue );
 
         // inform it
@@ -135,4 +136,29 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
             StopCoroutine( hintCoroutine );
         }
     }
+
+    public Serializable0To1Example Serialize()
+    {
+        Serializable0To1Example serial = new Serializable0To1Example();
+        serial.position = transform.position;
+        serial.type = myType;
+        serial.value = myValue;
+        return serial;
+    }
+
+    public void ResetFromSerial( Serializable0To1Example serialized )
+    {
+        transform.position = serialized.position;
+        myType = serialized.type;
+        UpdateMyValue( serialized.value );
+    }
 }
+
+[System.Serializable]
+public class Serializable0To1Example
+{
+    public Vector3 position;
+    public SoundEngine0To1Regressor.Parameter type;
+    public float value;
+}
+

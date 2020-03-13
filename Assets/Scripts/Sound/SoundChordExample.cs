@@ -35,6 +35,8 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
 
     private void UpdateMyChord( int newChord )
     {
+        if( !myText ) { myText = GetComponentInChildren<TextMesh>(); }
+        
         // clamp to min / max
         myChord = newChord % numChords;
 
@@ -67,7 +69,6 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
         }
 
         // update text too
-        myText = GetComponentInChildren<TextMesh>();
         UpdateMyChord( myChord );
 
         // inform it
@@ -116,4 +117,26 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
             StopCoroutine( hintCoroutine );
         }
     }
+
+    public SerializableChordExample Serialize()
+    {
+        SerializableChordExample serial = new SerializableChordExample();
+        serial.position = transform.position;
+        serial.chord = myChord;
+        return serial;
+    }
+
+    public void ResetFromSerial( SerializableChordExample serialized )
+    {
+        transform.position = serialized.position;
+        UpdateMyChord( serialized.chord );
+    }
 }
+
+[System.Serializable]
+public class SerializableChordExample
+{
+    public Vector3 position;
+    public int chord;
+}
+

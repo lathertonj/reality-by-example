@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSource
+public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSource , SerializableByExample
 {
     public Transform objectToRunRegressionOn;
     private SoundEngine mySoundEngine;
@@ -19,6 +19,8 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
     private static SoundEngineChordClassifier me;
 
     public bool displayPlaneVisualization = true;
+
+    public SoundChordExample examplePrefab;
 
 
 
@@ -169,4 +171,46 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
         if( !haveTrained ) { return 0; }
         return RunClassifier( worldPos ) * 1.0f / SoundChordExample.numChords;
     }
+
+    string SerializableByExample.SerializeExamples()
+    {
+        SerializableChordExamples examples = new SerializableChordExamples();
+        examples.examples = new List<SerializableChordExample>();
+
+        foreach( SoundChordExample example in myClassifierExamples )
+        {
+            examples.examples.Add( example.Serialize() );
+        }
+
+        // convert to json
+        return SerializationManager.ConvertToJSON<SerializableChordExamples>( examples );
+    }
+
+    IEnumerator SerializableByExample.LoadExamples( string serializedExamples )
+    {
+        SerializableChordExamples examples = 
+            SerializationManager.ConvertFromJSON<SerializableChordExamples>( serializedExamples );
+        
+        // height
+        for( int i = 0; i < examples.examples.Count; i++ )
+        {
+            SoundChordExample newExample = Instantiate( examplePrefab );
+            newExample.ResetFromSerial( examples.examples[i] );
+            newExample.Initialize( false );
+        }
+
+        RescanProvidedExamples();
+        yield break;
+    }
+
+    string SerializableByExample.FilenameIdentifier()
+    {
+        return "chord";
+    }
+}
+
+[System.Serializable]
+public class SerializableChordExamples
+{
+    public List< SerializableChordExample > examples;
 }

@@ -927,6 +927,8 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
         {
             TerrainHeightExample newExample = Instantiate( heightPrefab );
             newExample.ResetFromSerial( examples.heightExamples[i], this );
+            // initialize it
+            newExample.ManuallySpecifyTerrain( this );
             // don't retrain until end
             ProvideExample( newExample, false );
         }
@@ -935,6 +937,8 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
         {
             TerrainGISExample newExample = Instantiate( gisPrefab );
             newExample.ResetFromSerial( examples.gisExamples[i], this );
+            // initialize it
+            newExample.ManuallySpecifyTerrain( this );
             // don't retrain until end
             ProvideExample( newExample, false );
         }

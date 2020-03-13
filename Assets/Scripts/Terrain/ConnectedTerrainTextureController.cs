@@ -580,6 +580,8 @@ public class ConnectedTerrainTextureController : MonoBehaviour , SerializableByE
         {
             TerrainTextureExample newExample = Instantiate( terrainExamplePrefab );
             newExample.ResetFromSerial( examples.examples[i], transform );
+            // initialize
+            newExample.ManuallySpecifyTerrain( this );
             // don't retrain until end
             ProvideExample( newExample, false );
         }

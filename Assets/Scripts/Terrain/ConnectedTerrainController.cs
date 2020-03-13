@@ -906,14 +906,20 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
         mySerializableExamples.heightExamples = new List<SerializableTerrainHeightExample>();
         mySerializableExamples.gisExamples = new List<SerializableTerrainGISExample>();
 
+        // height
         foreach( TerrainHeightExample example in myRegressionExamples )
         {
             mySerializableExamples.heightExamples.Add( example.Serialize( this ) );
         }
+
+        // gis
         foreach( TerrainGISExample example in myGISRegressionExamples )
         {
             mySerializableExamples.gisExamples.Add( example.Serialize( this ) );
         }
+
+        // texture
+        mySerializableExamples.textureExamples = myTextureController.SerializeExamples();
 
         // convert to json
         return SerializationManager.ConvertToJSON<SerializableTerrainHeightTrainingExamples>( mySerializableExamples );
@@ -923,6 +929,8 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
     {
         SerializableTerrainHeightTrainingExamples examples = 
             SerializationManager.ConvertFromJSON<SerializableTerrainHeightTrainingExamples>( serializedExamples );
+        
+        // height
         for( int i = 0; i < examples.heightExamples.Count; i++ )
         {
             TerrainHeightExample newExample = Instantiate( heightPrefab );
@@ -933,6 +941,7 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
             ProvideExample( newExample, false );
         }
 
+        // gis
         for( int i = 0; i < examples.gisExamples.Count; i++ )
         {
             TerrainGISExample newExample = Instantiate( gisPrefab );
@@ -943,6 +952,9 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
             ProvideExample( newExample, false );
         }
 
+        // texture
+        myTextureController.LoadExamples( examples.textureExamples );
+
         // retrain!
         // not lazy, 15 frames for height, 15 frames for GIS, 3 frames for texture
         yield return StartCoroutine( RescanProvidedExamplesCoroutine( false, 15, 15, 3 ) );
@@ -950,7 +962,7 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
 
     string SerializableByExample.FilenameIdentifier()
     {
-        return "height_" + serializationIdentifier;
+        return "terrain_" + serializationIdentifier;
     }
 }
 
@@ -960,4 +972,5 @@ public class SerializableTerrainHeightTrainingExamples
 {
     public List< SerializableTerrainHeightExample > heightExamples;
     public List< SerializableTerrainGISExample > gisExamples;
+    public List< SerializableTerrainTextureExample > textureExamples;
 }

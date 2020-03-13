@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-public class ConnectedTerrainTextureController : MonoBehaviour , SerializableByExample
+public class ConnectedTerrainTextureController : MonoBehaviour
 {
     private Terrain myTerrain;
     private TerrainData myTerrainData;
@@ -557,42 +557,29 @@ public class ConnectedTerrainTextureController : MonoBehaviour , SerializableByE
     }
 
 
-    string SerializableByExample.SerializeExamples()
+    public List<SerializableTerrainTextureExample> SerializeExamples()
     {
-        SerializableTerrainTextureTrainingExamples mySerializableExamples;
-        mySerializableExamples = new SerializableTerrainTextureTrainingExamples();
-        mySerializableExamples.examples = new List<SerializableTerrainTextureExample>();
+        List<SerializableTerrainTextureExample> examples = new List<SerializableTerrainTextureExample>();
 
         foreach( TerrainTextureExample example in myRegressionExamples )
         {
-            mySerializableExamples.examples.Add( example.Serialize( transform ) );
+            examples.Add( example.Serialize( transform ) );
         }
 
-        // convert to json
-        return SerializationManager.ConvertToJSON<SerializableTerrainTextureTrainingExamples>( mySerializableExamples );
+        return examples;
     }
 
-    IEnumerator SerializableByExample.LoadExamples( string serializedExamples )
+    public void LoadExamples( List<SerializableTerrainTextureExample> examples )
     {
-        SerializableTerrainTextureTrainingExamples examples = 
-            SerializationManager.ConvertFromJSON<SerializableTerrainTextureTrainingExamples>( serializedExamples );
-        for( int i = 0; i < examples.examples.Count; i++ )
+        for( int i = 0; i < examples.Count; i++ )
         {
             TerrainTextureExample newExample = Instantiate( terrainExamplePrefab );
-            newExample.ResetFromSerial( examples.examples[i], transform );
+            newExample.ResetFromSerial( examples[i], transform );
             // initialize
             newExample.ManuallySpecifyTerrain( this );
             // don't retrain until end
             ProvideExample( newExample, false );
         }
-        
-        // rescan over 3 frames
-        yield return StartCoroutine( RescanProvidedExamples( 3 ) );
-    }
-
-    string SerializableByExample.FilenameIdentifier()
-    {
-        return "texture_" + serializationIdentifier;
     }
 }
 

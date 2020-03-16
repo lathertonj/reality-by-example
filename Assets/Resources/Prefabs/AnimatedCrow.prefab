@@ -2260,14 +2260,12 @@ MonoBehaviour:
   prefabThatCreatedMe: {fileID: 0}
   predictionType: 1
   currentRecordingAndPlaybackMode: 0
-  nextAction: 1
   examplePrefab: {fileID: 5678428368102247849, guid: dd2c198e1fc285e428219acdae5c8a3b,
     type: 3}
   handType: 1
   startStopDataCollection:
     actionPath: /actions/terraingenerate/in/GeneratePoint
     needsReinit: 0
-  controllerPose: {fileID: 0}
   modelBaseDataSource: {fileID: 0}
   modelBaseToAnimate: {fileID: 3197902672222810673}
   modelRelativePointsDataSource:
@@ -2293,6 +2291,7 @@ MonoBehaviour:
   maxEulerAnglesChange: {x: 20, y: 20, z: 20}
   useRecordingModeOffset: 1
   recordingModeLateralOffset: 1.5
+  myPrefabName: AnimatedCrow
 --- !u!114 &3197902673507219444
 MonoBehaviour:
   m_ObjectHideFlags: 0

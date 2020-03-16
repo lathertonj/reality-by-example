@@ -13,8 +13,6 @@ public class AnimationActions : MonoBehaviour
     private VibrateController vibration;
 
 
-    public Transform baseDataSource;
-    public Transform[] relativePointsDataSources;
 
     private AnimationByRecordedExampleController selectedCreature = null;
     private AnimationByRecordedExampleController previouslySelectedCreature = null;
@@ -111,8 +109,8 @@ public class AnimationActions : MonoBehaviour
                 newCreature.prefabThatCreatedMe = prefab;
                 
                 // set data sources
-                newCreature.modelBaseDataSource = baseDataSource;
-                newCreature.modelRelativePointsDataSource = relativePointsDataSources;
+                newCreature.modelBaseDataSource = DefaultAnimationDataSources.theBaseDataSource;
+                newCreature.modelRelativePointsDataSource = DefaultAnimationDataSources.theRelativePointsDataSources;
                 
                 // select new creature (forgetting currently selected one in the process)
                 LaserPointerSelector.SelectNewObject( newCreature.gameObject );
@@ -201,8 +199,8 @@ public class AnimationActions : MonoBehaviour
                 .GetComponent<AnimationByRecordedExampleController>();
             
             // set data sources
-            newCreature.modelBaseDataSource = baseDataSource;
-            newCreature.modelRelativePointsDataSource = relativePointsDataSources;
+            newCreature.modelBaseDataSource = DefaultAnimationDataSources.theBaseDataSource;
+            newCreature.modelRelativePointsDataSource = DefaultAnimationDataSources.theRelativePointsDataSources;
             newCreature.SwitchRecordingMode( selectedCreature );
             newCreature.prefabThatCreatedMe = selectedCreature.prefabThatCreatedMe;
             

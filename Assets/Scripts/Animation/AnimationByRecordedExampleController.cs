@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
 
-public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDeleteInteractable , LaserPointerSelectable
+public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDeleteInteractable , LaserPointerSelectable , DynamicSerializableByExample
 {
     private static List< AnimationByRecordedExampleController > allCreatures = new List< AnimationByRecordedExampleController >();
     private List< AnimationByRecordedExampleController > myGroup = null;
+    private int myGroupID = 0;
+    private static int nextGroupID = 0;
     [HideInInspector] public Transform prefabThatCreatedMe;
     public enum PredictionType { Classification, Regression };
     public PredictionType predictionType;
@@ -75,6 +77,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     public float recordingModeLateralOffset = 1.5f;
     private Vector3 recordingModeOffset = Vector3.zero;
 
+    public string myPrefabName;
+    private bool hasMyGroupBeenSerialized = false;
 
     void Awake()
     {
@@ -108,6 +112,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         myGroup = groupLeader.myGroup;
         myGroup.Add( this );
         examples = groupLeader.examples;
+        myGroupID = groupLeader.myGroupID;
     }
 
     private void InitializeIndependently()
@@ -115,6 +120,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         myGroup = new List< AnimationByRecordedExampleController >();
         myGroup.Add( this );
         examples = new List<AnimationExample>();
+        myGroupID = nextGroupID;
+        nextGroupID++;
     }
 
     public void CloneAudioSystem( AnimationByRecordedExampleController toCloneFrom, bool shareSamples )
@@ -577,7 +584,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         AnimationExample newExample = Instantiate( examplePrefab, modelBaseDataSource.position + recordingModeOffset, Quaternion.identity );
         examples.Add( newExample );
         // TODO ensure this is a shallow copy and that the lists are identical
-        newExample.Initiate( currentBasePhrase, currentRelativePhrases, this, currentRecordingAndPlaybackMode );
+        newExample.Initialize( currentBasePhrase, currentRelativePhrases, this, currentRecordingAndPlaybackMode );
 
 
         // start sound
@@ -1060,6 +1067,113 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         SetNextAction( AnimationAction.DoNothing, null );
     }
 
+    string DynamicSerializableByExample.PrefabName()
+    {
+        return myPrefabName;
+    }
+
+    string SerializableByExample.SerializeExamples()
+    {
+        SerializableAnimatedCreatureGroup serialGroup = new SerializableAnimatedCreatureGroup();
+
+        // store mode and prefab
+        serialGroup.currentRecordingMode = currentRecordingAndPlaybackMode;
+        serialGroup.prefab = myPrefabName;
+
+        // store examples
+        serialGroup.examples = new List<SerializableAnimationExample>();
+        foreach( AnimationExample e in examples )
+        {
+            serialGroup.examples.Add( e.Serialize() );
+        }
+
+        // for each one in group, store position and rotation
+        serialGroup.positions = new List<Vector3>();
+        serialGroup.rotations = new List<Quaternion>();
+        foreach( AnimationByRecordedExampleController groupMember in myGroup )
+        {
+            serialGroup.positions.Add( groupMember.modelBaseToAnimate.position );
+            serialGroup.rotations.Add( groupMember.modelBaseToAnimate.rotation );
+            groupMember.hasMyGroupBeenSerialized = true;
+        }
+
+        // TODO: serialize audio system!
+
+        // json-ify
+        return SerializationManager.ConvertToJSON<SerializableAnimatedCreatureGroup>( serialGroup );
+    }
+
+    IEnumerator SerializableByExample.LoadExamples( string serializedExamples )
+    {
+        SerializableAnimatedCreatureGroup serialGroup = 
+            SerializationManager.ConvertFromJSON<SerializableAnimatedCreatureGroup>( serializedExamples );
+        
+        // set recording mode
+        AnimationByRecordedExampleController groupLeader = this;
+        groupLeader.SwitchRecordingMode( serialGroup.currentRecordingMode );
+        groupLeader.prefabThatCreatedMe = ((GameObject) Resources.Load( "Prefabs/" + serialGroup.prefab )).transform;
+
+        // find some data sources
+        groupLeader.modelBaseDataSource = DefaultAnimationDataSources.theBaseDataSource;
+        groupLeader.modelRelativePointsDataSource = DefaultAnimationDataSources.theRelativePointsDataSources;
+
+        // set position and rotation
+        groupLeader.modelBaseToAnimate.position = serialGroup.positions[0];
+        Debug.Log( "transform position is " + groupLeader.transform.position.ToString() );
+        groupLeader.modelBaseToAnimate.rotation = serialGroup.rotations[0];
+
+        // clone examples
+        foreach( SerializableAnimationExample serialExample in serialGroup.examples )
+        {
+            // don't rescan until end
+            ProvideExample( AnimationExample.Deserialize( serialExample, groupLeader ), false );
+        }
+        // don't shoe the examples until we've selected one of these creatures
+        groupLeader.HideExamples();
+
+        // rescan
+        groupLeader.RescanMyProvidedExamples();
+
+        // TODO: reset audio system!
+
+        // create remaining creatures
+        for( int i = 1; i < serialGroup.positions.Count; i++ )
+        {
+            // instantiate and set position
+            AnimationByRecordedExampleController newCreature = Instantiate( 
+                groupLeader.prefabThatCreatedMe, 
+                serialGroup.positions[i], 
+                serialGroup.rotations[i]
+            ).GetComponent<AnimationByRecordedExampleController>();
+
+            // copy some values
+            newCreature.modelBaseDataSource = groupLeader.modelBaseDataSource;
+            newCreature.modelRelativePointsDataSource = groupLeader.modelRelativePointsDataSource;
+            newCreature.SwitchRecordingMode( groupLeader );
+            newCreature.prefabThatCreatedMe = groupLeader.prefabThatCreatedMe;
+
+            newCreature.AddToGroup( groupLeader );
+
+            // TODO: copy audio system
+            // newCreature.CloneAudioSystem( groupLeader, true );
+
+            newCreature.RescanMyProvidedExamples();
+        }
+
+        yield break;
+    }
+
+    string SerializableByExample.FilenameIdentifier()
+    {
+        return "creature_" + myGroupID.ToString();
+    }
+
+    bool DynamicSerializableByExample.ShouldSerialize()
+    {
+        return !hasMyGroupBeenSerialized;
+    }
+
+    [System.Serializable]
     public class ModelBaseDatum
     {
         public Quaternion rotation;
@@ -1075,6 +1189,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         }
     }
 
+    [System.Serializable]
     public class ModelRelativeDatum
     {
         public Vector3 positionRelativeToBase;
@@ -1086,4 +1201,16 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             return c;
         }
     }
+}
+
+
+
+[System.Serializable]
+public class SerializableAnimatedCreatureGroup
+{
+    public AnimationByRecordedExampleController.RecordingType currentRecordingMode;
+    public List<Vector3> positions;
+    public List<Quaternion> rotations;
+    public List<SerializableAnimationExample> examples;
+    public string prefab;
 }

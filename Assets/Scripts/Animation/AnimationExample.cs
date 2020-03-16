@@ -63,7 +63,7 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         }
     }
 
-    public void Initiate( 
+    public void Initialize( 
         List<AnimationByRecordedExampleController.ModelBaseDatum> baseData,
         List<AnimationByRecordedExampleController.ModelRelativeDatum>[] relativeData,
         AnimationByRecordedExampleController animator,
@@ -190,7 +190,7 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         }
 
         // copy over data
-        cloned.Initiate(
+        cloned.Initialize(
             clonedBaseExamples,
             clonedRelativeExamples,
             newAnimator,
@@ -200,12 +200,13 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         // start animating
         cloned.Animate( animationIntertime );
 
-        t = cloned.transform;
 
         if( !amEnabled )
         {
             cloned.ToggleEnabled();
         }
+
+        t = cloned.transform;
 
         return cloned;
     }
@@ -285,4 +286,69 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
             StopCoroutine( hintCoroutine );
         }
     }
+
+    public SerializableAnimationExample Serialize()
+    {
+        SerializableAnimationExample serial = new SerializableAnimationExample();
+        serial.position = transform.position;
+        serial.baseExamples = baseExamples;
+        
+        // dumb hack because apparently we can't serialize arrays of lists
+        serial.relativeExamples = new List<SerializableRelativeDatumList>();
+        for( int i = 0; i < relativeExamples.Length; i++ )
+        {
+            SerializableRelativeDatumList newList = new SerializableRelativeDatumList();
+            newList.examples = relativeExamples[i];
+            serial.relativeExamples.Add( newList );
+        }
+
+        serial.enabled = amEnabled;
+        serial.recordingType = myRecordingType;
+        serial.prefab = prefabName;
+
+        return serial;
+    }
+
+    public static AnimationExample Deserialize( SerializableAnimationExample serial, AnimationByRecordedExampleController animator )
+    {
+        GameObject prefab = (GameObject) Resources.Load( "Prefabs/" + serial.prefab );
+        AnimationExample example = Instantiate( prefab ).GetComponent<AnimationExample>();
+        example.transform.position = serial.position;
+
+        // annoying conversion due to serialization limits
+        List<AnimationByRecordedExampleController.ModelRelativeDatum>[] relativeExamples
+            = new List<AnimationByRecordedExampleController.ModelRelativeDatum>[serial.relativeExamples.Count];
+        for( int i = 0; i < relativeExamples.Length; i++ )
+        {
+            relativeExamples[i] = serial.relativeExamples[i].examples;
+        }
+
+        example.Initialize( serial.baseExamples, relativeExamples, animator, serial.recordingType );
+        example.Animate( example.animationIntertime );
+
+        if( !serial.enabled )
+        {
+            example.ToggleEnabled();
+        }
+
+        return example;
+    }
+}
+
+
+[System.Serializable]
+public class SerializableAnimationExample
+{
+    public Vector3 position;
+    public List<AnimationByRecordedExampleController.ModelBaseDatum> baseExamples;
+    public List<SerializableRelativeDatumList> relativeExamples;
+    public string prefab;
+    public bool enabled;
+    public AnimationByRecordedExampleController.RecordingType recordingType;
+}
+
+[System.Serializable]
+public class SerializableRelativeDatumList
+{
+    public List<AnimationByRecordedExampleController.ModelRelativeDatum> examples;
 }

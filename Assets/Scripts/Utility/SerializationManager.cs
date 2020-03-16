@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using UnityEngine.SceneManagement;
 
 public class SerializationManager : MonoBehaviour
 {
     public GameObject[] entitiesToSaveOnQuit;
     public GameObject[] entitiesToLoadOnStart;
     public string worldName;
+
+    public bool saveDynamicEntities = false;
+    public bool loadDynamicEntities = false;
 
     // Start is called before the first frame update
     void Start()
@@ -29,7 +33,25 @@ public class SerializationManager : MonoBehaviour
             {
                 yield return StartCoroutine( LoadExamples( component ) );
             }
-        } 
+        }
+
+        if( loadDynamicEntities )
+        {
+            // read all filenames
+            foreach( string subdirectory in Directory.GetDirectories( DynamicExamplesLocation() ) )
+            {
+                // name of prefab is name of directory
+                DirectoryInfo info = new DirectoryInfo( subdirectory );
+                string prefabName = info.Name;
+                GameObject prefab = (GameObject) Resources.Load( "Prefabs/" + prefabName );
+
+                foreach( FileInfo fileInfo in info.GetFiles( "*" + FileExtension() ) )
+                {
+                    yield return StartCoroutine( DynamicLoadExamples( fileInfo, prefab ) );
+                }
+            }
+
+        }
     }
 
     void SaveAll()
@@ -42,12 +64,44 @@ public class SerializationManager : MonoBehaviour
                 SaveExamples( component );
             }
         }
+
+        if( saveDynamicEntities )
+        {
+            foreach( GameObject o in SceneManager.GetActiveScene().GetRootGameObjects() )
+            {
+                DynamicSerializableByExample entity = o.GetComponent<DynamicSerializableByExample>();
+                
+                if( entity != null && entity.ShouldSerialize() )
+                {
+                    Debug.Log( "serializing it!" );
+                    DynamicSaveExamples( entity );
+                }
+            }
+        }
     }
 
     string GetFilepath( SerializableByExample entity )
     {
-        return Application.streamingAssetsPath + "/examples/" + worldName + "_" + entity.FilenameIdentifier() + ".examples";
+        return Application.streamingAssetsPath + "/examples/" + worldName + "_" + entity.FilenameIdentifier() + FileExtension();
     }
+
+    string GetFilepath( DynamicSerializableByExample entity )
+    {
+        string folder = DynamicExamplesLocation() + entity.PrefabName() + "/";
+        if( !Directory.Exists( folder ) ) { Directory.CreateDirectory( folder ); }
+        return folder + worldName + "_" + entity.FilenameIdentifier() + FileExtension();
+    }
+
+    string DynamicExamplesLocation()
+    {
+        return Application.streamingAssetsPath + "/examples/dynamic/";
+    }
+
+    string FileExtension()
+    {
+        return ".examples";
+    }
+    
 
     void SaveExamples( SerializableByExample entity )
     {
@@ -61,6 +115,26 @@ public class SerializationManager : MonoBehaviour
         StreamReader reader = new StreamReader( GetFilepath( entity ) );
         string json = reader.ReadToEnd();
         reader.Close();
+        yield return StartCoroutine( entity.LoadExamples( json ) );
+    }
+
+    void DynamicSaveExamples( DynamicSerializableByExample entity )
+    {
+        StreamWriter writer = new StreamWriter( GetFilepath( entity ), false );
+        writer.Write( entity.SerializeExamples() );
+        writer.Close();
+    }
+
+    IEnumerator DynamicLoadExamples( FileInfo file, GameObject prefab )
+    {
+        // read json
+        StreamReader reader = file.OpenText();
+        string json = reader.ReadToEnd();
+        reader.Close();
+
+        // create and initialize
+        GameObject newObject = Instantiate( prefab );
+        DynamicSerializableByExample entity = newObject.GetComponent<DynamicSerializableByExample>();
         yield return StartCoroutine( entity.LoadExamples( json ) );
     }
 
@@ -80,4 +154,11 @@ public interface SerializableByExample
     string SerializeExamples();
     IEnumerator LoadExamples( string serializedExamples );
     string FilenameIdentifier();
+}
+
+
+public interface DynamicSerializableByExample : SerializableByExample
+{
+    string PrefabName();
+    bool ShouldSerialize();
 }

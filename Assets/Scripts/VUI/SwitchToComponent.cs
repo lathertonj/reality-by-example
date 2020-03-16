@@ -36,7 +36,10 @@ public class SwitchToComponent : MonoBehaviour
     {
         // get and disable randomizer
         RandomizeTerrain randomizer = controller.transform.root.GetComponentInChildren<RandomizeTerrain>();
-        randomizer.currentAction = RandomizeTerrain.ActionType.DoNothing;
+        if( randomizer != null )
+        {
+            randomizer.currentAction = RandomizeTerrain.ActionType.DoNothing;
+        }
         DisablePlacementInteractors( controller );
         DisableMovementInteractors( controller );
         // disable animation interactors
@@ -134,26 +137,41 @@ public class SwitchToComponent : MonoBehaviour
                 touchpadInUse = true;
                 break;
             case InteractionType.RandomizePerturbSmall:
-                randomizer.currentAction = RandomizeTerrain.ActionType.PerturbSmall;
-                gripInUse = true;
+                if( randomizer != null ) 
+                { 
+                    randomizer.currentAction = RandomizeTerrain.ActionType.PerturbSmall;
+                    gripInUse = true;
+                }
                 break;
             case InteractionType.RandomizePerturbBig:
-                randomizer.currentAction = RandomizeTerrain.ActionType.PerturbBig;
-                gripInUse = true;
+                if( randomizer != null ) 
+                { 
+                    randomizer.currentAction = RandomizeTerrain.ActionType.PerturbBig;
+                    gripInUse = true;
+                }
                 break;
             case InteractionType.RandomizeCopy:
-                randomizer.currentAction = RandomizeTerrain.ActionType.Copy;
-                gripInUse = true;
-                // we need the drag and drop for this one only
-                EnableComponent<LaserPointerDragAndDrop>( controller );
+                if( randomizer != null ) 
+                { 
+                    randomizer.currentAction = RandomizeTerrain.ActionType.Copy;
+                    gripInUse = true;
+                    // we need the drag and drop for this one only
+                    EnableComponent<LaserPointerDragAndDrop>( controller );
+                }
                 break;
             case InteractionType.RandomizeCurrent:
-                randomizer.currentAction = RandomizeTerrain.ActionType.RandomizeCurrent;
-                gripInUse = true;
+                if( randomizer != null ) 
+                { 
+                    randomizer.currentAction = RandomizeTerrain.ActionType.RandomizeCurrent;
+                    gripInUse = true;
+                }
                 break;
             case InteractionType.RandomizeAll:
-                randomizer.currentAction = RandomizeTerrain.ActionType.RandomizeAll;
-                gripInUse = true;
+                if( randomizer != null ) 
+                { 
+                    randomizer.currentAction = RandomizeTerrain.ActionType.RandomizeAll;
+                    gripInUse = true;
+                }
                 break;
             case InteractionType.CreatureExampleDelete:
                 // enable grip deletion

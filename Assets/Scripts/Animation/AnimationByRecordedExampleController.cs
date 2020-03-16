@@ -333,7 +333,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     {
         runtimeMode = true;
         seamHideRotation = Quaternion.identity;
-        currentRuntimeFrame = 0;
+        // TODO: do we WANT to reset the current frame every time we run?
+        // currentRuntimeFrame = 0;
 
         switch( currentRecordingAndPlaybackMode )
         {
@@ -486,6 +487,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     goalBaseRotation.eulerAngles.y - currentlyUsedExamples[ mostProminent ].baseExamples[0].rotation.eulerAngles.y, 
                     Vector3.up
                 );
+                currentRuntimeFrame = 0;
             }
         
     }
@@ -1090,10 +1092,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         // for each one in group, store position and rotation
         serialGroup.positions = new List<Vector3>();
         serialGroup.rotations = new List<Quaternion>();
+        serialGroup.nextFrames = new List<int>();
         foreach( AnimationByRecordedExampleController groupMember in myGroup )
         {
             serialGroup.positions.Add( groupMember.modelBaseToAnimate.position );
             serialGroup.rotations.Add( groupMember.modelBaseToAnimate.rotation );
+            serialGroup.nextFrames.Add( groupMember.currentRuntimeFrame );
             groupMember.hasMyGroupBeenSerialized = true;
         }
 
@@ -1120,6 +1124,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         // set position and rotation
         groupLeader.modelBaseToAnimate.position = serialGroup.positions[0];
         groupLeader.modelBaseToAnimate.rotation = serialGroup.rotations[0];
+
+        // animation offset
+        groupLeader.currentRuntimeFrame = serialGroup.nextFrames[0];
 
         // clone examples
         foreach( SerializableAnimationExample serialExample in serialGroup.examples )
@@ -1152,6 +1159,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             newCreature.prefabThatCreatedMe = groupLeader.prefabThatCreatedMe;
 
             newCreature.AddToGroup( groupLeader );
+
+            // animation offset
+            newCreature.currentRuntimeFrame = serialGroup.nextFrames[i];
 
             // TODO: copy audio system
             // newCreature.CloneAudioSystem( groupLeader, true );
@@ -1210,6 +1220,7 @@ public class SerializableAnimatedCreatureGroup
     public AnimationByRecordedExampleController.RecordingType currentRecordingMode;
     public List<Vector3> positions;
     public List<Quaternion> rotations;
+    public List<int> nextFrames;
     public List<SerializableAnimationExample> examples;
     public string prefab;
 }

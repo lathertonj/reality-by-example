@@ -14,6 +14,7 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
     public AnimationByRecordedExampleController.RecordingType myRecordingType;
 
     bool shouldAnimate = false;
+    bool shouldReanimateOnEnable = false;
     public float globalSlew = 0.25f;
 
     private float animationIntertime;
@@ -61,6 +62,19 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
             // slew base
             myBaseToAnimate.rotation = Quaternion.Slerp( myBaseToAnimate.rotation, goalBaseRotation, globalSlew );
         }
+    }
+
+    void OnEnable()
+    {
+        if( shouldReanimateOnEnable )
+        {
+            Animate( animationIntertime );
+        }
+    }
+
+    void OnDisable()
+    {
+        shouldReanimateOnEnable = true;
     }
 
     public void Initialize( 
@@ -302,6 +316,7 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
             serial.relativeExamples.Add( newList );
         }
 
+        serial.animationIntertime = animationIntertime;
         serial.enabled = amEnabled;
         serial.recordingType = myRecordingType;
         serial.prefab = prefabName;
@@ -324,7 +339,7 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         }
 
         example.Initialize( serial.baseExamples, relativeExamples, animator, serial.recordingType );
-        example.Animate( example.animationIntertime );
+        example.Animate( serial.animationIntertime );
 
         if( !serial.enabled )
         {
@@ -342,6 +357,7 @@ public class SerializableAnimationExample
     public Vector3 position;
     public List<AnimationByRecordedExampleController.ModelBaseDatum> baseExamples;
     public List<SerializableRelativeDatumList> relativeExamples;
+    public float animationIntertime;
     public string prefab;
     public bool enabled;
     public AnimationByRecordedExampleController.RecordingType recordingType;

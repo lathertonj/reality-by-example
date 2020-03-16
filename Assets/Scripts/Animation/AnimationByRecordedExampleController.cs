@@ -1119,7 +1119,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
         // set position and rotation
         groupLeader.modelBaseToAnimate.position = serialGroup.positions[0];
-        Debug.Log( "transform position is " + groupLeader.transform.position.ToString() );
         groupLeader.modelBaseToAnimate.rotation = serialGroup.rotations[0];
 
         // clone examples

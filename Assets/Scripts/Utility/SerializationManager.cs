@@ -73,7 +73,6 @@ public class SerializationManager : MonoBehaviour
                 
                 if( entity != null && entity.ShouldSerialize() )
                 {
-                    Debug.Log( "serializing it!" );
                     DynamicSaveExamples( entity );
                 }
             }

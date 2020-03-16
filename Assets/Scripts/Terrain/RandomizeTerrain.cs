@@ -39,9 +39,11 @@ public class RandomizeTerrain : MonoBehaviour
     public SoundTempoExample tempoPrefab;
     public Sound0To1Example densityPrefab, timbrePrefab, volumePrefab;
     
-    private bool currentlyComputing = true;
+    private bool currentlyComputing = false;
 
     private Dictionary< ConnectedTerrainController, int > indices;
+
+    public bool randomizeOnStart = true;
 
 
     // Start is called before the first frame update
@@ -75,7 +77,10 @@ public class RandomizeTerrain : MonoBehaviour
             }
         }
 
-        StartCoroutine( InitializeAll() );
+        if( randomizeOnStart )
+        {
+            StartCoroutine( InitializeAll() );
+        }
     }
 
     void Update()

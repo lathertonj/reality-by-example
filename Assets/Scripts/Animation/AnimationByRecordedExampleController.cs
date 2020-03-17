@@ -316,7 +316,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return indices;
     }
 
-    // TODO: 
+    // 
     // 0. Set the previous translation to be current position - previous position
     // 1. Set the previous rotation to be current rotation * inv( prev rotation ) // AND DOUBLE CHECK THIS
     // 2. Set the goalBasePosition based on currentPosition + output of regression
@@ -1059,8 +1059,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     void LaserPointerSelectable.Unselected()
     {
-        // when unselected, hide my examples
-        // TODO: this is not the right time to hide examples. this prevents us from
+        // N.B. this is not the right time to hide examples. this prevents us from
         // selecting an example, because it is hidden when the creature is unselected
         // instead, hide examples only when a new creature is selected
         // HideExamples();
@@ -1101,7 +1100,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             groupMember.hasMyGroupBeenSerialized = true;
         }
 
-        // TODO: serialize audio system!
+        // serialize audio system
+        serialGroup.audio = myGroup[0].mySounder.Serialize();
 
         // json-ify
         return SerializationManager.ConvertToJSON<SerializableAnimatedCreatureGroup>( serialGroup );
@@ -1140,7 +1140,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         // rescan
         groupLeader.RescanMyProvidedExamples();
 
-        // TODO: reset audio system!
+        // reset audio system
+        yield return StartCoroutine( groupLeader.mySounder.InitFromSerial( serialGroup.audio ) );
 
         // create remaining creatures
         for( int i = 1; i < serialGroup.positions.Count; i++ )
@@ -1163,8 +1164,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // animation offset
             newCreature.currentRuntimeFrame = serialGroup.nextFrames[i];
 
-            // TODO: copy audio system
-            // newCreature.CloneAudioSystem( groupLeader, true );
+            // copy audio system
+            newCreature.CloneAudioSystem( groupLeader, true );
 
             newCreature.RescanMyProvidedExamples();
         }
@@ -1223,4 +1224,5 @@ public class SerializableAnimatedCreatureGroup
     public List<int> nextFrames;
     public List<SerializableAnimationExample> examples;
     public string prefab;
+    public SerializedAnimationAudio audio;
 }

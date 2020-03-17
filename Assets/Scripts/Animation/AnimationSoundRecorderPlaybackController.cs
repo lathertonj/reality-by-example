@@ -25,14 +25,16 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     private ChuckIntSyncer myCurrentRecordedSampleSyncer;
     private ChuckEventListener myTempoListener;
 
+    private double[] myAudioData;
+
     string myLisa, myCurrentRecordedSample = "", myNewSamplePositionReady, myNewSamplePosition, myStartRecording, myStopRecording;
     string mySamples = "";
+    string mySerialInitEvent;
     string updateMyLisa;
 
     private bool haveTrained = false;
 
-    List< double[] > myInputData = new List< double[] >();
-    List< double[] > myOutputData = new List< double[] >();
+    List<AnimationAudioExample> myRegressionData = new List<AnimationAudioExample>();
     private bool wereWeCloned = false;
 
     public void CloneFrom( AnimationSoundRecorderPlaybackController other, bool shareSamples )
@@ -41,12 +43,8 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         wereWeCloned = true;
 
         // copy regression data
-        myInputData = other.myInputData;
-        myOutputData = other.myOutputData;
-        for( int i = 0; i < myInputData.Count; i++ )
-        {
-            myRegression.RecordDataPoint( myInputData[i], myOutputData[i] );
-        }
+        myRegressionData = other.myRegressionData;
+        RecordInAllExamples();
         Train();
 
         // copy chuck lisa samples
@@ -55,8 +53,9 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
             mySamples = other.mySamples;
             myCurrentRecordedSample = other.myCurrentRecordedSample;
         }
-        InitChuckVariableNames();
 
+        // TODO: consider refactoring to use InitFromSerial
+        InitChuckVariableNames();
         myChuck.RunCode( string.Format( @"
             global LiSa {0}, {1};
             {1}.duration() => {0}.duration;
@@ -86,6 +85,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         myStopRecording = myChuck.GetUniqueVariableName( "stopRecording" );
         if( mySamples == "" ) { mySamples = myChuck.GetUniqueVariableName( "mySamples" ); }
         updateMyLisa = myChuck.GetUniqueVariableName( "updateMyLisa" );
+        mySerialInitEvent = myChuck.GetUniqueVariableName( "serialInitFinished" );
         variableNamesInit = true;
     }
 
@@ -93,6 +93,35 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     {
         myRegression = gameObject.AddComponent<RapidMixRegression>();
         myTempoListener = gameObject.AddComponent<ChuckEventListener>();
+    }
+
+    void InitFromSerial( double[] samples, int nextAudioFrame )
+    {
+        InitChuckVariableNames();
+
+        myChuck.RunCode( string.Format( @"
+            global float {0}[0];
+            global int {1};
+            global Event {2};
+
+            // wait until finished
+            while( {1} == 0 )
+            {{
+                1::samp => now;
+            }}
+            {2}.broadcast();
+            
+        ", mySamples, myCurrentRecordedSample, mySerialInitEvent ) );
+
+        myChuck.ListenForChuckEventOnce( mySerialInitEvent, RespondToChuckSerialInit );
+        myChuck.SetFloatArray( mySamples, samples );
+        myChuck.SetInt( myCurrentRecordedSample, nextAudioFrame );
+    }
+
+    bool serialInitSuccessful = false;
+    void RespondToChuckSerialInit()
+    {
+        serialInitSuccessful = true;
     }
 
     void Start()
@@ -104,7 +133,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
             global float {7}[];
             if( {7} == null )
             {{
-                float blankValues[ (5::minute/samp) $ int ];
+                float blankValues[ (10::second/samp) $ int ];
                 blankValues @=> {7};
             }}
             global int {1};
@@ -155,6 +184,12 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
                 fun void AddSample( float s )
                 {{
                     {0}.valueAt( s, {1}::samp );
+                    // potentially resize
+                    if( {1} >= {7}.size() )
+                    {{
+                        ( {7}.size() * 1.6 ) $ int => {7}.size;
+                    }}
+
                     // store in global variable too
                     s => {7}[{1}];
                     {1}++;
@@ -166,12 +201,15 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
                 {{
                     while( true )
                     {{
-                        {8} => now;
+                        // do-while wait for 
+                        // (first one: in case our values already contain something)
                         while( myPersonalSamplesAdded < {1} )
                         {{
                             {0}.valueAt( {7}[myPersonalSamplesAdded], myPersonalSamplesAdded::samp );
                             myPersonalSamplesAdded++;
                         }}
+
+                        {8} => now;
                     }}
                 }}
                 spork ~ UpdateSamples();
@@ -293,6 +331,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
             
         ", myLisa, myCurrentRecordedSample, myNewSamplePositionReady, myNewSamplePosition, 
         myStartRecording, myStopRecording, clonedAddition, mySamples, updateMyLisa ) );
+        
         myCurrentRecordedSampleSyncer = gameObject.AddComponent<ChuckIntSyncer>();
         myCurrentRecordedSampleSyncer.SyncInt( myChuck, myCurrentRecordedSample );
     }
@@ -318,9 +357,14 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
 
     public void ProvideExample( double[] input, double[] output )
     {
-        myInputData.Add( input );
         // regression --> output is whatever our recorder has recorded most frequently
-        myOutputData.Add( output );
+
+        // store
+        AnimationAudioExample example = new AnimationAudioExample();
+        example.input = input;
+        example.output = output;
+        myRegressionData.Add( example );
+
         // also record directly
         myRegression.RecordDataPoint( input, output );
     }
@@ -330,7 +374,18 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         // chuck should stop recording examples and start playing back
         myChuck.BroadcastEvent( myStopRecording );
 
+        // store audio samples in our thread too
+        myChuck.GetFloatArray( mySamples, GetMySamples );
+
         Train();
+    }
+
+    void RecordInAllExamples()
+    {
+        for( int i = 0; i < myRegressionData.Count; i++ )
+        {
+            myRegression.RecordDataPoint( myRegressionData[i].input, myRegressionData[i].output );
+        }
     }
 
     void Train()
@@ -364,4 +419,53 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     {
         myTempoListener.StopListening();
     }
+
+    public void GetMySamples( double[] samples, System.UInt64 numSamples )
+    {
+        myAudioData = samples;
+    }
+
+
+    public SerializedAnimationAudio Serialize()
+    {
+        SerializedAnimationAudio serial = new SerializedAnimationAudio();
+        serial.audioData = myAudioData;
+        serial.nextAudioFrame = myCurrentRecordedSampleSyncer.GetCurrentValue();
+        serial.examples = myRegressionData;
+
+        return serial;
+    }
+
+    public IEnumerator InitFromSerial( SerializedAnimationAudio serial )
+    {
+        // init audio data
+        InitFromSerial( serial.audioData, serial.nextAudioFrame );
+
+        // init IML
+        myRegressionData = serial.examples;
+        RecordInAllExamples();
+        Train();
+
+        // hang until successful
+        while( !serialInitSuccessful )
+        {
+            yield return null;
+        }
+    }
+}
+
+[System.Serializable]
+public class AnimationAudioExample
+{
+    public double[] input;
+    public double[] output;
+}
+
+
+[System.Serializable] 
+public class SerializedAnimationAudio
+{
+    public List<AnimationAudioExample> examples;
+    public int nextAudioFrame;
+    public double[] audioData;
 }

@@ -228,10 +228,7 @@ public class SwitchToComponent : MonoBehaviour
         }
         if( !touchpadInUse )
         {
-            EnableComponent<TouchpadLeftRightClickInteraction>( controller );
-            EnableComponent<TouchpadUpDownInteraction>( controller );
-            EnableComponent<RemoteTouchpadLeftRightClickInteraction>( controller );
-            EnableComponent<RemoteTouchpadUpDownInteraction>( controller );
+            EnableTouchpadPrimaryInteractors( controller );
         }
         if( !triggerInUse )
         {
@@ -312,6 +309,28 @@ public class SwitchToComponent : MonoBehaviour
         SlewToTransform slew = o.GetComponentInParent<SlewToTransform>();
         slew.objectToTrack = null;
         slew.enabled = false;
+    }
+
+    public static void DisableTouchpadAuxiliaryInteractors( GameObject o )
+    {
+        // movement
+        DisableComponent<FlyingTeleporter>( o );
+        DisableComponent<FlyingMovement>( o );
+        DisableComponent<GroundFlyingMovement>( o );
+        DisableComponent<SnapTurn>( o );
+
+        // placing
+        DisableComponent<SlowlySpawnPrefab>( o );
+        DisableComponent<TerrainLaserRaiseLowerInteractor>( o );
+        DisableComponent<LaserPointerColliderSelector>( o );
+    }
+
+    public static void EnableTouchpadPrimaryInteractors( GameObject o )
+    {
+        EnableComponent<TouchpadLeftRightClickInteraction>( o );
+        EnableComponent<TouchpadUpDownInteraction>( o );
+        EnableComponent<RemoteTouchpadLeftRightClickInteraction>( o );
+        EnableComponent<RemoteTouchpadUpDownInteraction>( o );
     }
 
     

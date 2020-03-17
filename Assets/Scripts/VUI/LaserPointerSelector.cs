@@ -180,6 +180,19 @@ public class LaserPointerSelector : MonoBehaviour
         {
             // non menu items get selected as per usual
             SelectNewObject( intersectingObjectRoot );
+
+            // if we selected something that can be interacted with with touchpad,
+            TouchpadLeftRightClickInteractable leftRight = intersectingObjectRoot.GetComponentInChildren<TouchpadLeftRightClickInteractable>();
+            TouchpadUpDownInteractable upDown = intersectingObjectRoot.GetComponentInChildren<TouchpadUpDownInteractable>();
+            if( leftRight != null || upDown != null )
+            {    
+                // disable touchpad things
+                SwitchToComponent.DisableTouchpadAuxiliaryInteractors( gameObject );   
+
+                // and enable touchpad interactors
+                SwitchToComponent.EnableTouchpadPrimaryInteractors( gameObject );
+
+            }
         }
 
         // vibrate for everyone

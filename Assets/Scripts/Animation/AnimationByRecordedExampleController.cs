@@ -24,6 +24,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     public SteamVR_Input_Sources handType;
     public SteamVR_Action_Boolean startStopDataCollection;
+    private SteamVR_Behaviour_Pose currentHand = null;
 
     public Transform modelBaseDataSource, modelBaseToAnimate;
     public Transform[] modelRelativePointsDataSource, modelRelativePointsToAnimate;
@@ -542,11 +543,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return currentlyUsedExamples[whichAnimation].relativeExamples[i][ currentFrame % numFrames ].positionRelativeToBase;
     }
 
-    private void ComputeRecordingOffset( SteamVR_Behaviour_Pose controllerPose )
+    private void ComputeRecordingOffset()
     {
-        if( useRecordingModeOffset )
+        if( useRecordingModeOffset && currentHand != null )
         {
-            Vector3 direction = controllerPose.transform.forward;
+            Vector3 direction = currentHand.transform.forward;
             direction.y = 0;
             recordingModeOffset = direction.normalized * recordingModeLateralOffset;
         }
@@ -559,10 +560,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     public void SetNextAction( AnimationAction newAction, SteamVR_Behaviour_Pose associatedController )
     {
         nextAction = newAction;
+        currentHand = associatedController;
         
         if( nextAction == AnimationAction.RecordAnimation )
         {
-            ComputeRecordingOffset( associatedController );
+            ComputeRecordingOffset();
         }
     }
 
@@ -581,6 +583,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         {
             currentRelativePhrases[i] = new List<ModelRelativeDatum>();
         }
+
+        // recompute the offset -- we might record in a different direction than last time
+        ComputeRecordingOffset();
 
         // store the data in the example!
         AnimationExample newExample = Instantiate( examplePrefab, modelBaseDataSource.position + recordingModeOffset, Quaternion.identity );

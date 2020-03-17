@@ -67,6 +67,14 @@ public class SerializationManager : MonoBehaviour
 
         if( saveDynamicEntities )
         {
+            // first, delete previous dynamic entities
+            DirectoryInfo dynamicDir = new DirectoryInfo( DynamicExamplesLocation() );
+            foreach( DirectoryInfo dir in dynamicDir.EnumerateDirectories() )
+            {
+                dir.Delete(true); 
+            }
+
+            // now, save current dynamic entities
             foreach( GameObject o in SceneManager.GetActiveScene().GetRootGameObjects() )
             {
                 DynamicSerializableByExample entity = o.GetComponent<DynamicSerializableByExample>();

@@ -16,6 +16,11 @@ public class SerializationManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // ensure dirs exist
+        string folder = DynamicExamplesLocation();
+        if( !Directory.Exists( folder ) ) { Directory.CreateDirectory( folder ); }
+
+        // load all
         StartCoroutine( LoadAll() );
     }
 
@@ -89,19 +94,19 @@ public class SerializationManager : MonoBehaviour
 
     string GetFilepath( SerializableByExample entity )
     {
-        return Application.streamingAssetsPath + "/examples/" + worldName + "_" + entity.FilenameIdentifier() + FileExtension();
+        return Application.streamingAssetsPath + "/examples/" + worldName + "/" + entity.FilenameIdentifier() + FileExtension();
     }
 
     string GetFilepath( DynamicSerializableByExample entity )
     {
         string folder = DynamicExamplesLocation() + entity.PrefabName() + "/";
         if( !Directory.Exists( folder ) ) { Directory.CreateDirectory( folder ); }
-        return folder + worldName + "_" + entity.FilenameIdentifier() + FileExtension();
+        return folder + entity.FilenameIdentifier() + FileExtension();
     }
 
     string DynamicExamplesLocation()
     {
-        return Application.streamingAssetsPath + "/examples/dynamic/";
+        return Application.streamingAssetsPath + "/examples/" + worldName + "/dynamic/";
     }
 
     string FileExtension()

@@ -60,9 +60,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     // and, specify a data collection rate and a prediction output rate.
     public float dataCollectionRate = 0.1f;
+    public bool useFewerTrainingExamples = true;
 
-    // TODO use AngleMinify function?
-    public Vector3 maxEulerAnglesChange;
 
     // other stuff
     bool haveTrained = false;
@@ -832,7 +831,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             {
                 AnimationExample e = currentlyUsedExamples[j];
                 List<ModelBaseDatum> phrase = e.baseExamples;
-                for( int i = 0; i < phrase.Count; i++ )
+                // for now, try using just one example per phrase:
+                // most of the inputs / outputs will be near-identical because of how these
+                // are recorded, and this way we may get less concrete / baked-in behavior
+                int numExamplesToUsePerPhrase = useFewerTrainingExamples ? 1 : phrase.Count;
+                for( int i = 0; i < numExamplesToUsePerPhrase; i++ )
                 {
                     myAnimationRegression.RecordDataPoint( BaseInput( phrase[i] ), LabelToRegressionOutput( j, currentlyUsedExamples.Count ) );
                 }
@@ -953,44 +956,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return ret;
     }
 
-    private Vector3 AngleMinify( Vector3 i )
-    {
-        // x
-        if( i.x < -180 )
-        {
-            i.x += 360;
-        }
-        if( i.x > 180 )
-        {
-            i.x -= 360;
-        }
-
-        // y
-        if( i.y < -180 )
-        {
-            i.y += 360;
-        }
-        if( i.y > 180 )
-        {
-            i.y -= 360;
-        }
-
-        // z
-        if( i.z < -180 )
-        {
-            i.z += 360;
-        }
-        if( i.z > 180 )
-        {
-            i.z -= 360;
-        }
-
-        i.x = Mathf.Clamp( i.x, -maxEulerAnglesChange.x, maxEulerAnglesChange.x );
-        i.y = Mathf.Clamp( i.y, -maxEulerAnglesChange.y, maxEulerAnglesChange.y );
-        i.z = Mathf.Clamp( i.z, -maxEulerAnglesChange.z, maxEulerAnglesChange.z );
-
-        return i;
-    }
 
     double[] SoundInput( Quaternion baseRotation, float terrainHeight, float terrainSteepness, float heightAboveTerrain )
     {

@@ -2290,7 +2290,7 @@ MonoBehaviour:
   dataCollectionRate: 0.1
   maxEulerAnglesChange: {x: 20, y: 20, z: 20}
   useRecordingModeOffset: 1
-  recordingModeLateralOffset: 1.5
+  recordingModeLateralOffset: 2
   myPrefabName: AnimatedCrow
 --- !u!114 &3197902673507219444
 MonoBehaviour:

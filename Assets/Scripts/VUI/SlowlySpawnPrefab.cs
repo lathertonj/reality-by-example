@@ -100,10 +100,6 @@ public class SlowlySpawnPrefab : MonoBehaviour
 
                 // spawn it there!
                 Transform newObject = Instantiate( prefabToSpawn, newPosition, newRotation );
-
-                // try to set its mask
-                SpawnedObject o = newObject.GetComponent<SpawnedObject>();
-                o.mask = mask;
             }
 
             // every so often

@@ -44,9 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 878c000509b4a2e4f9ac87b0ffdaf55b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mask:
+  terrainsToPlaceOn:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
+  prefabName: GreenTree
 --- !u!1001 &1763293754791895805
 PrefabInstance:
   m_ObjectHideFlags: 0

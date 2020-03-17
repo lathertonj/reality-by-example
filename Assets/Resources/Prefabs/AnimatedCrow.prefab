@@ -2076,6 +2076,7 @@ GameObject:
   - component: {fileID: 3197902673507219444}
   - component: {fileID: 3197902673507219446}
   - component: {fileID: 5721409022145684169}
+  - component: {fileID: 8612108215265258980}
   m_Layer: 10
   m_Name: AnimatedCrow
   m_TagString: Untagged
@@ -2288,7 +2289,7 @@ MonoBehaviour:
   distanceRampUpRange: 7
   rampUpSeverity: 1.5
   dataCollectionRate: 0.1
-  maxEulerAnglesChange: {x: 20, y: 20, z: 20}
+  useFewerTrainingExamples: 1
   useRecordingModeOffset: 1
   recordingModeLateralOffset: 2
   myPrefabName: AnimatedCrow
@@ -2334,6 +2335,20 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &8612108215265258980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1119379321810116576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d5915188bbaa10419a6fe70ab7937fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  creatureRenderer: {fileID: 1119379320857871482}
+  materialColorProperty: _SpecColor
 --- !u!1 &1119379321811636571
 GameObject:
   m_ObjectHideFlags: 0

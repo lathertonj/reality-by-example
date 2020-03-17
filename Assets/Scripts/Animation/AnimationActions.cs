@@ -229,6 +229,9 @@ public class AnimationActions : MonoBehaviour
 
             // also, show hint to remind what was cloned
             ShowSelectedCreatureHints();
+
+            // finally, copy color
+            newCreature.GetComponent<AnimatedCreatureColor>().CopyColor( selectedCreature.GetComponent<AnimatedCreatureColor>() );
         }
     }
 

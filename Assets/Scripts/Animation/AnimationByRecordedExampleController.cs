@@ -1062,11 +1062,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         serialGroup.positions = new List<Vector3>();
         serialGroup.rotations = new List<Quaternion>();
         serialGroup.nextFrames = new List<int>();
+        serialGroup.colors = new List<float>();
         foreach( AnimationByRecordedExampleController groupMember in myGroup )
         {
             serialGroup.positions.Add( groupMember.modelBaseToAnimate.position );
             serialGroup.rotations.Add( groupMember.modelBaseToAnimate.rotation );
             serialGroup.nextFrames.Add( groupMember.currentRuntimeFrame );
+            serialGroup.colors.Add( groupMember.GetComponent<AnimatedCreatureColor>().Serialize() );
             groupMember.hasMyGroupBeenSerialized = true;
         }
 
@@ -1097,6 +1099,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
         // animation offset
         groupLeader.currentRuntimeFrame = serialGroup.nextFrames[0];
+
+        // color
+        groupLeader.GetComponent<AnimatedCreatureColor>().Deserialize( serialGroup.colors[0] );
 
         // clone examples
         foreach( SerializableAnimationExample serialExample in serialGroup.examples )
@@ -1133,6 +1138,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
             // animation offset
             newCreature.currentRuntimeFrame = serialGroup.nextFrames[i];
+
+            // color
+            newCreature.GetComponent<AnimatedCreatureColor>().Deserialize( serialGroup.colors[i] );
 
             // copy audio system
             newCreature.CloneAudioSystem( groupLeader, true );
@@ -1192,6 +1200,7 @@ public class SerializableAnimatedCreatureGroup
     public List<Vector3> positions;
     public List<Quaternion> rotations;
     public List<int> nextFrames;
+    public List<float> colors;
     public List<SerializableAnimationExample> examples;
     public string prefab;
     public SerializedAnimationAudio audio;

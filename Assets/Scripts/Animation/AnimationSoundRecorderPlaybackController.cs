@@ -451,6 +451,8 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         {
             yield return null;
         }
+        // flag for starting to play grains immediately
+        wereWeCloned = true;
     }
 }
 

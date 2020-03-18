@@ -270,20 +270,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     
 
     Vector3 mostRecentTerrainFoundPoint;
-    private Terrain FindTerrain( Vector3 nearPoint )
-    {
-        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
-        int layerMask = 1 << 8;
-
-        RaycastHit hit;
-        // Check from a point really high above us, in the downward direction (in case we are below terrain)
-        if( Physics.Raycast( nearPoint + 400 * Vector3.up, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
-        {
-            mostRecentTerrainFoundPoint = hit.point;
-            return hit.transform.GetComponentInParent<Terrain>();
-        }
-        return null;
-    }
 
     private void FindTerrainInformation( out float height, out float steepness, out float distanceAbove )
     {
@@ -292,7 +278,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     public void FindTerrainInformation( Vector3 fromPosition, out float height, out float steepness, out float distanceAbove )
     {
-        Terrain currentTerrain = FindTerrain( fromPosition );
+        Terrain currentTerrain = TerrainUtility.FindTerrain<Terrain>( fromPosition );
         if( currentTerrain )
         {
             Vector2 terrainCoords = CoordinatesToIndices( currentTerrain, modelBaseDataSource.position );

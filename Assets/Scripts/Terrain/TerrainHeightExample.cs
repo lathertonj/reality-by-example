@@ -64,20 +64,7 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
 
     ConnectedTerrainController FindTerrain()
     {
-        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
-        int layerMask = 1 << 8;
-
-        RaycastHit hit;
-        // Check from a point really high above us, in the downward direction (in case we are below terrain)
-        if( Physics.Raycast( transform.position + 400 * Vector3.up, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
-        {
-            ConnectedTerrainController foundTerrain = hit.transform.GetComponentInParent<ConnectedTerrainController>();
-            if( foundTerrain != null )
-            {
-                return foundTerrain;
-            }
-        }
-        return null;
+        return TerrainUtility.FindTerrain<ConnectedTerrainController>( transform.position );
     }
 
 

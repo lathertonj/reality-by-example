@@ -78,16 +78,7 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
 
     private ConnectedTerrainController FindTerrain()
     {
-        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
-        int layerMask = 1 << 8;
-
-        RaycastHit hit;
-        // Check from a point really high above us, in the downward direction (in case we are below terrain)
-        if( Physics.Raycast( transform.position + 400 * Vector3.up, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
-        {
-            return hit.transform.GetComponentInParent<ConnectedTerrainController>();
-        }
-        return null;
+        return TerrainUtility.FindTerrain<ConnectedTerrainController>( transform.position );
     }
 
     void GripPlaceDeleteInteractable.JustPlaced()

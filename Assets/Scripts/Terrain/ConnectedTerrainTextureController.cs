@@ -20,8 +20,6 @@ public class ConnectedTerrainTextureController : MonoBehaviour
     private static float[,,] whiteSplatmapData = null;
     private int overlapPixels = 5, cornerOverlapPixels = 3, edgeOverlapPixels = 8;
 
-    public string serializationIdentifier;
-
     // TODO: how to smooth texture?
     // I can't compute extra beyond the regions of the terrain
     // like I do for terrain height, because there is no way

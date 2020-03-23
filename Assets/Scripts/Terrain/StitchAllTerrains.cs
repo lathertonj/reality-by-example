@@ -24,6 +24,17 @@ public class StitchAllTerrains : MonoBehaviour
 
     private void StitchAll()
     {
+        // first, flatten
+        for( int i = 0; i < rows.Length; i++ )
+        {
+            for( int j = 0; j < rows[i].rowLeftToRight.Length; j++ )
+            {
+                DummyTerrain maybeDummy = rows[i].rowLeftToRight[j].GetComponent<DummyTerrain>();
+                if( maybeDummy ) { maybeDummy.Flatten(); }
+            }
+        }
+
+        // now stitch
         for( int i = 0; i < rows.Length; i++ )
         {
             // left to right

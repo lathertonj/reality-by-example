@@ -32,5 +32,11 @@ public class TerrainUtility
         return default(T);
     }
 
+    public static void FlattenTerrainData( TerrainData td )
+    {
+        float[,] newHeights = new float[td.heightmapWidth, td.heightmapHeight];
+        td.SetHeights( 0, 0, newHeights );
+    }
+
     
 }

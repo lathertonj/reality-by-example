@@ -21,8 +21,9 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
     public float myMaxFloatValue = 10f;
 
 
-    // specific to average height
+    // specific to methods
     private float _averageHeight = 0f;
+    private float _heightDifference = 0f;
     
 
     public float sensitivity = 1f;
@@ -111,6 +112,12 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
         myText.text = newText;
     }
 
+    void DirectAssignFloatValue( float newValue )
+    {
+        myFloatDisplayValue = newValue;
+        my0To1Value = myFloatDisplayValue.MapClamp( myMinFloatValue, myMaxFloatValue, 0, 1 );
+    }
+
     void StartAction()
     {
         switch( method )
@@ -122,6 +129,10 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
                 SetMyValue( my0To1Value );
                 break;
             case Method.HeightVariance:
+                // find current variance
+                _ScanTerrainHeightDifference();
+                // reset text
+                SetMyValue( my0To1Value );
                 break;
             case Method.BumpLevel:
                 break;
@@ -173,6 +184,7 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
                 _UpdateTerrainHeight( myFloatDisplayValue );
                 break;
             case Method.HeightVariance:
+                _UpdateTerrainHeightDifference( myFloatDisplayValue );
                 break;
             case Method.BumpLevel:
                 break;
@@ -196,9 +208,7 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
         _averageHeight = sum / currentTerrain.myRegressionExamples.Count;
 
         // update internals
-        myFloatDisplayValue = _averageHeight;
-        my0To1Value = myFloatDisplayValue.MapClamp( myMinFloatValue, myMaxFloatValue, 0, 1 );
-
+        DirectAssignFloatValue( _averageHeight );
     }
 
     void _UpdateTerrainHeight( float newAverage )
@@ -213,5 +223,40 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
         currentTerrain.RescanProvidedExamples();
 
         _averageHeight = newAverage;
+    }
+
+
+    void _ScanTerrainHeightDifference()
+    {
+        // first, find average height
+        _ScanTerrainHeight();
+
+        // now, find the average spread
+        float sum = 0f;
+        foreach( TerrainHeightExample e in currentTerrain.myRegressionExamples )
+        {
+            sum += Mathf.Abs( e.transform.position.y - _averageHeight );
+        }
+
+        // store
+        _heightDifference = sum / currentTerrain.myRegressionExamples.Count;
+        DirectAssignFloatValue( _heightDifference );
+    }
+
+    void _UpdateTerrainHeightDifference( float newDifference )
+    {
+        float multiplier = newDifference / _heightDifference;
+
+        foreach( TerrainHeightExample e in currentTerrain.myRegressionExamples )
+        {
+            // scale the delta compared to the average height
+            Vector3 pos = e.transform.position;
+            float delta = pos.y - _averageHeight;
+            pos.y = _averageHeight + multiplier * delta;
+            e.transform.position = pos;
+        }
+
+        _heightDifference = newDifference;
+        currentTerrain.RescanProvidedExamples();
     }
 }

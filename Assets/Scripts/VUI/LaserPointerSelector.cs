@@ -109,8 +109,29 @@ public class LaserPointerSelector : MonoBehaviour
                         Vibrate();
                     }
 
-                    intersectingObjectRoot = hit.collider.transform.root.gameObject;
+                    intersectingObjectRoot = null;
                     intersectingObject = hit.collider.gameObject;
+
+                    // look upward for a custom interface
+                    // it is annoyingly difficult to get the game object by finding 
+                    // the interface using Unity's builtin methods
+                    Transform currentTransform = intersectingObject.transform;
+                    while( currentTransform != null && intersectingObjectRoot == null )
+                    {
+                        if( currentTransform.GetComponent<LaserPointerSelectable>() != null )
+                        {
+                            intersectingObjectRoot = currentTransform.gameObject;
+                        }
+                        currentTransform = currentTransform.parent;
+                    }
+
+                    // if we didn't find one, just select the top level
+                    if( intersectingObjectRoot == null ) 
+                    {
+                        intersectingObjectRoot = intersectingObject.transform.root.gameObject;
+                    }
+
+                    // show laser
                     ShowLaser( hit );
                 }
                 else

@@ -16,6 +16,7 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
     private float my0To1Value = 0f;
     private float myFloatDisplayValue = 0f;
     private int myIntDisplayValue = 0;
+    public int myMinIntValue = 0;
     public int myMaxIntValue = 1;
     public float myMinFloatValue = 0f;
     public float myMaxFloatValue = 10f;
@@ -24,6 +25,9 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
     // specific to methods
     private float _averageHeight = 0f;
     private float _heightDifference = 0f;
+    private TerrainGISExample.GISType _baseGISType = TerrainGISExample.GISType.Smooth;
+    private float _gisAmount = 0f;
+    private int _gisVariation = 0;
     
 
     public float sensitivity = 1f;
@@ -87,7 +91,7 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
     {
         my0To1Value = Mathf.Clamp01( newValue );
         myFloatDisplayValue = my0To1Value.Map( 0, 1, myMinFloatValue, myMaxFloatValue );
-        myIntDisplayValue = (int) ( my0To1Value * ( myMaxIntValue ) );
+        myIntDisplayValue = (int) ( my0To1Value.MapClamp( 0, 1, myMinIntValue, myMaxIntValue + 0.99f ) );
         string newText = "";
         
         switch( method )
@@ -118,6 +122,12 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
         my0To1Value = myFloatDisplayValue.MapClamp( myMinFloatValue, myMaxFloatValue, 0, 1 );
     }
 
+    void DirectAssignIntValue( int newValue )
+    {
+        myIntDisplayValue = newValue;
+        my0To1Value = ((float) newValue + 0.5f).MapClamp( myMinIntValue, myMaxIntValue + 0.99f, 0, 1 );
+    }
+
     void StartAction()
     {
         switch( method )
@@ -135,8 +145,16 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
                 SetMyValue( my0To1Value );
                 break;
             case Method.BumpLevel:
+                // find current amount
+                _ScanGISFeatures();
+                // reset text
+                SetMyValue( my0To1Value );
                 break;
             case Method.BumpVariation:
+                // find current amount
+                _ScanGISFeatures();
+                // reset text
+                SetMyValue( my0To1Value ); 
                 break;
             case Method.TextureVariance:
                 break;
@@ -147,6 +165,11 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
     {
         // switch back to text without value
         SetTextWithoutValue();
+    }
+
+    void OnDisable()
+    {
+        StopAction();
     }
 
     void LaserPointerSelectable.Selected()
@@ -187,8 +210,10 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
                 _UpdateTerrainHeightDifference( myFloatDisplayValue );
                 break;
             case Method.BumpLevel:
+                _UpdateGISAmount( myFloatDisplayValue );
                 break;
             case Method.BumpVariation:
+                _UpdateGISVariation( myIntDisplayValue );
                 break;
             case Method.TextureVariance:
                 break;
@@ -257,6 +282,123 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
         }
 
         _heightDifference = newDifference;
+        currentTerrain.RescanProvidedExamples();
+    }
+
+    void _ScanGISFeatures()
+    {
+        float sum = 0;
+        Dictionary<TerrainGISExample.GISType, int> usedTypes = new Dictionary<TerrainGISExample.GISType, int>();
+        foreach( TerrainGISExample e in currentTerrain.myGISRegressionExamples )
+        {
+            // "smooth" is an inverse-type -- the more the value, the less textured it gets
+            sum += ( e.myType != TerrainGISExample.GISType.Smooth ) ? e.myValue : ( 1 - e.myValue );
+            
+            // track
+            if( !usedTypes.ContainsKey( e.myType ) )
+            {
+                usedTypes[e.myType] = 0;
+            }
+            usedTypes[e.myType]++;
+        }
+
+        // compute
+        int maxUsedCount = 0;
+        foreach( TerrainGISExample.GISType type in usedTypes.Keys )
+        {
+            if( usedTypes[type] > maxUsedCount )
+            {
+                maxUsedCount = usedTypes[type];
+                _baseGISType = type;
+            }
+        }
+        
+        // compute
+        _gisAmount = sum / currentTerrain.myGISRegressionExamples.Count;
+        _gisVariation = usedTypes.Keys.Count;
+
+        // store
+        if( method == Method.BumpLevel )
+        {
+            DirectAssignFloatValue( _gisAmount );
+        }
+        else if( method == Method.BumpVariation )
+        {
+            DirectAssignIntValue( _gisVariation );
+        }
+
+    }
+
+    void _UpdateGISAmount( float newAmount )
+    {
+        float random = 0.05f;
+
+        foreach( TerrainGISExample e in currentTerrain.myGISRegressionExamples )
+        {
+            // no need to clamp as e.Update clamps
+            float v = newAmount + Random.Range( -random, random );
+            // special case for smooth
+            if( e.myType == TerrainGISExample.GISType.Smooth ) { v = 1 - v; }
+            // set
+            e.UpdateMyValue( e.myType, v );
+        }
+
+        // update base type then update GIS variation to use the new base type
+        if( newAmount < 0.25f )
+        {
+            _baseGISType = TerrainGISExample.GISType.Smooth;
+        }   
+        else if( newAmount < 0.5f )
+        {
+            _baseGISType = TerrainGISExample.GISType.Hilly;
+        }
+        else if( newAmount < 0.75f )
+        {
+            _baseGISType = TerrainGISExample.GISType.Boulder;
+        }
+        else
+        {
+            _baseGISType = TerrainGISExample.GISType.Mountain;
+        }
+
+        _UpdateGISVariation( _gisVariation );
+    }
+
+    void _UpdateGISVariation( int newVariation )
+    {
+        // store
+        _gisVariation = newVariation; 
+
+        // figure out which types to use
+        TerrainGISExample.GISType currentType = _baseGISType;
+        HashSet<TerrainGISExample.GISType> usedTypes = new HashSet<TerrainGISExample.GISType>();
+        for( int _ = 0; _ < _gisVariation; _++ )
+        {
+            usedTypes.Add( currentType );
+            // go forwards: add bumpier types before smoother ones
+            // rather than more outlandish ones
+            currentType = currentType.Next();
+        }
+
+        // now, set the values
+        List<TerrainGISExample.GISType> usedTypesOrder = new List<TerrainGISExample.GISType>( usedTypes );
+        // start with the base one, we want to use it the most if possible
+        int offset = usedTypesOrder.IndexOf( _baseGISType );
+
+        Debug.Log( "with variation " + newVariation.ToString() + " list is: " + currentTerrain.myGISRegressionExamples.Count.ToString() );
+        for( int i = 0; i < currentTerrain.myGISRegressionExamples.Count; i++ )
+        {
+            // go through the used types list starting with offset
+            currentTerrain.myGISRegressionExamples[i].UpdateMyValue(
+                usedTypesOrder[ ( i + offset ) % usedTypesOrder.Count ],
+                currentTerrain.myGISRegressionExamples[i].myValue
+            );
+
+            Debug.Log( i.ToString() + ": " + currentTerrain.myGISRegressionExamples[i].myType.ToString() + ": " + currentTerrain.myGISRegressionExamples[i].myValue.ToString() );
+        }
+        Debug.Log( "END!!!" );
+
+        // rescan
         currentTerrain.RescanProvidedExamples();
     }
 }

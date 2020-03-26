@@ -28,7 +28,7 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
 
 
 
-    private void UpdateMyValue( GISType newType, float newValue )
+    public void UpdateMyValue( GISType newType, float newValue )
     {
         // set previous one to zero
         myValues[ (int) myType ] = 0;

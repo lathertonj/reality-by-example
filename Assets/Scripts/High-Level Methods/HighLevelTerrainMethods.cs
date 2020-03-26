@@ -211,6 +211,10 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
                 break;
             case Method.BumpLevel:
                 _UpdateGISAmount( myFloatDisplayValue );
+                // bump level may have changed due to randomness in method
+                _ScanGISFeatures();
+                // reset text
+                SetMyValue( my0To1Value );
                 break;
             case Method.BumpVariation:
                 _UpdateGISVariation( myIntDisplayValue );
@@ -331,7 +335,7 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
 
     void _UpdateGISAmount( float newAmount )
     {
-        float random = 0.05f;
+        float random = 0.08f;
 
         foreach( TerrainGISExample e in currentTerrain.myGISRegressionExamples )
         {

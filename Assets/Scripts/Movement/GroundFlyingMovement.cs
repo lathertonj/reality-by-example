@@ -7,7 +7,8 @@ public class GroundFlyingMovement : MonoBehaviour
 {
 
     public SteamVR_Input_Sources handType;
-    public SteamVR_Action_Boolean touchpadClick;
+    public SteamVR_Action_Boolean fly;
+    public SteamVR_Action_Boolean touchpadPreview;
     public SteamVR_Action_Vector2 touchpadXY;
     private SteamVR_Behaviour_Pose controllerPose;
 
@@ -43,33 +44,18 @@ public class GroundFlyingMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if( ClickDown() )
+        if( touchpadPreview.GetState( handType ) )
         {
-            //Debug.Log("click down!");
-        }
-
-        if( ClickCurrentlyDown() )
-        {
-            if( ShouldFlyAndShowLaser() )
+            ShowLaser();
+        
+            if( fly.GetStateDown( handType ) )
             {
-                ShowLaser();
-            }
-            else
-            {
-                HideLasers();
+                SetFlyAmount();
             }
         }
-
-        if( ClickUp() )
+        else
         {
-            if( ShouldFlyAndShowLaser() )
-            {
-                Fly();
-            }
-            else
-            {
-                HideLasers();
-            }
+            HideLasers();
         }
 
         // actually do the flying
@@ -104,7 +90,7 @@ public class GroundFlyingMovement : MonoBehaviour
 
     private float GetLaserLength()
     {
-        return touchpadXY.GetAxis( handType ).y.PowMapClamp( -1, 1, minFlyShown, maxFlyShown, 3f );
+        return touchpadXY.GetAxis( handType ).y.PowMapClamp( -0.6f, 0.6f, minFlyShown, maxFlyShown, 3f );
     }
 
     private Vector3 GetTeleportPosition()
@@ -151,34 +137,9 @@ public class GroundFlyingMovement : MonoBehaviour
         teleportLaserEnd.SetActive( false );
     }
 
-    private void Fly()
-    {
-        HideLasers();
-        SetFlyAmount();
-    }
-
-    private bool ClickDown()
-    {
-        return touchpadClick.GetStateDown( handType );
-    }
-
-    private bool ClickCurrentlyDown()
-    {
-        return touchpadClick.GetState( handType );
-    }
-
-    private bool ClickUp()
-    {
-        return touchpadClick.GetStateUp( handType );
-    }
-
-    private bool ShouldFlyAndShowLaser()
-    {
-        return Mathf.Abs( touchpadXY.GetAxis( handType ).x ) < 0.4f;
-    }
-
     void OnDisable()
     {
         HideLasers();
+        currentlyFlying = false;
     }
 }

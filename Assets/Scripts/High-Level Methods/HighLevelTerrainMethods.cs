@@ -387,6 +387,7 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
         List<TerrainGISExample.GISType> usedTypesOrder = new List<TerrainGISExample.GISType>( usedTypes );
         // start with the base one, we want to use it the most if possible
         int offset = usedTypesOrder.IndexOf( _baseGISType );
+        // TODO: reconstruct and shuffle this list.
 
         for( int i = 0; i < currentTerrain.myGISRegressionExamples.Count; i++ )
         {
@@ -417,6 +418,8 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
 
         _currentlyUsedTextures = new List<int>( usedTextures.Keys );
         _currentlyUsedTextures.OrderByDescending( t => usedTextures[t] );
+
+        DirectAssignIntValue( _currentlyUsedTextures.Count );
     }
 
     void _UpdateTextureVariation( int newVariation )
@@ -443,10 +446,21 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
 
         // reset textures
         ConnectedTerrainTextureController terrain = currentTerrain.GetComponent<ConnectedTerrainTextureController>();
+        List<int> texturesToUse = new List<int>();
+        // get which textures we will use
         for( int i = 0; i < terrain.myRegressionExamples.Count; i++ )
         {
-            terrain.myRegressionExamples[i].SwitchTo( _currentlyUsedTextures[ i % _currentlyUsedTextures.Count ] );
+            texturesToUse.Add( _currentlyUsedTextures[ i % _currentlyUsedTextures.Count ] );
         }
+        // shuffle 
+        texturesToUse.Shuffle();
+
+        // assign
+        for( int i = 0; i < terrain.myRegressionExamples.Count; i++ )
+        {
+            terrain.myRegressionExamples[i].SwitchTo( texturesToUse[i] );
+        }
+
         terrain.RescanProvidedExamples();
     }
 }

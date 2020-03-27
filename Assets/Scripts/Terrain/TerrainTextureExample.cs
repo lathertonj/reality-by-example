@@ -10,8 +10,8 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
     public Material[] myHintMaterials;
 
     [HideInInspector] public double[] myValues = new double[4];
-    public string myLabel = "";
-    private int myCurrentValue;
+    [HideInInspector] public string myLabel = "";
+    [HideInInspector] public int myCurrentValue;
     private MeshRenderer myRenderer;
 
     [HideInInspector] private ConnectedTerrainTextureController myTerrain;
@@ -139,6 +139,14 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
     public void CopyFrom( TerrainTextureExample from )
     {
         while( myCurrentValue != from.myCurrentValue )
+        {
+            SwitchToNextMaterial();
+        }
+    }
+
+    public void SwitchTo( int newValue )
+    {
+        while( myCurrentValue != newValue )
         {
             SwitchToNextMaterial();
         }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , TouchpadUpDownInteractable
 {
@@ -28,6 +29,7 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
     private TerrainGISExample.GISType _baseGISType = TerrainGISExample.GISType.Smooth;
     private float _gisAmount = 0f;
     private int _gisVariation = 0;
+    private List<int> _currentlyUsedTextures;
     
 
     public float sensitivity = 1f;
@@ -135,30 +137,26 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
             case Method.AverageHeight:
                 // find current terrain height
                 _ScanTerrainHeight();
-                // reset text
-                SetMyValue( my0To1Value );
                 break;
             case Method.HeightVariance:
                 // find current variance
                 _ScanTerrainHeightDifference();
-                // reset text
-                SetMyValue( my0To1Value );
                 break;
             case Method.BumpLevel:
                 // find current amount
                 _ScanGISFeatures();
-                // reset text
-                SetMyValue( my0To1Value );
                 break;
             case Method.BumpVariation:
                 // find current amount
                 _ScanGISFeatures();
-                // reset text
-                SetMyValue( my0To1Value ); 
                 break;
             case Method.TextureVariance:
+                // find current used textures
+                _ScanTextureVariation();
                 break;
         }
+        // reset text
+        SetMyValue( my0To1Value );
     }
 
     void StopAction()
@@ -220,6 +218,7 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
                 _UpdateGISVariation( myIntDisplayValue );
                 break;
             case Method.TextureVariance:
+                _UpdateTextureVariation( myIntDisplayValue );
                 break;
         }
     }
@@ -389,7 +388,6 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
         // start with the base one, we want to use it the most if possible
         int offset = usedTypesOrder.IndexOf( _baseGISType );
 
-        Debug.Log( "with variation " + newVariation.ToString() + " list is: " + currentTerrain.myGISRegressionExamples.Count.ToString() );
         for( int i = 0; i < currentTerrain.myGISRegressionExamples.Count; i++ )
         {
             // go through the used types list starting with offset
@@ -397,12 +395,58 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
                 usedTypesOrder[ ( i + offset ) % usedTypesOrder.Count ],
                 currentTerrain.myGISRegressionExamples[i].myValue
             );
-
-            Debug.Log( i.ToString() + ": " + currentTerrain.myGISRegressionExamples[i].myType.ToString() + ": " + currentTerrain.myGISRegressionExamples[i].myValue.ToString() );
         }
-        Debug.Log( "END!!!" );
 
         // rescan
         currentTerrain.RescanProvidedExamples();
+    }
+
+    void _ScanTextureVariation()
+    {
+        Dictionary<int, int> usedTextures = new Dictionary<int, int>();
+        ConnectedTerrainTextureController terrain = currentTerrain.GetComponent<ConnectedTerrainTextureController>();
+        foreach( TerrainTextureExample e in terrain.myRegressionExamples )
+        {            
+            // track
+            if( !usedTextures.ContainsKey( e.myCurrentValue ) )
+            {
+                usedTextures[e.myCurrentValue] = 0;
+            }
+            usedTextures[e.myCurrentValue]++;
+        }
+
+        _currentlyUsedTextures = new List<int>( usedTextures.Keys );
+        _currentlyUsedTextures.OrderByDescending( t => usedTextures[t] );
+    }
+
+    void _UpdateTextureVariation( int newVariation )
+    {
+        if( newVariation == _currentlyUsedTextures.Count ) { return; }
+        else if( newVariation < _currentlyUsedTextures.Count )
+        {
+            // keep the first N
+            _currentlyUsedTextures.RemoveRange( newVariation, _currentlyUsedTextures.Count - newVariation );
+        }
+        else if( newVariation > _currentlyUsedTextures.Count )
+        {
+            // find new ones
+            while( _currentlyUsedTextures.Count < newVariation )
+            {
+                int newElem = Random.Range( myMinIntValue - 1, myMaxIntValue );
+                if( !_currentlyUsedTextures.Contains( newElem ) )
+                {
+                    _currentlyUsedTextures.Add( newElem );
+                }
+            }
+        }
+
+
+        // reset textures
+        ConnectedTerrainTextureController terrain = currentTerrain.GetComponent<ConnectedTerrainTextureController>();
+        for( int i = 0; i < terrain.myRegressionExamples.Count; i++ )
+        {
+            terrain.myRegressionExamples[i].SwitchTo( _currentlyUsedTextures[ i % _currentlyUsedTextures.Count ] );
+        }
+        terrain.RescanProvidedExamples();
     }
 }

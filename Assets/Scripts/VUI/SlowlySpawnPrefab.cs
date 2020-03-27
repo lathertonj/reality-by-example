@@ -37,6 +37,7 @@ public class SlowlySpawnPrefab : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // spawn or not spawn
         if( spawn.GetStateDown( handType ) )
         {
             StartCoroutine( SpawnObjects() );
@@ -46,8 +47,20 @@ public class SlowlySpawnPrefab : MonoBehaviour
             StopSpawningObjects();
         }
 
-        if( spawn.GetState( handType ) )
+        // show cone or not show cone and calculate cone position
+        if( changeConeAngle.GetStateDown( handType ) )
         {
+            // show the radius of influence
+            myUICone.gameObject.SetActive( true );
+        }
+
+        if( changeConeAngle.GetState( handType ) )
+        {
+            // set the width of the cone
+            Vector2 thumbPosition = coneWidth.GetAxis( handType );
+            currentSpawnRadius = thumbPosition.y.Map( -1f, 1f, 2.5f, 15f );
+            myUICone.SetSize( currentSpawnRadius * 2 );
+
             // set the length of the cone and find where the spawn position is
             RaycastHit hit;
             if( Physics.Raycast( controllerPose.transform.position, controllerPose.transform.forward, out hit, 2000, mask ) )
@@ -60,32 +73,30 @@ public class SlowlySpawnPrefab : MonoBehaviour
 
                 // set cone length
                 myUICone.SetLength( hit.distance );
-
-                // set cone angle
-                myUICone.transform.rotation = Quaternion.LookRotation( controllerPose.transform.forward, controllerPose.transform.up );
             }
             else 
             {
                 // disallow spawns when our cone isn't hitting terrain
                 isCurrentSpawnPositionValid = false;
+
+                // make cone very long when not hitting terrain
+                myUICone.SetLength( 300 );
+
             }
+            // set cone angle
+            myUICone.transform.rotation = Quaternion.LookRotation( controllerPose.transform.forward, controllerPose.transform.up );
         }
 
-        if( changeConeAngle.GetState( handType ) )
-        {
-            // set the width of the cone
-            Vector2 thumbPosition = coneWidth.GetLastAxis( handType );
-            currentSpawnRadius = thumbPosition.y.Map( -1f, 1f, 2.5f, 15f );
-            myUICone.SetSize( currentSpawnRadius * 2 );
+        if( changeConeAngle.GetStateUp( handType ) )
+        {    
+            // hide the radius of influence
+            myUICone.gameObject.SetActive( false );
         }
     }
 
     IEnumerator SpawnObjects()
     {
         shouldSpawn = true;
-
-        // show the radius of influence
-        myUICone.gameObject.SetActive( true );
 
         while( shouldSpawn )
         {
@@ -111,9 +122,6 @@ public class SlowlySpawnPrefab : MonoBehaviour
     {
         // stop coroutine
         shouldSpawn = false;
-
-        // hide the radius of influence
-        myUICone.gameObject.SetActive( false );
     }
 
     private Vector3 GetSpawnPoint()

@@ -28,7 +28,7 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
     private float _heightDifference = 0f;
     private TerrainGISExample.GISType _baseGISType = TerrainGISExample.GISType.Smooth;
     private float _gisAmount = 0f;
-    private int _gisVariation = 0;
+    private List<TerrainGISExample.GISType> _currentlyUsedGISTypes;
     private List<int> _currentlyUsedTextures;
     
 
@@ -318,7 +318,8 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
         
         // compute
         _gisAmount = sum / currentTerrain.myGISRegressionExamples.Count;
-        _gisVariation = usedTypes.Keys.Count;
+        _currentlyUsedGISTypes = new List<TerrainGISExample.GISType>( usedTypes.Keys );
+        _currentlyUsedGISTypes.OrderByDescending( t => usedTypes[t] );
 
         // store
         if( method == Method.BumpLevel )
@@ -327,7 +328,7 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
         }
         else if( method == Method.BumpVariation )
         {
-            DirectAssignIntValue( _gisVariation );
+            DirectAssignIntValue( _currentlyUsedGISTypes.Count );
         }
 
     }
@@ -364,36 +365,40 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
             _baseGISType = TerrainGISExample.GISType.Mountain;
         }
 
-        _UpdateGISVariation( _gisVariation );
+        _UpdateGISVariation( _currentlyUsedGISTypes.Count );
     }
 
     void _UpdateGISVariation( int newVariation )
     {
-        // store
-        _gisVariation = newVariation; 
-
-        // figure out which types to use
-        TerrainGISExample.GISType currentType = _baseGISType;
-        HashSet<TerrainGISExample.GISType> usedTypes = new HashSet<TerrainGISExample.GISType>();
-        for( int _ = 0; _ < _gisVariation; _++ )
+        // hacky code because I am not very clever 
+        _currentlyUsedGISTypes.Clear();
+        _currentlyUsedGISTypes.Add( _baseGISType );
+        List<TerrainGISExample.GISType> otherTypes = new List<TerrainGISExample.GISType>();
+        otherTypes.Add( _baseGISType.Next() );
+        otherTypes.Add( _baseGISType.Next().Next() );
+        otherTypes.Add( _baseGISType.Next().Next().Next() );
+        otherTypes.Shuffle();
+        // pick N to add
+        for( int i = 0; i < newVariation - 1; i++ )
         {
-            usedTypes.Add( currentType );
-            // go forwards: add bumpier types before smoother ones
-            // rather than more outlandish ones
-            currentType = currentType.Next();
+            _currentlyUsedGISTypes.Add( otherTypes[i] );
         }
 
-        // now, set the values
-        List<TerrainGISExample.GISType> usedTypesOrder = new List<TerrainGISExample.GISType>( usedTypes );
-        // start with the base one, we want to use it the most if possible
-        int offset = usedTypesOrder.IndexOf( _baseGISType );
-        // TODO: reconstruct and shuffle this list.
-
+        // reset textures
+        List<TerrainGISExample.GISType> bumpsToUse = new List<TerrainGISExample.GISType>();
+        // get which textures we will use
         for( int i = 0; i < currentTerrain.myGISRegressionExamples.Count; i++ )
         {
-            // go through the used types list starting with offset
+            bumpsToUse.Add( _currentlyUsedGISTypes[ i % _currentlyUsedGISTypes.Count ] );
+        }
+        // shuffle 
+        bumpsToUse.Shuffle();
+
+        // assign
+        for( int i = 0; i < currentTerrain.myGISRegressionExamples.Count; i++ )
+        {
             currentTerrain.myGISRegressionExamples[i].UpdateMyValue(
-                usedTypesOrder[ ( i + offset ) % usedTypesOrder.Count ],
+                bumpsToUse[i],
                 currentTerrain.myGISRegressionExamples[i].myValue
             );
         }

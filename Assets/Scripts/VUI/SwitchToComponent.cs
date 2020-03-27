@@ -331,6 +331,7 @@ public class SwitchToComponent : MonoBehaviour
         EnableComponent<TouchpadUpDownInteraction>( o );
         EnableComponent<RemoteTouchpadLeftRightClickInteraction>( o );
         EnableComponent<RemoteTouchpadUpDownInteraction>( o );
+        EnableComponent<RemoteTouchpadUpDownScrollInteraction>( o );
     }
 
     
@@ -346,6 +347,7 @@ public class SwitchToComponent : MonoBehaviour
         DisableComponent<TriggerGrabMoveInteraction>( o );
         DisableComponent<RemoteTouchpadLeftRightClickInteraction>( o );
         DisableComponent<RemoteTouchpadUpDownInteraction>( o );
+        DisableComponent<RemoteTouchpadUpDownScrollInteraction>( o );
         DisableComponent<RemoteTriggerGrabMoveInteraction>( o );
         
         // special terrain height methods

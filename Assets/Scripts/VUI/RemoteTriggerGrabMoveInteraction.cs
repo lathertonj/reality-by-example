@@ -159,4 +159,9 @@ public class RemoteTriggerGrabMoveInteraction : MonoBehaviour
         }
     }
 
+    public bool TouchpadInUse()
+    {
+        return touchpadMovingEnabled && interactingObject != null;
+    }
+
 }

@@ -24,6 +24,144 @@
          "skeleton" : [],
          "sources" : []
       },
+      "/actions/rbe" : {
+         "haptics" : [
+            {
+               "output" : "/actions/rbe/out/haptic",
+               "path" : "/user/hand/left/output/haptic"
+            },
+            {
+               "output" : "/actions/rbe/out/haptic",
+               "path" : "/user/hand/right/output/haptic"
+            }
+         ],
+         "poses" : [
+            {
+               "output" : "/actions/rbe/in/pose",
+               "path" : "/user/hand/left/pose/raw"
+            },
+            {
+               "output" : "/actions/rbe/in/pose",
+               "path" : "/user/hand/right/pose/raw"
+            }
+         ],
+         "sources" : [
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/takeactiongeneric"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/grip"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/takeactiongeneric"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/grip"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/menuandselectlaser"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/application_menu"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/menuandselectlaser"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/application_menu"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/grabobject"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/grabobject"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "east" : {
+                     "output" : "/actions/rbe/in/rightclick"
+                  },
+                  "west" : {
+                     "output" : "/actions/rbe/in/leftclick"
+                  }
+               },
+               "mode" : "dpad",
+               "parameters" : {
+                  "sub_mode" : "click"
+               },
+               "path" : "/user/hand/left/input/trackpad"
+            },
+            {
+               "inputs" : {
+                  "east" : {
+                     "output" : "/actions/rbe/in/rightclick"
+                  },
+                  "west" : {
+                     "output" : "/actions/rbe/in/leftclick"
+                  }
+               },
+               "mode" : "dpad",
+               "parameters" : {
+                  "sub_mode" : "click"
+               },
+               "path" : "/user/hand/right/input/trackpad"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/takeactionmovement"
+                  },
+                  "position" : {
+                     "output" : "/actions/rbe/in/updowntouchpad"
+                  },
+                  "touch" : {
+                     "output" : "/actions/rbe/in/updowntouchpadpressed"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/left/input/trackpad"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/takeactionmovement"
+                  },
+                  "position" : {
+                     "output" : "/actions/rbe/in/updowntouchpad"
+                  },
+                  "touch" : {
+                     "output" : "/actions/rbe/in/updowntouchpadpressed"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/right/input/trackpad"
+            }
+         ]
+      },
       "/actions/terraingenerate" : {
          "chords" : [],
          "haptics" : [

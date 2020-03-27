@@ -13,7 +13,7 @@ public class RemoteGripPlaceDeleteInteraction : MonoBehaviour
     private GripPlaceDeleteInteractable selectedObject = null;
     private GameObject selectedGameObject = null;
 
-    private RemoteTouchpadUpDownInteraction myUpDownInteraction;
+    private RemoteTouchpadUpDownScrollInteraction myUpDownInteraction;
     private RemoteTriggerGrabMoveInteraction myGrabMoveInteraction;
     private RemoteTouchpadLeftRightClickInteraction myLeftRightClickInteraction;
     private RemoteCloneMoveInteraction myCloneMoveInteraction;
@@ -30,7 +30,7 @@ public class RemoteGripPlaceDeleteInteraction : MonoBehaviour
     void Awake()
     {
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
-        myUpDownInteraction = GetComponent<RemoteTouchpadUpDownInteraction>();
+        myUpDownInteraction = GetComponent<RemoteTouchpadUpDownScrollInteraction>();
         myGrabMoveInteraction = GetComponent<RemoteTriggerGrabMoveInteraction>();
         myLeftRightClickInteraction = GetComponent<RemoteTouchpadLeftRightClickInteraction>();
         myCloneMoveInteraction = GetComponent<RemoteCloneMoveInteraction>();

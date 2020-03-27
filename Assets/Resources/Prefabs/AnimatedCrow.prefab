@@ -2265,7 +2265,7 @@ MonoBehaviour:
     type: 3}
   handType: 1
   startStopDataCollection:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
   modelBaseDataSource: {fileID: 0}
   modelBaseToAnimate: {fileID: 3197902672222810673}
@@ -2349,6 +2349,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   creatureRenderer: {fileID: 1119379320857871482}
   materialColorProperty: _SpecColor
+  sensitivity: 1
 --- !u!1 &1119379321811636571
 GameObject:
   m_ObjectHideFlags: 0

@@ -120,6 +120,40 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!21 &3741327
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Sprites/Default
+  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AlphaTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - PixelSnap: 0
+    - _EnableExternalAlpha: 0
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Flip: {r: 1, g: 1, b: 1, a: 1}
+    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &33815732
 GameObject:
   m_ObjectHideFlags: 0
@@ -194,7 +228,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
     type: 3}
-  serializationIdentifier: 9
   myRegressionExamples: []
 --- !u!1 &197813565
 GameObject:
@@ -255,7 +288,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
     type: 3}
-  serializationIdentifier: 3
   myRegressionExamples: []
 --- !u!4 &197813568
 Transform:
@@ -272,169 +304,6 @@ Transform:
   m_Father: {fileID: 978776017}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!43 &208582502
-Mesh:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  serializedVersion: 10
-  m_SubMeshes:
-  - serializedVersion: 2
-    firstByte: 0
-    indexCount: 24
-    topology: 0
-    baseVertex: 0
-    firstVertex: 0
-    vertexCount: 8
-    localAABB:
-      m_Center: {x: 0, y: 0.01, z: 0}
-      m_Extent: {x: 1.65, y: 0, z: 1.275}
-  m_Shapes:
-    vertices: []
-    shapes: []
-    channels: []
-    fullWeights: []
-  m_BindPose: []
-  m_BoneNameHashes: 
-  m_RootBoneNameHash: 0
-  m_BonesAABB: []
-  m_VariableBoneCountWeights:
-    m_Data: 
-  m_MeshCompression: 0
-  m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
-  m_IndexFormat: 0
-  m_IndexBuffer: 000004000100010004000500010005000200020005000600020006000300030006000700030007000000000007000400
-  m_VertexData:
-    serializedVersion: 3
-    m_VertexCount: 8
-    m_Channels:
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 3
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 12
-      format: 0
-      dimension: 4
-    - stream: 0
-      offset: 28
-      format: 0
-      dimension: 2
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    m_DataSize: 288
-    _typelessdata: 0000c03f0ad7233c000090bf000000000000803f0000803f0000803f00000000000000000000c0bf0ad7233c000090bf000000000000803f0000803f0000803f0000803f000000000000c0bf0ad7233c0000903f000000000000803f0000803f0000803f00000000000000000000c03f0ad7233c0000903f000000000000803f0000803f0000803f0000803f000000003333d33f0ad7233c3333a3bf000000000000803f0000803f00000000000000000000803f3333d3bf0ad7233c3333a3bf000000000000803f0000803f000000000000803f0000803f3333d3bf0ad7233c3333a33f000000000000803f0000803f00000000000000000000803f3333d33f0ad7233c3333a33f000000000000803f0000803f000000000000803f0000803f
-  m_CompressedMesh:
-    m_Vertices:
-      m_NumItems: 0
-      m_Range: 0
-      m_Start: 0
-      m_Data: 
-      m_BitSize: 0
-    m_UV:
-      m_NumItems: 0
-      m_Range: 0
-      m_Start: 0
-      m_Data: 
-      m_BitSize: 0
-    m_Normals:
-      m_NumItems: 0
-      m_Range: 0
-      m_Start: 0
-      m_Data: 
-      m_BitSize: 0
-    m_Tangents:
-      m_NumItems: 0
-      m_Range: 0
-      m_Start: 0
-      m_Data: 
-      m_BitSize: 0
-    m_Weights:
-      m_NumItems: 0
-      m_Data: 
-      m_BitSize: 0
-    m_NormalSigns:
-      m_NumItems: 0
-      m_Data: 
-      m_BitSize: 0
-    m_TangentSigns:
-      m_NumItems: 0
-      m_Data: 
-      m_BitSize: 0
-    m_FloatColors:
-      m_NumItems: 0
-      m_Range: 0
-      m_Start: 0
-      m_Data: 
-      m_BitSize: 0
-    m_BoneIndices:
-      m_NumItems: 0
-      m_Data: 
-      m_BitSize: 0
-    m_Triangles:
-      m_NumItems: 0
-      m_Data: 
-      m_BitSize: 0
-    m_UVInfo: 0
-  m_LocalAABB:
-    m_Center: {x: 0, y: 0.01, z: 0}
-    m_Extent: {x: 1.65, y: 0, z: 1.275}
-  m_MeshUsageFlags: 0
-  m_BakedConvexCollisionMesh: 
-  m_BakedTriangleCollisionMesh: 
-  m_MeshMetrics[0]: 1
-  m_MeshMetrics[1]: 1
-  m_MeshOptimizationFlags: 1
-  m_StreamData:
-    offset: 0
-    size: 0
-    path: 
 --- !u!1 &270179153
 GameObject:
   m_ObjectHideFlags: 0
@@ -608,40 +477,6 @@ Terrain:
   m_LightmapParameters: {fileID: 15203, guid: 0000000000000000f000000000000000, type: 0}
   m_GroupingID: 0
   m_AllowAutoConnect: 1
---- !u!21 &304506684
-Material:
-  serializedVersion: 6
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Sprites/Default
-  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: 
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _AlphaTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats:
-    - PixelSnap: 0
-    - _EnableExternalAlpha: 0
-    m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &308453388
 GameObject:
   m_ObjectHideFlags: 0
@@ -814,7 +649,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
     type: 3}
-  serializationIdentifier: 7
   myRegressionExamples: []
 --- !u!4 &359564395
 Transform:
@@ -1073,7 +907,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
     type: 3}
-  serializationIdentifier: 1
   myRegressionExamples: []
 --- !u!4 &469433561
 Transform:
@@ -2220,7 +2053,7 @@ MonoBehaviour:
   leftHand: 1
   rightHand: 2
   gripPress:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
   leftHandLaser: {fileID: 1711928080}
   rightHandLaser: {fileID: 1711962410}
@@ -2250,6 +2083,7 @@ MonoBehaviour:
     type: 3}
   volumePrefab: {fileID: -4807998583417813822, guid: c0a9ea61b1fad2344a349a7d29c6ffdd,
     type: 3}
+  randomizeOnStart: 1
 --- !u!1001 &901522505
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2354,7 +2188,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
     type: 3}
-  serializationIdentifier: 8
   myRegressionExamples: []
 --- !u!114 &952970235
 MonoBehaviour:
@@ -2442,7 +2275,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
     type: 3}
-  serializationIdentifier: 4
   myRegressionExamples: []
 --- !u!4 &967117022
 Transform:
@@ -2518,7 +2350,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
     type: 3}
-  serializationIdentifier: 6
   myRegressionExamples: []
 --- !u!4 &977297666
 Transform:
@@ -3026,6 +2857,169 @@ Terrain:
   m_LightmapParameters: {fileID: 15203, guid: 0000000000000000f000000000000000, type: 0}
   m_GroupingID: 0
   m_AllowAutoConnect: 1
+--- !u!43 &1143878349
+Mesh:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 10
+  m_SubMeshes:
+  - serializedVersion: 2
+    firstByte: 0
+    indexCount: 24
+    topology: 0
+    baseVertex: 0
+    firstVertex: 0
+    vertexCount: 8
+    localAABB:
+      m_Center: {x: 0, y: 0.01, z: 0}
+      m_Extent: {x: 1.65, y: 0, z: 1.275}
+  m_Shapes:
+    vertices: []
+    shapes: []
+    channels: []
+    fullWeights: []
+  m_BindPose: []
+  m_BoneNameHashes: 
+  m_RootBoneNameHash: 0
+  m_BonesAABB: []
+  m_VariableBoneCountWeights:
+    m_Data: 
+  m_MeshCompression: 0
+  m_IsReadable: 1
+  m_KeepVertices: 1
+  m_KeepIndices: 1
+  m_IndexFormat: 0
+  m_IndexBuffer: 000004000100010004000500010005000200020005000600020006000300030006000700030007000000000007000400
+  m_VertexData:
+    serializedVersion: 3
+    m_VertexCount: 8
+    m_Channels:
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 3
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 12
+      format: 0
+      dimension: 4
+    - stream: 0
+      offset: 28
+      format: 0
+      dimension: 2
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    m_DataSize: 288
+    _typelessdata: 0000c03f0ad7233c000090bf000000000000803f0000803f0000803f00000000000000000000c0bf0ad7233c000090bf000000000000803f0000803f0000803f0000803f000000000000c0bf0ad7233c0000903f000000000000803f0000803f0000803f00000000000000000000c03f0ad7233c0000903f000000000000803f0000803f0000803f0000803f000000003333d33f0ad7233c3333a3bf000000000000803f0000803f00000000000000000000803f3333d3bf0ad7233c3333a3bf000000000000803f0000803f000000000000803f0000803f3333d3bf0ad7233c3333a33f000000000000803f0000803f00000000000000000000803f3333d33f0ad7233c3333a33f000000000000803f0000803f000000000000803f0000803f
+  m_CompressedMesh:
+    m_Vertices:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_UV:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Normals:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Tangents:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Weights:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_NormalSigns:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_TangentSigns:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_FloatColors:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_BoneIndices:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Triangles:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_UVInfo: 0
+  m_LocalAABB:
+    m_Center: {x: 0, y: 0.01, z: 0}
+    m_Extent: {x: 1.65, y: 0, z: 1.275}
+  m_MeshUsageFlags: 0
+  m_BakedConvexCollisionMesh: 
+  m_BakedTriangleCollisionMesh: 
+  m_MeshMetrics[0]: 1
+  m_MeshMetrics[1]: 1
+  m_MeshOptimizationFlags: 1
+  m_StreamData:
+    offset: 0
+    size: 0
+    path: 
 --- !u!1 &1170530444
 GameObject:
   m_ObjectHideFlags: 0
@@ -4095,10 +4089,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 2
   touchpadClick:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    actionPath: /actions/rbe/in/TakeActionMovement
     needsReinit: 0
   touchpadXY:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
+    actionPath: /actions/rbe/in/UpDownTouchpad
     needsReinit: 0
   laserPrefab: {fileID: 4345626581362647167, guid: e72f3db236f33ff4e9b6aea4ecbf9382,
     type: 3}
@@ -4122,10 +4116,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 1
   touchpadClick:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    actionPath: /actions/rbe/in/TakeActionMovement
     needsReinit: 0
   touchpadXY:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
+    actionPath: /actions/rbe/in/UpDownTouchpad
     needsReinit: 0
   laserPrefab: {fileID: 4345626581362647167, guid: e72f3db236f33ff4e9b6aea4ecbf9382,
     type: 3}
@@ -4149,7 +4143,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 1
   triggerPress:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
   examplePrefab: {fileID: 6496100472159615916, guid: d8e28aa4c2e02aa40937ebf53f59f772,
     type: 3}
@@ -4226,13 +4220,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 2
   spawn:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    actionPath: /actions/rbe/in/TakeActionMovement
     needsReinit: 0
   changeConeAngle:
-    actionPath: /actions/terraingenerate/in/TouchpadPreview
+    actionPath: /actions/rbe/in/UpDownTouchpadPressed
     needsReinit: 0
   coneWidth:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
+    actionPath: /actions/rbe/in/UpDownTouchpad
     needsReinit: 0
   mask:
     serializedVersion: 2
@@ -4256,13 +4250,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 1
   spawn:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    actionPath: /actions/rbe/in/TakeActionMovement
     needsReinit: 0
   changeConeAngle:
-    actionPath: /actions/terraingenerate/in/TouchpadPreview
+    actionPath: /actions/rbe/in/UpDownTouchpadPressed
     needsReinit: 0
   coneWidth:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
+    actionPath: /actions/rbe/in/UpDownTouchpad
     needsReinit: 0
   mask:
     serializedVersion: 2
@@ -4286,7 +4280,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 2
   triggerPress:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
   examplePrefab: {fileID: 6496100472159615916, guid: d8e28aa4c2e02aa40937ebf53f59f772,
     type: 3}
@@ -4305,7 +4299,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 2
   triggerPress:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
   examplePrefab: {fileID: 6496100472159615916, guid: d8e28aa4c2e02aa40937ebf53f59f772,
     type: 3}
@@ -4324,7 +4318,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 1
   triggerPress:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
   examplePrefab: {fileID: 6496100472159615916, guid: d8e28aa4c2e02aa40937ebf53f59f772,
     type: 3}
@@ -4343,7 +4337,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 2
   vibration:
-    actionPath: /actions/terraingenerate/out/Haptic
+    actionPath: /actions/rbe/out/Haptic
     needsReinit: 0
 --- !u!114 &1711806371
 MonoBehaviour:
@@ -4359,7 +4353,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 1
   vibration:
-    actionPath: /actions/terraingenerate/out/Haptic
+    actionPath: /actions/rbe/out/Haptic
     needsReinit: 0
 --- !u!114 &1711806374
 MonoBehaviour:
@@ -4375,7 +4369,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 2
   placeExample:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
   examplePrefab: {fileID: 6496100472159615916, guid: d8e28aa4c2e02aa40937ebf53f59f772,
     type: 3}
@@ -4394,7 +4388,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 1
   placeExample:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
   examplePrefab: {fileID: 6496100472159615916, guid: d8e28aa4c2e02aa40937ebf53f59f772,
     type: 3}
@@ -4413,10 +4407,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 2
   preview:
-    actionPath: /actions/terraingenerate/in/TouchpadPreview
+    actionPath: /actions/rbe/in/UpDownTouchpadPressed
     needsReinit: 0
   stopShowingLaser:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
   stopShowingOnUp: 0
   laserPrefab: {fileID: 8191968368830265266, guid: a34083df02d1caf40b65d7874e64b3f5,
@@ -4440,10 +4434,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 1
   preview:
-    actionPath: /actions/terraingenerate/in/TouchpadPreview
+    actionPath: /actions/rbe/in/UpDownTouchpadPressed
     needsReinit: 0
   stopShowingLaser:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
   stopShowingOnUp: 0
   laserPrefab: {fileID: 8191968368830265266, guid: a34083df02d1caf40b65d7874e64b3f5,
@@ -4467,10 +4461,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 2
   touchpadClick:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    actionPath: /actions/rbe/in/TakeActionMovement
     needsReinit: 0
   touchpadXY:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
+    actionPath: /actions/rbe/in/UpDownTouchpad
     needsReinit: 0
   laserPrefab: {fileID: 4345626581362647167, guid: e72f3db236f33ff4e9b6aea4ecbf9382,
     type: 3}
@@ -4495,10 +4489,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 1
   touchpadClick:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    actionPath: /actions/rbe/in/TakeActionMovement
     needsReinit: 0
   touchpadXY:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
+    actionPath: /actions/rbe/in/UpDownTouchpad
     needsReinit: 0
   laserPrefab: {fileID: 4345626581362647167, guid: e72f3db236f33ff4e9b6aea4ecbf9382,
     type: 3}
@@ -4523,10 +4517,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 2
   touchpadClick:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    actionPath: /actions/rbe/in/TakeActionMovement
     needsReinit: 0
   touchpadXY:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
+    actionPath: /actions/rbe/in/UpDownTouchpad
     needsReinit: 0
   laserPrefab: {fileID: 4345626581362647167, guid: e72f3db236f33ff4e9b6aea4ecbf9382,
     type: 3}
@@ -4551,10 +4545,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 1
   touchpadClick:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    actionPath: /actions/rbe/in/TakeActionMovement
     needsReinit: 0
   touchpadXY:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
+    actionPath: /actions/rbe/in/UpDownTouchpad
     needsReinit: 0
   laserPrefab: {fileID: 4345626581362647167, guid: e72f3db236f33ff4e9b6aea4ecbf9382,
     type: 3}
@@ -4616,7 +4610,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 1
   click:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
   laserPrefab: {fileID: 4345626581362647167, guid: a34083df02d1caf40b65d7874e64b3f5,
     type: 3}
@@ -4640,7 +4634,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 1
   vrAction:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
 --- !u!114 &1711928082
 MonoBehaviour:
@@ -4656,12 +4650,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hand: 1
   actionButton:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
   selectionButton:
-    actionPath: /actions/terraingenerate/in/Menu
+    actionPath: /actions/rbe/in/MenuAndSelectLaser
     needsReinit: 0
-  currentAction: 2
+  currentAction: 1
   creationDistance: 1.5
 --- !u!114 &1711928083
 MonoBehaviour:
@@ -4676,14 +4670,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   handType: 1
-  touchpadClicked:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+  leftClick:
+    actionPath: /actions/rbe/in/LeftClick
     needsReinit: 0
-  touchpadXY:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
+  rightClick:
+    actionPath: /actions/rbe/in/RightClick
     needsReinit: 0
-  snapAmount: {x: 0, y: 30, z: 0}
-  leftRightButtonCutoff: 0.4
+  snapAmount: {x: 0, y: 45, z: 0}
   room: {fileID: 1712225185}
 --- !u!114 &1711928084
 MonoBehaviour:
@@ -4699,7 +4692,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 1
   selectAction:
-    actionPath: /actions/terraingenerate/in/Menu
+    actionPath: /actions/rbe/in/MenuAndSelectLaser
     needsReinit: 0
   laserPrefab: {fileID: 8191968368830265266, guid: a34083df02d1caf40b65d7874e64b3f5,
     type: 3}
@@ -4724,11 +4717,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   handType: 1
-  click:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+  leftClick:
+    actionPath: /actions/rbe/in/LeftClick
     needsReinit: 0
-  touchpadXY:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
+  rightClick:
+    actionPath: /actions/rbe/in/RightClick
     needsReinit: 0
 --- !u!114 &1711928086
 MonoBehaviour:
@@ -4744,7 +4737,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 1
   click:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
 --- !u!114 &1711928087
 MonoBehaviour:
@@ -4760,13 +4753,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 1
   triggerPress:
-    actionPath: /actions/terraingenerate/in/GrabObject
+    actionPath: /actions/rbe/in/GrabObject
     needsReinit: 0
   touchpadPreview:
-    actionPath: /actions/terraingenerate/in/TouchpadPreview
+    actionPath: /actions/rbe/in/UpDownTouchpadPressed
     needsReinit: 0
   touchpadXY:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
+    actionPath: /actions/rbe/in/UpDownTouchpad
     needsReinit: 0
   touchpadMovingEnabled: 0
   touchpadMovingMinDistance: 1
@@ -4785,7 +4778,7 @@ MonoBehaviour:
   currentPrefabToUse: {fileID: 0}
   handType: 1
   gripPress:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
   objectPlaceDistance: 1.5
   isDeleteEnabled: 0
@@ -4892,7 +4885,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 2
   click:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
   laserPrefab: {fileID: 4345626581362647167, guid: a34083df02d1caf40b65d7874e64b3f5,
     type: 3}
@@ -4916,7 +4909,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 2
   vrAction:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
 --- !u!114 &1711962412
 MonoBehaviour:
@@ -4932,12 +4925,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hand: 2
   actionButton:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
   selectionButton:
-    actionPath: /actions/terraingenerate/in/Menu
+    actionPath: /actions/rbe/in/MenuAndSelectLaser
     needsReinit: 0
-  currentAction: 2
+  currentAction: 1
   creationDistance: 1.5
 --- !u!114 &1711962413
 MonoBehaviour:
@@ -4952,14 +4945,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   handType: 2
-  touchpadClicked:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+  leftClick:
+    actionPath: /actions/rbe/in/LeftClick
     needsReinit: 0
-  touchpadXY:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
+  rightClick:
+    actionPath: /actions/rbe/in/RightClick
     needsReinit: 0
-  snapAmount: {x: 0, y: 15, z: 0}
-  leftRightButtonCutoff: 0.4
+  snapAmount: {x: 0, y: 45, z: 0}
   room: {fileID: 1712225185}
 --- !u!114 &1711962414
 MonoBehaviour:
@@ -4975,7 +4967,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 2
   selectAction:
-    actionPath: /actions/terraingenerate/in/Menu
+    actionPath: /actions/rbe/in/MenuAndSelectLaser
     needsReinit: 0
   laserPrefab: {fileID: 8191968368830265266, guid: a34083df02d1caf40b65d7874e64b3f5,
     type: 3}
@@ -5000,11 +4992,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   handType: 2
-  click:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+  leftClick:
+    actionPath: /actions/rbe/in/LeftClick
     needsReinit: 0
-  touchpadXY:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
+  rightClick:
+    actionPath: /actions/rbe/in/RightClick
     needsReinit: 0
 --- !u!114 &1711962416
 MonoBehaviour:
@@ -5020,7 +5012,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 2
   click:
-    actionPath: /actions/terraingenerate/in/TouchpadPressed
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
 --- !u!114 &1711962417
 MonoBehaviour:
@@ -5036,13 +5028,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handType: 2
   triggerPress:
-    actionPath: /actions/terraingenerate/in/GrabObject
+    actionPath: /actions/rbe/in/GrabObject
     needsReinit: 0
   touchpadPreview:
-    actionPath: /actions/terraingenerate/in/TouchpadPreview
+    actionPath: /actions/rbe/in/UpDownTouchpadPressed
     needsReinit: 0
   touchpadXY:
-    actionPath: /actions/terraingenerate/in/Touchpad_XY
+    actionPath: /actions/rbe/in/UpDownTouchpad
     needsReinit: 0
   touchpadMovingEnabled: 0
   touchpadMovingMinDistance: 1
@@ -5061,7 +5053,7 @@ MonoBehaviour:
   currentPrefabToUse: {fileID: 0}
   handType: 2
   gripPress:
-    actionPath: /actions/terraingenerate/in/GeneratePoint
+    actionPath: /actions/rbe/in/TakeActionGeneric
     needsReinit: 0
   objectPlaceDistance: 1.5
   isDeleteEnabled: 0
@@ -5179,7 +5171,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 304506684}
+  - {fileID: 3741327}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5206,7 +5198,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1711942233}
-  m_Mesh: {fileID: 208582502}
+  m_Mesh: {fileID: 1143878349}
 --- !u!114 &1722163543
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5329,7 +5321,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
     type: 3}
-  serializationIdentifier: 2
   myRegressionExamples: []
 --- !u!4 &1884021155
 Transform:
@@ -5576,7 +5567,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
     type: 3}
-  serializationIdentifier: 5
   myRegressionExamples: []
 --- !u!4 &2009672322
 Transform:
@@ -5851,8 +5841,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poseAction:
-    actionPath: /actions/terraingenerate/in/Pose
-    needsReinit: 0
+    actionPath: /actions/rbe/in/Pose
+    needsReinit: 1
   inputSource: 1
   origin: {fileID: 0}
   onTransformUpdated:
@@ -5894,8 +5884,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poseAction:
-    actionPath: /actions/terraingenerate/in/Pose
-    needsReinit: 0
+    actionPath: /actions/rbe/in/Pose
+    needsReinit: 1
   inputSource: 2
   origin: {fileID: 0}
   onTransformUpdated:

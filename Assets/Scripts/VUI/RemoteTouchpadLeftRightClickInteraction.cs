@@ -7,8 +7,9 @@ public class RemoteTouchpadLeftRightClickInteraction : MonoBehaviour
 {
 
     public SteamVR_Input_Sources handType;
-    public SteamVR_Action_Boolean click;
-    public SteamVR_Action_Vector2 touchpadXY;
+    public SteamVR_Action_Boolean leftClick;
+    public SteamVR_Action_Boolean rightClick;
+
     private TouchpadLeftRightClickInteractable selectedObject = null;
 
 
@@ -16,16 +17,13 @@ public class RemoteTouchpadLeftRightClickInteraction : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if( click.GetStateDown( handType ) && FindSelectedObject() )
+        if( leftClick.GetStateDown( handType ) && FindSelectedObject() )
         {
-            if( touchpadXY.GetAxis( handType ).x <= -0.4f )
-            {
-                selectedObject.InformOfLeftClick();
-            }
-            else if( touchpadXY.GetAxis( handType ).x >= 0.4f )
-            {
-                selectedObject.InformOfRightClick();
-            }
+            selectedObject.InformOfLeftClick();
+        }
+        else if( rightClick.GetStateDown( handType ) && FindSelectedObject() )
+        {
+            selectedObject.InformOfRightClick();
         }
     }
 

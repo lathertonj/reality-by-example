@@ -131,6 +131,7 @@ public class HighLevelTerrainClickMethods : HighLevelMethods , TouchpadLeftRight
             int next = map[start];
             e.UpdateMyValue( _IntToGIS( next ), e.myValue );
         }
+        currentTerrain.RescanProvidedExamples();
     }
 
     int _GISToInt( TerrainGISExample.GISType t )

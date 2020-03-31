@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , TouchpadUpDownInteractable
+
+
+public class HighLevelTerrainMethods : HighLevelMethods , TouchpadUpDownInteractable
 {
     public enum Method { AverageHeight, HeightVariance, BumpLevel, BumpVariation, TextureVariance };
     public Method method;
 
     private TextMesh myText;
 
-    private bool lookForTerrain = false;
-    private ConnectedTerrainController currentTerrain = null;
+    
 
 
     private float my0To1Value = 0f;
@@ -43,29 +44,7 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
          
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if( lookForTerrain )
-        {
-            ConnectedTerrainController newTerrain = TerrainUtility.FindTerrain<ConnectedTerrainController>( transform.position );
-            // did we find a new terrain?
-            if( newTerrain != currentTerrain )
-            {
-                // stop what we were doing
-                if( currentTerrain != null )
-                {
-                    StopAction();
-                }
-
-                // remember it
-                currentTerrain = newTerrain;
-
-                // start a new thing                
-                StartAction();
-            }
-        }
-    }
+    
 
     void SetTextWithoutValue()
     {
@@ -130,7 +109,7 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
         my0To1Value = ((float) newValue + 0.5f).MapClamp( myMinIntValue, myMaxIntValue + 0.99f, 0, 1 );
     }
 
-    void StartAction()
+    protected override void StartAction()
     {
         switch( method )
         {
@@ -159,7 +138,7 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
         SetMyValue( my0To1Value );
     }
 
-    void StopAction()
+    protected override void StopAction()
     {
         // switch back to text without value
         SetTextWithoutValue();
@@ -170,24 +149,7 @@ public class HighLevelTerrainMethods : MonoBehaviour , LaserPointerSelectable , 
         StopAction();
     }
 
-    void LaserPointerSelectable.Selected()
-    {
-        // find a terrain under me, continuously
-        lookForTerrain = true;
-    }
-
-    void LaserPointerSelectable.Unselected()
-    {
-        // stop action in progress
-        if( currentTerrain != null ) 
-        { 
-            StopAction();
-        }
-
-        // stop looking for terrain
-        lookForTerrain = false;
-        currentTerrain = null;
-    }
+    
 
     void TouchpadUpDownInteractable.InformOfUpOrDownMovement( float verticalDisplacementSinceBeginning, float verticalDisplacementThisFrame )
     {

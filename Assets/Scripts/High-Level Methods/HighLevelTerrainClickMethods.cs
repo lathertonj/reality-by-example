@@ -88,7 +88,6 @@ public class HighLevelTerrainClickMethods : HighLevelMethods , TouchpadLeftRight
     void TouchpadLeftRightClickInteractable.InformOfLeftClick()
     {
         // left click: decrement one in the undo map; if out of range, make a new undo map
-        currentUndoIndex--;
         if( CheckAddUndoMap() )
         {
             // we added one -- process it forward
@@ -96,8 +95,10 @@ public class HighLevelTerrainClickMethods : HighLevelMethods , TouchpadLeftRight
         }
         else
         {
-            // current undo index is valid --> process it backward
+            // current undo index is valid --> process it backward to undo it
             ProcessUndoMapBackward();
+            // then, we're on the previous one
+            currentUndoIndex--;
         }
     }
 

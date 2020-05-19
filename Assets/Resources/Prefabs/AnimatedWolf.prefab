@@ -46728,6 +46728,8 @@ MonoBehaviour:
   modelRelativePointsToAnimate:
   - {fileID: 8938523417132435799}
   - {fileID: 8938523418817727977}
+  relativeDataSourceExtraOffsetUp: 0
+  relativeDataSourceExtraOffsetTowardCamera: 0
   examples: []
   currentlyUsedExamples: []
   globalSlew: 0.25

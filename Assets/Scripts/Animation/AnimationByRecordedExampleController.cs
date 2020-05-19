@@ -31,6 +31,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     public Transform modelBaseDataSource, modelBaseToAnimate;
     public Transform[] modelRelativePointsDataSource, modelRelativePointsToAnimate;
+    public float relativeDataSourceExtraOffsetUp;
+    public float relativeDataSourceExtraOffsetTowardCamera;
+    private Vector3 relativeDataSourceExtraOffset;
 
     // Basic idea:
     // predict the increment to modelBase location and rotation
@@ -244,7 +247,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
             for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
             {
-                modelRelativePointsToAnimate[i].position = modelRelativePointsDataSource[i].position + recordingModeOffset;
+                modelRelativePointsToAnimate[i].position = GetRelativeDataPosition( i ) + recordingModeOffset;
             }
         }
 
@@ -574,17 +577,30 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return currentlyUsedExamples[whichAnimation].relativeExamples[i][ currentFrame % numFrames ].positionRelativeToBase;
     }
 
+    private Vector3 GetRelativeDataPosition( int i )
+    {
+        return modelRelativePointsDataSource[i].position + relativeDataSourceExtraOffset;
+    }
+
     private void ComputeRecordingOffset()
     {
         if( useRecordingModeOffset && currentHand != null )
         {
-            Vector3 direction = currentHand.transform.forward;
+            Vector3 direction = modelBaseDataSource.transform.forward;
             direction.y = 0;
             recordingModeOffset = direction.normalized * recordingModeLateralOffset;
+            
+            // recordingOffset moves points away from the camera
+            // so -recordingOffset moves points back toward the camera
+            relativeDataSourceExtraOffset = -recordingModeOffset;
+            relativeDataSourceExtraOffset.y = 0;
+            relativeDataSourceExtraOffset *= relativeDataSourceExtraOffsetTowardCamera / relativeDataSourceExtraOffset.magnitude;
+            relativeDataSourceExtraOffset.y = relativeDataSourceExtraOffsetUp;
         }
         else
         {
             recordingModeOffset = Vector3.zero;
+            relativeDataSourceExtraOffset = Vector3.zero;
         }
     }
 
@@ -702,7 +718,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             {
                 ModelRelativeDatum newRelativeDatum = new ModelRelativeDatum();
                 // find local position: local position of X relative to B is B.inverseTransformPoint(X.position);
-                Vector3 localPosition = modelBaseDataSource.InverseTransformPoint( modelRelativePointsDataSource[i].position );
+                Vector3 localPosition = modelBaseDataSource.InverseTransformPoint( GetRelativeDataPosition( i ) );
                 newRelativeDatum.positionRelativeToBase = localPosition;
 
                 currentRelativePhrases[i].Add( newRelativeDatum );

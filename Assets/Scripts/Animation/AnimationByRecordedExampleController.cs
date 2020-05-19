@@ -243,7 +243,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         {
             // animate it as just following the data sources, only if we're recording data or might again soon
             modelBaseToAnimate.position = modelBaseDataSource.position + recordingModeOffset;
-            modelBaseToAnimate.rotation = modelBaseDataSource.rotation;
+            modelBaseToAnimate.rotation = GetModelBaseDataRotation();
 
             for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
             {
@@ -582,6 +582,22 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return modelRelativePointsDataSource[i].position + relativeDataSourceExtraOffset;
     }
 
+    private Quaternion GetModelBaseDataRotation()
+    {
+        switch( creatureType )
+        {
+            case CreatureType.Flying:
+            case CreatureType.Water:
+                return modelBaseDataSource.rotation;
+            case CreatureType.Land:
+                // only use y rotation for land creatures
+                return Quaternion.AngleAxis( modelBaseDataSource.eulerAngles.y, Vector3.up );
+            default:
+                // uh oh
+                return Quaternion.identity;
+        }
+    }
+
     private void ComputeRecordingOffset()
     {
         if( useRecordingModeOffset && currentHand != null )
@@ -680,7 +696,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // base datum
             ModelBaseDatum newDatum = new ModelBaseDatum();
             // direct way
-            newDatum.rotation = modelBaseDataSource.rotation;
+            newDatum.rotation = GetModelBaseDataRotation();
             
             // indirect way: from the hand positions
             // This can be used if we don't have a base data source,

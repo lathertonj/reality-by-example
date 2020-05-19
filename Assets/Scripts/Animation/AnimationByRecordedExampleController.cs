@@ -10,6 +10,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     private int myGroupID = 0;
     private static int nextGroupID = 0;
     [HideInInspector] public Transform prefabThatCreatedMe;
+
+    public enum CreatureType { Flying, Land, Water };
+    public CreatureType creatureType = CreatureType.Flying;
     public enum PredictionType { Classification, Regression };
     public PredictionType predictionType;
 
@@ -53,6 +56,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     public float avoidTerrainDetection = 2f;
     public float avoidTerrainMinheight = 1.5f;
     public float boidSlew = 0.01f;
+    public float hugTerrainHeight = 0.5f;
 
     public float maxDistanceFromAnyExample = 15f;
     public float distanceRampUpRange = 10f;
@@ -142,6 +146,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // keep track of how much movement happens
             float movementThisFrame = 0;
 
+            // slew base
+            modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, goalBaseRotation, globalSlew );
+
             // slew the relative positions while computing movement 
             for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
             {
@@ -155,6 +162,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
             // derive ideal movement speed from movement of the limbs
             movementThisFrame /= modelRelativePointsToAnimate.Length;
+            // TODO: compute speed multiplier differently if we don't have limbs?
             goalSpeedMultiplier = 10 * Mathf.Clamp( movementThisFrame, 0, 0.1f );
 
             // current speed is delayed from ideal
@@ -167,26 +175,64 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 currentSpeedMultiplier += motionSlowdownSlew * ( goalSpeedMultiplier - currentSpeedMultiplier );
             }
 
-            // slew base
-            modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, goalBaseRotation, globalSlew );
-
             // get base velocity
             Vector3 baseVelocity = modelBaseToAnimate.forward;
 
             // boids
-            Vector3 groundAvoidance = ProcessBoidsGroundAvoidance();
             Vector3 examplesAttraction = ProcessBoidsExamplesAttraction();
             Vector3 boidAvoidance = ProcessBoidsOthersAvoidance();
+            Vector3 groundAvoidance;
+            Vector3 velocity = Vector3.zero;
 
-            // overall velocity
-            Vector3 velocity = baseVelocity + groundAvoidance + examplesAttraction + boidAvoidance;
+            // dependent on creature type
+            switch( creatureType )
+            {
+                case CreatureType.Flying:
+                    // extra boids
+                    groundAvoidance = ProcessBoidsGroundAvoidance();
 
-            // move in the forward direction, with speed according to delayed limb movement
-            modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * velocity;
+                    // overall velocity
+                    velocity = baseVelocity + groundAvoidance + examplesAttraction + boidAvoidance;
 
-            // change the rotation to be looking in that direction
-            // TODO: does this negatively impact animation overall?
-            modelBaseToAnimate.rotation = Quaternion.LookRotation( velocity, modelBaseToAnimate.up );
+                    // move in the forward direction, with speed according to delayed limb movement
+                    modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * velocity;
+
+                    // change the rotation to be looking in that direction
+                    // TODO: does this negatively impact animation overall?
+                    modelBaseToAnimate.rotation = Quaternion.LookRotation( velocity, modelBaseToAnimate.up );
+                    break;
+                case CreatureType.Land:
+                    // overall velocity
+                    velocity = baseVelocity + examplesAttraction + boidAvoidance;
+
+                    // move in the forward direction, then re-center self onto ground
+                    modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * velocity;
+                    modelBaseToAnimate.position = GetHugTerrainPoint( modelBaseToAnimate.position );
+
+                    // TODO: change the rotation to be looking in that direction?
+                    // modelBaseToAnimate.rotation = Quaternion.LookRotation( velocity, modelBaseToAnimate.up );
+                    break;
+                case CreatureType.Water:
+                    // TODO: extra boid of avoiding the ground AND the top of the water! :)
+                    groundAvoidance = ProcessBoidsGroundAvoidance();
+                    Vector3 waterAvoidance = Vector3.zero;
+
+                    // overall velocity
+                    velocity = baseVelocity + groundAvoidance + waterAvoidance + examplesAttraction + boidAvoidance;
+
+                    // move in the forward direction, with speed according to delayed limb movement
+                    modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * velocity;
+
+                    // change the rotation to be looking in that direction
+                    // TODO: does this negatively impact animation overall?
+                    modelBaseToAnimate.rotation = Quaternion.LookRotation( velocity, modelBaseToAnimate.up );
+
+                    break;
+                default:
+                    Debug.LogWarning( "unknown type of creature" );
+                    break;
+            }
+
 
 
         }
@@ -858,6 +904,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         RaycastHit hit;
         // check if the model will hit anything in its forward direction
         return ( Physics.Raycast( modelBaseToAnimate.position, Vector3.down, out hit, avoidTerrainMinheight, layerMask ) );
+    }
+
+    private Vector3 GetHugTerrainPoint( Vector3 near )
+    {
+        Vector3 nearestPointOnTerrain;
+        TerrainUtility.FindTerrain<ConnectedTerrainController>( near, out nearestPointOnTerrain );
+        return nearestPointOnTerrain + hugTerrainHeight * Vector3.up;
     }
 
     float goalSpeedMultiplier = 0, currentSpeedMultiplier = 0;

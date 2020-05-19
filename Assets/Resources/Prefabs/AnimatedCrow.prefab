@@ -2259,6 +2259,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabThatCreatedMe: {fileID: 0}
+  creatureType: 0
   predictionType: 1
   currentRecordingAndPlaybackMode: 0
   examplePrefab: {fileID: 5678428368102247849, guid: dd2c198e1fc285e428219acdae5c8a3b,
@@ -2285,6 +2286,7 @@ MonoBehaviour:
   avoidTerrainDetection: 5
   avoidTerrainMinheight: 1.5
   boidSlew: 0.01
+  hugTerrainHeight: 1.5
   maxDistanceFromAnyExample: 50
   distanceRampUpRange: 7
   rampUpSeverity: 1.5

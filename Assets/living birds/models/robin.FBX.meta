@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 0646ceebc81f52a4e8a676e94ab46092
+guid: 9f593cbd7bb1be142ae42d4b5131603e
 ModelImporter:
   serializedVersion: 25
   internalIDToNameTable:
@@ -188,10 +188,10 @@ ModelImporter:
     second: Bip01 TailNub
   - first:
       1: 100122
-    second: Crow
+    second: //RootNode
   - first:
       1: 100124
-    second: //RootNode
+    second: Robin
   - first:
       4: 400000
     second: Bip01
@@ -377,19 +377,19 @@ ModelImporter:
     second: Bip01 TailNub
   - first:
       4: 400122
-    second: Crow
-  - first:
-      4: 400124
     second: //RootNode
   - first:
+      4: 400124
+    second: Robin
+  - first:
       43: 4300000
-    second: Crow
+    second: Robin
   - first:
       95: 9500000
     second: //RootNode
   - first:
       137: 13700000
-    second: Crow
+    second: Robin
   externalObjects: {}
   materials:
     importMaterials: 0
@@ -400,7 +400,7 @@ ModelImporter:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
     resampleCurves: 1
-    optimizeGameObjects: 0
+    optimizeGameObjects: 1
     motionNodeName: 
     rigImportErrors: 
     rigImportWarnings: 
@@ -475,7 +475,7 @@ ModelImporter:
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   animationType: 2
   humanoidOversampling: 1
-  additionalBone: 0
+  additionalBone: 1
   userData: 
   assetBundleName: 
   assetBundleVariant: 

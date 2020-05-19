@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 0646ceebc81f52a4e8a676e94ab46092
+guid: f2f7b64dd5c50f8479d6d1610f8537c1
 ModelImporter:
   serializedVersion: 25
   internalIDToNameTable:
@@ -188,10 +188,10 @@ ModelImporter:
     second: Bip01 TailNub
   - first:
       1: 100122
-    second: Crow
+    second: //RootNode
   - first:
       1: 100124
-    second: //RootNode
+    second: cardinal
   - first:
       4: 400000
     second: Bip01
@@ -377,19 +377,19 @@ ModelImporter:
     second: Bip01 TailNub
   - first:
       4: 400122
-    second: Crow
-  - first:
-      4: 400124
     second: //RootNode
   - first:
+      4: 400124
+    second: cardinal
+  - first:
       43: 4300000
-    second: Crow
+    second: cardinal
   - first:
       95: 9500000
     second: //RootNode
   - first:
       137: 13700000
-    second: Crow
+    second: cardinal
   externalObjects: {}
   materials:
     importMaterials: 0

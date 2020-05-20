@@ -36,7 +36,10 @@ public class AnimatedCreatureColor : MonoBehaviour , TouchpadUpDownInteractable
         // store and propagate to material
         currentH = newH;
         Color currentColor = Color.HSVToRGB( currentH, startS, startV );
-        creatureRenderer.material.SetColor( materialColorProperty, currentColor );
+        for( int i = 0; i < creatureRenderer.materials.Length; i++ )
+        {
+            creatureRenderer.materials[i].SetColor( materialColorProperty, currentColor );
+        }
     }
 
     void TouchpadUpDownInteractable.InformOfUpOrDownMovement( float verticalDisplacementSinceBeginning, float verticalDisplacementThisFrame )

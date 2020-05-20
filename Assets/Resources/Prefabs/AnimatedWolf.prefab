@@ -46644,6 +46644,7 @@ GameObject:
   - component: {fileID: 5169728823964231038}
   - component: {fileID: 5169728823964231039}
   - component: {fileID: 3477691570880192765}
+  - component: {fileID: 6813626508096209686}
   m_Layer: 0
   m_Name: AnimatedWolf
   m_TagString: Untagged
@@ -46887,6 +46888,21 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &6813626508096209686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5169728823964231033}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d5915188bbaa10419a6fe70ab7937fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  creatureRenderer: {fileID: 8002279260950244019}
+  materialColorProperty: _SpecColor
+  sensitivity: 1
 --- !u!1 &5169962112732362867
 GameObject:
   m_ObjectHideFlags: 0
@@ -47640,7 +47656,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 7625579077936685797, guid: c35ec6a9f14c7664daec55c6096f8666, type: 3}
+  - {fileID: 2100000, guid: be31a4236efef114cac6b07144b9fa16, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

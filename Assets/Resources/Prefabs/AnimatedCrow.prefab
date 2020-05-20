@@ -2276,6 +2276,7 @@ MonoBehaviour:
   modelRelativePointsToAnimate:
   - {fileID: 3197902672193238545}
   - {fileID: 3197902674014969114}
+  relativeDataSourceScaleFactor: 0.22222222
   relativeDataSourceExtraOffsetUp: 0
   relativeDataSourceExtraOffsetTowardCamera: 0
   examples: []

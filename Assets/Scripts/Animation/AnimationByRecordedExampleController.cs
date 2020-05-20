@@ -31,6 +31,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     public Transform modelBaseDataSource, modelBaseToAnimate;
     public Transform[] modelRelativePointsDataSource, modelRelativePointsToAnimate;
+    public float relativeDataSourceScaleFactor = 1f;
     public float relativeDataSourceExtraOffsetUp;
     public float relativeDataSourceExtraOffsetTowardCamera;
     private Vector3 relativeDataSourceExtraOffset;
@@ -264,7 +265,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
             {
                 // what's being stored by the learning algorithm
-                Vector3 localOffset = modelBaseDataSource.InverseTransformPoint( GetRelativeDataPosition( i ) );
+                Vector3 localOffset = GetLocalPositionOfRelativeToBase( i );
                 // how it's going to be rendered in the future
                 Vector3 positionOnCreature = modelBaseToAnimate.TransformPoint( localOffset );
                 modelRelativePointsToAnimate[i].position = positionOnCreature;
@@ -602,6 +603,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return modelRelativePointsDataSource[i].position + relativeDataSourceExtraOffset;
     }
 
+    private Vector3 GetLocalPositionOfRelativeToBase( int i )
+    {
+        return relativeDataSourceScaleFactor * modelBaseDataSource.InverseTransformPoint( GetRelativeDataPosition( i ) );
+    }
+
     private Quaternion GetModelBaseDataRotation()
     {
         switch( creatureType )
@@ -754,7 +760,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             {
                 ModelRelativeDatum newRelativeDatum = new ModelRelativeDatum();
                 // find local position: local position of X relative to B is B.inverseTransformPoint(X.position);
-                Vector3 localPosition = modelBaseDataSource.InverseTransformPoint( GetRelativeDataPosition( i ) );
+                Vector3 localPosition = GetLocalPositionOfRelativeToBase( i );
                 newRelativeDatum.positionRelativeToBase = localPosition;
 
                 currentRelativePhrases[i].Add( newRelativeDatum );

@@ -182,7 +182,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             Vector3 baseVelocity = modelBaseToAnimate.forward;
 
             // boids
-            Vector3 examplesAttraction = ProcessBoidsExamplesAttraction();
+            float examplesAttractionSeverity;
+            Vector3 examplesAttraction = ProcessBoidsExamplesAttraction( out examplesAttractionSeverity );
             Vector3 boidAvoidance = ProcessBoidsOthersAvoidance();
             Vector3 groundAvoidance;
             Vector3 velocity = Vector3.zero;
@@ -195,23 +196,28 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     groundAvoidance = ProcessBoidsGroundAvoidance();
 
                     // overall velocity
-                    velocity = baseVelocity + groundAvoidance + examplesAttraction + boidAvoidance;
+                    velocity = baseVelocity + groundAvoidance + ( examplesAttraction * examplesAttractionSeverity ) + boidAvoidance;
 
                     // move in the forward direction, with speed according to delayed limb movement
                     modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * velocity;
 
                     // change the rotation to be looking in that direction
                     // TODO: does this negatively impact animation overall?
-                    modelBaseToAnimate.rotation = Quaternion.LookRotation( velocity, modelBaseToAnimate.up );
+                    modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, Quaternion.LookRotation( velocity, modelBaseToAnimate.up ), globalSlew );
                     break;
                 case CreatureType.Land:
-                    // overall velocity
-                    velocity = baseVelocity + examplesAttraction + boidAvoidance;
+                    // overall velocity. ignore baseVelocity the more that examplesAttraction is severe.
+                    velocity = ( ( 1 - examplesAttractionSeverity ) * baseVelocity ) 
+                                + ( examplesAttraction * examplesAttractionSeverity ) 
+                                + boidAvoidance;
 
                     // move in the forward direction, then re-center self onto ground
                     modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * velocity;
                     Vector3 normalDirection;
                     modelBaseToAnimate.position = GetHugTerrainPoint( modelBaseToAnimate.position, out normalDirection );
+
+                    // first, rotate towards the velocity direction to incorporate the boids into the angle
+                    modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, Quaternion.LookRotation( velocity, modelBaseToAnimate.up ), globalSlew );
 
                     // change rotation to be up = terrain normal, rotated by the angle
                     // we want "forward" to be normal direction rotated 90 degrees toward the velocity
@@ -228,15 +234,14 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     Vector3 waterAvoidance = Vector3.zero;
 
                     // overall velocity
-                    velocity = baseVelocity + groundAvoidance + waterAvoidance + examplesAttraction + boidAvoidance;
+                    velocity = baseVelocity + groundAvoidance + waterAvoidance + ( examplesAttraction * examplesAttractionSeverity ) + boidAvoidance;
 
                     // move in the forward direction, with speed according to delayed limb movement
                     modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * velocity;
 
                     // change the rotation to be looking in that direction
                     // TODO: does this negatively impact animation overall?
-                    modelBaseToAnimate.rotation = Quaternion.LookRotation( velocity, modelBaseToAnimate.up );
-
+                    modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, Quaternion.LookRotation( velocity, modelBaseToAnimate.up ), globalSlew );
                     break;
                 default:
                     Debug.LogWarning( "unknown type of creature" );
@@ -970,7 +975,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return Mathf.Sin( (Mathf.PI / 2) * currentAvoidanceAngle / avoidTerrainAngle ) * Vector3.up;
     }
 
-    Vector3 ProcessBoidsExamplesAttraction()
+    Vector3 ProcessBoidsExamplesAttraction( out float severity )
     {
         // if we are too far away from any of the examples, steer toward the middle of the examples
         float minDistance = float.MaxValue;
@@ -980,6 +985,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             if( d < maxDistanceFromAnyExample )
             {
                 // we don't have to do anything
+                severity = 0;
                 return Vector3.zero;
             }
             else if( d < minDistance )
@@ -988,10 +994,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             }
         }
 
-        float severity = minDistance.PowMapClamp( maxDistanceFromAnyExample, maxDistanceFromAnyExample + distanceRampUpRange, 0, 1, rampUpSeverity );
+        severity = minDistance.PowMapClamp( maxDistanceFromAnyExample, maxDistanceFromAnyExample + distanceRampUpRange, 0, 1, rampUpSeverity );
         Vector3 correctionVelocity = ( averageExamplePosition - modelBaseToAnimate.position ).normalized;
 
-        return severity * correctionVelocity;
+        return correctionVelocity;
     }
 
     List<Transform> nearOtherBoids = new List<Transform>();

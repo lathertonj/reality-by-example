@@ -46750,6 +46750,7 @@ MonoBehaviour:
   useRecordingModeOffset: 1
   recordingModeLateralOffset: 2
   myPrefabName: AnimatedWolf
+  debugPhraseCollection: {fileID: 0}
 --- !u!114 &5169728823964231037
 MonoBehaviour:
   m_ObjectHideFlags: 0

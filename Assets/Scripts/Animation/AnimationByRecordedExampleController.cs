@@ -213,8 +213,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
                     // move in the forward direction, then re-center self onto ground
                     modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * velocity;
-                    Vector3 normalDirection;
-                    modelBaseToAnimate.position = GetHugTerrainPoint( modelBaseToAnimate.position, out normalDirection );
+                    Vector3 normalDirection = Vector3.up;
+                    //modelBaseToAnimate.position = GetHugTerrainPoint( modelBaseToAnimate.position, out normalDirection );
 
                     // first, rotate towards the velocity direction to incorporate the boids into the angle
                     modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, Quaternion.LookRotation( velocity, modelBaseToAnimate.up ), globalSlew );
@@ -259,7 +259,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
             for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
             {
-                modelRelativePointsToAnimate[i].position = GetRelativeDataPosition( i ) + recordingModeOffset;
+                Vector3 localOffset = modelBaseDataSource.InverseTransformPoint( GetRelativeDataPosition( i ) );
+                Vector3 positionOnCreature = transform.TransformPoint( localOffset );
+                // position away from the camera
+                // don't add recordingModeOffset here too -- it's already relative to the creature,
+                // which is already positioned away from us after one frame of this
+                modelRelativePointsToAnimate[i].position = positionOnCreature; // + recordingModeOffset;
             }
         }
 

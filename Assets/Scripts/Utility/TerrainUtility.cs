@@ -6,11 +6,17 @@ public class TerrainUtility
 {
     public static T FindTerrain<T>( Vector3 nearLocation )
     {
-        Vector3 _;
-        return FindTerrain<T>( nearLocation, out _ );
+        Vector3 _, __;
+        return FindTerrain<T>( nearLocation, out _, out __ );
     }
 
     public static T FindTerrain<T>( Vector3 nearLocation, out Vector3 hitPoint )
+    {
+        Vector3 _;
+        return FindTerrain<T>( nearLocation, out hitPoint, out _ );
+    }
+
+    public static T FindTerrain<T>( Vector3 nearLocation, out Vector3 hitPoint, out Vector3 normalDirection )
     {
         // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
         int layerMask = 1 << 8;
@@ -21,6 +27,7 @@ public class TerrainUtility
         {
             T foundTerrain = hit.transform.GetComponentInParent<T>();
             hitPoint = hit.point;
+            normalDirection = hit.normal;
             if( foundTerrain != null )
             {
                 return foundTerrain;
@@ -29,6 +36,7 @@ public class TerrainUtility
 
         // ~ null
         hitPoint = default(Vector3);
+        normalDirection = default(Vector3);
         return default(T);
     }
 

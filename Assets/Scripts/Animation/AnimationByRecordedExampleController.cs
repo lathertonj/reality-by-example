@@ -210,10 +210,17 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
                     // move in the forward direction, then re-center self onto ground
                     modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * velocity;
-                    modelBaseToAnimate.position = GetHugTerrainPoint( modelBaseToAnimate.position );
+                    Vector3 normalDirection;
+                    modelBaseToAnimate.position = GetHugTerrainPoint( modelBaseToAnimate.position, out normalDirection );
 
-                    // TODO: change the rotation to be looking in that direction?
-                    // modelBaseToAnimate.rotation = Quaternion.LookRotation( velocity, modelBaseToAnimate.up );
+                    // change rotation to be up = terrain normal, rotated by the angle
+                    // we want "forward" to be normal direction rotated 90 degrees toward the velocity
+                    // but, we still want "up" to be up, not the normal direction, since animals try to orient up
+                    // and not plastered on the sides of mountains
+                    // we want "forward" to be roughly velocity, but up or down if it needs to be.
+                    Vector3 newForward = Quaternion.AngleAxis( 90, modelBaseToAnimate.right ) * normalDirection;
+                    Quaternion newRotation = Quaternion.LookRotation( newForward, Vector3.up );
+                    modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, newRotation, globalSlew ); 
                     break;
                 case CreatureType.Water:
                     // TODO: extra boid of avoiding the ground AND the top of the water! :)
@@ -938,10 +945,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return ( Physics.Raycast( modelBaseToAnimate.position, Vector3.down, out hit, avoidTerrainMinheight, layerMask ) );
     }
 
-    private Vector3 GetHugTerrainPoint( Vector3 near )
+    private Vector3 GetHugTerrainPoint( Vector3 near, out Vector3 normalDirection )
     {
         Vector3 nearestPointOnTerrain;
-        TerrainUtility.FindTerrain<ConnectedTerrainController>( near, out nearestPointOnTerrain );
+        TerrainUtility.FindTerrain<ConnectedTerrainController>( near, out nearestPointOnTerrain, out normalDirection );
         return nearestPointOnTerrain + hugTerrainHeight * Vector3.up;
     }
 

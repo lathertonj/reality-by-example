@@ -107,10 +107,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         mySounder = GetComponent<AnimationSoundRecorderPlaybackController>();
 
         // free the dummy points
+        // and reset the scale when appropriate
         modelBaseToAnimate.parent = null;
+        modelBaseToAnimate.localScale = transform.localScale;
         for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
         {
             modelRelativePointsToAnimate[i].parent = null;
+            modelRelativePointsToAnimate[i].localScale = Vector3.one;
         }
     }
 
@@ -254,17 +257,17 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         else if( nextAction == AnimationAction.RecordAnimation )
         {
             // animate it as just following the data sources, only if we're recording data or might again soon
+            // recordingModeOffset: have it be a little away from us so we can see the body
             modelBaseToAnimate.position = modelBaseDataSource.position + recordingModeOffset;
             modelBaseToAnimate.rotation = GetModelBaseDataRotation();
 
             for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
             {
+                // what's being stored by the learning algorithm
                 Vector3 localOffset = modelBaseDataSource.InverseTransformPoint( GetRelativeDataPosition( i ) );
-                Vector3 positionOnCreature = transform.TransformPoint( localOffset );
-                // position away from the camera
-                // don't add recordingModeOffset here too -- it's already relative to the creature,
-                // which is already positioned away from us after one frame of this
-                modelRelativePointsToAnimate[i].position = positionOnCreature; // + recordingModeOffset;
+                // how it's going to be rendered in the future
+                Vector3 positionOnCreature = modelBaseToAnimate.TransformPoint( localOffset );
+                modelRelativePointsToAnimate[i].position = positionOnCreature;
             }
         }
 

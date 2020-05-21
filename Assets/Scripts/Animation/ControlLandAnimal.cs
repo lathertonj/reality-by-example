@@ -15,6 +15,8 @@ public class ControlLandAnimal : MonoBehaviour
     private Queue<Vector3> leftFrontToBackMemory, rightFrontToBackMemory;
 
     private Vector3 headOffset;
+
+    public bool mirrorBackToFront = true;
     
 
     // Start is called before the first frame update
@@ -49,12 +51,15 @@ public class ControlLandAnimal : MonoBehaviour
         trackBackRight.rotation = trackHead.rotation;
 
         // animate back legs from memory
-        leftFrontToBackMemory.Enqueue( transform.InverseTransformPoint( trackLeft.position ) );
-        rightFrontToBackMemory.Enqueue( transform.InverseTransformPoint( trackRight.position ) );
-        if( leftFrontToBackMemory.Count >= frontToBackFrameDelay )
+        if( mirrorBackToFront )
         {
-            trackBackLeft.position = transform.TransformPoint( leftFrontToBackMemory.Dequeue() ) + transform.forward * frontToBackOffset * transform.localScale.z;
-            trackBackRight.position = transform.TransformPoint( rightFrontToBackMemory.Dequeue() ) + transform.forward * frontToBackOffset * transform.localScale.z;
+            leftFrontToBackMemory.Enqueue( transform.InverseTransformPoint( trackLeft.position ) );
+            rightFrontToBackMemory.Enqueue( transform.InverseTransformPoint( trackRight.position ) );
+            if( leftFrontToBackMemory.Count >= frontToBackFrameDelay )
+            {
+                trackBackLeft.position = transform.TransformPoint( leftFrontToBackMemory.Dequeue() ) + transform.forward * frontToBackOffset * transform.localScale.z;
+                trackBackRight.position = transform.TransformPoint( rightFrontToBackMemory.Dequeue() ) + transform.forward * frontToBackOffset * transform.localScale.z;
+            }
         }
     }
 }

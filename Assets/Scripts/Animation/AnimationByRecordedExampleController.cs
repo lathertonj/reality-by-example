@@ -88,6 +88,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     public string myPrefabName;
     private bool hasMyGroupBeenSerialized = false;
 
+    private GameObject _mockBaseDataSource;
+
     void Awake()
     {
         allCreatures.Add( this );
@@ -116,6 +118,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             modelRelativePointsToAnimate[i].parent = null;
             modelRelativePointsToAnimate[i].localScale = Vector3.one;
         }
+
+        // make mock dummy point
+        _mockBaseDataSource = new GameObject();
     }
 
     public void AddToGroup( AnimationByRecordedExampleController groupLeader )
@@ -605,7 +610,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     private Vector3 GetLocalPositionOfRelativeToBase( int i )
     {
-        return relativeDataSourceScaleFactor * modelBaseDataSource.InverseTransformPoint( GetRelativeDataPosition( i ) );
+        Transform t = _mockBaseDataSource.transform;
+        // we actually want it relative to a version of the base data source that only has
+        // y rotation
+        t.position = modelBaseDataSource.position;
+        t.rotation = Quaternion.AngleAxis( modelBaseDataSource.eulerAngles.y, Vector3.up );
+        t.localScale = modelBaseDataSource.localScale;
+        return relativeDataSourceScaleFactor * t.InverseTransformPoint( GetRelativeDataPosition( i ) );
     }
 
     private Quaternion GetModelBaseDataRotation()

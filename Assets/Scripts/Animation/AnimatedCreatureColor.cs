@@ -17,7 +17,13 @@ public class AnimatedCreatureColor : MonoBehaviour , TouchpadUpDownInteractable
     // Start is called before the first frame update
     void Awake()
     {
-        startColor = creatureRenderer.material.GetColor( materialColorProperty );
+        for( int i = 0; i < creatureRenderer.materials.Length; i++ )
+        {
+            if( creatureRenderer.materials[i].HasProperty( materialColorProperty ) )
+            {
+                startColor = creatureRenderer.materials[i].GetColor( materialColorProperty );
+            }
+        }
         Color.RGBToHSV( startColor, out startH, out startS, out startV );
         currentH = startH;
     }
@@ -38,7 +44,10 @@ public class AnimatedCreatureColor : MonoBehaviour , TouchpadUpDownInteractable
         Color currentColor = Color.HSVToRGB( currentH, startS, startV );
         for( int i = 0; i < creatureRenderer.materials.Length; i++ )
         {
-            creatureRenderer.materials[i].SetColor( materialColorProperty, currentColor );
+            if( creatureRenderer.materials[i].HasProperty( materialColorProperty ) )
+            {
+                creatureRenderer.materials[i].SetColor( materialColorProperty, currentColor );
+            }
         }
     }
 

@@ -325,6 +325,7 @@ MonoBehaviour:
   ChainLength: 4
   Target: {fileID: 0}
   Pole: {fileID: 1119379321820500762}
+  Poles: []
   Iterations: 10
   Delta: 0.001
   SnapBackStrength: 1
@@ -1746,6 +1747,7 @@ MonoBehaviour:
   ChainLength: 4
   Target: {fileID: 0}
   Pole: {fileID: 1119379320089418278}
+  Poles: []
   Iterations: 10
   Delta: 0.001
   SnapBackStrength: 0
@@ -2296,7 +2298,7 @@ MonoBehaviour:
   dataCollectionRate: 0.1
   useFewerTrainingExamples: 1
   useRecordingModeOffset: 1
-  recordingModeLateralOffset: 2
+  recordingModeLateralOffset: 3
   myPrefabName: AnimatedCrow
 --- !u!114 &3197902673507219444
 MonoBehaviour:
@@ -2824,6 +2826,7 @@ MonoBehaviour:
   ChainLength: 4
   Target: {fileID: 0}
   Pole: {fileID: 1119379321308148354}
+  Poles: []
   Iterations: 10
   Delta: 0.001
   SnapBackStrength: 1

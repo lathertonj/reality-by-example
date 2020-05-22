@@ -105,7 +105,7 @@ public class AnimationActions : MonoBehaviour
         {
             case SwitchToComponent.InteractionType.CreatureCreate:
                 // create new bird
-                AnimationByRecordedExampleController newCreature = Instantiate( prefab, CalcSpawnPosition(), Quaternion.identity ).GetComponent<AnimationByRecordedExampleController>();
+                AnimationByRecordedExampleController newCreature = Instantiate( prefab, CalcSpawnPosition(), CalcSpawnRotation() ).GetComponent<AnimationByRecordedExampleController>();
                 newCreature.prefabThatCreatedMe = prefab;
                 
                 // set data sources
@@ -195,7 +195,7 @@ public class AnimationActions : MonoBehaviour
         {
             // create new one 
             AnimationByRecordedExampleController newCreature = 
-                Instantiate( selectedCreature.prefabThatCreatedMe, CalcSpawnPosition(), Quaternion.identity )
+                Instantiate( selectedCreature.prefabThatCreatedMe, CalcSpawnPosition(), selectedCreature.transform.rotation )
                 .GetComponent<AnimationByRecordedExampleController>();
             
             // set data sources
@@ -246,7 +246,14 @@ public class AnimationActions : MonoBehaviour
 
     Vector3 CalcSpawnPosition()
     {
-        return controller.transform.position + creationDistance * controller.transform.forward;
+        Transform yBase = DefaultAnimationDataSources.BaseDataSourceYTransformOnly();
+        return yBase.position + creationDistance * yBase.forward;
+    }
+
+    Quaternion CalcSpawnRotation()
+    {
+        Transform yBase = DefaultAnimationDataSources.BaseDataSourceYTransformOnly();
+        return yBase.rotation;
     }
 
 }

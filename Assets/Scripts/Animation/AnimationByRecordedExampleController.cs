@@ -88,7 +88,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     public string myPrefabName;
     private bool hasMyGroupBeenSerialized = false;
 
-    private GameObject _mockBaseDataSource;
+    private GameObject _yRotationBaseObject;
+    private Transform yRotationBase;
 
     void Awake()
     {
@@ -120,7 +121,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         }
 
         // make mock dummy point
-        _mockBaseDataSource = new GameObject();
+        _yRotationBaseObject = new GameObject();
+        _yRotationBaseObject.name = "y rotation version of camera";
+        yRotationBase = _yRotationBaseObject.transform;
+
     }
 
     public void AddToGroup( AnimationByRecordedExampleController groupLeader )
@@ -608,15 +612,20 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return modelRelativePointsDataSource[i].position + relativeDataSourceExtraOffset;
     }
 
-    private Vector3 GetLocalPositionOfRelativeToBase( int i )
+    // mock data source only has y rotation
+    private void RepopulateYRotationBase()
     {
-        Transform t = _mockBaseDataSource.transform;
         // we actually want it relative to a version of the base data source that only has
         // y rotation
-        t.position = modelBaseDataSource.position;
-        t.rotation = Quaternion.AngleAxis( modelBaseDataSource.eulerAngles.y, Vector3.up );
-        t.localScale = modelBaseDataSource.localScale;
-        return relativeDataSourceScaleFactor * t.InverseTransformPoint( GetRelativeDataPosition( i ) );
+        yRotationBase.position = modelBaseDataSource.position;
+        yRotationBase.rotation = Quaternion.AngleAxis( modelBaseDataSource.eulerAngles.y, Vector3.up );
+        yRotationBase.localScale = modelBaseDataSource.localScale;
+    }
+
+    private Vector3 GetLocalPositionOfRelativeToBase( int i )
+    {
+        RepopulateYRotationBase();
+        return relativeDataSourceScaleFactor * yRotationBase.InverseTransformPoint( GetRelativeDataPosition( i ) );
     }
 
     private Quaternion GetModelBaseDataRotation()
@@ -639,7 +648,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     {
         if( useRecordingModeOffset && currentHand != null )
         {
-            Vector3 direction = modelBaseDataSource.transform.forward;
+            RepopulateYRotationBase();
+            Vector3 direction = yRotationBase.forward;
             direction.y = 0;
             recordingModeOffset = direction.normalized * recordingModeLateralOffset;
             

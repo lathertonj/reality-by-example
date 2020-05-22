@@ -56,7 +56,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     public float motionSpeedupSlew = 0.08f;
     public float motionSlowdownSlew = 0.03f;
     public float maxSpeed = 1;
-    public float avoidTerrainAngle = 30;
+    public float avoidTerrainIntensity = 1f;
     public float avoidTerrainDetection = 2f;
     public float avoidTerrainMinheight = 1.5f;
     public float boidSlew = 0.01f;
@@ -426,6 +426,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         runtimeMode = false;
     }
 
+    public Transform debug1, debug2, debug3;
     private void RunOneFrameRegression()
     {
             // 1. Run regression and normalize to get relative levels of each animation
@@ -521,6 +522,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 // boids desired rotation is to move in velocity direction while keeping the base animation's up-vector
                 Quaternion boidsDesiredRotation = Quaternion.LookRotation( velocity, rotationWithoutBoids * Vector3.up );
 
+                debug1.position = transform.position + 1 * ( rotationWithoutBoids * Vector3.forward );
+                debug2.position = transform.position + (1 + velocity.magnitude ) * ( boidsDesiredRotation * Vector3.forward );
+
                 // difference between the desired boids position and rotation without boids
                 Quaternion boidsDesiredChange = boidsDesiredRotation * Quaternion.Inverse( rotationWithoutBoids );
 
@@ -537,10 +541,14 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             {
                 // don't use boids if the effect is not strong
                 combinedSeamHideAndBoidsRotation = seamHideRotation;
+
+                debug1.position = transform.position + 1 * ( combinedSeamHideAndBoidsRotation * rotationFromAnimation * Vector3.forward );
+                debug2.position = transform.position + 1 * ( combinedSeamHideAndBoidsRotation * rotationFromAnimation * Vector3.forward );
             }
 
             // the actual goal orientation
             goalBaseRotation = combinedSeamHideAndBoidsRotation * rotationFromAnimation;
+            debug3.position = transform.position + 1 * ( goalBaseRotation * Vector3.forward );
 
 
             // weighted average of vectors:
@@ -1024,21 +1032,21 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     }
 
     float goalSpeedMultiplier = 0, currentSpeedMultiplier = 0;
-    float goalAvoidanceAngle = 0, currentAvoidanceAngle = 0;
+    float goalAvoidanceAmount = 0, currentAvoidanceAmount = 0;
     Vector3 ProcessBoidsGroundAvoidance()
     {
         // if the forward direction has land, avoid it
         if( WillCollideWithTerrainSoon() || TooLowAboveTerrain() )
         {
-            goalAvoidanceAngle = avoidTerrainAngle;
+            goalAvoidanceAmount = 1;
         }
         else
         {
-            goalAvoidanceAngle = 0;
+            goalAvoidanceAmount = 0;
         }
-        currentAvoidanceAngle += boidSlew * ( goalAvoidanceAngle - currentAvoidanceAngle );
+        currentAvoidanceAmount += boidSlew * ( goalAvoidanceAmount - currentAvoidanceAmount );
         
-        return Mathf.Sin( (Mathf.PI / 2) * currentAvoidanceAngle / avoidTerrainAngle ) * Vector3.up;
+        return currentAvoidanceAmount.PowMapClamp( 0, 1, 0, avoidTerrainIntensity, 0.6f ) * Vector3.up;
     }
 
     Vector3 ProcessBoidsExamplesAttraction()

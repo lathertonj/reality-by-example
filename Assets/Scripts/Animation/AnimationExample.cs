@@ -36,6 +36,12 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
     void Awake()
     {
         goalLocalPositions = new Vector3[ myRelativePointsToAnimate.Length ];
+        // TODO fix animation of examples
+        /*myBaseToAnimate.parent = null;
+        for( int i = 0; i < myRelativePointsToAnimate.Length; i++ )
+        {
+            myRelativePointsToAnimate[i].parent = null;
+        }*/
     }
 
     // Start is called before the first frame update

@@ -1079,7 +1079,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         foreach( Transform other in nearOtherBoids )
         {
             Vector3 direction = transform.position - other.position;
-            float intensity = direction.magnitude.PowMapClamp( 0, 2, 0.5f, 0, 0.6f );
+            float intensity = direction.magnitude.PowMapClamp( 0, 2, 0.8f, 0, 0.6f );
             desiredMovement += intensity * direction.normalized;
         }
         return desiredMovement;

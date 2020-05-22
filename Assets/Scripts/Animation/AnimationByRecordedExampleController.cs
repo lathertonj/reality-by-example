@@ -483,7 +483,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             Vector3 examplesAttraction = ProcessBoidsExamplesAttraction();
             Vector3 boidAvoidance = ProcessBoidsOthersAvoidance();
             Vector3 groundAvoidance;
-            Vector3 velocity = Vector3.zero;
+            Vector3 velocity = examplesAttraction + boidAvoidance;
 
             // dependent on creature type
             switch( creatureType )
@@ -492,20 +492,19 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     // extra boids
                     groundAvoidance = ProcessBoidsGroundAvoidance();
 
-                    // overall velocity
-                    velocity = groundAvoidance + examplesAttraction + boidAvoidance;
+                    // add to velocity
+                    velocity += groundAvoidance;
                     break;
                 case CreatureType.Land:
-                    // overall velocity
-                    velocity = examplesAttraction + boidAvoidance;
+                    // TODO: avoid edge of water?
                     break;
                 case CreatureType.Water:
                     // TODO: extra boid of avoiding the ground AND the top of the water! :)
                     groundAvoidance = ProcessBoidsGroundAvoidance();
                     Vector3 waterAvoidance = Vector3.zero;
 
-                    // overall velocity
-                    velocity = groundAvoidance + waterAvoidance + examplesAttraction + boidAvoidance;
+                    // add to velocity
+                    velocity += groundAvoidance + waterAvoidance;
                     break;
                 default:
                     Debug.LogWarning( "unknown type of creature" );

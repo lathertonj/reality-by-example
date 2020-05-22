@@ -194,44 +194,21 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // get base velocity
             Vector3 baseVelocity = modelBaseToAnimate.forward;
 
-            // boids
-            float examplesAttractionSeverity;
-            Vector3 examplesAttraction = ProcessBoidsExamplesAttraction( out examplesAttractionSeverity );
-            Vector3 boidAvoidance = ProcessBoidsOthersAvoidance();
-            Vector3 groundAvoidance;
-            Vector3 velocity = Vector3.zero;
-
             // dependent on creature type
             switch( creatureType )
             {
                 case CreatureType.Flying:
-                    // extra boids
-                    groundAvoidance = ProcessBoidsGroundAvoidance();
-
-                    // overall velocity
-                    velocity = baseVelocity + groundAvoidance + ( examplesAttraction * examplesAttractionSeverity ) + boidAvoidance;
-
                     // move in the forward direction, with speed according to delayed limb movement
-                    modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * velocity;
-
-                    // change the rotation to be looking in that direction
-                    // TODO: does this negatively impact animation overall?
-                    modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, Quaternion.LookRotation( velocity, modelBaseToAnimate.up ), globalSlew );
+                    modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * baseVelocity;
                     break;
                 case CreatureType.Land:
-                    // overall velocity. ignore baseVelocity the more that examplesAttraction is severe.
-                    velocity = ( ( 1 - examplesAttractionSeverity ) * baseVelocity ) 
-                                + ( examplesAttraction * examplesAttractionSeverity ) 
-                                + boidAvoidance;
-
-                    // move in the forward direction, then re-center self onto ground
-                    modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * velocity;
+                    // move in the forward direction
+                    modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * baseVelocity;
+                    // re-center self on ground
                     Vector3 terrainNormal = Vector3.up;
                     modelBaseToAnimate.position = GetHugTerrainPoint( modelBaseToAnimate.position, out terrainNormal );
 
-                    // first, rotate towards the velocity direction to incorporate the boids into the angle
-                    modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, Quaternion.LookRotation( velocity, modelBaseToAnimate.up ), globalSlew );
-
+                    // align look direction to ground 
                     // find forward direction that's along the terrain, in our original direction
                     // cross product gets a tangent to the normal
                     // cross product with the left vector gets a tangent in roughly the forward direction
@@ -240,23 +217,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     // animals try to make "up" be opposite of gravity.
                     Quaternion newRotation = Quaternion.LookRotation( newForward, Vector3.up );
 
-                    // approach this rotation
+                    // approach this new rotation
                     modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, newRotation, globalSlew ); 
                     break;
                 case CreatureType.Water:
-                    // TODO: extra boid of avoiding the ground AND the top of the water! :)
-                    groundAvoidance = ProcessBoidsGroundAvoidance();
-                    Vector3 waterAvoidance = Vector3.zero;
-
-                    // overall velocity
-                    velocity = baseVelocity + groundAvoidance + waterAvoidance + ( examplesAttraction * examplesAttractionSeverity ) + boidAvoidance;
-
                     // move in the forward direction, with speed according to delayed limb movement
-                    modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * velocity;
-
-                    // change the rotation to be looking in that direction
-                    // TODO: does this negatively impact animation overall?
-                    modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, Quaternion.LookRotation( velocity, modelBaseToAnimate.up ), globalSlew );
+                    modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * baseVelocity;
                     break;
                 default:
                     Debug.LogWarning( "unknown type of creature" );
@@ -395,6 +361,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
 
     private Quaternion seamHideRotation;
+    private Quaternion combinedSeamHideAndBoidsRotation;
     int currentRuntimeFrame = 0;
     private IEnumerator Run()
     {
@@ -505,15 +472,76 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             float slerpAmount = (float) o[secondMostProminent] / (float) ( o[mostProminent] + o[secondMostProminent] );
 
             // goal rotation is weighted average between the two most prominent animations
-            goalBaseRotation = Quaternion.Slerp(
+            Quaternion rotationFromAnimation = Quaternion.Slerp(
                 GetBaseQuaternion( mostProminent, currentRuntimeFrame ),
                 GetBaseQuaternion( secondMostProminent, currentRuntimeFrame ),
                 slerpAmount
             );
 
-            // rotate the animation by whatever angle we were at when we started
-            // this loop
-            goalBaseRotation = seamHideRotation * goalBaseRotation;
+            // compute boids
+            // boids
+            Vector3 examplesAttraction = ProcessBoidsExamplesAttraction();
+            Vector3 boidAvoidance = ProcessBoidsOthersAvoidance();
+            Vector3 groundAvoidance;
+            Vector3 velocity = Vector3.zero;
+
+            // dependent on creature type
+            switch( creatureType )
+            {
+                case CreatureType.Flying:
+                    // extra boids
+                    groundAvoidance = ProcessBoidsGroundAvoidance();
+
+                    // overall velocity
+                    velocity = groundAvoidance + examplesAttraction + boidAvoidance;
+                    break;
+                case CreatureType.Land:
+                    // overall velocity
+                    velocity = examplesAttraction + boidAvoidance;
+                    break;
+                case CreatureType.Water:
+                    // TODO: extra boid of avoiding the ground AND the top of the water! :)
+                    groundAvoidance = ProcessBoidsGroundAvoidance();
+                    Vector3 waterAvoidance = Vector3.zero;
+
+                    // overall velocity
+                    velocity = groundAvoidance + waterAvoidance + examplesAttraction + boidAvoidance;
+                    break;
+                default:
+                    Debug.LogWarning( "unknown type of creature" );
+                    break;
+            }
+
+
+            if( velocity.magnitude > 0.005f )
+            {
+                // rotate the animation by whatever angle we were at when we started
+                // this loop
+                Quaternion rotationWithoutBoids = seamHideRotation * rotationFromAnimation;
+
+                // boids desired rotation is to move in velocity direction while keeping the base animation's up-vector
+                Quaternion boidsDesiredRotation = Quaternion.LookRotation( velocity, rotationWithoutBoids * Vector3.up );
+
+                // difference between the desired boids position and rotation without boids
+                Quaternion boidsDesiredChange = boidsDesiredRotation * Quaternion.Inverse( rotationWithoutBoids );
+
+                // update seam hide rotation by a certain percentage of the boids desired change, according to strength of boids
+                // maximum = velocity of 2 --> 50% of the way there
+                float amountToChange = velocity.magnitude.MapClamp( 0, 2, 0, 0.5f );
+                combinedSeamHideAndBoidsRotation = Quaternion.Slerp( seamHideRotation, boidsDesiredChange * seamHideRotation, amountToChange );
+
+                // update seam hide to be in line with output from most recent boids
+                seamHideRotation = Quaternion.AngleAxis( combinedSeamHideAndBoidsRotation.eulerAngles.y, Vector3.up );
+
+            }
+            else
+            {
+                // don't use boids if the effect is not strong
+                combinedSeamHideAndBoidsRotation = seamHideRotation;
+            }
+
+            // the actual goal orientation
+            goalBaseRotation = combinedSeamHideAndBoidsRotation * rotationFromAnimation;
 
 
             // weighted average of vectors:
@@ -1014,7 +1042,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return Mathf.Sin( (Mathf.PI / 2) * currentAvoidanceAngle / avoidTerrainAngle ) * Vector3.up;
     }
 
-    Vector3 ProcessBoidsExamplesAttraction( out float severity )
+    Vector3 ProcessBoidsExamplesAttraction()
     {
         // if we are too far away from any of the examples, steer toward the middle of the examples
         float minDistance = float.MaxValue;
@@ -1024,7 +1052,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             if( d < maxDistanceFromAnyExample )
             {
                 // we don't have to do anything
-                severity = 0;
                 return Vector3.zero;
             }
             else if( d < minDistance )
@@ -1033,10 +1060,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             }
         }
 
-        severity = minDistance.PowMapClamp( maxDistanceFromAnyExample, maxDistanceFromAnyExample + distanceRampUpRange, 0, 1, rampUpSeverity );
+        // if we got here, we know we're SOMEWHERE in the "danger zone"
+        // have the severity start at 25% instead of 0%
+        // this way, animals will not get stuck walking along the edge of the ring but will go back inward
+        float severity = minDistance.PowMapClamp( maxDistanceFromAnyExample, maxDistanceFromAnyExample + distanceRampUpRange, 0.25f, 1, rampUpSeverity );
         Vector3 correctionVelocity = ( averageExamplePosition - modelBaseToAnimate.position ).normalized;
 
-        return correctionVelocity;
+        return severity * correctionVelocity;
     }
 
     List<Transform> nearOtherBoids = new List<Transform>();

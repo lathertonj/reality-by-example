@@ -1589,7 +1589,7 @@ MonoBehaviour:
   avoidTerrainDetection: 5
   avoidTerrainMinheight: 1.5
   boidSlew: 0.01
-  hugTerrainHeight: 2
+  hugTerrainHeight: 1
   maxDistanceFromAnyExample: 50
   distanceRampUpRange: 7
   rampUpSeverity: 1.5

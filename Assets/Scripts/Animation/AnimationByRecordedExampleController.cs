@@ -226,19 +226,21 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
                     // move in the forward direction, then re-center self onto ground
                     modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * velocity;
-                    Vector3 normalDirection = Vector3.up;
-                    //modelBaseToAnimate.position = GetHugTerrainPoint( modelBaseToAnimate.position, out normalDirection );
+                    Vector3 terrainNormal = Vector3.up;
+                    modelBaseToAnimate.position = GetHugTerrainPoint( modelBaseToAnimate.position, out terrainNormal );
 
                     // first, rotate towards the velocity direction to incorporate the boids into the angle
                     modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, Quaternion.LookRotation( velocity, modelBaseToAnimate.up ), globalSlew );
 
-                    // change rotation to be up = terrain normal, rotated by the angle
-                    // we want "forward" to be normal direction rotated 90 degrees toward the velocity
-                    // but, we still want "up" to be up, not the normal direction, since animals try to orient up
-                    // and not plastered on the sides of mountains
-                    // we want "forward" to be roughly velocity, but up or down if it needs to be.
-                    Vector3 newForward = Quaternion.AngleAxis( 90, modelBaseToAnimate.right ) * normalDirection;
+                    // find forward direction that's along the terrain, in our original direction
+                    // cross product gets a tangent to the normal
+                    // cross product with the left vector gets a tangent in roughly the forward direction
+                    Vector3 newForward = Vector3.Cross( terrainNormal, -transform.right );
+                    // but "up" isn't the normal, then animal would look glued to mountain
+                    // animals try to make "up" be opposite of gravity.
                     Quaternion newRotation = Quaternion.LookRotation( newForward, Vector3.up );
+
+                    // approach this rotation
                     modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, newRotation, globalSlew ); 
                     break;
                 case CreatureType.Water:
@@ -398,6 +400,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     {
         runtimeMode = true;
         seamHideRotation = Quaternion.identity;
+        // TODO: Would this prevent wolves from rotating at beginning? no!
+        // seamHideRotation = Quaternion.AngleAxis( transform.eulerAngles.y, Vector3.up );
         // TODO: do we WANT to reset the current frame every time we run?
         // currentRuntimeFrame = 0;
 

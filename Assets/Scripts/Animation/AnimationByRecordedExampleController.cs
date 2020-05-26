@@ -519,36 +519,39 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 // this loop
                 Quaternion rotationWithoutBoids = seamHideRotation * rotationFromAnimation;
 
-                // boids desired rotation is to move in velocity direction while keeping the base animation's up-vector
-                Quaternion boidsDesiredRotation = Quaternion.LookRotation( velocity, rotationWithoutBoids * Vector3.up );
+                // boids desired rotation is to move in velocity direction
+                Quaternion boidsDesiredRotation = Quaternion.LookRotation( velocity, Vector3.up );
 
-                debug1.position = transform.position + 1 * ( rotationWithoutBoids * Vector3.forward );
-                debug2.position = transform.position + (1 + velocity.magnitude ) * ( boidsDesiredRotation * Vector3.forward );
+                debug1.position = transform.position + rotationWithoutBoids * Vector3.forward;
+                debug2.position = transform.position + boidsDesiredRotation * Vector3.forward;
 
                 // difference between the desired boids position and rotation without boids
                 Quaternion boidsDesiredChange = boidsDesiredRotation * Quaternion.Inverse( rotationWithoutBoids );
 
                 // update seam hide rotation by a certain percentage of the boids desired change, according to strength of boids
-                // maximum = velocity of 2 --> 50% of the way there
-                float amountToChange = velocity.magnitude.MapClamp( 0, 2, 0, 0.5f );
+                // maximum = velocity of 1 --> 100% of the way there
+                float amountToChange = velocity.magnitude.MapClamp( 0, 1, 0, 1f );
+                //Debug.Log( amountToChange );
                 combinedSeamHideAndBoidsRotation = Quaternion.Slerp( seamHideRotation, boidsDesiredChange * seamHideRotation, amountToChange );
 
+                // the actual goal orientation
+                goalBaseRotation = combinedSeamHideAndBoidsRotation * rotationFromAnimation;
+                debug3.position = transform.position + goalBaseRotation * Vector3.forward;
+
                 // update seam hide to be in line with output from most recent boids
-                seamHideRotation = Quaternion.AngleAxis( combinedSeamHideAndBoidsRotation.eulerAngles.y, Vector3.up );
+                seamHideRotation = Quaternion.AngleAxis( goalBaseRotation.eulerAngles.y - rotationFromAnimation.eulerAngles.y, Vector3.up );
 
             }
             else
             {
                 // don't use boids if the effect is not strong
-                combinedSeamHideAndBoidsRotation = seamHideRotation;
-
-                debug1.position = transform.position + 1 * ( combinedSeamHideAndBoidsRotation * rotationFromAnimation * Vector3.forward );
-                debug2.position = transform.position + 1 * ( combinedSeamHideAndBoidsRotation * rotationFromAnimation * Vector3.forward );
+                goalBaseRotation = seamHideRotation * rotationFromAnimation;
+            
+                debug1.position = transform.position + 1 * ( goalBaseRotation * Vector3.forward );
+                debug2.position = transform.position + 1 * ( goalBaseRotation * Vector3.forward );
+                debug3.position = transform.position + 1 * ( goalBaseRotation * Vector3.forward );
             }
 
-            // the actual goal orientation
-            goalBaseRotation = combinedSeamHideAndBoidsRotation * rotationFromAnimation;
-            debug3.position = transform.position + 1 * ( goalBaseRotation * Vector3.forward );
 
 
             // weighted average of vectors:
@@ -1045,8 +1048,16 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             goalAvoidanceAmount = 0;
         }
         currentAvoidanceAmount += boidSlew * ( goalAvoidanceAmount - currentAvoidanceAmount );
+
+        if( currentAvoidanceAmount < 0.01f )
+        {
+            return Vector3.zero;
+        }
         
-        return currentAvoidanceAmount.PowMapClamp( 0, 1, 0, avoidTerrainIntensity, 0.6f ) * Vector3.up;
+        Vector3 upDirection = currentAvoidanceAmount.PowMapClamp( 0, 1, 0, avoidTerrainIntensity, 0.6f ) * Vector3.up;
+        // boids STRAIGHT up never goes well. add a LITTLE forward
+        Vector3 forwardDirection = 0.01f * transform.forward;
+        return upDirection + forwardDirection;
     }
 
     Vector3 ProcessBoidsExamplesAttraction()

@@ -26,9 +26,9 @@ public class TestBirdAngle : MonoBehaviour
         Quaternion rotationFromAnimation = transform.rotation; 
         Quaternion rotationWithoutBoids = seamHideRotation * rotationFromAnimation;
 
-        Vector3 velocity = myDesiredBoids;
-        // boids desired rotation is to move in velocity direction while keeping the base animation's up-vector
-        Quaternion boidsDesiredRotation = Quaternion.LookRotation( velocity, rotationWithoutBoids * Vector3.up );
+        Vector3 velocity = myDesiredBoids + 0.01f * transform.forward;
+        // boids desired rotation is to move in velocity direction, with up as up
+        Quaternion boidsDesiredRotation = Quaternion.LookRotation( velocity, Vector3.up );
 
         DebugIt( visualizeBoids, boidsDesiredRotation );
 
@@ -38,23 +38,29 @@ public class TestBirdAngle : MonoBehaviour
         // update seam hide rotation by a certain percentage of the boids desired change, according to strength of boids
         // maximum = velocity of 2 --> 50% of the way there
         float amountToChange = velocity.magnitude.MapClamp( 0, 2, 0, 0.5f );
+        
+        // Debug.Log( "amount to change: " + amountToChange );
         // do slerp fully
         // Quaternion combinedSeamHideAndBoidsRotation = boidsDesiredChange * seamHideRotation;
         // the actual slerp
         Quaternion combinedSeamHideAndBoidsRotation = Quaternion.Slerp( seamHideRotation, boidsDesiredChange * seamHideRotation, amountToChange );
 
-        // update seam hide to be in line with output from most recent boids
-        // TODO: the problem is here, when I am updating the orientation that the animation should be played at on future frames
-        seamHideRotation = Quaternion.AngleAxis( combinedSeamHideAndBoidsRotation.eulerAngles.y, Vector3.up );
-        // seamHideRotation = combinedSeamHideAndBoidsRotation;
-        Debug.Log( "seamHideRotation is " + seamHideRotation.eulerAngles.y );
-        Debug.Log( "desiredBoids is " + boidsDesiredRotation.eulerAngles.y );
-        Debug.Log( "desiredChange is " + boidsDesiredChange.eulerAngles.y );
-        Debug.Log( "combined is: " + combinedSeamHideAndBoidsRotation.eulerAngles.y );
-        DebugIt( visualizeSeamHide, seamHideRotation );
 
         Quaternion goalBaseRotation = combinedSeamHideAndBoidsRotation * rotationFromAnimation;
         DebugIt( visualizeCombinedDirection, goalBaseRotation );
+
+        // update seam hide to be in line with output from most recent boids
+        // TODO: the problem is here, when I am updating the orientation that the animation should be played at on future frames
+        // seamHideRotation = Quaternion.AngleAxis( combinedSeamHideAndBoidsRotation.eulerAngles.y, Vector3.up );
+        seamHideRotation = Quaternion.AngleAxis( goalBaseRotation.eulerAngles.y - rotationFromAnimation.eulerAngles.y, Vector3.up );
+        // Debug.Log( "desiredBoids is " + boidsDesiredRotation.eulerAngles );
+        // Debug.Log( "desiredChange is " + boidsDesiredChange.eulerAngles );
+        // Debug.Log( "goal is: " + goalBaseRotation.eulerAngles.y );
+        // Debug.Log( "rotationFromAnimation is: " + rotationFromAnimation.eulerAngles.y );
+        // Debug.Log( "seamHideRotation is " + seamHideRotation.eulerAngles );
+        // Debug.Log( "combined (wrong way) is: " + combinedSeamHideAndBoidsRotation.eulerAngles );
+        DebugIt( visualizeSeamHide, seamHideRotation );
+        transform.rotation = goalBaseRotation;
     }
 
     void DebugIt( Transform t, Quaternion q )

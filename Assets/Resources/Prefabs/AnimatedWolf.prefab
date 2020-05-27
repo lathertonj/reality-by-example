@@ -1607,7 +1607,7 @@ MonoBehaviour:
   myBackLeft: {fileID: 3967327823047786805}
   myBackRight: {fileID: 521457061744453467}
   frontToBackFrameDelay: 20
-  frontToBackOffset: -0.1668
+  frontToBackOffset: -0.18
   mirrorBackToFront: 1
 --- !u!114 &5169728823964231036
 MonoBehaviour:

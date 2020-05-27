@@ -18,6 +18,7 @@ public class ControlLandAnimal : MonoBehaviour
 
     public bool mirrorBackToFront = true;
     
+    private float startHeadOrientation;
 
     // Start is called before the first frame update
     void Start()
@@ -25,6 +26,13 @@ public class ControlLandAnimal : MonoBehaviour
         // unparent (others should be unparented by animation component)
         trackBackLeft.parent = null;
         trackBackRight.parent = null;
+
+        // set rotation to identity for all
+        // confusingly, the target rotation is interpreted in the
+        // local space, even though the target position is
+        // interpreted in the global space
+        trackLeft.rotation = trackRight.rotation = trackBackLeft.rotation = trackBackRight.rotation = Quaternion.identity;
+        startHeadOrientation = trackHead.rotation.eulerAngles.y;
 
         // assign
         myLeft.Target = trackLeft;
@@ -42,13 +50,12 @@ public class ControlLandAnimal : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // follow the head position and rotation
         transform.position = trackHead.position + headOffset;
         transform.rotation = trackHead.rotation;
 
-        trackLeft.rotation = trackHead.rotation;
-        trackRight.rotation = trackHead.rotation;
-        trackBackLeft.rotation = trackHead.rotation;
-        trackBackRight.rotation = trackHead.rotation;
+        // orient paws still forward
+        trackLeft.rotation = trackRight.rotation = trackBackLeft.rotation = trackBackRight.rotation = GetFootOrientation();
 
         // animate back legs from memory
         if( mirrorBackToFront )
@@ -61,5 +68,10 @@ public class ControlLandAnimal : MonoBehaviour
                 trackBackRight.position = transform.TransformPoint( rightFrontToBackMemory.Dequeue() ) + transform.forward * frontToBackOffset * transform.localScale.z;
             }
         }
+    }
+
+    Quaternion GetFootOrientation()
+    {
+        return Quaternion.AngleAxis( trackHead.rotation.eulerAngles.y - startHeadOrientation, Vector3.up );
     }
 }

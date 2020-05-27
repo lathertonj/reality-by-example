@@ -2788,6 +2788,7 @@ MonoBehaviour:
   myRight: {fileID: 6505757416471266075}
   myBackLeft: {fileID: 84294432929596542}
   myBackRight: {fileID: 3537903627956118032}
+  neckJoint: {fileID: 327933486972055260}
   frontToBackFrameDelay: 20
   frontToBackOffset: -0.18
   mirrorBackToFront: 1

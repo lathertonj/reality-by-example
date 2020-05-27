@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ControlLandAnimal : MonoBehaviour
+public class ControlLandAnimal : MonoBehaviour , NeckRotatable
 {
     public Transform trackHead, trackLeft, trackRight, trackBackLeft, trackBackRight;
     
     public Transform myHead;
     public DitzelGames.FastIK.FastIKFabric myLeft, myRight, myBackLeft, myBackRight;
+    public Transform neckJoint;
+    private Quaternion goalNeckRotation;
 
     public int frontToBackFrameDelay = 20;
     public float frontToBackOffset;
@@ -50,6 +52,9 @@ public class ControlLandAnimal : MonoBehaviour
         leftFrontToBackMemory = new Queue<Vector3>();
         rightFrontToBackMemory = new Queue<Vector3>();
 
+        // set to identity
+        neckJoint.localRotation = goalNeckRotation = Quaternion.identity;
+
     }
 
     // Update is called once per frame
@@ -58,6 +63,9 @@ public class ControlLandAnimal : MonoBehaviour
         // follow the head position and rotation
         transform.position = trackHead.position + headOffset;
         transform.rotation = trackHead.rotation;
+
+        // rotate the neck toward desired rotation
+        neckJoint.localRotation = Quaternion.Slerp( neckJoint.localRotation, goalNeckRotation, 0.25f );
 
         // orient paws still forward
         trackLeft.rotation = trackRight.rotation = trackBackLeft.rotation = trackBackRight.rotation = GetFootOrientation();
@@ -79,4 +87,14 @@ public class ControlLandAnimal : MonoBehaviour
     {
         return Quaternion.AngleAxis( trackHead.rotation.eulerAngles.y - startHeadOrientation, Vector3.up );
     }
+
+    void NeckRotatable.SetNeckRotation( Quaternion r )
+    {
+        goalNeckRotation = r; 
+    }
+}
+
+public interface NeckRotatable
+{
+    void SetNeckRotation( Quaternion r );
 }

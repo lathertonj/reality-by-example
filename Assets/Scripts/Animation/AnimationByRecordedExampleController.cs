@@ -31,6 +31,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     public Transform modelBaseDataSource, modelBaseToAnimate;
     public Transform[] modelRelativePointsDataSource, modelRelativePointsToAnimate;
+    private NeckRotatable myNeck;
     public float relativeDataSourceScaleFactor = 1f;
     public float relativeDataSourceExtraOffsetUp;
     public float relativeDataSourceExtraOffsetTowardCamera;
@@ -125,6 +126,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         _yRotationBaseObject.name = "y rotation version of camera";
         yRotationBase = _yRotationBaseObject.transform;
 
+        // get neck reference
+        myNeck = GetComponent<NeckRotatable>();
     }
 
     public void AddToGroup( AnimationByRecordedExampleController groupLeader )
@@ -237,7 +240,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // animate it as just following the data sources, only if we're recording data or might again soon
             // recordingModeOffset: have it be a little away from us so we can see the body
             modelBaseToAnimate.position = modelBaseDataSource.position + recordingModeOffset;
-            modelBaseToAnimate.rotation = GetModelBaseDataRotation();
+            modelBaseToAnimate.rotation = ProcessGoalRotation( GetModelBaseDataRotation() );
 
             for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
             {
@@ -367,8 +370,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     {
         runtimeMode = true;
         seamHideRotation = Quaternion.identity;
-        // TODO: Would this prevent wolves from rotating at beginning? no!
-        // seamHideRotation = Quaternion.AngleAxis( transform.eulerAngles.y, Vector3.up );
         // TODO: do we WANT to reset the current frame every time we run?
         // currentRuntimeFrame = 0;
 
@@ -479,6 +480,21 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 slerpAmount
             );
 
+            // show on neck
+            if( myNeck != null )
+            {
+                // make invariant to the way we were facing at the start of the phrase
+                Quaternion frame0Position = Quaternion.Slerp(
+                    GetBaseQuaternion( mostProminent, 0 ),
+                    GetBaseQuaternion( secondMostProminent, 0 ),
+                    slerpAmount
+                );
+                Quaternion neckRotation = Quaternion.AngleAxis( -frame0Position.eulerAngles.y, Vector3.up ) * rotationFromAnimation;
+
+                // set
+                myNeck.SetNeckRotation( neckRotation );
+            }
+
             // compute boids
             // boids
             Vector3 examplesAttraction = ProcessBoidsExamplesAttraction();
@@ -552,6 +568,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 debug3.position = transform.position + 1 * ( goalBaseRotation * Vector3.forward );
             }
 
+            // only use y rotation for land creatures
+            goalBaseRotation =  ProcessGoalRotation( goalBaseRotation );
 
 
             // weighted average of vectors:
@@ -676,13 +694,24 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         {
             case CreatureType.Flying:
             case CreatureType.Water:
-                return modelBaseDataSource.rotation;
             case CreatureType.Land:
-                // only use y rotation for land creatures
-                return Quaternion.AngleAxis( modelBaseDataSource.eulerAngles.y, Vector3.up );
+                return modelBaseDataSource.rotation;
             default:
                 // uh oh
                 return Quaternion.identity;
+        }
+    }
+
+    private Quaternion ProcessGoalRotation( Quaternion goal )
+    {
+        switch( creatureType )
+        {
+            case CreatureType.Land:
+                return Quaternion.AngleAxis( goal.eulerAngles.y, Vector3.up );
+            case CreatureType.Flying:
+            case CreatureType.Water:
+            default:
+                return goal;
         }
     }
 

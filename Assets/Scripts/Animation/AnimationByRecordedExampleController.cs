@@ -184,6 +184,23 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // TODO: compute speed multiplier differently if we don't have limbs?
             goalSpeedMultiplier = 10 * Mathf.Clamp( movementThisFrame, 0, 0.1f );
 
+            // on land, speed is relative to the angle of the terrain
+            if( creatureType == CreatureType.Land )
+            {
+                // reduce speed on steep terrain
+                float modelTilt = modelBaseToAnimate.rotation.eulerAngles.x;
+                if( modelTilt > 25 )
+                {
+                    // downhill
+                    goalSpeedMultiplier *= modelTilt.PowMapClamp( 25, 40, 1.0f, 0.5f, 2.5f );
+                }
+                else if( modelTilt < -20 )
+                {
+                    // uphill
+                    goalSpeedMultiplier *= modelTilt.PowMapClamp( -20, -40, 1.0f, 0.2f, 4.5f );
+                }
+            }
+
             // current speed is delayed from ideal
             if( currentSpeedMultiplier < goalSpeedMultiplier )
             {

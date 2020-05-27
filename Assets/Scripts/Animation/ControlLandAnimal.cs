@@ -20,12 +20,17 @@ public class ControlLandAnimal : MonoBehaviour
     
     private float startHeadOrientation;
 
+    public bool unparentBackLegs = true;
+
     // Start is called before the first frame update
     void Start()
     {
         // unparent (others should be unparented by animation component)
-        trackBackLeft.parent = null;
-        trackBackRight.parent = null;
+        if( unparentBackLegs )
+        {
+            trackBackLeft.parent = null;
+            trackBackRight.parent = null;
+        }
 
         // set rotation to identity for all
         // confusingly, the target rotation is interpreted in the

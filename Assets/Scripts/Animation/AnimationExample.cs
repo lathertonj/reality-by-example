@@ -19,6 +19,8 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
 
     private float animationIntertime;
 
+    // NOTE: ensure that goalBaseRotation has the same scale as the mini model of the animal
+    // NOTE: ensure that model's pivot and goalBaseRotation are both at center of cube
     private Quaternion goalBaseRotation;
 
     private Vector3[] goalLocalPositions;

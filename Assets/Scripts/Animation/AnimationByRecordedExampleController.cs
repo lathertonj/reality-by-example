@@ -390,6 +390,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         // TODO: do we WANT to reset the current frame every time we run?
         // currentRuntimeFrame = 0;
 
+        // to start water creatures, put them onto the ground == underwater, hopefully.
+        if( creatureType == CreatureType.Water )
+        {
+            Vector3 terrainNormal = Vector3.up;
+            modelBaseToAnimate.position = GetHugTerrainPoint( modelBaseToAnimate.position, out terrainNormal );
+        }
+
         switch( currentRecordingAndPlaybackMode )
         {
             case RecordingType.MusicTempo:
@@ -516,7 +523,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // boids
             Vector3 examplesAttraction = ProcessBoidsExamplesAttraction();
             Vector3 boidAvoidance = ProcessBoidsOthersAvoidance();
-            Vector3 groundAvoidance;
+            Vector3 groundAvoidance, waterAvoidance;
             Vector3 velocity = examplesAttraction + boidAvoidance;
 
             // dependent on creature type
@@ -525,9 +532,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 case CreatureType.Flying:
                     // extra boids
                     groundAvoidance = ProcessBoidsGroundAvoidance();
+                    // avoid water below us
+                    waterAvoidance = ProcessBoidsWaterAvoidance( Vector3.down );
+
 
                     // add to velocity
-                    velocity += groundAvoidance;
+                    velocity += groundAvoidance + waterAvoidance;
                     break;
                 case CreatureType.Land:
                     // TODO: avoid edge of water?
@@ -535,7 +545,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 case CreatureType.Water:
                     // TODO: extra boid of avoiding the ground AND the top of the water! :)
                     groundAvoidance = ProcessBoidsGroundAvoidance();
-                    Vector3 waterAvoidance = Vector3.zero;
+                    // if water is above us, go down
+                    waterAvoidance = ProcessBoidsWaterAvoidance( Vector3.up );
 
                     // add to velocity
                     velocity += groundAvoidance + waterAvoidance;
@@ -1053,24 +1064,48 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         averageExamplePosition = sum / currentlyUsedExamples.Count;
     }
 
-    private bool WillCollideWithTerrainSoon()
+    private bool ForwardWillCollideWithLayer( int layer )
     {
-        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
-        int layerMask = 1 << 8;
+        // Bit shift the index of the layer to get a bit mask
+        int layerMask = 1 << layer;
 
         RaycastHit hit;
         // check if the model will hit anything in its forward direction
         return ( Physics.Raycast( modelBaseToAnimate.position, modelBaseToAnimate.forward, out hit, avoidTerrainDetection, layerMask ) );
     }
 
-    private bool TooLowAboveTerrain()
+    private bool DirectionWillCollideWithLayer( Vector3 direction, int layer )
     {
-        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
-        int layerMask = 1 << 8;
+        // Bit shift the index of the layer to get a bit mask
+        int layerMask = 1 << layer;
 
         RaycastHit hit;
         // check if the model will hit anything in its forward direction
-        return ( Physics.Raycast( modelBaseToAnimate.position, Vector3.down, out hit, avoidTerrainMinheight, layerMask ) );
+        return ( Physics.Raycast( modelBaseToAnimate.position, direction, out hit, avoidTerrainMinheight, layerMask ) );
+    }
+
+    private bool WillCollideWithTerrainSoon()
+    {
+        // 8: Connected terrains
+        return ForwardWillCollideWithLayer( 8 );
+    }
+
+    private bool TooLowAboveTerrain()
+    {
+        // 8: connected terrains
+        return DirectionWillCollideWithLayer( Vector3.down, 8 );
+    }
+
+    private bool WillCollideWithWaterSoon()
+    {
+        // 11: water
+        return ForwardWillCollideWithLayer( 11 );
+    }
+
+    private bool TooCloseToWater( Vector3 direction )
+    {
+        // 11: water
+        return DirectionWillCollideWithLayer( direction, 11 );
     }
 
     private Vector3 GetHugTerrainPoint( Vector3 near, out Vector3 normalDirection )
@@ -1104,6 +1139,31 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         // boids STRAIGHT up never goes well. add a LITTLE forward
         Vector3 forwardDirection = 0.01f * transform.forward;
         return upDirection + forwardDirection;
+    }
+
+    float goalWaterAvoidanceAmount = 0, currentWaterAvoidanceAmount = 0;
+    Vector3 ProcessBoidsWaterAvoidance( Vector3 checkDirection )
+    {
+        // if the forward direction or check direction has water, avoid it
+        if( WillCollideWithWaterSoon() || TooCloseToWater( checkDirection ) )
+        {
+            goalWaterAvoidanceAmount = 1;
+        }
+        else
+        {
+            goalWaterAvoidanceAmount = 0;
+        }
+        currentWaterAvoidanceAmount += boidSlew * ( goalWaterAvoidanceAmount - currentWaterAvoidanceAmount );
+
+        if( currentWaterAvoidanceAmount < 0.01f )
+        {
+            return Vector3.zero;
+        }
+        
+        Vector3 avoidDirection = currentWaterAvoidanceAmount.PowMapClamp( 0, 1, 0, avoidTerrainIntensity, 0.6f ) * ( -checkDirection );
+        // boids STRAIGHT up never goes well. add a LITTLE forward
+        Vector3 forwardDirection = 0.01f * transform.forward;
+        return avoidDirection + forwardDirection;
     }
 
     Vector3 ProcessBoidsExamplesAttraction()

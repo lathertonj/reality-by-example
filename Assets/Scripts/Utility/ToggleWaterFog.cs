@@ -25,15 +25,7 @@ public class ToggleWaterFog : MonoBehaviour
 
     bool UnderWater()
     {
-        // problem: can't raycast upward to detect water
-        // so instead, raycast down from above me and check if y value of hit point
-        // is greater than mine
-        Vector3 waterAboveOrBelow;
-        if( TerrainUtility.AboveLayer( transform.position + 400 * Vector3.up, waterLayer, out waterAboveOrBelow ) )
-        {
-            return waterAboveOrBelow.y >= ( transform.position.y - waterVisualOffset );
-        }
-        return false;
+        return TerrainUtility.BelowOneSidedLayer( transform.position - waterVisualOffset * Vector3.up, waterLayer );
     }
 
     bool AboveLand()

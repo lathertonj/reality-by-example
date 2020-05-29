@@ -71,5 +71,19 @@ public class TerrainUtility
         }
     }
 
+
+    public static bool BelowOneSidedLayer( Vector3 position, int layer )
+    {
+        // problem: can't raycast upward to detect one sided layer
+        // so instead, raycast down from above and check if y value of hit point
+        // is greater than provided
+        Vector3 aboveOrBelow;
+        if( TerrainUtility.AboveLayer( position + 400 * Vector3.up, layer, out aboveOrBelow ) )
+        {
+            return aboveOrBelow.y >= position.y;
+        }
+        return false;
+    }
+
     
 }

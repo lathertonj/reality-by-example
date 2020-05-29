@@ -540,8 +540,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     velocity += groundAvoidance + waterAvoidance;
                     break;
                 case CreatureType.Land:
-                    // TODO: avoid edge of water?
-                    // e.g.
+                    // avoid edge of water
+                    // TODO: this formulation makes creatures spin in circles forever when they get near water
                     // Vector3 waterDirection = modelBaseToAnimate.forward + Vector3.down;
                     // waterDirection.Normalize();
                     // waterAvoidance = ProcessBoidsWaterAvoidance( waterDirection, true );

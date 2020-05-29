@@ -23,13 +23,16 @@ public class ToggleWaterFog : MonoBehaviour
         RenderSettings.fog = turnOnFog;
     }
 
+    float largeDistance = 400;
     bool UnderWater()
     {
-        return TerrainUtility.BelowOneSidedLayer( transform.position - waterVisualOffset * Vector3.up, waterLayer );
+        // looking Vector3.up, do we see water?
+        return TerrainUtility.BelowOneSidedLayer( transform.position - waterVisualOffset * Vector3.up, Vector3.up, largeDistance, waterLayer );
     }
 
     bool AboveLand()
     {
-        return TerrainUtility.AboveLayer( transform.position, groundLayer );
+        // looking Vector3.down, do we see ground?
+        return TerrainUtility.AboveLayer( transform.position, Vector3.down, largeDistance, groundLayer );
     }
 }

@@ -533,7 +533,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     // extra boids
                     groundAvoidance = ProcessBoidsGroundAvoidance();
                     // avoid water below us
-                    waterAvoidance = ProcessBoidsWaterAvoidance( Vector3.down );
+                    waterAvoidance = ProcessBoidsWaterAvoidance( Vector3.down, true );
 
 
                     // add to velocity
@@ -541,12 +541,17 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     break;
                 case CreatureType.Land:
                     // TODO: avoid edge of water?
+                    // e.g.
+                    // Vector3 waterDirection = modelBaseToAnimate.forward + Vector3.down;
+                    // waterDirection.Normalize();
+                    // waterAvoidance = ProcessBoidsWaterAvoidance( waterDirection, true );
+                    // velocity += waterAvoidance;
                     break;
                 case CreatureType.Water:
                     // TODO: extra boid of avoiding the ground AND the top of the water! :)
                     groundAvoidance = ProcessBoidsGroundAvoidance();
                     // if water is above us, go down
-                    waterAvoidance = ProcessBoidsWaterAvoidance( Vector3.up );
+                    waterAvoidance = ProcessBoidsWaterAvoidance( Vector3.up, false );
 
                     // add to velocity
                     velocity += groundAvoidance + waterAvoidance;
@@ -1064,48 +1069,62 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         averageExamplePosition = sum / currentlyUsedExamples.Count;
     }
 
-    private bool ForwardWillCollideWithLayer( int layer )
+    private bool ForwardWillCollideWithLayerFromAbove( int layer )
     {
-        // Bit shift the index of the layer to get a bit mask
-        int layerMask = 1 << layer;
-
-        RaycastHit hit;
-        // check if the model will hit anything in its forward direction
-        return ( Physics.Raycast( modelBaseToAnimate.position, modelBaseToAnimate.forward, out hit, avoidTerrainDetection, layerMask ) );
+        return TerrainUtility.AboveLayer( modelBaseToAnimate.position, modelBaseToAnimate.forward, avoidTerrainDetection, layer );
     }
 
-    private bool DirectionWillCollideWithLayer( Vector3 direction, int layer )
+    private bool ForwardWillCollideWithLayerFromBelow( int layer )
     {
-        // Bit shift the index of the layer to get a bit mask
-        int layerMask = 1 << layer;
+        return TerrainUtility.BelowOneSidedLayer( modelBaseToAnimate.position, modelBaseToAnimate.forward, avoidTerrainDetection, layer );
+    }
 
-        RaycastHit hit;
-        // check if the model will hit anything in its forward direction
-        return ( Physics.Raycast( modelBaseToAnimate.position, direction, out hit, avoidTerrainMinheight, layerMask ) );
+    private bool DirectionWillCollideWithLayerFromAbove( Vector3 direction, int layer )
+    {
+        return TerrainUtility.AboveLayer( modelBaseToAnimate.position, direction, avoidTerrainMinheight, layer );
+    }
+
+    private bool DirectionWillCollideWithLayerFromBelow( Vector3 direction, int layer )
+    {
+        return TerrainUtility.BelowOneSidedLayer( modelBaseToAnimate.position, direction, avoidTerrainMinheight, layer );
     }
 
     private bool WillCollideWithTerrainSoon()
     {
         // 8: Connected terrains
-        return ForwardWillCollideWithLayer( 8 );
+        return ForwardWillCollideWithLayerFromAbove( 8 );
     }
 
     private bool TooLowAboveTerrain()
     {
         // 8: connected terrains
-        return DirectionWillCollideWithLayer( Vector3.down, 8 );
+        return DirectionWillCollideWithLayerFromAbove( Vector3.down, 8 );
     }
 
-    private bool WillCollideWithWaterSoon()
+    private bool WillCollideWithWaterSoon( bool fromAbove )
     {
         // 11: water
-        return ForwardWillCollideWithLayer( 11 );
+        if( fromAbove )
+        {
+           return ForwardWillCollideWithLayerFromAbove( 11 );
+        }
+        else
+        {
+            return ForwardWillCollideWithLayerFromBelow( 11 );
+        }
     }
 
-    private bool TooCloseToWater( Vector3 direction )
+    private bool TooCloseToWater( Vector3 direction, bool fromAbove )
     {
         // 11: water
-        return DirectionWillCollideWithLayer( direction, 11 );
+        if( fromAbove )
+        {
+            return DirectionWillCollideWithLayerFromAbove( direction, 11 );
+        }
+        else
+        {
+            return DirectionWillCollideWithLayerFromBelow( direction, 11 );
+        }
     }
 
     private Vector3 GetHugTerrainPoint( Vector3 near, out Vector3 normalDirection )
@@ -1142,10 +1161,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     }
 
     float goalWaterAvoidanceAmount = 0, currentWaterAvoidanceAmount = 0;
-    Vector3 ProcessBoidsWaterAvoidance( Vector3 checkDirection )
+    Vector3 ProcessBoidsWaterAvoidance( Vector3 checkDirection, bool shouldBeAboveWater )
     {
         // if the forward direction or check direction has water, avoid it
-        if( WillCollideWithWaterSoon() || TooCloseToWater( checkDirection ) )
+        if( WillCollideWithWaterSoon( shouldBeAboveWater ) || TooCloseToWater( checkDirection, shouldBeAboveWater ) )
         {
             goalWaterAvoidanceAmount = 1;
         }

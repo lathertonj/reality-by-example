@@ -46,43 +46,23 @@ public class TerrainUtility
         td.SetHeights( 0, 0, newHeights );
     }
 
-    public static bool AboveLayer( Vector3 position, int layer )
-    {
-        Vector3 _;
-        return AboveLayer( position, layer, out _ );
-    }
-
-    public static bool AboveLayer( Vector3 position, int layer, out Vector3 hitPoint )
+    public static bool AboveLayer( Vector3 position, Vector3 direction, float maxDistance, int layer )
     {
         // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
         int layerMask = 1 << layer;
 
         RaycastHit hit;
-        // Check from a point really high above us, in the downward direction (in case we are below terrain)
-        if( Physics.Raycast( position, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
-        {
-            hitPoint = hit.point;
-            return true;
-        }
-        else
-        {
-            hitPoint = default( Vector3 );
-            return false;
-        }
+        // check if thing is in direction
+        return( Physics.Raycast( position, direction, out hit, maxDistance, layerMask ) );
     }
 
 
-    public static bool BelowOneSidedLayer( Vector3 position, int layer )
+    public static bool BelowOneSidedLayer( Vector3 position, Vector3 upDirection, float maxDistance, int layer )
     {
         // problem: can't raycast upward to detect one sided layer
         // so instead, raycast down from above and check if y value of hit point
         // is greater than provided
-        Vector3 aboveOrBelow;
-        if( TerrainUtility.AboveLayer( position + 400 * Vector3.up, layer, out aboveOrBelow ) )
-        {
-            return aboveOrBelow.y >= position.y;
-        }
-        return false;
+        return TerrainUtility.AboveLayer( position + maxDistance * upDirection, -upDirection, maxDistance, layer );
     }
 
     

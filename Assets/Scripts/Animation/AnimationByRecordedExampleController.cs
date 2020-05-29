@@ -535,7 +535,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     groundAvoidance = ProcessBoidsGroundAvoidance();
                     cliffAvoidance = ProcessBoidsCliffAvoidance();
                     // avoid water below us
-                    waterAvoidance = ProcessBoidsWaterAvoidance( Vector3.down, true );
+                    waterAvoidance = ProcessBoidsWaterAvoidance( true );
 
 
                     // add to velocity
@@ -543,18 +543,18 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     break;
                 case CreatureType.Land:
                     // avoid edge of water
-                    // TODO: this formulation makes creatures spin in circles forever when they get near water
-                    // Vector3 waterDirection = modelBaseToAnimate.forward + Vector3.down;
-                    // waterDirection.Normalize();
-                    // waterAvoidance = ProcessBoidsWaterAvoidance( waterDirection, true );
-                    // velocity += waterAvoidance;
+                    Vector3 waterDirection = modelBaseToAnimate.forward + Vector3.down;
+                    waterDirection.Normalize();
+                    // make more important than other features
+                    waterAvoidance = 1.7f * ProcessBoidsWaterAvoidance( waterDirection, true );
+                    velocity += waterAvoidance;
                     break;
                 case CreatureType.Water:
                     // TODO: extra boid of avoiding the ground AND the top of the water! :)
                     groundAvoidance = ProcessBoidsGroundAvoidance();
                     cliffAvoidance = ProcessBoidsCliffAvoidance();
                     // if water is above us, go down
-                    waterAvoidance = ProcessBoidsWaterAvoidance( Vector3.up, false );
+                    waterAvoidance = ProcessBoidsWaterAvoidance( false );
 
                     // TODO: if ground AND water are in effect, it means it's getting shallow here
                     // --> add pressure to turn around
@@ -1216,29 +1216,67 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return evadeDirection;
     }
 
-    float goalWaterAvoidanceAmount = 0, currentWaterAvoidanceAmount = 0;
+    // for up and down: just go the opposite direction
+    Vector3 ProcessBoidsWaterAvoidance( bool shouldBeAboveWater )
+    {
+        return ProcessBoidsWaterAvoidance( shouldBeAboveWater ? Vector3.down : Vector3.up, shouldBeAboveWater, false );
+    }
+
+    // for any other direction: try turning left or right
     Vector3 ProcessBoidsWaterAvoidance( Vector3 checkDirection, bool shouldBeAboveWater )
+    {
+        return ProcessBoidsWaterAvoidance( checkDirection, shouldBeAboveWater, true );
+    }
+
+    float goalWaterAvoidanceAmount = 0, currentWaterAvoidanceAmount = 0;
+    bool isWaterDirectionChosen = false;
+    Vector3 waterDirection = Vector3.zero;
+    Vector3 ProcessBoidsWaterAvoidance( Vector3 checkDirection, bool shouldBeAboveWater, bool shouldComputeBoidsDirection )
     {
         // if the forward direction or check direction has water, avoid it
         if( WillCollideWithWaterSoon( shouldBeAboveWater ) || TooCloseToWater( checkDirection, shouldBeAboveWater ) )
         {
             goalWaterAvoidanceAmount = 1;
-            // Debug.Log( "water above me!" );
-            debug3.gameObject.SetActive( true );
+            if( !isWaterDirectionChosen )
+            {
+                // should we look to the left or right to evade?
+                if( shouldComputeBoidsDirection )
+                {
+                    // evade directions are to the left and right but without y direction
+                    Vector3 evadeDirectionL, evadeDirectionR;
+                    evadeDirectionL = Quaternion.AngleAxis( -90, Vector3.up ) * checkDirection;
+                    evadeDirectionR = Quaternion.AngleAxis( 90, Vector3.up ) * checkDirection;
+                    evadeDirectionL.y = evadeDirectionR.y = 0;
+                    evadeDirectionL.Normalize();
+                    evadeDirectionR.Normalize();
+                    
+                    // go in the direction that has a cliff farther away
+                    float waterDistanceL = TerrainUtility.DistanceToLayerFromAbove( modelBaseToAnimate.position, evadeDirectionL, 11 );
+                    float waterDistanceR = TerrainUtility.DistanceToLayerFromAbove( modelBaseToAnimate.position, evadeDirectionR, 11 );
+                    waterDirection = waterDistanceL >= waterDistanceR ? evadeDirectionL : evadeDirectionR;
+                }
+                // just go around it
+                else
+                {
+                    waterDirection = -checkDirection;
+                }
+
+                isWaterDirectionChosen = true;
+            }
         }
         else
         {
             goalWaterAvoidanceAmount = 0;
-            debug3.gameObject.SetActive( false );
         }
         currentWaterAvoidanceAmount += boidSlew * ( goalWaterAvoidanceAmount - currentWaterAvoidanceAmount );
 
         if( currentWaterAvoidanceAmount < 0.01f )
         {
+            isWaterDirectionChosen = false;
             return Vector3.zero;
         }
         
-        Vector3 avoidDirection = currentWaterAvoidanceAmount.PowMapClamp( 0, 1, 0, avoidTerrainIntensity, 0.6f ) * ( -checkDirection );
+        Vector3 avoidDirection = currentWaterAvoidanceAmount.PowMapClamp( 0, 1, 0, avoidTerrainIntensity, 0.6f ) * waterDirection;
         // boids STRAIGHT up never goes well. add a LITTLE forward
         Vector3 forwardDirection = 0.01f * transform.forward;
         return avoidDirection + forwardDirection;

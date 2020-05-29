@@ -9,6 +9,7 @@ public class ControlFish : MonoBehaviour , NeckRotatable
     public Transform myHead;
     public DitzelGames.FastIK.FastIKFabric myLeft, myRight;
     public Transform neckJoint;
+    public float percentageToRotateNeck = 0.3f;
     private Quaternion goalNeckRotation, currentNeckRotation;
     private Quaternion baseNeckRotation;
 
@@ -47,7 +48,7 @@ public class ControlFish : MonoBehaviour , NeckRotatable
 
         // rotate the neck toward desired rotation
         currentNeckRotation = Quaternion.Slerp( currentNeckRotation, goalNeckRotation, 0.25f );
-        neckJoint.localRotation = currentNeckRotation * baseNeckRotation;
+        neckJoint.localRotation = Quaternion.Slerp( Quaternion.identity, currentNeckRotation, percentageToRotateNeck ) * baseNeckRotation;
 
         // orient forward
         trackLeft.rotation = trackRight.rotation = GetFinOrientation();

@@ -14,7 +14,7 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 9
-  m_Fog: 1
+  m_Fog: 0
   m_FogColor: {r: 0.5647059, g: 0.6784314, b: 0.9411765, a: 1}
   m_FogMode: 2
   m_FogDensity: 0.06
@@ -362,7 +362,7 @@ GameObject:
   - component: {fileID: 288645971}
   - component: {fileID: 288645970}
   - component: {fileID: 288645969}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Terrain3,4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -455,7 +455,7 @@ GameObject:
   - component: {fileID: 308453392}
   - component: {fileID: 308453391}
   - component: {fileID: 308453390}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Terrain4,2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -733,7 +733,7 @@ GameObject:
   - component: {fileID: 404443935}
   - component: {fileID: 404443934}
   - component: {fileID: 404443933}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Terrain1,4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -992,7 +992,7 @@ GameObject:
   - component: {fileID: 526888891}
   - component: {fileID: 526888890}
   - component: {fileID: 526888889}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Terrain0,2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1085,7 +1085,7 @@ GameObject:
   - component: {fileID: 622172733}
   - component: {fileID: 622172732}
   - component: {fileID: 622172731}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Terrain0,4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1349,7 +1349,7 @@ GameObject:
   - component: {fileID: 715404171}
   - component: {fileID: 715404170}
   - component: {fileID: 715404169}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Terrain0,3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1687,7 +1687,7 @@ GameObject:
   - component: {fileID: 796377953}
   - component: {fileID: 796377952}
   - component: {fileID: 796377951}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Terrain1,0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2474,7 +2474,7 @@ GameObject:
   - component: {fileID: 1001802075}
   - component: {fileID: 1001802074}
   - component: {fileID: 1001802073}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Terrain2,4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2567,7 +2567,7 @@ GameObject:
   - component: {fileID: 1025067991}
   - component: {fileID: 1025067990}
   - component: {fileID: 1025067989}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Terrain0,0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2660,7 +2660,7 @@ GameObject:
   - component: {fileID: 1032715687}
   - component: {fileID: 1032715686}
   - component: {fileID: 1032715685}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Terrain3,0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2753,7 +2753,7 @@ GameObject:
   - component: {fileID: 1036308653}
   - component: {fileID: 1036308652}
   - component: {fileID: 1036308651}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Terrain4,1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3148,40 +3148,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!21 &1288448215
-Material:
-  serializedVersion: 6
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Sprites/Default
-  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: 
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _AlphaTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats:
-    - PixelSnap: 0
-    - _EnableExternalAlpha: 0
-    m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1306502548
 GameObject:
   m_ObjectHideFlags: 0
@@ -3194,7 +3160,7 @@ GameObject:
   - component: {fileID: 1306502552}
   - component: {fileID: 1306502551}
   - component: {fileID: 1306502550}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Terrain2,0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3287,7 +3253,7 @@ GameObject:
   - component: {fileID: 1314169978}
   - component: {fileID: 1314169977}
   - component: {fileID: 1314169976}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Terrain4,0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3460,7 +3426,7 @@ GameObject:
   - component: {fileID: 1414726741}
   - component: {fileID: 1414726740}
   - component: {fileID: 1414726739}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Terrain4,3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3553,7 +3519,7 @@ GameObject:
   - component: {fileID: 1477726195}
   - component: {fileID: 1477726194}
   - component: {fileID: 1477726193}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Terrain0,1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3806,7 +3772,7 @@ GameObject:
   - component: {fileID: 1545990014}
   - component: {fileID: 1545990013}
   - component: {fileID: 1545990012}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Terrain4,4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3934,6 +3900,40 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!21 &1579844744
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Sprites/Default
+  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AlphaTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - PixelSnap: 0
+    - _EnableExternalAlpha: 0
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Flip: {r: 1, g: 1, b: 1, a: 1}
+    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1001 &1664042023
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4009,7 +4009,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: fc1823bdae9b54e418f19c7981911868, type: 2}
+      objectReference: {fileID: 2100000, guid: 934dabdd947ef744e8e9e1b00106c418, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 418519ee5277eb6468b5b7d6cac28feb, type: 3}
 --- !u!114 &1711806352
@@ -5132,7 +5132,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1288448215}
+  - {fileID: 1579844744}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5159,7 +5159,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1711942233}
-  m_Mesh: {fileID: 1739410990}
+  m_Mesh: {fileID: 1724249026}
 --- !u!114 &1722163543
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5223,7 +5223,7 @@ MonoBehaviour:
   - {x: -1.65, y: 0.01, z: -1.275}
   - {x: -1.65, y: 0.01, z: 1.275}
   - {x: 1.65, y: 0.01, z: 1.275}
---- !u!43 &1739410990
+--- !u!43 &1724249026
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

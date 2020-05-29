@@ -15,6 +15,7 @@ public class FlatWaterWaves : MonoBehaviour
     //public float worldRadius = 100;  // ???
     //public float positionCutoff = 1.5f;
     private MeshFilter myMesh;
+    private MeshCollider myCollider;
 
     public void Start()
     {
@@ -31,6 +32,7 @@ public class FlatWaterWaves : MonoBehaviour
         progress = 0.0f;
 
         myMesh = GetComponent<MeshFilter>();
+        myCollider = GetComponent<MeshCollider>();
         ConstructMesh();
     }
 
@@ -69,6 +71,9 @@ public class FlatWaterWaves : MonoBehaviour
         m.vertices = vertices;
         m.RecalculateNormals();
         m.RecalculateTangents();
+
+        // reset collider too 
+        myCollider.sharedMesh = m;
     }
 
     // "y" === z 

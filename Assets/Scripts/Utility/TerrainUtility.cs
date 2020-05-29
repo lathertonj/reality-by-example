@@ -46,5 +46,30 @@ public class TerrainUtility
         td.SetHeights( 0, 0, newHeights );
     }
 
+    public static bool AboveLayer( Vector3 position, int layer )
+    {
+        Vector3 _;
+        return AboveLayer( position, layer, out _ );
+    }
+
+    public static bool AboveLayer( Vector3 position, int layer, out Vector3 hitPoint )
+    {
+        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
+        int layerMask = 1 << layer;
+
+        RaycastHit hit;
+        // Check from a point really high above us, in the downward direction (in case we are below terrain)
+        if( Physics.Raycast( position, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
+        {
+            hitPoint = hit.point;
+            return true;
+        }
+        else
+        {
+            hitPoint = default( Vector3 );
+            return false;
+        }
+    }
+
     
 }

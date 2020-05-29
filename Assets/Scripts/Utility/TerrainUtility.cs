@@ -65,5 +65,25 @@ public class TerrainUtility
         return TerrainUtility.AboveLayer( position + maxDistance * upDirection, -upDirection, maxDistance, layer );
     }
 
+
+    public static float DistanceToLayerFromAbove( Vector3 position, Vector3 direction, int layer )
+    {
+        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
+        int layerMask = 1 << layer;
+
+        RaycastHit hit;
+        // check if thing is in direction
+        if( Physics.Raycast( position, direction, out hit, Mathf.Infinity, layerMask ) )
+        {
+            // how far away is it?
+            return hit.distance;
+        }
+        else
+        {
+            // it is _so_ far away!
+            return Mathf.Infinity;
+        }
+    }
+
     
 }

@@ -158,6 +158,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     
 
     // Update is called once per frame
+    float goalSpeedMultiplier = 0, currentSpeedMultiplier = 0;
     void Update()
     {
         if( runtimeMode )
@@ -523,7 +524,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // boids
             Vector3 examplesAttraction = ProcessBoidsExamplesAttraction();
             Vector3 boidAvoidance = ProcessBoidsOthersAvoidance();
-            Vector3 groundAvoidance, waterAvoidance;
+            Vector3 groundAvoidance, cliffAvoidance, waterAvoidance;
             Vector3 velocity = examplesAttraction + boidAvoidance;
 
             // dependent on creature type
@@ -532,12 +533,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 case CreatureType.Flying:
                     // extra boids
                     groundAvoidance = ProcessBoidsGroundAvoidance();
+                    cliffAvoidance = ProcessBoidsCliffAvoidance();
                     // avoid water below us
                     waterAvoidance = ProcessBoidsWaterAvoidance( Vector3.down, true );
 
 
                     // add to velocity
-                    velocity += groundAvoidance + waterAvoidance;
+                    velocity += groundAvoidance + cliffAvoidance + waterAvoidance;
                     break;
                 case CreatureType.Land:
                     // avoid edge of water
@@ -550,11 +552,22 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 case CreatureType.Water:
                     // TODO: extra boid of avoiding the ground AND the top of the water! :)
                     groundAvoidance = ProcessBoidsGroundAvoidance();
+                    cliffAvoidance = ProcessBoidsCliffAvoidance();
                     // if water is above us, go down
                     waterAvoidance = ProcessBoidsWaterAvoidance( Vector3.up, false );
 
+                    // TODO: if ground AND water are in effect, it means it's getting shallow here
+                    // --> add pressure to turn around
+                    // - do this by SAVING the opposite direction (x,z) from this thing but SAVE that
+                    //   and use it until we're out of the shallow again -- otherwise we'll spin around
+                    //   in the shallows
+                    // add new float for "shallow avoidance"
+
+                    debug1.position = transform.position + groundAvoidance;
+                    debug2.position = transform.position + waterAvoidance;
+
                     // add to velocity
-                    velocity += groundAvoidance + waterAvoidance;
+                    velocity += groundAvoidance + cliffAvoidance + waterAvoidance;
                     break;
                 default:
                     Debug.LogWarning( "unknown type of creature" );
@@ -571,9 +584,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 // boids desired rotation is to move in velocity direction
                 Quaternion boidsDesiredRotation = Quaternion.LookRotation( velocity, Vector3.up );
 
-                debug1.position = transform.position + rotationWithoutBoids * Vector3.forward;
-                debug2.position = transform.position + boidsDesiredRotation * Vector3.forward;
-
                 // difference between the desired boids position and rotation without boids
                 Quaternion boidsDesiredChange = boidsDesiredRotation * Quaternion.Inverse( rotationWithoutBoids );
 
@@ -585,7 +595,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
                 // the actual goal orientation
                 goalBaseRotation = combinedSeamHideAndBoidsRotation * rotationFromAnimation;
-                debug3.position = transform.position + goalBaseRotation * Vector3.forward;
+                // debug3.position = transform.position + goalBaseRotation * Vector3.forward;
 
                 // update seam hide to be in line with output from most recent boids
                 seamHideRotation = Quaternion.AngleAxis( goalBaseRotation.eulerAngles.y - rotationFromAnimation.eulerAngles.y, Vector3.up );
@@ -596,9 +606,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 // don't use boids if the effect is not strong
                 goalBaseRotation = seamHideRotation * rotationFromAnimation;
             
-                debug1.position = transform.position + 1 * ( goalBaseRotation * Vector3.forward );
-                debug2.position = transform.position + 1 * ( goalBaseRotation * Vector3.forward );
-                debug3.position = transform.position + 1 * ( goalBaseRotation * Vector3.forward );
+                debug1.position = transform.position;
+                debug2.position = transform.position;
             }
 
             // only use y rotation for land creatures
@@ -1134,30 +1143,77 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return nearestPointOnTerrain + hugTerrainHeight * Vector3.up;
     }
 
-    float goalSpeedMultiplier = 0, currentSpeedMultiplier = 0;
-    float goalAvoidanceAmount = 0, currentAvoidanceAmount = 0;
+    float goalGroundAvoidanceAmount = 0, currentGroundAvoidanceAmount = 0;
     Vector3 ProcessBoidsGroundAvoidance()
     {
-        // if the forward direction has land, avoid it
-        if( WillCollideWithTerrainSoon() || TooLowAboveTerrain() )
+        // if we are close to the ground, avoid it
+        if( TooLowAboveTerrain() )
         {
-            goalAvoidanceAmount = 1;
+            goalGroundAvoidanceAmount = 1;
         }
         else
         {
-            goalAvoidanceAmount = 0;
+            goalGroundAvoidanceAmount = 0;
         }
-        currentAvoidanceAmount += boidSlew * ( goalAvoidanceAmount - currentAvoidanceAmount );
+        currentGroundAvoidanceAmount += boidSlew * ( goalGroundAvoidanceAmount - currentGroundAvoidanceAmount );
 
-        if( currentAvoidanceAmount < 0.01f )
+        if( currentGroundAvoidanceAmount < 0.01f )
         {
             return Vector3.zero;
         }
         
-        Vector3 upDirection = currentAvoidanceAmount.PowMapClamp( 0, 1, 0, avoidTerrainIntensity, 0.6f ) * Vector3.up;
+        Vector3 upDirection = currentGroundAvoidanceAmount.PowMapClamp( 0, 1, 0, avoidTerrainIntensity, 0.6f ) * Vector3.up;
         // boids STRAIGHT up never goes well. add a LITTLE forward
         Vector3 forwardDirection = 0.01f * transform.forward;
         return upDirection + forwardDirection;
+    }
+
+
+    float goalCliffAvoidanceAmount = 0, currentCliffAvoidanceAmount = 0;
+    bool isCliffDirectionChosen = false;
+    Vector3 cliffDirection = Vector3.zero;
+    Vector3 ProcessBoidsCliffAvoidance()
+    {
+        // if the forward direction has land, avoid it
+        if( WillCollideWithTerrainSoon() )
+        {
+            goalCliffAvoidanceAmount = 1;
+            if( !isCliffDirectionChosen )
+            {
+                // evade directions are to the left and right but without y direction
+                Vector3 evadeDirectionL, evadeDirectionR;
+                evadeDirectionL = -modelBaseToAnimate.right;
+                evadeDirectionR = modelBaseToAnimate.right;
+                evadeDirectionL.y = evadeDirectionR.y = 0;
+                evadeDirectionL.Normalize();
+                evadeDirectionR.Normalize();
+                
+                // go in the direction that has a cliff farther away
+                float cliffDistanceL = TerrainUtility.DistanceToLayerFromAbove( modelBaseToAnimate.position, evadeDirectionL, 8 );
+                float cliffDistanceR = TerrainUtility.DistanceToLayerFromAbove( modelBaseToAnimate.position, evadeDirectionR, 8 );
+                cliffDirection = cliffDistanceL >= cliffDistanceR ? evadeDirectionL : evadeDirectionR;
+
+                // keep using this direction ONLY if we found a direction that avoids the terrain
+                // otherwise, try again next time after rotating a bit from this direction
+                isCliffDirectionChosen = Mathf.Min( cliffDistanceL, cliffDistanceR ) >= avoidTerrainDetection;
+                
+            }
+        }
+        else
+        {
+            goalCliffAvoidanceAmount = 0;
+        }
+        currentCliffAvoidanceAmount += boidSlew * ( goalCliffAvoidanceAmount - currentCliffAvoidanceAmount );
+
+        if( currentCliffAvoidanceAmount < 0.01f )
+        {
+            isCliffDirectionChosen = false;
+            return Vector3.zero;
+        }
+
+        float evadeIntensity = currentCliffAvoidanceAmount.PowMapClamp( 0, 1, 0, avoidTerrainIntensity, 0.6f );
+        Vector3 evadeDirection = evadeIntensity * cliffDirection;
+        return evadeDirection;
     }
 
     float goalWaterAvoidanceAmount = 0, currentWaterAvoidanceAmount = 0;
@@ -1167,10 +1223,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         if( WillCollideWithWaterSoon( shouldBeAboveWater ) || TooCloseToWater( checkDirection, shouldBeAboveWater ) )
         {
             goalWaterAvoidanceAmount = 1;
+            // Debug.Log( "water above me!" );
+            debug3.gameObject.SetActive( true );
         }
         else
         {
             goalWaterAvoidanceAmount = 0;
+            debug3.gameObject.SetActive( false );
         }
         currentWaterAvoidanceAmount += boidSlew * ( goalWaterAvoidanceAmount - currentWaterAvoidanceAmount );
 

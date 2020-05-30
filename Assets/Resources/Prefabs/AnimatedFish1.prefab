@@ -1181,7 +1181,7 @@ MonoBehaviour:
   boidUpSlew: 0.05
   boidDownSlew: 0.1
   hugTerrainHeight: 3
-  maxDistanceFromAnyExample: 50
+  maxDistanceFromAnyExample: 30
   distanceRampUpRange: 7
   rampUpSeverity: 1.5
   dataCollectionRate: 0.1

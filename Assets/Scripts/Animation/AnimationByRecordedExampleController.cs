@@ -1304,6 +1304,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         else if( VeryTooCloseToWater( checkDirection, shouldBeAboveWater ) )
         {
             // noooope
+            // TODO: this is not enough sometimes! sometimes the fish still fly up. why is that? :|
             goalWaterAvoidanceAmount = 5;
         }
         else

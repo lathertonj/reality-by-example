@@ -46,7 +46,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &846032921990820463
 Transform:
   m_ObjectHideFlags: 0
@@ -867,7 +867,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7846394826018904447
 Transform:
   m_ObjectHideFlags: 0
@@ -929,7 +929,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &8472822248599008394
 Transform:
   m_ObjectHideFlags: 0
@@ -1134,6 +1134,7 @@ MonoBehaviour:
   myLeft: {fileID: 2302054033576927003}
   myRight: {fileID: 7684383228682821790}
   neckJoint: {fileID: 6544506156176196300}
+  percentageToRotateNeck: 0.3
 --- !u!114 &2402370017722450626
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1174,10 +1175,10 @@ MonoBehaviour:
   motionSlowdownSlew: 0.01
   maxSpeed: 3
   avoidTerrainIntensity: 2
-  avoidTerrainDetection: 4
-  avoidTerrainMinheight: 1
-  boidSlew: 0.08
-  hugTerrainHeight: 2.5
+  avoidTerrainDetection: 2
+  avoidTerrainMinheight: 2
+  boidSlew: 0.03
+  hugTerrainHeight: 3
   maxDistanceFromAnyExample: 50
   distanceRampUpRange: 7
   rampUpSeverity: 1.5
@@ -1647,7 +1648,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7770078848347656962
 Transform:
   m_ObjectHideFlags: 0

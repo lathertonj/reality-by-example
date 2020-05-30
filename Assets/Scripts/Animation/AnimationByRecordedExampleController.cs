@@ -60,7 +60,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     public float avoidTerrainIntensity = 1f;
     public float avoidTerrainDetection = 2f;
     public float avoidTerrainMinheight = 1.5f;
-    public float boidSlew = 0.01f;
+    public float boidUpSlew = 0.05f, boidDownSlew = 0.1f;
     public float hugTerrainHeight = 0.5f;
 
     public float maxDistanceFromAnyExample = 15f;
@@ -128,6 +128,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
         // get neck reference
         myNeck = GetComponent<NeckRotatable>();
+
+        // compute cutoff
+        shallowCutoff = 0.05f * avoidTerrainMinheight;
     }
 
     public void AddToGroup( AnimationByRecordedExampleController groupLeader )
@@ -452,7 +455,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         runtimeMode = false;
     }
 
-    public Transform debug1, debug2, debug3;
+    public Transform debug1, debug2, debug3, debug4;
     private void RunOneFrameRegression()
     {
             // 1. Run regression and normalize to get relative levels of each animation
@@ -555,6 +558,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     cliffAvoidance = ProcessBoidsCliffAvoidance();
                     // if water is above us, go down
                     waterAvoidance = ProcessBoidsWaterAvoidance( false );
+                    // if it's too shallow, turn around
+                    Vector3 shallowAvoidance = ProcessBoidsShallowAvoidance( groundAvoidance, waterAvoidance );
 
                     // TODO: if ground AND water are in effect, it means it's getting shallow here
                     // --> add pressure to turn around
@@ -565,9 +570,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
                     debug1.position = transform.position + groundAvoidance;
                     debug2.position = transform.position + waterAvoidance;
+                    debug3.position = transform.position + shallowAvoidance;
+                    debug4.position = transform.position + cliffAvoidance;
 
-                    // add to velocity
-                    velocity += groundAvoidance + cliffAvoidance + waterAvoidance;
+                    // add to velocity. make shallow avoidance the most effective
+                    velocity += groundAvoidance + cliffAvoidance + waterAvoidance + 3.0f * shallowAvoidance;
                     break;
                 default:
                     Debug.LogWarning( "unknown type of creature" );
@@ -590,12 +597,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 // update seam hide rotation by a certain percentage of the boids desired change, according to strength of boids
                 // maximum = velocity of 1 --> 100% of the way there
                 float amountToChange = velocity.magnitude.MapClamp( 0, 1, 0, 1f );
-                //Debug.Log( amountToChange );
                 combinedSeamHideAndBoidsRotation = Quaternion.Slerp( seamHideRotation, boidsDesiredChange * seamHideRotation, amountToChange );
 
                 // the actual goal orientation
                 goalBaseRotation = combinedSeamHideAndBoidsRotation * rotationFromAnimation;
-                // debug3.position = transform.position + goalBaseRotation * Vector3.forward;
 
                 // update seam hide to be in line with output from most recent boids
                 seamHideRotation = Quaternion.AngleAxis( goalBaseRotation.eulerAngles.y - rotationFromAnimation.eulerAngles.y, Vector3.up );
@@ -1143,6 +1148,24 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return nearestPointOnTerrain + hugTerrainHeight * Vector3.up;
     }
 
+    // don't slew: we often "get away" from the avoidance thing
+    // LONG before we slew up to max value, and then 
+    // it takes forever to get back to min value because we didn't get
+    // to max. so instead just lerp around -- that way the ramp in
+    // and ramp out will be symmetric
+    // later animation stages are slewed anyway!
+    private float LerpSlew( float current, float goal )
+    {
+        if( current <= goal )
+        {
+            return Mathf.Min( current + boidUpSlew, goal );
+        }
+        else
+        {
+            return Mathf.Max( current - boidDownSlew, goal );
+        }
+    }
+
     float goalGroundAvoidanceAmount = 0, currentGroundAvoidanceAmount = 0;
     Vector3 ProcessBoidsGroundAvoidance()
     {
@@ -1155,14 +1178,14 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         {
             goalGroundAvoidanceAmount = 0;
         }
-        currentGroundAvoidanceAmount += boidSlew * ( goalGroundAvoidanceAmount - currentGroundAvoidanceAmount );
+        currentGroundAvoidanceAmount = LerpSlew( currentGroundAvoidanceAmount, goalGroundAvoidanceAmount );
 
         if( currentGroundAvoidanceAmount < 0.01f )
         {
             return Vector3.zero;
         }
         
-        Vector3 upDirection = currentGroundAvoidanceAmount.PowMapClamp( 0, 1, 0, avoidTerrainIntensity, 0.6f ) * Vector3.up;
+        Vector3 upDirection = currentGroundAvoidanceAmount.MapClamp( 0, 1, 0, avoidTerrainIntensity ) * Vector3.up;
         // boids STRAIGHT up never goes well. add a LITTLE forward
         Vector3 forwardDirection = 0.01f * transform.forward;
         return upDirection + forwardDirection;
@@ -1203,7 +1226,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         {
             goalCliffAvoidanceAmount = 0;
         }
-        currentCliffAvoidanceAmount += boidSlew * ( goalCliffAvoidanceAmount - currentCliffAvoidanceAmount );
+        currentCliffAvoidanceAmount = LerpSlew( currentCliffAvoidanceAmount, goalCliffAvoidanceAmount );
 
         if( currentCliffAvoidanceAmount < 0.01f )
         {
@@ -1211,7 +1234,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             return Vector3.zero;
         }
 
-        float evadeIntensity = currentCliffAvoidanceAmount.PowMapClamp( 0, 1, 0, avoidTerrainIntensity, 0.6f );
+        float evadeIntensity = currentCliffAvoidanceAmount.MapClamp( 0, 1, 0, avoidTerrainIntensity );
         Vector3 evadeDirection = evadeIntensity * cliffDirection;
         return evadeDirection;
     }
@@ -1268,7 +1291,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         {
             goalWaterAvoidanceAmount = 0;
         }
-        currentWaterAvoidanceAmount += boidSlew * ( goalWaterAvoidanceAmount - currentWaterAvoidanceAmount );
+        currentWaterAvoidanceAmount = LerpSlew( currentWaterAvoidanceAmount, goalWaterAvoidanceAmount );
 
         if( currentWaterAvoidanceAmount < 0.01f )
         {
@@ -1276,10 +1299,48 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             return Vector3.zero;
         }
         
-        Vector3 avoidDirection = currentWaterAvoidanceAmount.PowMapClamp( 0, 1, 0, avoidTerrainIntensity, 0.6f ) * waterDirection;
+        Vector3 avoidDirection = currentWaterAvoidanceAmount.MapClamp( 0, 1, 0, avoidTerrainIntensity ) * waterDirection;
         // boids STRAIGHT up never goes well. add a LITTLE forward
         Vector3 forwardDirection = 0.01f * transform.forward;
         return avoidDirection + forwardDirection;
+    }
+
+
+    float goalShallowAvoidanceAmount = 0, currentShallowAvoidanceAmount = 0;
+    bool isShallowDirectionChosen = false;
+    Vector3 shallowDirection = Vector3.zero;
+    float shallowCutoff;
+    Vector3 ProcessBoidsShallowAvoidance( Vector3 groundAvoidance, Vector3 waterAvoidance )
+    {
+        // if the forward direction or check direction has Shallow, avoid it
+        if( groundAvoidance.magnitude > shallowCutoff
+          && waterAvoidance.magnitude > shallowCutoff )
+        {
+            goalShallowAvoidanceAmount = 1;
+            if( !isShallowDirectionChosen )
+            {
+                // go in opposite direction of the shallow
+                shallowDirection = -modelBaseToAnimate.forward;
+                shallowDirection.y = 0;
+                shallowDirection.Normalize();
+
+                // remember
+                isShallowDirectionChosen = true;
+            }
+        }
+        else
+        {
+            goalShallowAvoidanceAmount = 0;
+        }
+        currentShallowAvoidanceAmount = LerpSlew( currentShallowAvoidanceAmount, goalShallowAvoidanceAmount );
+
+        if( currentShallowAvoidanceAmount < 0.01f )
+        {
+            isShallowDirectionChosen = false;
+            return Vector3.zero;
+        }
+        
+        return currentShallowAvoidanceAmount.MapClamp( 0, 1, 0, avoidTerrainIntensity ) * shallowDirection;
     }
 
     Vector3 ProcessBoidsExamplesAttraction()

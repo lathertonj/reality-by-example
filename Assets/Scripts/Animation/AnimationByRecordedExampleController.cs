@@ -1262,6 +1262,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     // for any other direction: try turning left or right
     Vector3 ProcessBoidsWaterAvoidance( Vector3 checkDirection, bool shouldBeAboveWater )
     {
+        // TODO: last argument --> false to debug whether it's better to have land animals
+        // turn around instead of turn L/R when they get to water.
         return ProcessBoidsWaterAvoidance( checkDirection, shouldBeAboveWater, true );
     }
 

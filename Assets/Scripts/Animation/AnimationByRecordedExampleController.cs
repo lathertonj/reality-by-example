@@ -243,6 +243,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, newRotation, globalSlew ); 
                     break;
                 case CreatureType.Water:
+                    // check if we need to reset position
+                    if( TerrainUtility.FindTerrain<ConnectedTerrainController>( modelBaseToAnimate.position ) == null )
+                    {
+                        // we swam underground :( let's just go back to the start!
+                        ResetCreaturePosition( true );
+                        Debug.Log( "sucessfully reset!" );
+                    }
                     // move in the forward direction, with speed according to delayed limb movement
                     modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * baseVelocity;
                     break;
@@ -393,11 +400,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         // currentRuntimeFrame = 0;
 
         // to start water creatures, put them onto the ground == underwater, hopefully.
-        if( creatureType == CreatureType.Water )
-        {
-            Vector3 terrainNormal = Vector3.up;
-            modelBaseToAnimate.position = GetHugTerrainPoint( modelBaseToAnimate.position, out terrainNormal );
-        }
+        ResetCreaturePosition( false );
 
         switch( currentRecordingAndPlaybackMode )
         {
@@ -456,199 +459,199 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     //public Transform debug1, debug2, debug3, debug4;
     private void RunOneFrameRegression()
     {
-            // 1. Run regression and normalize to get relative levels of each animation
-            // 2. Average together all the results of that frame offset
-            // 3. Use that as the next goal position / rotation
-            double[] baseInput = FindBaseInput( modelBaseToAnimate.position );
+        // 1. Run regression and normalize to get relative levels of each animation
+        // 2. Average together all the results of that frame offset
+        // 3. Use that as the next goal position / rotation
+        double[] baseInput = FindBaseInput( modelBaseToAnimate.position );
 
-            // animation
-            double[] o = myAnimationRegression.Run( baseInput );
-            // normalize o
-            double sum = 0;
-            // clamp to [0, inf)
-            for( int i = 0; i < o.Length; i++ ) { o[i] = Mathf.Clamp( (float) o[i], 0, float.MaxValue ); }
-            // compute sum
-            for( int i = 0; i < o.Length; i++ ) { sum += o[i]; }
-            // divide by sum
-            for( int i = 0; i < o.Length; i++ ) { o[i] /= sum; }
+        // animation
+        double[] o = myAnimationRegression.Run( baseInput );
+        // normalize o
+        double sum = 0;
+        // clamp to [0, inf)
+        for( int i = 0; i < o.Length; i++ ) { o[i] = Mathf.Clamp( (float) o[i], 0, float.MaxValue ); }
+        // compute sum
+        for( int i = 0; i < o.Length; i++ ) { sum += o[i]; }
+        // divide by sum
+        for( int i = 0; i < o.Length; i++ ) { o[i] /= sum; }
 
-            // show activation
-            for( int i = 0; i < currentlyUsedExamples.Count; i++ ) 
+        // show activation
+        for( int i = 0; i < currentlyUsedExamples.Count; i++ ) 
+        {
+            currentlyUsedExamples[i].SetActivation( (float) o[i] );
+        }
+
+        // TODO: how to do a weighted average of Quaternion? maybe with slerp?
+        // see: https://stackoverflow.com/questions/12374087/average-of-multiple-quaternions
+        // average of many requires finding eigenvectors
+        // --> just slerp between the largest 2 -- we can still do a weighted avg of 2
+
+        // find top two indices
+        int mostProminent = 0, secondMostProminent = 0;
+        double mpAmount = 0;
+        for( int i = 0; i < o.Length; i++ )
+        {
+            if( o[i] > mpAmount )
             {
-                currentlyUsedExamples[i].SetActivation( (float) o[i] );
+                mpAmount = o[i];
+                secondMostProminent = mostProminent;
+                mostProminent = i;
             }
+        }
 
-            // TODO: how to do a weighted average of Quaternion? maybe with slerp?
-            // see: https://stackoverflow.com/questions/12374087/average-of-multiple-quaternions
-            // average of many requires finding eigenvectors
-            // --> just slerp between the largest 2 -- we can still do a weighted avg of 2
+        // re normalize 
+        float slerpAmount = (float) o[secondMostProminent] / (float) ( o[mostProminent] + o[secondMostProminent] );
 
-            // find top two indices
-            int mostProminent = 0, secondMostProminent = 0;
-            double mpAmount = 0;
-            for( int i = 0; i < o.Length; i++ )
-            {
-                if( o[i] > mpAmount )
-                {
-                    mpAmount = o[i];
-                    secondMostProminent = mostProminent;
-                    mostProminent = i;
-                }
-            }
+        // goal rotation is weighted average between the two most prominent animations
+        Quaternion rotationFromAnimation = Quaternion.Slerp(
+            GetBaseQuaternion( mostProminent, currentRuntimeFrame ),
+            GetBaseQuaternion( secondMostProminent, currentRuntimeFrame ),
+            slerpAmount
+        );
 
-            // re normalize 
-            float slerpAmount = (float) o[secondMostProminent] / (float) ( o[mostProminent] + o[secondMostProminent] );
-
-            // goal rotation is weighted average between the two most prominent animations
-            Quaternion rotationFromAnimation = Quaternion.Slerp(
-                GetBaseQuaternion( mostProminent, currentRuntimeFrame ),
-                GetBaseQuaternion( secondMostProminent, currentRuntimeFrame ),
+        // show on neck
+        if( myNeck != null )
+        {
+            // make invariant to the way we were facing at the start of the phrase
+            Quaternion frame0Position = Quaternion.Slerp(
+                GetBaseQuaternion( mostProminent, 0 ),
+                GetBaseQuaternion( secondMostProminent, 0 ),
                 slerpAmount
             );
+            Quaternion neckRotation = Quaternion.AngleAxis( -frame0Position.eulerAngles.y, Vector3.up ) * rotationFromAnimation;
 
-            // show on neck
-            if( myNeck != null )
+            // set
+            myNeck.SetNeckRotation( neckRotation );
+        }
+
+        // compute boids
+        // boids
+        Vector3 examplesAttraction = ProcessBoidsExamplesAttraction();
+        Vector3 boidAvoidance = ProcessBoidsOthersAvoidance();
+        Vector3 groundAvoidance, cliffAvoidance, waterAvoidance;
+        Vector3 velocity = examplesAttraction + boidAvoidance;
+
+        // dependent on creature type
+        switch( creatureType )
+        {
+            case CreatureType.Flying:
+                // extra boids
+                groundAvoidance = ProcessBoidsGroundAvoidance();
+                cliffAvoidance = ProcessBoidsCliffAvoidance();
+                // avoid water below us
+                waterAvoidance = ProcessBoidsWaterAvoidance( true );
+
+
+                // add to velocity
+                velocity += groundAvoidance + cliffAvoidance + waterAvoidance;
+                break;
+            case CreatureType.Land:
+                // avoid edge of water
+                Vector3 waterDirection = modelBaseToAnimate.forward + Vector3.down;
+                waterDirection.Normalize();
+                // make more important than other features
+                waterAvoidance = 1.7f * ProcessBoidsWaterAvoidance( waterDirection, true );
+                velocity += waterAvoidance;
+                break;
+            case CreatureType.Water:
+                // TODO: extra boid of avoiding the ground AND the top of the water! :)
+                groundAvoidance = ProcessBoidsGroundAvoidance();
+                cliffAvoidance = ProcessBoidsCliffAvoidance();
+                // if water is above us, go down
+                waterAvoidance = ProcessBoidsWaterAvoidance( false );
+                // if it's too shallow, turn around
+                Vector3 shallowAvoidance = ProcessBoidsShallowAvoidance( groundAvoidance, waterAvoidance );
+
+                // debug1.position = transform.position + groundAvoidance;
+                // debug2.position = transform.position + waterAvoidance;
+                // debug3.position = transform.position + shallowAvoidance;
+                // debug4.position = transform.position + cliffAvoidance;
+
+                // add to velocity. make shallow avoidance the most effective
+                velocity += groundAvoidance + cliffAvoidance + waterAvoidance + 3.0f * shallowAvoidance;
+                break;
+            default:
+                Debug.LogWarning( "unknown type of creature" );
+                break;
+        }
+
+
+        if( velocity.magnitude > 0.005f )
+        {
+            // rotate the animation by whatever angle we were at when we started
+            // this loop
+            Quaternion rotationWithoutBoids = seamHideRotation * rotationFromAnimation;
+
+            // boids desired rotation is to move in velocity direction
+            Quaternion boidsDesiredRotation = Quaternion.LookRotation( velocity, Vector3.up );
+
+            // difference between the desired boids position and rotation without boids
+            Quaternion boidsDesiredChange = boidsDesiredRotation * Quaternion.Inverse( rotationWithoutBoids );
+
+            // update seam hide rotation by a certain percentage of the boids desired change, according to strength of boids
+            // maximum = velocity of 1 --> 100% of the way there
+            float amountToChange = velocity.magnitude.MapClamp( 0, 1, 0, 1f );
+            combinedSeamHideAndBoidsRotation = Quaternion.Slerp( seamHideRotation, boidsDesiredChange * seamHideRotation, amountToChange );
+
+            // the actual goal orientation
+            goalBaseRotation = combinedSeamHideAndBoidsRotation * rotationFromAnimation;
+
+            // update seam hide to be in line with output from most recent boids
+            seamHideRotation = Quaternion.AngleAxis( goalBaseRotation.eulerAngles.y - rotationFromAnimation.eulerAngles.y, Vector3.up );
+
+        }
+        else
+        {
+            // don't use boids if the effect is not strong
+            goalBaseRotation = seamHideRotation * rotationFromAnimation;
+        }
+
+        // only use y rotation for land creatures
+        goalBaseRotation =  ProcessGoalRotation( goalBaseRotation );
+
+
+        // weighted average of vectors:
+        // compute the relative position goals
+        for( int i = 0; i < goalLocalPositions.Length; i++ )
+        {
+            goalLocalPositions[i] = Vector3.zero;
+
+            // TODO: number of examples not necessarily same as number of animations..??? some examples may reuse the same animation
+            // but in different positions. I smell a redesign!
+            for( int whichAnimation = 0; whichAnimation < currentlyUsedExamples.Count; whichAnimation++ )
             {
-                // make invariant to the way we were facing at the start of the phrase
-                Quaternion frame0Position = Quaternion.Slerp(
-                    GetBaseQuaternion( mostProminent, 0 ),
-                    GetBaseQuaternion( secondMostProminent, 0 ),
-                    slerpAmount
-                );
-                Quaternion neckRotation = Quaternion.AngleAxis( -frame0Position.eulerAngles.y, Vector3.up ) * rotationFromAnimation;
-
-                // set
-                myNeck.SetNeckRotation( neckRotation );
-            }
-
-            // compute boids
-            // boids
-            Vector3 examplesAttraction = ProcessBoidsExamplesAttraction();
-            Vector3 boidAvoidance = ProcessBoidsOthersAvoidance();
-            Vector3 groundAvoidance, cliffAvoidance, waterAvoidance;
-            Vector3 velocity = examplesAttraction + boidAvoidance;
-
-            // dependent on creature type
-            switch( creatureType )
-            {
-                case CreatureType.Flying:
-                    // extra boids
-                    groundAvoidance = ProcessBoidsGroundAvoidance();
-                    cliffAvoidance = ProcessBoidsCliffAvoidance();
-                    // avoid water below us
-                    waterAvoidance = ProcessBoidsWaterAvoidance( true );
-
-
-                    // add to velocity
-                    velocity += groundAvoidance + cliffAvoidance + waterAvoidance;
-                    break;
-                case CreatureType.Land:
-                    // avoid edge of water
-                    Vector3 waterDirection = modelBaseToAnimate.forward + Vector3.down;
-                    waterDirection.Normalize();
-                    // make more important than other features
-                    waterAvoidance = 1.7f * ProcessBoidsWaterAvoidance( waterDirection, true );
-                    velocity += waterAvoidance;
-                    break;
-                case CreatureType.Water:
-                    // TODO: extra boid of avoiding the ground AND the top of the water! :)
-                    groundAvoidance = ProcessBoidsGroundAvoidance();
-                    cliffAvoidance = ProcessBoidsCliffAvoidance();
-                    // if water is above us, go down
-                    waterAvoidance = ProcessBoidsWaterAvoidance( false );
-                    // if it's too shallow, turn around
-                    Vector3 shallowAvoidance = ProcessBoidsShallowAvoidance( groundAvoidance, waterAvoidance );
-
-                    // debug1.position = transform.position + groundAvoidance;
-                    // debug2.position = transform.position + waterAvoidance;
-                    // debug3.position = transform.position + shallowAvoidance;
-                    // debug4.position = transform.position + cliffAvoidance;
-
-                    // add to velocity. make shallow avoidance the most effective
-                    velocity += groundAvoidance + cliffAvoidance + waterAvoidance + 3.0f * shallowAvoidance;
-                    break;
-                default:
-                    Debug.LogWarning( "unknown type of creature" );
-                    break;
-            }
-
-
-            if( velocity.magnitude > 0.005f )
-            {
-                // rotate the animation by whatever angle we were at when we started
-                // this loop
-                Quaternion rotationWithoutBoids = seamHideRotation * rotationFromAnimation;
-
-                // boids desired rotation is to move in velocity direction
-                Quaternion boidsDesiredRotation = Quaternion.LookRotation( velocity, Vector3.up );
-
-                // difference between the desired boids position and rotation without boids
-                Quaternion boidsDesiredChange = boidsDesiredRotation * Quaternion.Inverse( rotationWithoutBoids );
-
-                // update seam hide rotation by a certain percentage of the boids desired change, according to strength of boids
-                // maximum = velocity of 1 --> 100% of the way there
-                float amountToChange = velocity.magnitude.MapClamp( 0, 1, 0, 1f );
-                combinedSeamHideAndBoidsRotation = Quaternion.Slerp( seamHideRotation, boidsDesiredChange * seamHideRotation, amountToChange );
-
-                // the actual goal orientation
-                goalBaseRotation = combinedSeamHideAndBoidsRotation * rotationFromAnimation;
-
-                // update seam hide to be in line with output from most recent boids
-                seamHideRotation = Quaternion.AngleAxis( goalBaseRotation.eulerAngles.y - rotationFromAnimation.eulerAngles.y, Vector3.up );
+                // weighted sum
+                goalLocalPositions[i] += (float) o[whichAnimation] * GetLocalPosition( i, whichAnimation, currentRuntimeFrame );
 
             }
-            else
-            {
-                // don't use boids if the effect is not strong
-                goalBaseRotation = seamHideRotation * rotationFromAnimation;
-            }
+        }
 
-            // only use y rotation for land creatures
-            goalBaseRotation =  ProcessGoalRotation( goalBaseRotation );
+        // sound
+        if( mySounder )
+        {
+            // compute features
+            float currentHeight = 0, currentSteepness = 0, heightAboveTerrain = 0;
+            FindTerrainInformation( out currentHeight, out currentSteepness, out heightAboveTerrain );
+            mySounder.Predict( SoundInput(
+                modelBaseToAnimate.rotation,
+                currentHeight,
+                currentSteepness,
+                heightAboveTerrain
+            ) );
+        }
 
+        currentRuntimeFrame++;
 
-            // weighted average of vectors:
-            // compute the relative position goals
-            for( int i = 0; i < goalLocalPositions.Length; i++ )
-            {
-                goalLocalPositions[i] = Vector3.zero;
-
-                // TODO: number of examples not necessarily same as number of animations..??? some examples may reuse the same animation
-                // but in different positions. I smell a redesign!
-                for( int whichAnimation = 0; whichAnimation < currentlyUsedExamples.Count; whichAnimation++ )
-                {
-                    // weighted sum
-                    goalLocalPositions[i] += (float) o[whichAnimation] * GetLocalPosition( i, whichAnimation, currentRuntimeFrame );
-
-                }
-            }
-
-            // sound
-            if( mySounder )
-            {
-                // compute features
-                float currentHeight = 0, currentSteepness = 0, heightAboveTerrain = 0;
-                FindTerrainInformation( out currentHeight, out currentSteepness, out heightAboveTerrain );
-                mySounder.Predict( SoundInput(
-                    modelBaseToAnimate.rotation,
-                    currentHeight,
-                    currentSteepness,
-                    heightAboveTerrain
-                ) );
-            }
-
-            currentRuntimeFrame++;
-
-            // update seam hiding rotation:
-            // if the next frame represents "restarting" the most prominent animation
-            if( mostProminent < currentlyUsedExamples.Count && currentRuntimeFrame % currentlyUsedExamples[ mostProminent ].baseExamples.Count == 0 )
-            {
-                seamHideRotation = Quaternion.AngleAxis( 
-                    goalBaseRotation.eulerAngles.y - currentlyUsedExamples[ mostProminent ].baseExamples[0].rotation.eulerAngles.y, 
-                    Vector3.up
-                );
-                currentRuntimeFrame = 0;
-            }
+        // update seam hiding rotation:
+        // if the next frame represents "restarting" the most prominent animation
+        if( mostProminent < currentlyUsedExamples.Count && currentRuntimeFrame % currentlyUsedExamples[ mostProminent ].baseExamples.Count == 0 )
+        {
+            seamHideRotation = Quaternion.AngleAxis( 
+                goalBaseRotation.eulerAngles.y - currentlyUsedExamples[ mostProminent ].baseExamples[0].rotation.eulerAngles.y, 
+                Vector3.up
+            );
+            currentRuntimeFrame = 0;
+        }
         
     }
 
@@ -1061,6 +1064,21 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         }
 
         haveTrained = true;
+    }
+
+
+    void ResetCreaturePosition( bool useExamplePosition )
+    {
+        // for water types, put them underneath their first example
+        // which is hopefully above water!
+        if( creatureType == CreatureType.Water )
+        {
+            Vector3 terrainNormal = Vector3.up;
+            modelBaseToAnimate.position = GetHugTerrainPoint( 
+                useExamplePosition ? examples[0].transform.position : modelBaseToAnimate.position, 
+                out terrainNormal
+            );
+        }
     }
 
     Vector3 averageExamplePosition;

@@ -1176,8 +1176,9 @@ MonoBehaviour:
   maxSpeed: 3
   avoidTerrainIntensity: 2
   avoidTerrainDetection: 2
-  avoidTerrainMinheight: 2
-  boidSlew: 0.03
+  avoidTerrainMinheight: 1.5
+  boidUpSlew: 0.05
+  boidDownSlew: 0.1
   hugTerrainHeight: 3
   maxDistanceFromAnyExample: 50
   distanceRampUpRange: 7

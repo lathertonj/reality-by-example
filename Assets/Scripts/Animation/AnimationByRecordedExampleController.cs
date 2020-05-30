@@ -60,6 +60,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     public float avoidTerrainIntensity = 1f;
     public float avoidTerrainDetection = 2f;
     public float avoidTerrainMinheight = 1.5f;
+    public float avoidWaterMinDistance = 0.5f;
     public float boidUpSlew = 0.05f, boidDownSlew = 0.1f;
     public float hugTerrainHeight = 0.5f;
 
@@ -128,9 +129,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
         // get neck reference
         myNeck = GetComponent<NeckRotatable>();
-
-        // compute cutoff
-        shallowCutoff = 0.05f * avoidTerrainMinheight;
     }
 
     public void AddToGroup( AnimationByRecordedExampleController groupLeader )
@@ -455,7 +453,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         runtimeMode = false;
     }
 
-    public Transform debug1, debug2, debug3, debug4;
+    //public Transform debug1, debug2, debug3, debug4;
     private void RunOneFrameRegression()
     {
             // 1. Run regression and normalize to get relative levels of each animation
@@ -561,17 +559,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     // if it's too shallow, turn around
                     Vector3 shallowAvoidance = ProcessBoidsShallowAvoidance( groundAvoidance, waterAvoidance );
 
-                    // TODO: if ground AND water are in effect, it means it's getting shallow here
-                    // --> add pressure to turn around
-                    // - do this by SAVING the opposite direction (x,z) from this thing but SAVE that
-                    //   and use it until we're out of the shallow again -- otherwise we'll spin around
-                    //   in the shallows
-                    // add new float for "shallow avoidance"
-
-                    debug1.position = transform.position + groundAvoidance;
-                    debug2.position = transform.position + waterAvoidance;
-                    debug3.position = transform.position + shallowAvoidance;
-                    debug4.position = transform.position + cliffAvoidance;
+                    // debug1.position = transform.position + groundAvoidance;
+                    // debug2.position = transform.position + waterAvoidance;
+                    // debug3.position = transform.position + shallowAvoidance;
+                    // debug4.position = transform.position + cliffAvoidance;
 
                     // add to velocity. make shallow avoidance the most effective
                     velocity += groundAvoidance + cliffAvoidance + waterAvoidance + 3.0f * shallowAvoidance;
@@ -610,9 +601,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             {
                 // don't use boids if the effect is not strong
                 goalBaseRotation = seamHideRotation * rotationFromAnimation;
-            
-                debug1.position = transform.position;
-                debug2.position = transform.position;
             }
 
             // only use y rotation for land creatures
@@ -1093,14 +1081,14 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return TerrainUtility.BelowOneSidedLayer( modelBaseToAnimate.position, modelBaseToAnimate.forward, avoidTerrainDetection, layer );
     }
 
-    private bool DirectionWillCollideWithLayerFromAbove( Vector3 direction, int layer )
+    private bool DirectionWillCollideWithLayerFromAbove( Vector3 direction, float checkDist, int layer )
     {
-        return TerrainUtility.AboveLayer( modelBaseToAnimate.position, direction, avoidTerrainMinheight, layer );
+        return TerrainUtility.AboveLayer( modelBaseToAnimate.position, direction, checkDist, layer );
     }
 
-    private bool DirectionWillCollideWithLayerFromBelow( Vector3 direction, int layer )
+    private bool DirectionWillCollideWithLayerFromBelow( Vector3 direction, float checkDist, int layer )
     {
-        return TerrainUtility.BelowOneSidedLayer( modelBaseToAnimate.position, direction, avoidTerrainMinheight, layer );
+        return TerrainUtility.BelowOneSidedLayer( modelBaseToAnimate.position, direction, checkDist, layer );
     }
 
     private bool WillCollideWithTerrainSoon()
@@ -1112,7 +1100,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     private bool TooLowAboveTerrain()
     {
         // 8: connected terrains
-        return DirectionWillCollideWithLayerFromAbove( Vector3.down, 8 );
+        return DirectionWillCollideWithLayerFromAbove( Vector3.down, avoidTerrainMinheight, 8 );
     }
 
     private bool WillCollideWithWaterSoon( bool fromAbove )
@@ -1133,12 +1121,20 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         // 11: water
         if( fromAbove )
         {
-            return DirectionWillCollideWithLayerFromAbove( direction, 11 );
+            // from above, avoid it just like terrain
+            return DirectionWillCollideWithLayerFromAbove( direction, avoidTerrainMinheight, 11 );
         }
         else
         {
-            return DirectionWillCollideWithLayerFromBelow( direction, 11 );
+            // from below, avoid it like water
+            // if we're supposed to be below, we DEFINITELY can't be above!
+            return DirectionWillCollideWithLayerFromBelow( direction, avoidWaterMinDistance, 11 );
         }
+    }
+
+    private bool VeryTooCloseToWater( Vector3 direction, bool fromAbove )
+    {
+        return !fromAbove && DirectionWillCollideWithLayerFromAbove( -direction, Mathf.Infinity, 11 );
     }
 
     private Vector3 GetHugTerrainPoint( Vector3 near, out Vector3 normalDirection )
@@ -1278,7 +1274,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     float waterDistanceR = TerrainUtility.DistanceToLayerFromAbove( modelBaseToAnimate.position, evadeDirectionR, 11 );
                     waterDirection = waterDistanceL >= waterDistanceR ? evadeDirectionL : evadeDirectionR;
                 }
-                // just go around it
+                // just go in the opposite direction
                 else
                 {
                     waterDirection = -checkDirection;
@@ -1286,6 +1282,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
                 isWaterDirectionChosen = true;
             }
+        }
+        else if( VeryTooCloseToWater( checkDirection, shouldBeAboveWater ) )
+        {
+            // noooope
+            goalWaterAvoidanceAmount = 5;
         }
         else
         {
@@ -1309,12 +1310,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     float goalShallowAvoidanceAmount = 0, currentShallowAvoidanceAmount = 0;
     bool isShallowDirectionChosen = false;
     Vector3 shallowDirection = Vector3.zero;
-    float shallowCutoff;
+    float shallowCutoff = 0.5f;
     Vector3 ProcessBoidsShallowAvoidance( Vector3 groundAvoidance, Vector3 waterAvoidance )
     {
         // if the forward direction or check direction has Shallow, avoid it
-        if( groundAvoidance.magnitude > shallowCutoff
-          && waterAvoidance.magnitude > shallowCutoff )
+        if( groundAvoidance.magnitude > shallowCutoff * avoidTerrainMinheight
+          && waterAvoidance.magnitude > shallowCutoff * avoidWaterMinDistance )
         {
             goalShallowAvoidanceAmount = 1;
             if( !isShallowDirectionChosen )

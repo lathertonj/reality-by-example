@@ -941,6 +941,7 @@ MonoBehaviour:
   myLeft: {fileID: 1350806497585022863}
   myRight: {fileID: 7487770380113295370}
   neckJoint: {fileID: 7154581197123326773}
+  percentageToRotateNeck: 0.3
 --- !u!1 &7129641970081755885
 GameObject:
   m_ObjectHideFlags: 0
@@ -981,7 +982,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6012346167156307948}
-  - component: {fileID: 4465925111997586070}
   m_Layer: 0
   m_Name: TropicalFishRigged01
   m_TagString: Untagged
@@ -1005,25 +1005,6 @@ Transform:
   m_Father: {fileID: 2647457531061419693}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 180, y: 0, z: 0}
---- !u!95 &4465925111997586070
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7290058011502872063}
-  m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: c9930930dc6119e4b84204d3da3d8b68, type: 3}
-  m_Controller: {fileID: 0}
-  m_CullingMode: 1
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &7548778842894666313
 GameObject:
   m_ObjectHideFlags: 0

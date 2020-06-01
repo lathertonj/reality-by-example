@@ -191,15 +191,15 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             {
                 // reduce speed on steep terrain
                 float modelTilt = modelBaseToAnimate.rotation.eulerAngles.x;
-                if( modelTilt > 25 )
+                if( modelTilt > 12 && modelTilt < 180 )
                 {
                     // downhill
-                    goalSpeedMultiplier *= modelTilt.PowMapClamp( 25, 40, 1.0f, 0.5f, 2.5f );
+                    goalSpeedMultiplier *= modelTilt.PowMapClamp( 12, 20, 1.0f, 0.5f, 2.5f );
                 }
-                else if( modelTilt < -20 )
+                else if( modelTilt < 360 - 12 && modelTilt > 180 )
                 {
                     // uphill
-                    goalSpeedMultiplier *= modelTilt.PowMapClamp( -20, -40, 1.0f, 0.2f, 4.5f );
+                    goalSpeedMultiplier *= modelTilt.PowMapClamp( 360 - 12, 360 - 20, 1.0f, 0.35f, 2f );
                 }
             }
 
@@ -541,6 +541,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 // avoid water below us
                 waterAvoidance = ProcessBoidsWaterAvoidance( true );
 
+
                 // add to velocity
                 velocity += groundAvoidance + cliffAvoidance + waterAvoidance;
                 break;
@@ -551,6 +552,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 // make more important than other features
                 waterAvoidance = 1.7f * ProcessBoidsWaterAvoidance( waterDirection, true, 120 );
                 velocity += waterAvoidance;
+                // debug1.position = transform.position + examplesAttraction;
+                // debug2.position = transform.position + boidAvoidance;
+                // debug3.position = transform.position + waterAvoidance;
+                // // debug4.position = transform.position + cliffAvoidance;
                 break;
             case CreatureType.Water:
                 // extras boid of avoiding the ground AND the top of the water! :)
@@ -1262,7 +1267,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     {
         // TODO: third argument --> false to debug whether it's better to have land animals
         // turn around instead of turn L/R when they get to water.
-        return ProcessBoidsWaterAvoidance( checkDirection, shouldBeAboveWater, true, degreeRotation );
+        return ProcessBoidsWaterAvoidance( checkDirection, shouldBeAboveWater, false, degreeRotation );
     }
 
     float goalWaterAvoidanceAmount = 0, currentWaterAvoidanceAmount = 0;

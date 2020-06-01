@@ -481,7 +481,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             currentlyUsedExamples[i].SetActivation( (float) o[i] );
         }
 
-        // TODO: how to do a weighted average of Quaternion? maybe with slerp?
+        // how to do a weighted average of Quaternion? maybe with slerp?
         // see: https://stackoverflow.com/questions/12374087/average-of-multiple-quaternions
         // average of many requires finding eigenvectors
         // --> just slerp between the largest 2 -- we can still do a weighted avg of 2
@@ -554,18 +554,18 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 velocity += waterAvoidance;
                 break;
             case CreatureType.Water:
-                // TODO: extra boid of avoiding the ground AND the top of the water! :)
+                // extras boid of avoiding the ground AND the top of the water! :)
                 groundAvoidance = ProcessBoidsGroundAvoidance();
                 cliffAvoidance = ProcessBoidsCliffAvoidance( 120 );
                 // if water is above us, go down
                 waterAvoidance = ProcessBoidsWaterAvoidance( false );
-                // if it's too shallow, turn around
+                // if it's too shallow, turn around (disabled)
                 // Vector3 shallowAvoidance = ProcessBoidsShallowAvoidance( groundAvoidance, waterAvoidance );
 
-                debug1.position = transform.position + groundAvoidance;
-                debug2.position = transform.position + waterAvoidance;
+                // debug1.position = transform.position + groundAvoidance;
+                // debug2.position = transform.position + waterAvoidance;
                 // debug3.position = transform.position + shallowAvoidance;
-                debug4.position = transform.position + cliffAvoidance;
+                // debug4.position = transform.position + cliffAvoidance;
 
                 // add to velocity. make shallow avoidance the most effective
                 velocity += groundAvoidance + cliffAvoidance + waterAvoidance;// + 3.0f * shallowAvoidance;
@@ -1277,7 +1277,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     Vector3 ProcessBoidsWaterAvoidance( Vector3 checkDirection, bool shouldBeAboveWater, bool shouldComputeBoidsDirection, float degreeRotation )
     {
         // if the forward direction or check direction has water, avoid it
-        if( WillCollideWithWaterSoon( shouldBeAboveWater ) || TooCloseToWater( checkDirection, shouldBeAboveWater ) )
+        bool wayTooClose = VeryTooCloseToWater( checkDirection, shouldBeAboveWater );
+        if( wayTooClose || WillCollideWithWaterSoon( shouldBeAboveWater ) || TooCloseToWater( checkDirection, shouldBeAboveWater ) )
         {
             goalWaterAvoidanceAmount = 1;
             if( !isWaterDirectionChosen )
@@ -1307,13 +1308,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 isWaterDirectionChosen = true;
             }
         }
-        else if( VeryTooCloseToWater( checkDirection, shouldBeAboveWater ) )
-        {
-            // noooope
-            // TODO: this doesn't work anymore since we are LerpSlewing. higher goal doesn't make it ramp in any faster.
-            // what to do to get fish to go back down?
-            goalWaterAvoidanceAmount = 5;
-        }
         else
         {
             goalWaterAvoidanceAmount = 0;
@@ -1326,7 +1320,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             return Vector3.zero;
         }
         
-        Vector3 avoidDirection = currentWaterAvoidanceAmount.MapClamp( 0, 1, 0, avoidTerrainIntensity ) * waterDirection;
+        // intensity is avoidTerrainIntensity, but MUCH stronger if we get "way" too close
+        Vector3 avoidDirection = currentWaterAvoidanceAmount.MapClamp( 0, 1, 0, ( wayTooClose ? 4 : 1 ) * avoidTerrainIntensity ) * waterDirection;
         // boids STRAIGHT up never goes well. add a LITTLE forward
         Vector3 forwardDirection = 0.01f * transform.forward;
         return avoidDirection + forwardDirection;

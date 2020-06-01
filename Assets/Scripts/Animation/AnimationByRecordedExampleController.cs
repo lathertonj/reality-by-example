@@ -456,7 +456,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         runtimeMode = false;
     }
 
-    public Transform debug1, debug2, debug3, debug4;
+    // public Transform debug1, debug2, debug3, debug4;
     private void RunOneFrameRegression()
     {
         // 1. Run regression and normalize to get relative levels of each animation
@@ -541,7 +541,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 // avoid water below us
                 waterAvoidance = ProcessBoidsWaterAvoidance( true );
 
-
                 // add to velocity
                 velocity += groundAvoidance + cliffAvoidance + waterAvoidance;
                 break;
@@ -552,10 +551,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 // make more important than other features
                 waterAvoidance = 1.7f * ProcessBoidsWaterAvoidance( waterDirection, true, 120 );
                 velocity += waterAvoidance;
-                // debug1.position = transform.position + examplesAttraction;
-                // debug2.position = transform.position + boidAvoidance;
-                // debug3.position = transform.position + waterAvoidance;
-                // debug4.position = transform.position + cliffAvoidance;
                 break;
             case CreatureType.Water:
                 // extras boid of avoiding the ground AND the top of the water! :)
@@ -603,10 +598,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         {
             // don't use boids if the effect is not strong
             goalBaseRotation = seamHideRotation * rotationFromAnimation;
-            debug1.position = transform.position;
-            debug2.position = transform.position;
-            debug3.position = transform.position;
-            debug4.position = transform.position;
+            // debug1.position = transform.position;
+            // debug2.position = transform.position;
+            // debug3.position = transform.position;
+            // debug4.position = transform.position;
         }
 
         // only use y rotation for land creatures

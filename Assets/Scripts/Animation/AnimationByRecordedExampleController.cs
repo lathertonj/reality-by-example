@@ -244,11 +244,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     break;
                 case CreatureType.Water:
                     // check if we need to reset position
-                    if( TerrainUtility.FindTerrain<ConnectedTerrainController>( modelBaseToAnimate.position ) == null )
+                    // it's when we're no longer above the terrain -- we swam through it
+                    if( !TerrainUtility.AboveLayer( modelBaseToAnimate.position, Vector3.down, Mathf.Infinity, 8 ) )
                     {
                         // we swam underground :( let's just go back to the start!
                         ResetCreaturePosition( true );
-                        Debug.Log( "sucessfully reset!" );
                     }
                     // move in the forward direction, with speed according to delayed limb movement
                     modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * baseVelocity;
@@ -456,7 +456,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         runtimeMode = false;
     }
 
-    //public Transform debug1, debug2, debug3, debug4;
+    public Transform debug1, debug2, debug3, debug4;
     private void RunOneFrameRegression()
     {
         // 1. Run regression and normalize to get relative levels of each animation
@@ -562,10 +562,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 // if it's too shallow, turn around
                 Vector3 shallowAvoidance = ProcessBoidsShallowAvoidance( groundAvoidance, waterAvoidance );
 
-                // debug1.position = transform.position + groundAvoidance;
-                // debug2.position = transform.position + waterAvoidance;
-                // debug3.position = transform.position + shallowAvoidance;
-                // debug4.position = transform.position + cliffAvoidance;
+                debug1.position = transform.position + groundAvoidance;
+                debug2.position = transform.position + waterAvoidance;
+                debug3.position = transform.position + shallowAvoidance;
+                debug4.position = transform.position + cliffAvoidance;
 
                 // add to velocity. make shallow avoidance the most effective
                 velocity += groundAvoidance + cliffAvoidance + waterAvoidance + 3.0f * shallowAvoidance;
@@ -604,6 +604,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         {
             // don't use boids if the effect is not strong
             goalBaseRotation = seamHideRotation * rotationFromAnimation;
+            debug1.position = transform.position;
+            debug2.position = transform.position;
+            debug3.position = transform.position;
+            debug4.position = transform.position;
         }
 
         // only use y rotation for land creatures
@@ -1306,7 +1310,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         else if( VeryTooCloseToWater( checkDirection, shouldBeAboveWater ) )
         {
             // noooope
-            // TODO: this is not enough sometimes! sometimes the fish still fly up. why is that? :|
+            // TODO: this doesn't work anymore since we are LerpSlewing. higher goal doesn't make it ramp in any faster.
+            // what to do to get fish to go back down?
             goalWaterAvoidanceAmount = 5;
         }
         else

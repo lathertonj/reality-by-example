@@ -46,7 +46,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &846032921990820463
 Transform:
   m_ObjectHideFlags: 0
@@ -867,7 +867,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7846394826018904447
 Transform:
   m_ObjectHideFlags: 0
@@ -929,7 +929,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &8472822248599008394
 Transform:
   m_ObjectHideFlags: 0
@@ -1189,6 +1189,10 @@ MonoBehaviour:
   useRecordingModeOffset: 1
   recordingModeLateralOffset: 3
   myPrefabName: AnimatedFish1
+  debug1: {fileID: 7770078848347656962}
+  debug2: {fileID: 846032921990820463}
+  debug3: {fileID: 7846394826018904447}
+  debug4: {fileID: 8472822248599008394}
 --- !u!114 &1160691322075500447
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1646,7 +1650,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7770078848347656962
 Transform:
   m_ObjectHideFlags: 0

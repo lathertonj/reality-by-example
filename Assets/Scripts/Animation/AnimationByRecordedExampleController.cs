@@ -547,11 +547,15 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 break;
             case CreatureType.Land:
                 // avoid edge of water
-                Vector3 waterDirection = modelBaseToAnimate.forward + Vector3.down;
+                Vector3 waterDirection = modelBaseToAnimate.forward + 0.3f * Vector3.down;
                 waterDirection.Normalize();
                 // make more important than other features
                 waterAvoidance = 1.7f * ProcessBoidsWaterAvoidance( waterDirection, true, 120 );
                 velocity += waterAvoidance;
+                // debug1.position = transform.position + examplesAttraction;
+                // debug2.position = transform.position + boidAvoidance;
+                // debug3.position = transform.position + waterAvoidance;
+                // debug4.position = transform.position + cliffAvoidance;
                 break;
             case CreatureType.Water:
                 // extras boid of avoiding the ground AND the top of the water! :)
@@ -561,12 +565,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 waterAvoidance = ProcessBoidsWaterAvoidance( false );
                 // if it's too shallow, turn around (disabled)
                 // Vector3 shallowAvoidance = ProcessBoidsShallowAvoidance( groundAvoidance, waterAvoidance );
-
-                // debug1.position = transform.position + groundAvoidance;
-                // debug2.position = transform.position + waterAvoidance;
-                // debug3.position = transform.position + shallowAvoidance;
-                // debug4.position = transform.position + cliffAvoidance;
-
+                
                 // add to velocity. make shallow avoidance the most effective
                 velocity += groundAvoidance + cliffAvoidance + waterAvoidance;// + 3.0f * shallowAvoidance;
                 break;

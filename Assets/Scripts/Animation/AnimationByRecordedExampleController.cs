@@ -537,7 +537,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             case CreatureType.Flying:
                 // extra boids
                 groundAvoidance = ProcessBoidsGroundAvoidance();
-                cliffAvoidance = ProcessBoidsCliffAvoidance();
+                cliffAvoidance = ProcessBoidsCliffAvoidance( 120 );
                 // avoid water below us
                 waterAvoidance = ProcessBoidsWaterAvoidance( true );
 
@@ -550,25 +550,25 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 Vector3 waterDirection = modelBaseToAnimate.forward + Vector3.down;
                 waterDirection.Normalize();
                 // make more important than other features
-                waterAvoidance = 1.7f * ProcessBoidsWaterAvoidance( waterDirection, true );
+                waterAvoidance = 1.7f * ProcessBoidsWaterAvoidance( waterDirection, true, 120 );
                 velocity += waterAvoidance;
                 break;
             case CreatureType.Water:
                 // TODO: extra boid of avoiding the ground AND the top of the water! :)
                 groundAvoidance = ProcessBoidsGroundAvoidance();
-                cliffAvoidance = ProcessBoidsCliffAvoidance();
+                cliffAvoidance = ProcessBoidsCliffAvoidance( 120 );
                 // if water is above us, go down
                 waterAvoidance = ProcessBoidsWaterAvoidance( false );
                 // if it's too shallow, turn around
-                Vector3 shallowAvoidance = ProcessBoidsShallowAvoidance( groundAvoidance, waterAvoidance );
+                // Vector3 shallowAvoidance = ProcessBoidsShallowAvoidance( groundAvoidance, waterAvoidance );
 
                 debug1.position = transform.position + groundAvoidance;
                 debug2.position = transform.position + waterAvoidance;
-                debug3.position = transform.position + shallowAvoidance;
+                // debug3.position = transform.position + shallowAvoidance;
                 debug4.position = transform.position + cliffAvoidance;
 
                 // add to velocity. make shallow avoidance the most effective
-                velocity += groundAvoidance + cliffAvoidance + waterAvoidance + 3.0f * shallowAvoidance;
+                velocity += groundAvoidance + cliffAvoidance + waterAvoidance;// + 3.0f * shallowAvoidance;
                 break;
             default:
                 Debug.LogWarning( "unknown type of creature" );
@@ -1213,7 +1213,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     float goalCliffAvoidanceAmount = 0, currentCliffAvoidanceAmount = 0;
     bool isCliffDirectionChosen = false;
     Vector3 cliffDirection = Vector3.zero;
-    Vector3 ProcessBoidsCliffAvoidance()
+    Vector3 ProcessBoidsCliffAvoidance( float degreeRotation )
     {
         // if the forward direction has land, avoid it
         if( WillCollideWithTerrainSoon() )
@@ -1223,8 +1223,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             {
                 // evade directions are to the left and right but without y direction
                 Vector3 evadeDirectionL, evadeDirectionR;
-                evadeDirectionL = -modelBaseToAnimate.right;
-                evadeDirectionR = modelBaseToAnimate.right;
+                evadeDirectionL = Quaternion.AngleAxis( -degreeRotation, Vector3.up ) * modelBaseToAnimate.forward;
+                evadeDirectionR = Quaternion.AngleAxis( degreeRotation, Vector3.up ) * modelBaseToAnimate.forward;
                 evadeDirectionL.y = evadeDirectionR.y = 0;
                 evadeDirectionL.Normalize();
                 evadeDirectionR.Normalize();
@@ -1260,21 +1260,21 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     // for up and down: just go the opposite direction
     Vector3 ProcessBoidsWaterAvoidance( bool shouldBeAboveWater )
     {
-        return ProcessBoidsWaterAvoidance( shouldBeAboveWater ? Vector3.down : Vector3.up, shouldBeAboveWater, false );
+        return ProcessBoidsWaterAvoidance( shouldBeAboveWater ? Vector3.down : Vector3.up, shouldBeAboveWater, false, 90 );
     }
 
     // for any other direction: try turning left or right
-    Vector3 ProcessBoidsWaterAvoidance( Vector3 checkDirection, bool shouldBeAboveWater )
+    Vector3 ProcessBoidsWaterAvoidance( Vector3 checkDirection, bool shouldBeAboveWater, float degreeRotation )
     {
-        // TODO: last argument --> false to debug whether it's better to have land animals
+        // TODO: third argument --> false to debug whether it's better to have land animals
         // turn around instead of turn L/R when they get to water.
-        return ProcessBoidsWaterAvoidance( checkDirection, shouldBeAboveWater, true );
+        return ProcessBoidsWaterAvoidance( checkDirection, shouldBeAboveWater, true, degreeRotation );
     }
 
     float goalWaterAvoidanceAmount = 0, currentWaterAvoidanceAmount = 0;
     bool isWaterDirectionChosen = false;
     Vector3 waterDirection = Vector3.zero;
-    Vector3 ProcessBoidsWaterAvoidance( Vector3 checkDirection, bool shouldBeAboveWater, bool shouldComputeBoidsDirection )
+    Vector3 ProcessBoidsWaterAvoidance( Vector3 checkDirection, bool shouldBeAboveWater, bool shouldComputeBoidsDirection, float degreeRotation )
     {
         // if the forward direction or check direction has water, avoid it
         if( WillCollideWithWaterSoon( shouldBeAboveWater ) || TooCloseToWater( checkDirection, shouldBeAboveWater ) )
@@ -1287,8 +1287,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 {
                     // evade directions are to the left and right but without y direction
                     Vector3 evadeDirectionL, evadeDirectionR;
-                    evadeDirectionL = Quaternion.AngleAxis( -90, Vector3.up ) * checkDirection;
-                    evadeDirectionR = Quaternion.AngleAxis( 90, Vector3.up ) * checkDirection;
+                    evadeDirectionL = Quaternion.AngleAxis( -degreeRotation, Vector3.up ) * checkDirection;
+                    evadeDirectionR = Quaternion.AngleAxis( degreeRotation, Vector3.up ) * checkDirection;
                     evadeDirectionL.y = evadeDirectionR.y = 0;
                     evadeDirectionL.Normalize();
                     evadeDirectionR.Normalize();

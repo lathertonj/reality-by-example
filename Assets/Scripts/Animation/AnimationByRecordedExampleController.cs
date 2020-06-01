@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
 
-public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDeleteInteractable , LaserPointerSelectable , DynamicSerializableByExample
+public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDeleteInteractable , LaserPointerSelectable , DynamicSerializableByExample , Nameable
 {
     private static List< AnimationByRecordedExampleController > allCreatures = new List< AnimationByRecordedExampleController >();
     private List< AnimationByRecordedExampleController > myGroup = null;
@@ -92,6 +92,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     private GameObject _yRotationBaseObject;
     private Transform yRotationBase;
+
+    public TextMesh myDisplayName;
+    private string myBaseName;
 
     void Awake()
     {
@@ -1493,6 +1496,21 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         }
     }
 
+
+    void Nameable.SetDisplayName( string newName )
+    {
+        for( int i = 0; i < myGroup.Count; i++ )
+        {
+            myGroup[i].myBaseName = newName;
+            myGroup[i].myDisplayName.text = newName + " " + i.ToString( "00" );
+        }
+    }
+
+    string Nameable.GetDisplayName()
+    {
+        return myBaseName;
+    }
+
     void LaserPointerSelectable.Selected()
     {
         // when selected, show my examples
@@ -1500,6 +1518,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
         // also show hints for my examples
         AnimationExample.ShowHints( this, SwitchToComponent.hintTime );
+
+        // also be nameable
+        NameSystemController.SetObjectToName( this );
     }
 
     void LaserPointerSelectable.Unselected()
@@ -1511,6 +1532,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
         // also, disable recording
         SetNextAction( AnimationAction.DoNothing, null );
+
+        // also don't be nameable
+        NameSystemController.SetObjectToName( null );
     }
 
     string DynamicSerializableByExample.PrefabName()

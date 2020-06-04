@@ -1562,6 +1562,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         serialGroup.currentRecordingMode = currentRecordingAndPlaybackMode;
         serialGroup.prefab = myPrefabName;
 
+        // store name
+        serialGroup.name = myBaseName;
+
         // store examples
         serialGroup.examples = new List<SerializableAnimationExample>();
         foreach( AnimationExample e in examples )
@@ -1626,6 +1629,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         // rescan
         groupLeader.RescanMyProvidedExamples();
 
+        // set name
+        myBaseName = serialGroup.name;
+        UpdateMyDisplayName( 0 );
+
         // reset audio system
         yield return StartCoroutine( groupLeader.mySounder.InitFromSerial( serialGroup.audio ) );
 
@@ -1653,9 +1660,14 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // color
             newCreature.GetComponent<AnimatedCreatureColor>().Deserialize( serialGroup.colors[i] );
 
+            // name
+            newCreature.myBaseName = myBaseName;
+            newCreature.UpdateMyDisplayName( i );
+
             // copy audio system
             newCreature.CloneAudioSystem( groupLeader, true );
 
+            // rescan examples
             newCreature.RescanMyProvidedExamples();
         }
 
@@ -1714,5 +1726,6 @@ public class SerializableAnimatedCreatureGroup
     public List<float> colors;
     public List<SerializableAnimationExample> examples;
     public string prefab;
+    public string name;
     public SerializedAnimationAudio audio;
 }

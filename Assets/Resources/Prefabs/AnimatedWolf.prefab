@@ -1491,8 +1491,8 @@ MonoBehaviour:
   myBackRight: {fileID: 6153187908454732006}
   neckJoint: {fileID: 2888970131332611380}
   frontToBackFrameDelay: 20
-  frontToBackOffset: -0.18
   mirrorBackToFront: 1
+  reverseBackToFrontDirection: 0
   unparentBackLegs: 1
 --- !u!114 &5169728823964231036
 MonoBehaviour:
@@ -1531,8 +1531,8 @@ MonoBehaviour:
   currentlyUsedExamples: []
   globalSlew: 0.25
   motionSpeedupSlew: 0.18
-  motionSlowdownSlew: 0.3
-  maxSpeed: 3
+  motionSlowdownSlew: 0.5
+  maxSpeed: 3.8
   avoidTerrainIntensity: 1
   avoidTerrainDetection: 7
   avoidTerrainMinheight: 1.5
@@ -3252,7 +3252,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8938523418139094215}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.024500001, y: -0.21462375, z: -0.21679997}
+  m_LocalPosition: {x: 0.024500001, y: -0.21462375, z: -0.2369}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 8207187041518786410}
@@ -3282,7 +3282,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8938523418218964296}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.030700002, y: -0.21462375, z: -0.21679997}
+  m_LocalPosition: {x: -0.030700002, y: -0.21462375, z: -0.2369}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 8207187041518786410}

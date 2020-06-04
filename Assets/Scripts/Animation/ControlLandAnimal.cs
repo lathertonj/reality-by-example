@@ -12,13 +12,15 @@ public class ControlLandAnimal : MonoBehaviour , NeckRotatable
     private Quaternion goalNeckRotation;
 
     public int frontToBackFrameDelay = 20;
-    public float frontToBackOffset;
 
     private Queue<Vector3> leftFrontToBackMemory, rightFrontToBackMemory;
 
     private Vector3 headOffset;
 
     public bool mirrorBackToFront = true;
+    public bool reverseBackToFrontDirection = true;
+    private float initialFrontLeftZ, initialFrontRightZ, initialBackLeftZ, initialBackRightZ;
+    private int frontBackMultiplier;
     
     private float startHeadOrientation;
 
@@ -27,6 +29,15 @@ public class ControlLandAnimal : MonoBehaviour , NeckRotatable
     // Start is called before the first frame update
     void Start()
     {
+        // remember
+        initialFrontLeftZ  = LocalZ( trackLeft );
+        initialFrontRightZ = LocalZ( trackRight );
+        initialBackLeftZ   = LocalZ( trackBackLeft );
+        initialBackRightZ  = LocalZ( trackBackRight );
+
+        // compute
+        frontBackMultiplier = reverseBackToFrontDirection ? -1 : 1;
+
         // unparent (others should be unparented by animation component)
         if( unparentBackLegs )
         {
@@ -77,8 +88,16 @@ public class ControlLandAnimal : MonoBehaviour , NeckRotatable
             rightFrontToBackMemory.Enqueue( transform.InverseTransformPoint( trackRight.position ) );
             if( leftFrontToBackMemory.Count >= frontToBackFrameDelay )
             {
-                trackBackLeft.position = transform.TransformPoint( leftFrontToBackMemory.Dequeue() ) + transform.forward * frontToBackOffset * transform.localScale.z;
-                trackBackRight.position = transform.TransformPoint( rightFrontToBackMemory.Dequeue() ) + transform.forward * frontToBackOffset * transform.localScale.z;
+                // same as front, but...
+                Vector3 localBackLeft = leftFrontToBackMemory.Dequeue();
+                // reverse z and put it centered on original back foot position
+                localBackLeft.z = frontBackMultiplier * ( localBackLeft.z - initialFrontLeftZ ) + initialBackLeftZ;
+                // same for right
+                Vector3 localBackRight = rightFrontToBackMemory.Dequeue();
+                localBackRight.z = frontBackMultiplier * ( localBackRight.z - initialFrontRightZ ) + initialBackRightZ;
+                // move
+                trackBackLeft.position = transform.TransformPoint( localBackLeft );
+                trackBackRight.position = transform.TransformPoint( localBackRight );
             }
         }
     }
@@ -91,6 +110,11 @@ public class ControlLandAnimal : MonoBehaviour , NeckRotatable
     void NeckRotatable.SetNeckRotation( Quaternion r )
     {
         goalNeckRotation = r; 
+    }
+
+    float LocalZ( Transform t )
+    {
+        return transform.InverseTransformPoint( t.position ).z;
     }
 }
 

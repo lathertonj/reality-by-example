@@ -1264,7 +1264,7 @@ MonoBehaviour:
   currentlyUsedExamples: []
   globalSlew: 0.25
   motionSpeedupSlew: 0.08
-  motionSlowdownSlew: 0.01
+  motionSlowdownSlew: 0.05
   maxSpeed: 3
   avoidTerrainIntensity: 2
   avoidTerrainDetection: 3.5

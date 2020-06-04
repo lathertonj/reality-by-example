@@ -136,10 +136,16 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     public void AddToGroup( AnimationByRecordedExampleController groupLeader )
     {
+        // reference to my group
         myGroup = groupLeader.myGroup;
+        // add myself to it
         myGroup.Add( this );
+        // copy over my examples and ID
         examples = groupLeader.examples;
         myGroupID = groupLeader.myGroupID;
+        // copy my display name
+        myBaseName = groupLeader.myBaseName;
+        UpdateMyDisplayName( myGroup.Count - 1 );
     }
 
     private void InitializeIndependently()
@@ -1497,12 +1503,18 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     }
 
 
+    void UpdateMyDisplayName( int i )
+    {
+        myDisplayName.text = myBaseName + " " + (i+1).ToString( "00" );
+    }
+
+
     void Nameable.SetDisplayName( string newName )
     {
         for( int i = 0; i < myGroup.Count; i++ )
         {
             myGroup[i].myBaseName = newName;
-            myGroup[i].myDisplayName.text = newName + " " + i.ToString( "00" );
+            myGroup[i].UpdateMyDisplayName( i );
         }
     }
 

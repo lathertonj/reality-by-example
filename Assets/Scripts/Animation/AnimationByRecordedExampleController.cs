@@ -1634,6 +1634,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         UpdateMyDisplayName( 0 );
 
         // reset audio system
+        if( serialGroup.audio.audioData.Length < serialGroup.audio.nextAudioFrame )
+        {
+            Debug.LogError( myDisplayName.text + " has invalid audio values (next audio frame too long!). rectifying...." );
+            serialGroup.audio.nextAudioFrame = serialGroup.audio.audioData.Length - 2;
+        }
         yield return StartCoroutine( groupLeader.mySounder.InitFromSerial( serialGroup.audio ) );
 
         // create remaining creatures

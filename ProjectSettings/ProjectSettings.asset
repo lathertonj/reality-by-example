@@ -538,7 +538,7 @@ PlayerSettings:
   webGLDebugSymbols: 0
   webGLEmscriptenArgs: 
   webGLModulesDirectory: 
-  webGLTemplate: PROJECT:RecreateTextureInBrowserDemo
+  webGLTemplate: PROJECT:MinimalWithRapidLibLoaded
   webGLAnalyzeBuildSize: 0
   webGLUseEmbeddedResources: 0
   webGLCompressionFormat: 1

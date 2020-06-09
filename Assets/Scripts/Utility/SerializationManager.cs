@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using UnityEngine.SceneManagement;
+using UnityEngine.Networking;
 
 public class SerializationManager : MonoBehaviour
 {
@@ -13,12 +14,18 @@ public class SerializationManager : MonoBehaviour
     public bool saveDynamicEntities = false;
     public bool loadDynamicEntities = false;
 
+    public string[] manualLoadDynamicEntities;
+
     // Start is called before the first frame update
     void Start()
     {
+        #if UNITY_WEBGL
+        // don't try to create folders on web
+        #else
         // ensure dirs exist
         string folder = DynamicExamplesLocation();
         if( !Directory.Exists( folder ) ) { Directory.CreateDirectory( folder ); }
+        #endif
 
         // load all
         StartCoroutine( LoadAll() );
@@ -42,6 +49,14 @@ public class SerializationManager : MonoBehaviour
 
         if( loadDynamicEntities )
         {
+            #if UNITY_WEBGL
+            // use the manually provided names
+            foreach( string dynamicEntity in manualLoadDynamicEntities )
+            {
+                yield return StartCoroutine( DynamicLoadExamples( dynamicEntity ) );
+            }
+
+            #else
             // read all filenames
             foreach( string subdirectory in Directory.GetDirectories( DynamicExamplesLocation() ) )
             {
@@ -55,12 +70,15 @@ public class SerializationManager : MonoBehaviour
                     yield return StartCoroutine( DynamicLoadExamples( fileInfo, prefab ) );
                 }
             }
-
+            #endif
         }
     }
 
     void SaveAll()
     {
+        #if UNITY_WEBGL
+        Debug.LogError( "can't save things on the web..." );
+        #else
         foreach( GameObject entity in entitiesToSaveOnQuit )
         {
             // each game object can have multiple components that implement this interface!
@@ -90,6 +108,7 @@ public class SerializationManager : MonoBehaviour
                 }
             }
         }
+        #endif
     }
 
     string GetFilepath( SerializableByExample entity )
@@ -124,10 +143,19 @@ public class SerializationManager : MonoBehaviour
 
     IEnumerator LoadExamples( SerializableByExample entity )
     {
+        #if UNITY_WEBGL
+        UnityWebRequest www = UnityWebRequest.Get( GetFilepath( entity ) );
+        yield return www.SendWebRequest();
+        if( !www.isNetworkError && !www.isHttpError )
+        {
+            yield return StartCoroutine( entity.LoadExamples( www.downloadHandler.text ) );
+        }
+        #else
         StreamReader reader = new StreamReader( GetFilepath( entity ) );
         string json = reader.ReadToEnd();
         reader.Close();
         yield return StartCoroutine( entity.LoadExamples( json ) );
+        #endif
     }
 
     void DynamicSaveExamples( DynamicSerializableByExample entity )
@@ -136,6 +164,27 @@ public class SerializationManager : MonoBehaviour
         writer.Write( entity.SerializeExamples() );
         writer.Close();
     }
+
+    #if UNITY_WEBGL
+    IEnumerator DynamicLoadExamples( string fileName )
+    {
+        string filePath = DynamicExamplesLocation() + fileName + FileExtension();
+        UnityWebRequest www = UnityWebRequest.Get( filePath );
+        yield return www.SendWebRequest();
+        if( !www.isNetworkError && !www.isHttpError )
+        {
+            // create
+            string prefabName = fileName.Split('/')[0];
+            GameObject prefab = (GameObject) Resources.Load( "Prefabs/" + prefabName );
+            GameObject newObject = Instantiate( prefab );
+            
+            // initialize
+            DynamicSerializableByExample entity = newObject.GetComponent<DynamicSerializableByExample>();
+            yield return StartCoroutine( entity.LoadExamples( www.downloadHandler.text ) );
+        }
+    }
+
+    #else
 
     IEnumerator DynamicLoadExamples( FileInfo file, GameObject prefab )
     {
@@ -149,6 +198,7 @@ public class SerializationManager : MonoBehaviour
         DynamicSerializableByExample entity = newObject.GetComponent<DynamicSerializableByExample>();
         yield return StartCoroutine( entity.LoadExamples( json ) );
     }
+    #endif
 
     public static T ConvertFromJSON<T>( string examples )
     {

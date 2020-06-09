@@ -1148,6 +1148,7 @@ GameObject:
   - component: {fileID: 700675864}
   - component: {fileID: 700675865}
   - component: {fileID: 700675861}
+  - component: {fileID: 700675863}
   m_Layer: 0
   m_Name: AudienceCamera
   m_TagString: Untagged
@@ -1181,6 +1182,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 30.168001, y: 1.751, z: 0}
+--- !u!114 &700675863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700675860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27640b2de967cd74fab216d6100d748a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!20 &700675864
 Camera:
   m_ObjectHideFlags: 0
@@ -1396,9 +1409,16 @@ MonoBehaviour:
   - {fileID: 952970232}
   - {fileID: 33815732}
   - {fileID: 832069737}
-  worldName: myWorld
+  worldName: myWorldBackup
   saveDynamicEntities: 0
   loadDynamicEntities: 1
+  manualLoadDynamicEntities:
+  - AnimatedCrow/creature_7
+  - AnimatedCrow/creature_11
+  - AnimatedFish1/creature_15
+  - AnimatedFish1/creature_19
+  - AnimatedWolf/creature_0
+  - AnimatedWolf/creature_3
 --- !u!4 &717699732
 Transform:
   m_ObjectHideFlags: 0
@@ -1985,7 +2005,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63e3e8190a0f98c40a9cf421dbfcd822, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectToRunRegressionOn: {fileID: 0}
+  objectToRunRegressionOn: {fileID: 700675862}
   myRegressionExamples: []
   displayPlaneVisualization: 0
   examplePrefab: {fileID: 1253047615649007799, guid: 77b29961d0885d94bb70d2ca74874d7c,
@@ -2003,7 +2023,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myParameter: 0
-  objectToRunRegressionOn: {fileID: 0}
+  objectToRunRegressionOn: {fileID: 700675862}
   myRegressionExamples: []
   displayPlaneVisualization: 0
   examplePrefab: {fileID: -4807998583417813822, guid: c341e62198bb1ba4c807776342a9d400,
@@ -2020,7 +2040,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f45b70f9eb0db3d4d86c981472c99b15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectToRunRegressionOn: {fileID: 0}
+  objectToRunRegressionOn: {fileID: 700675862}
   myClassifierExamples: []
   displayPlaneVisualization: 0
   examplePrefab: {fileID: 7557995561620796117, guid: dbf34691e7951634f8ad48a886b73b0d,
@@ -2038,7 +2058,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myParameter: 2
-  objectToRunRegressionOn: {fileID: 0}
+  objectToRunRegressionOn: {fileID: 700675862}
   myRegressionExamples: []
   displayPlaneVisualization: 0
   examplePrefab: {fileID: -4807998583417813822, guid: c0a9ea61b1fad2344a349a7d29c6ffdd,
@@ -2056,7 +2076,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myParameter: 1
-  objectToRunRegressionOn: {fileID: 0}
+  objectToRunRegressionOn: {fileID: 700675862}
   myRegressionExamples: []
   displayPlaneVisualization: 0
   examplePrefab: {fileID: -4807998583417813822, guid: dbc6ebb59fd3a9b47a59eae00429a8ed,

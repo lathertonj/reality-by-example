@@ -15,6 +15,12 @@
     <script>
         // override
         var whereIsChuck = "./js";
+        var serverFilesToPreload = [
+          {
+            serverFilename: './StreamingAssets/aah5.wav',
+            virtualFilename: 'aah5.wav'
+          }
+        ];
     </script>
     <script type="text/javascript" src="./js/chuckscriptwebaudio.js"></script>
     <script src="%UNITY_WEBGL_LOADER_URL%"></script>
@@ -24,8 +30,11 @@
     var audioContext = undefined;
     var chunityAudioListener = undefined;
     var unityInstance = undefined;
+    var preloadedFilesReady = preloadFilenames( serverFilesToPreload );
+
     startButton.addEventListener( "click", async function() {
         startButton.disabled = true;
+        await preloadedFilesReady;
         await startChuck();
         await theChuckReady;
         chunityAudioListener = audioContext.listener;

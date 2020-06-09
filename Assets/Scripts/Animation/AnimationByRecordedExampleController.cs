@@ -677,8 +677,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         // 3. Use that as the next goal position
         double[] baseInput = FindBaseInput( modelBaseToAnimate.position );
         // animation
+        #if UNITY_WEBGL
+        int whichAnimation = myAnimationClassifier.Run( baseInput );
+        #else
         string o = myAnimationClassifier.Run( baseInput );
         int whichAnimation = System.Convert.ToInt32( o );
+        #endif
 
         goalBaseRotation = GetBaseQuaternion( whichAnimation, currentRuntimeFrame );
 
@@ -1050,7 +1054,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 List<ModelBaseDatum> phrase = e.baseExamples;
                 for( int i = 0; i < phrase.Count; i++ )
                 {
+                    #if UNITY_WEBGL
+                    myAnimationClassifier.RecordDataPoint( BaseInput( phrase[i] ), j );
+                    #else
                     myAnimationClassifier.RecordDataPoint( BaseInput( phrase[i] ), BaseOutput( j ) );
+                    #endif
                 }
             }
             myAnimationClassifier.Train();

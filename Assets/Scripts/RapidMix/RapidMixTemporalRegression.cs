@@ -167,17 +167,20 @@ public class RapidMixTemporalRegression : MonoBehaviour
     private static extern int createNewTemporalRegression();
 
     [DllImport( PLUGIN_NAME )]
-    private static extern bool startPhrase( System.UInt32 trainingID );
+    private static extern bool startPhrase( int trainingID );
 
     [DllImport( PLUGIN_NAME )]
     private static extern bool recordPhraseElement(
-        System.UInt32 trainingID,
-        double[] input, System.UInt32 n_input,
-        double[] output, System.UInt32 n_ouput
+        int trainingID,
+        double[] input, int n_input,
+        double[] output, int n_ouput
     );
 
     [DllImport( PLUGIN_NAME )]
-    private static extern bool endPhrase( System.UInt32 trainingID );
+    private static extern bool stopPhrase( int trainingID );
+
+    [DllImport( PLUGIN_NAME )]
+    private static extern bool endPhrase( int trainingID );
 
     [DllImport( PLUGIN_NAME )]
     private static extern bool trainTemporalRegression( int regressionID, int trainingID );

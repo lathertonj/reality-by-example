@@ -3,6 +3,15 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 
+#if UNITY_WEBGL
+using CK_INT = System.Int32;
+using CK_UINT = System.UInt32;
+#else
+using CK_INT = System.Int64;
+using CK_UINT = System.UInt64;
+#endif
+using CK_FLOAT = System.Double;
+
 public class AnimationSoundRecorderPlaybackController : MonoBehaviour
 {
     // predict position in the sound file based on terrain input features
@@ -25,7 +34,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     private ChuckIntSyncer myCurrentRecordedSampleSyncer;
     private ChuckEventListener myTempoListener;
 
-    private double[] myAudioData;
+    private CK_FLOAT[] myAudioData;
 
     string myLisa, myCurrentRecordedSample = "", myNewSamplePositionReady, myNewSamplePosition, myStartRecording, myStopRecording;
     string mySamples = "";
@@ -95,7 +104,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         myTempoListener = gameObject.AddComponent<ChuckEventListener>();
     }
 
-    void InitFromSerial( double[] samples, int nextAudioFrame )
+    void InitFromSerial( CK_FLOAT[] samples, int nextAudioFrame )
     {
         InitChuckVariableNames();
 
@@ -420,7 +429,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         myTempoListener.StopListening();
     }
 
-    public void GetMySamples( double[] samples, System.UInt64 numSamples )
+    public void GetMySamples( CK_FLOAT[] samples, CK_UINT numSamples )
     {
         myAudioData = samples;
     }

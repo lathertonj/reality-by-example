@@ -4,6 +4,15 @@ using UnityEngine;
 using UnityEngine.Audio;
 using System;
 
+#if UNITY_WEBGL
+using CK_INT = System.Int32;
+using CK_UINT = System.UInt32;
+#else
+using CK_INT = System.Int64;
+using CK_UINT = System.UInt64;
+#endif
+using CK_FLOAT = System.Double;
+
 
 
 [RequireComponent( typeof( AudioSource ) )]
@@ -75,7 +84,7 @@ public class ChuckMainInstance : MonoBehaviour
     // name: SetInt
     // desc: set the value of global int variableName
     // ----------------------------------------------------
-    public bool SetInt( string variableName, System.Int64 value )
+    public bool SetInt( string variableName, CK_INT value )
     {
         return Chuck.Manager.SetInt( myChuckId, variableName, value );
     }
@@ -87,7 +96,7 @@ public class ChuckMainInstance : MonoBehaviour
     // name: CreateGetIntCallback
     // desc: construct the callback necessary for GetInt
     // ----------------------------------------------------
-    public Chuck.IntCallback CreateGetIntCallback( Action<System.Int64> callbackFunction )
+    public Chuck.IntCallback CreateGetIntCallback( Action<CK_INT> callbackFunction )
     {
         return Chuck.CreateGetIntCallback( callbackFunction );
     }
@@ -112,7 +121,7 @@ public class ChuckMainInstance : MonoBehaviour
     // name: SetFloat
     // desc: set the value of global float variableName
     // ----------------------------------------------------
-    public bool SetFloat( string variableName, double value )
+    public bool SetFloat( string variableName, CK_FLOAT value )
     {
         return Chuck.Manager.SetFloat( myChuckId, variableName, value );
     }
@@ -124,7 +133,7 @@ public class ChuckMainInstance : MonoBehaviour
     // name: CreateGetFloatCallback
     // desc: construct the callback necessary for GetFloat
     // ----------------------------------------------------
-    public Chuck.FloatCallback CreateGetFloatCallback( Action<double> callbackFunction )
+    public Chuck.FloatCallback CreateGetFloatCallback( Action<CK_FLOAT> callbackFunction )
     {
         return Chuck.CreateGetFloatCallback( callbackFunction );
     }
@@ -265,7 +274,7 @@ public class ChuckMainInstance : MonoBehaviour
     // name: CreateGetIntArrayCallback
     // desc: create a callback for getting an int array
     // ----------------------------------------------------
-    public Chuck.IntArrayCallback CreateGetIntArrayCallback( Action<long[], ulong> callbackFunction )
+    public Chuck.IntArrayCallback CreateGetIntArrayCallback( Action<CK_INT[], CK_UINT> callbackFunction )
     {
         return Chuck.CreateGetIntArrayCallback( callbackFunction );
     }
@@ -277,7 +286,7 @@ public class ChuckMainInstance : MonoBehaviour
     // name: SetIntArray
     // desc: set the value of global int variableName[]
     // ----------------------------------------------------
-    public bool SetIntArray( string variableName, long[] values )
+    public bool SetIntArray( string variableName, CK_INT[] values )
     {
         return Chuck.Manager.SetIntArray( myChuckId, variableName, values );
     }
@@ -301,7 +310,7 @@ public class ChuckMainInstance : MonoBehaviour
     // name: SetIntArrayValue
     // desc: set the value of global int variableName[index]
     // ----------------------------------------------------
-    public bool SetIntArrayValue( string variableName, uint index, long value )
+    public bool SetIntArrayValue( string variableName, uint index, CK_INT value )
     {
         return Chuck.Manager.SetIntArrayValue( myChuckId, variableName, index, value );
     }
@@ -325,7 +334,7 @@ public class ChuckMainInstance : MonoBehaviour
     // name: SetAssociativeIntArrayValue
     // desc: set the value of global int variableName[key]
     // ----------------------------------------------------
-    public bool SetAssociativeIntArrayValue( string variableName, string key, long value )
+    public bool SetAssociativeIntArrayValue( string variableName, string key, CK_INT value )
     {
         return Chuck.Manager.SetAssociativeIntArrayValue( myChuckId, variableName, key, value );
     }
@@ -349,7 +358,7 @@ public class ChuckMainInstance : MonoBehaviour
     // name: CreateGetFloatArrayCallback
     // desc: create a callback for getting a float array
     // ----------------------------------------------------
-    public Chuck.FloatArrayCallback CreateGetFloatArrayCallback( Action<double[], ulong> callbackFunction )
+    public Chuck.FloatArrayCallback CreateGetFloatArrayCallback( Action<CK_FLOAT[], CK_UINT> callbackFunction )
     {
         return Chuck.CreateGetFloatArrayCallback( callbackFunction );
     }
@@ -361,7 +370,7 @@ public class ChuckMainInstance : MonoBehaviour
     // name: SetFloatArray
     // desc: set the value of global float variableName[]
     // ----------------------------------------------------
-    public bool SetFloatArray( string variableName, double[] values )
+    public bool SetFloatArray( string variableName, CK_FLOAT[] values )
     {
         return Chuck.Manager.SetFloatArray( myChuckId, variableName, values );
     }
@@ -385,7 +394,7 @@ public class ChuckMainInstance : MonoBehaviour
     // name: SetFloatArrayValue
     // desc: set the value of global float variableName[index]
     // ----------------------------------------------------
-    public bool SetFloatArrayValue( string variableName, uint index, double value )
+    public bool SetFloatArrayValue( string variableName, uint index, CK_FLOAT value )
     {
         return Chuck.Manager.SetFloatArrayValue( myChuckId, variableName, index, value );
     }
@@ -409,7 +418,7 @@ public class ChuckMainInstance : MonoBehaviour
     // name: SetAssociativeFloatArrayValue
     // desc: set the value of global float variableName[key]
     // ----------------------------------------------------
-    public bool SetAssociativeFloatArrayValue( string variableName, string key, double value )
+    public bool SetAssociativeFloatArrayValue( string variableName, string key, CK_FLOAT value )
     {
         return Chuck.Manager.SetAssociativeFloatArrayValue( myChuckId, variableName, key, value );
     }
@@ -425,6 +434,62 @@ public class ChuckMainInstance : MonoBehaviour
     {
         return Chuck.Manager.GetAssociativeFloatArrayValue( myChuckId, variableName, key, callback );
     }
+
+
+
+
+#if UNITY_WEBGL
+    // method calls specific to WebGL
+    public bool GetInt( string variableName, string gameObjectWithCallback, string callback )
+    {
+        return Chuck.Manager.GetInt( myChuckId, variableName, gameObjectWithCallback, callback );
+    }
+
+    public bool GetFloat( string variableName, string gameObjectWithCallback, string callback )
+    {
+        return Chuck.Manager.GetFloat( myChuckId, variableName, gameObjectWithCallback, callback );
+    }
+
+    public bool GetString( string variableName, string gameObjectWithCallback, string callback )
+    {
+        return Chuck.Manager.GetString( myChuckId, variableName, gameObjectWithCallback, callback );
+    }
+
+    public bool ListenForChuckEventOnce( string variableName, string gameObjectWithCallback, string callback )
+    {
+        return Chuck.Manager.ListenForChuckEventOnce( myChuckId, variableName, gameObjectWithCallback, callback );
+    }
+
+    public bool StartListeningForChuckEvent( string variableName, string gameObjectWithCallback, string callback )
+    {
+        return Chuck.Manager.StartListeningForChuckEvent( myChuckId, variableName, gameObjectWithCallback, callback );
+    }
+
+    public bool StopListeningForChuckEvent( string variableName, string gameObjectWithCallback, string callback )
+    {
+        return Chuck.Manager.StopListeningForChuckEvent( myChuckId, variableName, gameObjectWithCallback, callback );
+    }
+
+    public bool GetIntArrayValue( string variableName, uint index, string gameObjectWithCallback, string callback )
+    {
+        return Chuck.Manager.GetIntArrayValue( myChuckId, variableName, index, gameObjectWithCallback, callback );
+    }
+
+    public bool GetAssociativeIntArrayValue( string variableName, string key, string gameObjectWithCallback, string callback )
+    {
+        return Chuck.Manager.GetAssociativeIntArrayValue( myChuckId, variableName, key, gameObjectWithCallback, callback );
+    }
+
+    public bool GetFloatArrayValue( string variableName, uint index, string gameObjectWithCallback, string callback )
+    {
+        return Chuck.Manager.GetFloatArrayValue( myChuckId, variableName, index, gameObjectWithCallback, callback );
+    }
+
+    public bool GetAssociativeFloatArrayValue( string variableName, string key, string gameObjectWithCallback, string callback )
+    {
+        return Chuck.Manager.GetAssociativeFloatArrayValue( myChuckId, variableName, key, gameObjectWithCallback, callback );
+    }
+#endif
 
 
 
@@ -464,8 +529,18 @@ public class ChuckMainInstance : MonoBehaviour
         // setup mic
         SetupMic();
 
+        #if UNITY_WEBGL
+        // setup listener
+        SetUpListener();
+        #endif
+
         // has init
         hasInit = true;
+    }
+
+    public System.UInt32 GetID()
+    {
+        return myChuckId;
     }
 
     public bool HasInit()
@@ -477,6 +552,10 @@ public class ChuckMainInstance : MonoBehaviour
     {
         // default device
         myMicDevice = "";
+        #if UNITY_WEBGL
+        // TODO
+        // pass; could setup later if I wanted from chuckscript
+        #else
         // try to find one that matches identifier
         if( microphoneIdentifier != "" )
         {
@@ -501,7 +580,21 @@ public class ChuckMainInstance : MonoBehaviour
         while( !( Microphone.GetPosition( myMicDevice ) > 0 ) ) { };
         // play audio source!
         mySource.Play();
+        #endif
     }
+
+    #if UNITY_WEBGL
+    private void SetUpListener()
+    {
+        AudioListener theListener = FindObjectOfType< AudioListener >();
+        ChuckListenerPosition listener = theListener.GetComponent< ChuckListenerPosition >();
+        if( listener == null )
+        {
+            // it doesn't exist --> we need to create it
+            theListener.gameObject.AddComponent< ChuckListenerPosition >();
+        }
+    }
+    #endif
 
     public string GetUniqueVariableName()
     {
@@ -515,6 +608,8 @@ public class ChuckMainInstance : MonoBehaviour
         return prefix + currentVar.ToString();
     }
 
+    #if UNITY_WEBGL
+    #else
     void OnAudioFilterRead( float[] data, int channels )
     {
         // check whether channels is correct
@@ -539,6 +634,7 @@ public class ChuckMainInstance : MonoBehaviour
         // copy output back to data, which is now output
         Array.Copy( myOutBuffer, data, data.Length );
     }
+    #endif
 
     // unused for the moment
     private bool Advance( long now, float[] input, float[] output, uint channels )

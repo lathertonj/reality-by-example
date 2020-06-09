@@ -52,7 +52,8 @@ public class TerrainTextureClassifierController : MonoBehaviour
             foreach( TerrainTextureExample example in myClassifierExamples )
             {
                 // remember
-                myClassifier.RecordDataPoint( InputVector( example.transform.position ), example.myLabel );
+                // myClassifier.RecordDataPoint( InputVector( example.transform.position ), example.myLabel );
+                Debug.LogError( "this old code is no longer maintained" );
                 //Debug.Log( string.Join( ", ", InputVector( example.transform.position ) ) );
             }
 
@@ -80,8 +81,8 @@ public class TerrainTextureClassifierController : MonoBehaviour
                 float x_01 = (float)x/(float)myTerrainData.alphamapWidth;
                 float y_01 = (float)y/(float)myTerrainData.alphamapHeight;
                  
-                
-                string label = myClassifier.Run( InputVectorFromNormCoordinates( x_01, y_01 ) );
+                Debug.LogError( "this old code is no longer maintained" );
+                string label = "updateme"; //myClassifier.Run( InputVectorFromNormCoordinates( x_01, y_01 ) );
                 double[] splatWeights = new double[] {0, 0, 0, 0};
                 if( label == "1" )
                 {

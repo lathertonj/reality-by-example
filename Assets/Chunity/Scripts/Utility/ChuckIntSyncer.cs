@@ -3,6 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+#if UNITY_WEBGL
+using CK_INT = System.Int32;
+using CK_UINT = System.UInt32;
+#else
+using CK_INT = System.Int64;
+using CK_UINT = System.UInt64;
+#endif
+using CK_FLOAT = System.Double;
+
 public class ChuckIntSyncer : MonoBehaviour
 {
 
@@ -23,7 +32,10 @@ public class ChuckIntSyncer : MonoBehaviour
         // start up again
         myChuck = chuck;
         myIntName = intToSync;
-        myIntCallback = Chuck.CreateGetIntCallback( MyCallback );
+        #if UNITY_WEBGL
+        #else
+        myIntCallback = MyCallback;
+        #endif
     }
 
 
@@ -51,7 +63,7 @@ public class ChuckIntSyncer : MonoBehaviour
         // set
         if( myChuck != null && myIntName != "" )
         {
-            myChuck.SetInt( myIntName, (long) newValue );
+            myChuck.SetInt( myIntName, (CK_INT) newValue );
         }
 
         // pre-set my storage too
@@ -76,19 +88,30 @@ public class ChuckIntSyncer : MonoBehaviour
     // =========== INTERNAL MECHANICS ========== //
 
     ChuckSubInstance myChuck = null;
+    #if UNITY_WEBGL
+    #else
     Chuck.IntCallback myIntCallback;
+    #endif
     string myIntName = "";
 
     private void Update()
     {
+        #if UNITY_WEBGL
+        if( myChuck != null && myIntName != "" )
+        {
+            myChuck.GetInt( myIntName, gameObject.name, "MyCallback" );
+        }
+        #else
         if( myChuck != null && myIntCallback != null && myIntName != "" )
         {
             myChuck.GetInt( myIntName, myIntCallback );
         }
+        #endif
     }
 
     private int myIntValue = 0;
-    private void MyCallback( System.Int64 newValue )
+    [AOT.MonoPInvokeCallback(typeof(Chuck.IntCallback))]
+    private void MyCallback( CK_INT newValue )
     {
         myIntValue = (int) newValue;
     }

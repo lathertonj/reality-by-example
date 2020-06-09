@@ -9,8 +9,8 @@ mergeInto(LibraryManager.library, {
         this.trainingSets = {};
         this.currentRegressionID = 0;
         this.regressions = {};
-        this.currentClassificationID = 0;
-        this.classifications = {};
+        this.currentClassifierID = 0;
+        this.classifiers = {};
         this.rapidLib = window.RapidLib();
     },
 
@@ -81,6 +81,14 @@ mergeInto(LibraryManager.library, {
         }
         return false;
     },
+
+
+
+    // private static extern bool stopPhrase( int trainingID );
+    stopPhrase: function( trainingID )
+    {
+        // nop for now
+    },
         
         
     // private static extern bool trainStaticRegression( System.UInt32 regressionID, System.UInt32 trainingID );
@@ -136,6 +144,78 @@ mergeInto(LibraryManager.library, {
         {
             this.trainingSets[trainingID] = [];
             return true;
+        }
+        return false;
+    },
+
+
+    // private static extern System.UInt32 createNewStaticClassifier();
+    createNewStaticClassifier: function()
+    {
+        // generate new classifier id
+        var nextClassifierID = this.currentClassifierID;
+        this.currentClassifierID++;
+        // generate new classifier
+        this.classifiers[nextClassifierID] = new this.rapidLib.Classification();
+        return nextClassifierID;
+    },
+
+    // TODO: will the output be string label, or just int label?
+    // private static extern bool recordSingleLabeledTrainingElement(
+    //     System.UInt32 trainingID,
+    //     double[] input, System.UInt32 n_input,
+    //     System.Int32 label
+    // );
+    recordSingleLabeledTrainingElement__deps: ['csArrayToJSArray'],
+    recordSingleLabeledTrainingElement: function ( trainingID, inputVector, inputVectorLength, label )
+    {
+        if( trainingID in this.trainingSets )
+        {
+            // convert to JS arrays and add to training set
+            this.trainingSets[trainingID].push( { 
+                input: _csArrayToJSArray( inputVector, inputVectorLength ),
+                output: [label]
+            } );
+            return true;
+        }
+        return false;
+    },
+
+    // private static extern bool trainStaticClassifier( System.UInt32 classifierID, System.UInt32 trainingID );
+    trainStaticClassifier: function( classifierID, trainingID )
+    {
+        if( classifierID in this.classifiers && trainingID in this.trainingSets )
+        {
+            this.classifiers[classifierID].train( this.trainingSets[trainingID] );
+            return true;
+        }
+        return false;
+    },
+
+    // int label (on desktop, it's string)
+    // private static extern System.Int32 runStaticClassifier(
+    //     System.UInt32 classifierID,
+    //     double[] input, System.UInt32 n_input
+    // );
+    // TODO: verify whether output is a single-element array
+    runStaticClassifier__deps: ['csArrayToJSArray', 'jsArrayToCSArray'],
+    runStaticClassifier: function ( classifierID, inputVector, inputVectorLength )
+    {
+        if( !( classifierID in this.classifiers ) )
+        {
+            return false;
+        }
+        var input = _csArrayToJSArray( inputVector, inputVectorLength );
+        var output = this.classifiers[classifierID].run( input );
+        return output[0];
+    },
+
+    // private static extern bool resetStaticClassifier( System.UInt32 classifierID );
+    resetStaticClassifier: function( classifierID ) 
+    {
+        if( classifierID in this.classifiers )
+        {
+            return this.classifiers[classifierID].reset();
         }
         return false;
     },

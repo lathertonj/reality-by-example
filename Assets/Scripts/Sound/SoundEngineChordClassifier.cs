@@ -142,7 +142,11 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
                 Vector3 point = example.transform.position;
 
                 // remember
+                #if UNITY_WEBGL
+                myClassifier.RecordDataPoint( InputVector( point ), example.myChord );
+                #else
                 myClassifier.RecordDataPoint( InputVector( point ), example.myChord.ToString() );
+                #endif
             }
 
             // train
@@ -163,7 +167,11 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
 
     private int RunClassifier( Vector3 pos )
     {
+        #if UNITY_WEBGL
+        return myClassifier.Run( SoundEngineFeatures.InputVector( pos ) );
+        #else
         return int.Parse( myClassifier.Run( SoundEngineFeatures.InputVector( pos ) ) );
+        #endif
     }
 
     public float Intensity0To1( Vector3 worldPos )

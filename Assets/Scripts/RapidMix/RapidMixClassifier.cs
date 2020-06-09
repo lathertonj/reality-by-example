@@ -17,6 +17,29 @@ public class RapidMixClassifier : MonoBehaviour
         myRunCallback = new StringCallback( GetResult );
     }
 
+
+    #if UNITY_WEBGL
+    public void RecordDataPoint( double[] input, int label )
+    {
+        // remember expected output length
+        if( myInputLength == 0 )
+        {
+            myInputLength = (System.UInt32) input.Length;
+        }
+
+        // show error if we get something that isn't the expected length
+        if( myInputLength != input.Length )
+        {
+            Debug.LogError( string.Format( "Received input of dimension {0} which was different than the expected / originally recieved input dimension {1}", input.Length, myInputLength ) );
+        }
+
+        recordSingleLabeledTrainingElement(
+            myTrainingID,
+            input, (System.UInt32) input.Length,
+            label
+        );
+    }
+    #else
     public void RecordDataPoint( double[] input, string label )
     {
         // remember expected output length
@@ -37,6 +60,7 @@ public class RapidMixClassifier : MonoBehaviour
             label
         );
     }
+    #endif
 
     public void Train()
     {
@@ -44,6 +68,20 @@ public class RapidMixClassifier : MonoBehaviour
         haveTrained = true;
     }
 
+    #if UNITY_WEBGL
+    public int Run( double[] input )
+    {
+        if( !haveTrained )  
+        {
+            Debug.LogError( "Classifier can't Run() without having Train()ed first!" );
+            return 0;
+        }
+        return runStaticClassifier(
+            myClassifierID,
+            input, (System.UInt32) input.Length
+        );
+    }
+    #else
     public string Run( double[] input )
     {
         if( !haveTrained )  
@@ -58,6 +96,7 @@ public class RapidMixClassifier : MonoBehaviour
         );
         return mostRecentResult;
     }
+    #endif
 
     // TODO can the dataset also be reset? need to check C++ API
     public void ResetClassifier()
@@ -93,22 +132,39 @@ public class RapidMixClassifier : MonoBehaviour
     [DllImport( PLUGIN_NAME )]
     private static extern System.UInt32 createNewStaticClassifier();
 
+#if UNITY_WEBGL
+    [DllImport( PLUGIN_NAME )]
+    private static extern bool recordSingleLabeledTrainingElement(
+        System.UInt32 trainingID,
+        double[] input, System.UInt32 n_input,
+        System.Int32 label
+    );
+#else
     [DllImport( PLUGIN_NAME )]
     private static extern bool recordSingleLabeledTrainingElement(
         System.UInt32 trainingID,
         double[] input, System.UInt32 n_input,
         System.String label
     );
+#endif
 
     [DllImport( PLUGIN_NAME )]
     private static extern bool trainStaticClassifier( System.UInt32 classifierID, System.UInt32 trainingID );
 
+#if UNITY_WEBGL
+    [DllImport( PLUGIN_NAME )]
+    private static extern System.Int32 runStaticClassifier(
+        System.UInt32 classifierID,
+        double[] input, System.UInt32 n_input
+    );
+#else
     [DllImport( PLUGIN_NAME )]
     private static extern bool runStaticClassifier(
         System.UInt32 classifierID,
         double[] input, System.UInt32 n_input,
         StringCallback callback
     );
+#endif
 
     [DllImport( PLUGIN_NAME )]
     private static extern bool resetStaticClassifier( System.UInt32 classifierID );

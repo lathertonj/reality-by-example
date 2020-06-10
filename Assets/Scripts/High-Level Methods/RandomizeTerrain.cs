@@ -11,10 +11,10 @@ public class RandomizeTerrain : MonoBehaviour
     private enum RandomizeAmount { Full, PerturbBig, PerturbSmall };
 
 
-    public SteamVR_Input_Sources leftHand, rightHand;
+    public SteamVR_Input_Sources currentHand;
     public SteamVR_Action_Boolean gripPress;
 
-    public LaserPointerDragAndDrop leftHandLaser, rightHandLaser;
+    public LaserPointerDragAndDrop currentLaser;
 
     ConnectedTerrainController[] terrainHeightControllers;
     ConnectedTerrainTextureController[] terrainTextureControllers;
@@ -99,7 +99,7 @@ public class RandomizeTerrain : MonoBehaviour
     {
         if( ShouldRandomize() )
         {
-            if( gripPress.GetStateDown( leftHand ) || gripPress.GetStateDown( rightHand ) )
+            if( gripPress.GetStateDown( currentHand ) )
             {
                 TakeGripAction();
             }
@@ -107,13 +107,9 @@ public class RandomizeTerrain : MonoBehaviour
 
         if( currentAction == ActionType.Copy )
         {
-            if( gripPress.GetStateUp( leftHand ) )
+            if( gripPress.GetStateUp( currentHand ) )
             {
-                Copy( leftHandLaser );
-            }
-            else if( gripPress.GetStateUp( rightHand ) )
-            {
-                Copy( rightHandLaser );
+                Copy( currentLaser );
             }
         }
     }
@@ -122,6 +118,31 @@ public class RandomizeTerrain : MonoBehaviour
     {
         // disallow randomization during initialization
         return !currentlyComputing && currentAction != ActionType.DoNothing;
+    }
+
+    public void SetGripAction( ActionType newAction, GameObject controller )
+    {
+        // do nothing
+        if( newAction == ActionType.DoNothing )
+        {
+            currentAction = newAction;
+            currentHand = default( SteamVR_Input_Sources );
+            currentLaser = null;
+            return;
+        }
+
+        // other actions: check for input sources
+        SteamVR_Behaviour_Pose controllerBehavior = controller.GetComponent<SteamVR_Behaviour_Pose>();
+        LaserPointerDragAndDrop laser = controller.GetComponent<LaserPointerDragAndDrop>();
+        // short circuit error
+        if( controllerBehavior == null || laser == null )
+        {
+            Debug.LogError( "randomizer can't parse controller: " + controller.name );
+            return;
+        }
+        currentAction = newAction;
+        currentHand = controllerBehavior.inputSource;
+        currentLaser = laser;
     }
 
     void TakeGripAction()

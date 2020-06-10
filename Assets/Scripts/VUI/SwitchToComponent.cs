@@ -38,7 +38,7 @@ public class SwitchToComponent : MonoBehaviour
         RandomizeTerrain randomizer = controller.transform.root.GetComponentInChildren<RandomizeTerrain>();
         if( randomizer != null )
         {
-            randomizer.currentAction = RandomizeTerrain.ActionType.DoNothing;
+            randomizer.SetGripAction( RandomizeTerrain.ActionType.DoNothing, controller );
         }
         DisablePlacementInteractors( controller );
         DisableMovementInteractors( controller );
@@ -139,21 +139,21 @@ public class SwitchToComponent : MonoBehaviour
             case InteractionType.RandomizePerturbSmall:
                 if( randomizer != null ) 
                 { 
-                    randomizer.currentAction = RandomizeTerrain.ActionType.PerturbSmall;
+                    randomizer.SetGripAction( RandomizeTerrain.ActionType.PerturbSmall, controller );
                     gripInUse = true;
                 }
                 break;
             case InteractionType.RandomizePerturbBig:
                 if( randomizer != null ) 
-                { 
-                    randomizer.currentAction = RandomizeTerrain.ActionType.PerturbBig;
+                {
+                    randomizer.SetGripAction( RandomizeTerrain.ActionType.PerturbBig, controller );
                     gripInUse = true;
                 }
                 break;
             case InteractionType.RandomizeCopy:
                 if( randomizer != null ) 
                 { 
-                    randomizer.currentAction = RandomizeTerrain.ActionType.Copy;
+                    randomizer.SetGripAction( RandomizeTerrain.ActionType.Copy, controller );
                     gripInUse = true;
                     // we need the drag and drop for this one only
                     EnableComponent<LaserPointerDragAndDrop>( controller );
@@ -162,14 +162,14 @@ public class SwitchToComponent : MonoBehaviour
             case InteractionType.RandomizeCurrent:
                 if( randomizer != null ) 
                 { 
-                    randomizer.currentAction = RandomizeTerrain.ActionType.RandomizeCurrent;
+                    randomizer.SetGripAction( RandomizeTerrain.ActionType.RandomizeCurrent, controller );
                     gripInUse = true;
                 }
                 break;
             case InteractionType.RandomizeAll:
                 if( randomizer != null ) 
                 { 
-                    randomizer.currentAction = RandomizeTerrain.ActionType.RandomizeAll;
+                    randomizer.SetGripAction( RandomizeTerrain.ActionType.RandomizeAll, controller );
                     gripInUse = true;
                 }
                 break;

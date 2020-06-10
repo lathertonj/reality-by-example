@@ -12,6 +12,8 @@ public class AnimatedCreatureColor : MonoBehaviour , TouchpadUpDownInteractable
     private Color startColor;
     private float startH, startS, startV;
     private float currentH;
+    public bool enforceIdenticalGroupColor = true;
+    private AnimationByRecordedExampleController myAnimator;
 
 
     // Start is called before the first frame update
@@ -26,6 +28,8 @@ public class AnimatedCreatureColor : MonoBehaviour , TouchpadUpDownInteractable
         }
         Color.RGBToHSV( startColor, out startH, out startS, out startV );
         currentH = startH;
+
+        myAnimator = GetComponent<AnimationByRecordedExampleController>();
     }
 
     public void CopyColor( AnimatedCreatureColor other )
@@ -33,7 +37,7 @@ public class AnimatedCreatureColor : MonoBehaviour , TouchpadUpDownInteractable
         UpdateColor( other.currentH );
     }
 
-    void UpdateColor( float newH )
+    public void UpdateColor( float newH )
     {
         // boundary conditions
         while( newH > 1 ) { newH--; }
@@ -57,7 +61,14 @@ public class AnimatedCreatureColor : MonoBehaviour , TouchpadUpDownInteractable
         float changeH = verticalDisplacementThisFrame.MapClamp( -0.1f, 0.1f, 0.05f * sensitivity, -0.05f * sensitivity );
 
         // change my color
-        UpdateColor( currentH + changeH );
+        float newH = currentH + changeH;
+        UpdateColor( newH );
+
+        // change my group's color too
+        if( enforceIdenticalGroupColor )
+        {
+            myAnimator.UpdateColor( newH );
+        }
     }
     
     void TouchpadUpDownInteractable.FinalizeMovement()

@@ -82,6 +82,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     IEnumerator dataCollectionCoroutine = null, runtimeCoroutine = null;
 
     private AnimationSoundRecorderPlaybackController mySounder = null;
+    private AnimatedCreatureColor myColor = null;
 
     public bool useRecordingModeOffset = false;
     public float recordingModeLateralOffset = 1.5f;
@@ -113,7 +114,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         }
         goalLocalPositions = new Vector3[modelRelativePointsDataSource.Length];
 
+        // get components
         mySounder = GetComponent<AnimationSoundRecorderPlaybackController>();
+        myColor = GetComponent<AnimatedCreatureColor>();
 
         // free the dummy points
         // and reset the scale when appropriate
@@ -1517,6 +1520,15 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     }
 
 
+    public void UpdateColor( float newHue )
+    {
+        foreach( AnimationByRecordedExampleController creature in myGroup )
+        {
+            creature.myColor.UpdateColor( newHue );
+        }
+    }
+
+
     void Nameable.SetDisplayName( string newName )
     {
         for( int i = 0; i < myGroup.Count; i++ )
@@ -1590,7 +1602,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             serialGroup.positions.Add( groupMember.modelBaseToAnimate.position );
             serialGroup.rotations.Add( groupMember.modelBaseToAnimate.rotation );
             serialGroup.nextFrames.Add( groupMember.currentRuntimeFrame );
-            serialGroup.colors.Add( groupMember.GetComponent<AnimatedCreatureColor>().Serialize() );
+            serialGroup.colors.Add( groupMember.myColor.Serialize() );
             groupMember.hasMyGroupBeenSerialized = true;
         }
 
@@ -1623,7 +1635,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         groupLeader.currentRuntimeFrame = serialGroup.nextFrames[0];
 
         // color
-        groupLeader.GetComponent<AnimatedCreatureColor>().Deserialize( serialGroup.colors[0] );
+        groupLeader.myColor.Deserialize( serialGroup.colors[0] );
 
         // clone examples
         foreach( SerializableAnimationExample serialExample in serialGroup.examples )
@@ -1671,7 +1683,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             newCreature.currentRuntimeFrame = serialGroup.nextFrames[i];
 
             // color
-            newCreature.GetComponent<AnimatedCreatureColor>().Deserialize( serialGroup.colors[i] );
+            newCreature.myColor.Deserialize( serialGroup.colors[i] );
 
             // name
             newCreature.myBaseName = myBaseName;

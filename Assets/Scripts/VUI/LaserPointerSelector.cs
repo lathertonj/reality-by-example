@@ -11,8 +11,8 @@ public class LaserPointerSelector : MonoBehaviour
     private VibrateController vibration;
 
     public MeshRenderer laserPrefab;
-    public Transform selectedPrefab;
-    private static Transform theSelectionMarker = null;
+    public ParticleSystemFollower selectedPrefab;
+    private static ParticleSystemFollower theSelectionMarker = null;
 
     private MeshRenderer laser;
     private Transform laserTransform;
@@ -34,6 +34,9 @@ public class LaserPointerSelector : MonoBehaviour
 
     private static bool mostRecentButtonPressWasMenu = false;
 
+    private static Vector3 originalScale;
+    private static Vector3 smallScale;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -50,6 +53,10 @@ public class LaserPointerSelector : MonoBehaviour
 
             // and hide it
             UnselectObject();
+
+            // and store its properties
+            originalScale = theSelectionMarker.transform.localScale;
+            smallScale = 0.25f * originalScale;
         }
     }
 
@@ -172,6 +179,9 @@ public class LaserPointerSelector : MonoBehaviour
 
     void SelectObject()
     {
+        // reset scale
+        theSelectionMarker.transform.localScale = originalScale;
+
         // check if it's a menu item
         SwitchToComponent menuItem = intersectingObject.GetComponent<SwitchToComponent>();
         
@@ -214,6 +224,13 @@ public class LaserPointerSelector : MonoBehaviour
                 SwitchToComponent.EnableTouchpadPrimaryInteractors( gameObject );
 
             }
+
+            // if we selected a high level method,
+            // make the selection graphic much smaller as it's very close to us
+            if( intersectingObject.GetComponent<HighLevelMethods>() != null )
+            {
+                theSelectionMarker.transform.localScale = smallScale;
+            }
         }
 
         // vibrate for everyone
@@ -231,7 +248,7 @@ public class LaserPointerSelector : MonoBehaviour
 
         // hide marker
         selectedObject = null;
-        theSelectionMarker.parent = null;
+        theSelectionMarker.objectToFollow = null;
         theSelectionMarker.gameObject.SetActive( false );
     }
 
@@ -252,11 +269,7 @@ public class LaserPointerSelector : MonoBehaviour
         if( selectedObject != null ) { UnselectObject(); }
 
         selectedObject = newObject;
-        theSelectionMarker.position = selectedObject.transform.position;
-        theSelectionMarker.parent = selectedObject.transform;
-        // confusingly, because it's a particle system, the local scale affects the size rather than
-        // the overall scale
-        theSelectionMarker.localScale = Vector3.one;
+        theSelectionMarker.objectToFollow = selectedObject.transform;
         theSelectionMarker.gameObject.SetActive( true );
 
         LaserPointerSelectable selectable = selectedObject.GetComponent< LaserPointerSelectable >();

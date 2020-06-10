@@ -10,30 +10,97 @@ public class SerializationManager : MonoBehaviour
     public GameObject[] entitiesToSaveOnQuit;
     public GameObject[] entitiesToLoadOnStart;
     public string worldName;
+    private string saveWorldName;
+    private string loadWorldName;
 
     public bool saveDynamicEntities = false;
     public bool loadDynamicEntities = false;
+    public bool loadLatestVersionOfWorld = false;
+    public bool saveToUniqueNumber = false;
 
     public string[] manualLoadDynamicEntities;
 
     // Start is called before the first frame update
     void Start()
     {
+        // where to load from
+        if( loadLatestVersionOfWorld )
+        {
+            // find first number not in use
+            loadWorldName = FindLatestWorldName();
+        }
+        else
+        {
+            loadWorldName = worldName;
+        }
+
+        // where to save to
+        if( saveToUniqueNumber )
+        {
+            // ensure worldName is not in use
+            saveWorldName = FindUniqueWorldName();
+        }
+        else
+        {
+            saveWorldName = worldName;
+        }
+
         #if UNITY_WEBGL
-        // don't try to create folders on web
+            // don't try to create folders on web
         #else
-        // ensure dirs exist
-        string folder = DynamicExamplesLocation();
-        if( !Directory.Exists( folder ) ) { Directory.CreateDirectory( folder ); }
+            // ensure dirs exist
+            string loadFolder = DynamicExamplesLocation( true );
+            string saveFolder = DynamicExamplesLocation( false );
+            if( !Directory.Exists( loadFolder ) ) { Directory.CreateDirectory( loadFolder ); }
+            if( !Directory.Exists( saveFolder ) ) { Directory.CreateDirectory( saveFolder ); }
         #endif
 
+        
+
         // load all
-        StartCoroutine( LoadAll() );
+        if( loadWorldName != "" )
+        {
+            StartCoroutine( LoadAll() );
+        }
+        else if( loadLatestVersionOfWorld )
+        {
+            // we thought we'd be able to load something, but failed
+            StartCoroutine( RandomizeTerrain.RandomizeWorld() );
+        }
     }
 
     void OnApplicationQuit()
     {
         SaveAll();
+    }
+
+    string FindUniqueWorldName()
+    {
+        int worldNum = 0;
+        string newWorldName;
+        do
+        {
+            newWorldName = worldName + worldNum.ToString();
+            worldNum++;
+
+        } while( Directory.Exists( Application.streamingAssetsPath + "/examples/" + newWorldName ) );
+        return newWorldName;
+    }
+
+
+    string FindLatestWorldName()
+    {
+        int worldNum = 0;
+        string newWorldName = "";
+        string prevWorldName;
+        do
+        {
+            prevWorldName = newWorldName;
+            newWorldName = worldName + worldNum.ToString();
+            worldNum++;
+
+        } while( Directory.Exists( Application.streamingAssetsPath + "/examples/" + newWorldName ) );
+        return prevWorldName;
     }
 
     IEnumerator LoadAll()
@@ -58,7 +125,7 @@ public class SerializationManager : MonoBehaviour
 
             #else
             // read all filenames
-            foreach( string subdirectory in Directory.GetDirectories( DynamicExamplesLocation() ) )
+            foreach( string subdirectory in Directory.GetDirectories( DynamicExamplesLocation( true ) ) )
             {
                 // name of prefab is name of directory
                 DirectoryInfo info = new DirectoryInfo( subdirectory );
@@ -91,7 +158,7 @@ public class SerializationManager : MonoBehaviour
         if( saveDynamicEntities )
         {
             // first, delete previous dynamic entities
-            DirectoryInfo dynamicDir = new DirectoryInfo( DynamicExamplesLocation() );
+            DirectoryInfo dynamicDir = new DirectoryInfo( DynamicExamplesLocation( false ) );
             foreach( DirectoryInfo dir in dynamicDir.EnumerateDirectories() )
             {
                 dir.Delete(true); 
@@ -111,21 +178,26 @@ public class SerializationManager : MonoBehaviour
         #endif
     }
 
-    string GetFilepath( SerializableByExample entity )
+    string WorldName( bool isLoad )
     {
-        return Application.streamingAssetsPath + "/examples/" + worldName + "/" + entity.FilenameIdentifier() + FileExtension();
+        return isLoad ? loadWorldName : saveWorldName;
     }
 
-    string GetFilepath( DynamicSerializableByExample entity )
+    string GetFilepath( SerializableByExample entity, bool isLoad )
     {
-        string folder = DynamicExamplesLocation() + entity.PrefabName() + "/";
+        return Application.streamingAssetsPath + "/examples/" + WorldName( isLoad ) + "/" + entity.FilenameIdentifier() + FileExtension();
+    }
+
+    string GetFilepath( DynamicSerializableByExample entity, bool isLoad )
+    {
+        string folder = DynamicExamplesLocation( isLoad ) + entity.PrefabName() + "/";
         if( !Directory.Exists( folder ) ) { Directory.CreateDirectory( folder ); }
         return folder + entity.FilenameIdentifier() + FileExtension();
     }
 
-    string DynamicExamplesLocation()
+    string DynamicExamplesLocation( bool isLoad )
     {
-        return Application.streamingAssetsPath + "/examples/" + worldName + "/dynamic/";
+        return Application.streamingAssetsPath + "/examples/" + WorldName( isLoad ) + "/dynamic/";
     }
 
     string FileExtension()
@@ -136,7 +208,7 @@ public class SerializationManager : MonoBehaviour
 
     void SaveExamples( SerializableByExample entity )
     {
-        StreamWriter writer = new StreamWriter( GetFilepath( entity ), false );
+        StreamWriter writer = new StreamWriter( GetFilepath( entity, false ), false );
         writer.Write( entity.SerializeExamples() );
         writer.Close();
     }
@@ -151,7 +223,7 @@ public class SerializationManager : MonoBehaviour
             yield return StartCoroutine( entity.LoadExamples( www.downloadHandler.text ) );
         }
         #else
-        StreamReader reader = new StreamReader( GetFilepath( entity ) );
+        StreamReader reader = new StreamReader( GetFilepath( entity, true ) );
         string json = reader.ReadToEnd();
         reader.Close();
         yield return StartCoroutine( entity.LoadExamples( json ) );
@@ -160,7 +232,7 @@ public class SerializationManager : MonoBehaviour
 
     void DynamicSaveExamples( DynamicSerializableByExample entity )
     {
-        StreamWriter writer = new StreamWriter( GetFilepath( entity ), false );
+        StreamWriter writer = new StreamWriter( GetFilepath( entity, true ), false );
         writer.Write( entity.SerializeExamples() );
         writer.Close();
     }

@@ -45,6 +45,18 @@ public class RandomizeTerrain : MonoBehaviour
 
     public bool randomizeOnStart = true;
 
+    private static RandomizeTerrain theRandomizer;
+
+    public static IEnumerator RandomizeWorld()
+    {
+        return theRandomizer.InitializeAll();
+    }
+
+    void Awake()
+    {
+        theRandomizer = this;
+    }
+
 
     // Start is called before the first frame update
     void Start()
@@ -79,7 +91,7 @@ public class RandomizeTerrain : MonoBehaviour
 
         if( randomizeOnStart )
         {
-            StartCoroutine( InitializeAll() );
+            StartCoroutine( RandomizeWorld() );
         }
     }
 

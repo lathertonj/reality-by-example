@@ -8,6 +8,7 @@ TagManager:
   - TerrainTextureExample
   - MenuItem
   - BoidAvoidance
+  - Creature
   layers:
   - Default
   - TransparentFX

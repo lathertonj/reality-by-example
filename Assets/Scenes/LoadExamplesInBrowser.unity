@@ -1152,6 +1152,8 @@ GameObject:
   - component: {fileID: 700675866}
   - component: {fileID: 700675868}
   - component: {fileID: 700675867}
+  - component: {fileID: 700675870}
+  - component: {fileID: 700675869}
   m_Layer: 0
   m_Name: AudienceCamera
   m_TagString: Untagged
@@ -1292,6 +1294,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movementPerSecond: 5
+--- !u!114 &700675869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700675860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4db124cc684e9bd4f9d6167f5af6ec2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mouseButton: 0
+  clickMask:
+    serializedVersion: 2
+    m_Bits: 1024
+--- !u!114 &700675870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700675860}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19a498ff32ebb7647ae53627bc5c1561, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectToTrack: {fileID: 0}
+  slewSeconds: 1
+  slewYRotation: 0
 --- !u!1 &704893511
 GameObject:
   m_ObjectHideFlags: 0

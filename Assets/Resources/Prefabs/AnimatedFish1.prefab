@@ -1177,7 +1177,7 @@ GameObject:
   - component: {fileID: 3254827130243311676}
   m_Layer: 0
   m_Name: AnimatedFish1
-  m_TagString: Untagged
+  m_TagString: Creature
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1435,6 +1435,7 @@ MonoBehaviour:
   creatureRenderer: {fileID: 2930637665397774443}
   materialColorProperty: _SpecColor
   sensitivity: 1
+  enforceIdenticalGroupColor: 1
 --- !u!1 &5999167609475964485
 GameObject:
   m_ObjectHideFlags: 0

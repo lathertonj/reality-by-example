@@ -1435,7 +1435,7 @@ GameObject:
   - component: {fileID: 5169728823964231039}
   m_Layer: 0
   m_Name: AnimatedWolf
-  m_TagString: Untagged
+  m_TagString: Creature
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1580,6 +1580,7 @@ MonoBehaviour:
   creatureRenderer: {fileID: 4472688693636389135}
   materialColorProperty: _SpecColor
   sensitivity: 1
+  enforceIdenticalGroupColor: 1
 --- !u!114 &5169728823964231037
 MonoBehaviour:
   m_ObjectHideFlags: 0

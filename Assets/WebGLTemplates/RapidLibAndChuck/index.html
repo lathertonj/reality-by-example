@@ -5,11 +5,26 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>%UNITY_WEB_NAME%</title>
+    <link rel="stylesheet" href="./css/rbe.css">
   </head>
   
   <body>
-    <div id="unityContainer" style="width: 95vw; height: 90vh; margin: auto"></div>
-    <button id="startButton">Start</button>
+    <div id="unityContainer" class="game-column"></div>
+    <div class="controls-column">
+      <p>Controls:</p>
+      <p>Arrow keys: move around <br />
+        Right click and drag: look around <br />
+        Left click on a creature: follow it and hear its sound <br />
+        Left click on anything else: stop following the creature <br />
+        z: zoom in and out <br />
+      </p>
+      <p>Click on the game if the controls are not working!</p>
+      <p>The audio may stutter until all creatures have been remembered.</p>
+      <br />
+      <button id="startButton">Start</button>
+    </div>
+
+
     <script type="text/javascript" src="./js/defer.js"></script>
     <script type="text/javascript" src="./js/RapidLib.js"></script>
     <script>

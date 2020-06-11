@@ -1,0 +1,13 @@
+.game-column {
+    float: left;
+    width: 70vw;
+    height: 98vh;
+    margin: auto;
+    background-color: #1f1f1f;
+}
+
+.controls-column {
+    float: left;
+    width: 23vw;
+    padding: 25px;
+}

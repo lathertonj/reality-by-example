@@ -12,6 +12,14 @@ public class RapidMixClassifier : MonoBehaviour
 
     void Awake()
     {
+        #if UNITY_WEBGL
+            if( !RapidMixRegression.haveInitializedLib )
+            {
+                initializeRapidMix();
+                RapidMixRegression.haveInitializedLib = true;
+            }
+        #endif
+
         myTrainingID = createEmptyTrainingData();
         myClassifierID = createNewStaticClassifier();
         myRunCallback = new StringCallback( GetResult );
@@ -122,6 +130,9 @@ public class RapidMixClassifier : MonoBehaviour
 
 #if UNITY_WEBGL
     const string PLUGIN_NAME = "__Internal";
+
+    [DllImport( PLUGIN_NAME )]
+    private static extern void initializeRapidMix();
 #else    
     const string PLUGIN_NAME = "RapidMixAPI";
 #endif

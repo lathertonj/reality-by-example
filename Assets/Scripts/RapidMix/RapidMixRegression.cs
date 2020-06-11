@@ -8,7 +8,7 @@ public class RapidMixRegression : MonoBehaviour
 {
 #if UNITY_WEBGL
     private int myTrainingID, myRegressionID, myInputLength, myOutputLength;
-    private static bool haveInitializedLib = false;
+    public static bool haveInitializedLib = false;
 #else
     private System.UInt32 myTrainingID, myRegressionID, myInputLength, myOutputLength;
 #endif

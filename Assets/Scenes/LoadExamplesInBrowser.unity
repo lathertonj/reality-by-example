@@ -27,7 +27,7 @@ RenderSettings:
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 2100000, guid: d554faba58403b54f8309b7643bbcb78, type: 2}
-  m_HaloStrength: 0.5
+  m_HaloStrength: 0.53
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
   m_HaloTexture: {fileID: 0}
@@ -1154,6 +1154,7 @@ GameObject:
   - component: {fileID: 700675867}
   - component: {fileID: 700675870}
   - component: {fileID: 700675869}
+  - component: {fileID: 700675871}
   m_Layer: 0
   m_Name: AudienceCamera
   m_TagString: Untagged
@@ -1325,6 +1326,21 @@ MonoBehaviour:
   objectToTrack: {fileID: 0}
   slewSeconds: 1
   slewYRotation: 0
+--- !u!114 &700675871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700675860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be40263c1f30b364f93f1c71320778e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  waterLayer: 11
+  groundLayer: 8
+  waterVisualOffset: 0.004
 --- !u!1 &704893511
 GameObject:
   m_ObjectHideFlags: 0

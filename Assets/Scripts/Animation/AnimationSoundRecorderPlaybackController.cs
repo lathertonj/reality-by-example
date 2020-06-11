@@ -214,6 +214,13 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
                 {{
                     while( true )
                     {{
+                        <<< ""trying to update my samples"", {7}.size() >>>;
+                        if( {7}.size() == 0 )
+                        {{
+                            // we didn't receive it in time! wait a little longer
+                            2::second => now;
+                            <<< ""trying again"", {7}.size() >>>;
+                        }}
                         // do-while wait for 
                         // (first one: in case our values already contain something)
                         while( myPersonalSamplesAdded < {1} )

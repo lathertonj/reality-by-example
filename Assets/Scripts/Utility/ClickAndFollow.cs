@@ -9,6 +9,8 @@ public class ClickAndFollow : MonoBehaviour
     private SlewToTransform myFollower;
     private Camera myCamera;
 
+    private AnimationSoundRecorderPlaybackController creatureSound = null;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -37,11 +39,46 @@ public class ClickAndFollow : MonoBehaviour
                 // yay! we can now follow a creature
                 myFollower.objectToTrack = hitObject;
                 myFollower.enabled = true;
+
+                // if we already had another creature, disable it
+                DisableCreatureSound();
+
+                // get its sound component
+                creatureSound = hitObject.GetComponent<AnimationSoundRecorderPlaybackController>();
+                EnableCreatureSound();
+
+                // do not run the fail condition below
                 return;
             }
         }
-        // either we clicked nothing, or we didn't click a creature
+        // fail: either we clicked nothing, or we didn't click a creature
         myFollower.objectToTrack = null;
         myFollower.enabled = false;
+
+        DisableCreatureSound();
+        creatureSound = null;
+    }
+
+
+    void DisableCreatureSound()
+    {
+        // only enable / disable sound in WebGL
+        #if UNITY_WEBGL
+            if( creatureSound != null )
+            {
+                creatureSound.DisableSound();
+            }
+        #endif
+    }
+
+    void EnableCreatureSound()
+    {
+        // only enable / disable sound in WebGL
+        #if UNITY_WEBGL
+            if( creatureSound != null )
+            {
+                creatureSound.EnableSound();
+            }
+        #endif
     }
 }

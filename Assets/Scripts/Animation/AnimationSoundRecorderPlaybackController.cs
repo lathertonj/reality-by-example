@@ -30,6 +30,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     // Start is called before the first frame update
     private RapidMixRegression myRegression;
 
+    private AudioSource myAudioSource;
     private ChuckSubInstance myChuck;
     private ChuckIntSyncer myCurrentRecordedSampleSyncer;
     private ChuckEventListener myTempoListener;
@@ -38,7 +39,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
 
     string myLisa, myCurrentRecordedSample = "", myNewSamplePositionReady, myNewSamplePosition, myStartRecording, myStopRecording;
     string mySamples = "";
-    string mySerialInitEvent;
+    string mySerialInitEvent, myDisableEvent, myEnableEvent;
     string updateMyLisa;
 
     private bool haveTrained = false;
@@ -70,15 +71,21 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
             {1}.duration() => {0}.duration;
             global int {2};
             global float {3}[];
+            global Event {4};
 
 
             // copy samples
             for( int i; i < {2}; i++ )
             {{
                 {0}.valueAt( {3}[i], i::samp );
+                // wait a little? this might cause problems below
+                if( i % 100 == 0 ) {{ 1::ms => now; }}
             }}
-        ", myLisa, other.myLisa, other.myCurrentRecordedSample, other.mySamples ) );
-    }
+            // signal to self below that all the samples are in place
+            {4}.broadcast();
+
+        ", myLisa, other.myLisa, other.myCurrentRecordedSample, other.mySamples, updateMyLisa ) );
+    } 
 
     private bool variableNamesInit = false;
     void InitChuckVariableNames()
@@ -95,6 +102,8 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         if( mySamples == "" ) { mySamples = myChuck.GetUniqueVariableName( "mySamples" ); }
         updateMyLisa = myChuck.GetUniqueVariableName( "updateMyLisa" );
         mySerialInitEvent = myChuck.GetUniqueVariableName( "serialInitFinished" );
+        myDisableEvent = myChuck.GetUniqueVariableName( "disableMySound" );
+        myEnableEvent = myChuck.GetUniqueVariableName( "enableMySound" );
         variableNamesInit = true;
     }
 
@@ -102,6 +111,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     {
         myRegression = gameObject.AddComponent<RapidMixRegression>();
         myTempoListener = gameObject.AddComponent<ChuckEventListener>();
+        myAudioSource = GetComponent<AudioSource>();
     }
 
     void InitFromSerial( CK_FLOAT[] samples, int nextAudioFrame )
@@ -346,14 +356,56 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
             // if we were cloned, start playing grains right away
             {6}
 
+
+            // disabled?
+            false => int disabled;
+            global Event {9};  // disable me
+            global Event {10}; // enable me
+            fun void ListenForDisabled()
+            {{
+                while( true )
+                {{
+                    {9} => now;
+                    if( !disabled )
+                    {{
+                        true => disabled;
+                        false => synth.shouldPlayGrains;
+                        synth =< dac;
+                    }}
+                }}
+            }}
+            spork ~ ListenForDisabled();
+
+            fun void ListenForEnabled()
+            {{
+                while( true )
+                {{
+                    {10} => now;
+                    if( disabled )
+                    {{
+                        false => disabled;
+                        true => synth.shouldPlayGrains;
+                        synth => dac;
+                    }}
+                }}
+            }}
+            spork ~ ListenForEnabled();
+
             while( true ) {{ 1::second => now; }}
 
             
         ", myLisa, myCurrentRecordedSample, myNewSamplePositionReady, myNewSamplePosition, 
-        myStartRecording, myStopRecording, clonedAddition, mySamples, updateMyLisa ) );
+        myStartRecording, myStopRecording, clonedAddition, mySamples, updateMyLisa,
+        myDisableEvent, myEnableEvent ) );
         
         myCurrentRecordedSampleSyncer = gameObject.AddComponent<ChuckIntSyncer>();
         myCurrentRecordedSampleSyncer.SyncInt( myChuck, myCurrentRecordedSample );
+
+
+        // only disable upon init in WebGL
+        #if UNITY_WEBGL
+            DisableSound();
+        #endif
     }
 
     public void StartRecordingExamples()
@@ -447,6 +499,20 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     public void GetMySamples( CK_FLOAT[] samples, CK_UINT numSamples )
     {
         myAudioData = samples;
+    }
+
+    public void DisableSound()
+    {
+        myChuck.BroadcastEvent( myDisableEvent );
+        myChuck.enabled = false;
+        myAudioSource.enabled = false;
+    }
+
+    public void EnableSound()
+    {
+        myAudioSource.enabled = true;
+        myChuck.enabled = true;
+        myChuck.BroadcastEvent( myEnableEvent );
     }
 
 

@@ -122,7 +122,11 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
             
         ", mySamples, myCurrentRecordedSample, mySerialInitEvent ) );
 
-        myChuck.ListenForChuckEventOnce( mySerialInitEvent, RespondToChuckSerialInit );
+        #if UNITY_WEBGL
+            myChuck.ListenForChuckEventOnce( mySerialInitEvent, gameObject.name, "RespondToChuckSerialInit" );
+        #else
+            myChuck.ListenForChuckEventOnce( mySerialInitEvent, RespondToChuckSerialInit );
+        #endif
         myChuck.SetFloatArray( mySamples, samples );
         myChuck.SetInt( myCurrentRecordedSample, nextAudioFrame );
     }
@@ -383,8 +387,12 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         // chuck should stop recording examples and start playing back
         myChuck.BroadcastEvent( myStopRecording );
 
-        // store audio samples in our thread too
-        myChuck.GetFloatArray( mySamples, GetMySamples );
+        #if UNITY_WEBGL
+            // do not try to use callback-based function in WebGL
+        #else
+            // store audio samples in our thread too
+            myChuck.GetFloatArray( mySamples, GetMySamples );
+        #endif
 
         Train();
     }

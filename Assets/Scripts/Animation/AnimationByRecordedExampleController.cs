@@ -1653,6 +1653,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         myBaseName = serialGroup.name;
         UpdateMyDisplayName( 0 );
 
+        // set game object name to be unique
+        gameObject.name = "loaded_creature_" + myGroupID.ToString() + "_0";
+
         // reset audio system
         if( serialGroup.audio.audioData.Length < serialGroup.audio.nextAudioFrame )
         {
@@ -1688,6 +1691,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // name
             newCreature.myBaseName = myBaseName;
             newCreature.UpdateMyDisplayName( i );
+
+            // set gameobject name to be unique
+            newCreature.gameObject.name = "loaded_creature_" + myGroupID.ToString() + "_" + i.ToString();
 
             // copy audio system
             newCreature.CloneAudioSystem( groupLeader, true );

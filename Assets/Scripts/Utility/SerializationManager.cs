@@ -216,7 +216,7 @@ public class SerializationManager : MonoBehaviour
     IEnumerator LoadExamples( SerializableByExample entity )
     {
         #if UNITY_WEBGL
-        UnityWebRequest www = UnityWebRequest.Get( GetFilepath( entity ) );
+        UnityWebRequest www = UnityWebRequest.Get( GetFilepath( entity, true ) );
         yield return www.SendWebRequest();
         if( !www.isNetworkError && !www.isHttpError )
         {
@@ -240,7 +240,7 @@ public class SerializationManager : MonoBehaviour
     #if UNITY_WEBGL
     IEnumerator DynamicLoadExamples( string fileName )
     {
-        string filePath = DynamicExamplesLocation() + fileName + FileExtension();
+        string filePath = DynamicExamplesLocation( true ) + fileName + FileExtension();
         UnityWebRequest www = UnityWebRequest.Get( filePath );
         yield return www.SendWebRequest();
         if( !www.isNetworkError && !www.isHttpError )

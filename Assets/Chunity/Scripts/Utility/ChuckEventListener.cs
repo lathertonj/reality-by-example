@@ -67,14 +67,19 @@ public class ChuckEventListener : MonoBehaviour
     ChuckSubInstance myChuck = null;
     string myEventName = "";
 
+#if UNITY_WEBGL
+    // don't need to call userCallback, because it will be called using MyDirectCallback
+#else
     private void Update()
     {
+        // call the user callback the number of times that the builtin callback was called
         while( numTimesCalled > 0 )
         {
             userCallback();
             numTimesCalled--;
         }
     }
+#endif
 
     #if UNITY_WEBGL
     #else

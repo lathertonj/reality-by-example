@@ -1149,6 +1149,9 @@ GameObject:
   - component: {fileID: 700675865}
   - component: {fileID: 700675861}
   - component: {fileID: 700675863}
+  - component: {fileID: 700675866}
+  - component: {fileID: 700675868}
+  - component: {fileID: 700675867}
   m_Layer: 0
   m_Name: AudienceCamera
   m_TagString: Untagged
@@ -1219,7 +1222,7 @@ Camera:
     height: 1
   near clip plane: 0.01
   far clip plane: 1000
-  field of view: 90
+  field of view: 106
   orthographic: 0
   orthographic size: 5
   m_Depth: 1
@@ -1245,6 +1248,50 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 700675860}
   m_Enabled: 1
+--- !u!114 &700675866
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700675860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a83f509221c07844a8be1a25b1f0f0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  keyToSwitch: z
+  minFOV: 45
+  maxFOV: 100
+  slewSeconds: 4
+--- !u!114 &700675867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700675860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0802c1e381ed9534594b5f09c3fc526e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  whichButton: 1
+  yRate: 90
+  xRate: 90
+--- !u!114 &700675868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700675860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6429241337cdbbc48aa0b68211b58c4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movementPerSecond: 5
 --- !u!1 &704893511
 GameObject:
   m_ObjectHideFlags: 0
@@ -1412,6 +1459,8 @@ MonoBehaviour:
   worldName: myWorldBackup
   saveDynamicEntities: 0
   loadDynamicEntities: 1
+  loadLatestVersionOfWorld: 0
+  saveToUniqueNumber: 0
   manualLoadDynamicEntities:
   - AnimatedCrow/creature_7
   - AnimatedCrow/creature_11

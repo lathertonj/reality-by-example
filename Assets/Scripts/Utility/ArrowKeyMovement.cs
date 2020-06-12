@@ -15,19 +15,19 @@ public class ArrowKeyMovement : MonoBehaviour
     void Update()
     {
         Vector3 direction = Vector3.zero;
-        if( Input.GetKey( KeyCode.LeftArrow ) )
+        if( Input.GetKey( KeyCode.LeftArrow ) || Input.GetKey( KeyCode.A ) )
         {
             direction += -transform.right;
         }
-        if( Input.GetKey( KeyCode.RightArrow ) )
+        if( Input.GetKey( KeyCode.RightArrow ) || Input.GetKey( KeyCode.D ) )
         {
             direction += transform.right;
         }
-        if( Input.GetKey( KeyCode.UpArrow ) )
+        if( Input.GetKey( KeyCode.UpArrow ) || Input.GetKey( KeyCode.W ) )
         {
             direction += transform.forward;
         }
-        if( Input.GetKey( KeyCode.DownArrow ) )
+        if( Input.GetKey( KeyCode.DownArrow ) || Input.GetKey( KeyCode.S ) )
         {
             direction += -transform.forward;
         }

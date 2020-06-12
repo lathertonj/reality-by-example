@@ -114,6 +114,9 @@ public class AnimationActions : MonoBehaviour
                 
                 // select new creature (forgetting currently selected one in the process)
                 LaserPointerSelector.SelectNewObject( newCreature.gameObject );
+
+                // and after we make a new creature, switch immediately into recording mode
+                ProcessUIChange( SwitchToComponent.InteractionType.CreatureExampleRecord, null );
                 break;
             case SwitchToComponent.InteractionType.CreatureSelect:
                 // this is no longer an option, now that we can select anything at any time

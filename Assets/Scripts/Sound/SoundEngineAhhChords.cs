@@ -38,13 +38,15 @@ public class SoundEngineAhhChords : MonoBehaviour
 				1 =>  float gainMultiplier;
 				
 				float myFreq;
+				second / samp => float srate;
 				fun float freq( float f )
 				{{
 					f => myFreq;
-					61 => Std.mtof => float baseFreq;
+					60 => Std.mtof => float baseFreq;
 					// 1.002 == in tune for 56 for aah4.wav
-					// 1.004 == in tune for 60 for aah5.wav
-					myFreq / baseFreq * 0.98 => grainRate;
+					// 1.004 == in tune for 60 for aah5.wav at 44.1k
+					// make invariant to srate
+					myFreq / baseFreq * 1.004 * 44100 / srate => grainRate;
 					
 					return myFreq;
 				}}

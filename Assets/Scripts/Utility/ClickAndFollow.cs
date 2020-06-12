@@ -62,23 +62,19 @@ public class ClickAndFollow : MonoBehaviour
 
     void DisableCreatureSound()
     {
-        // only enable / disable sound in WebGL
-        #if UNITY_WEBGL
-            if( creatureSound != null )
-            {
-                creatureSound.DisableSound();
-            }
-        #endif
+        // only enable / disable sound if we're soloing creature audio
+        if( SoloCreatureAudio.solo && creatureSound != null )
+        {
+            creatureSound.DisableSound();
+        }
     }
 
     void EnableCreatureSound()
     {
-        // only enable / disable sound in WebGL
-        #if UNITY_WEBGL
-            if( creatureSound != null )
-            {
-                creatureSound.EnableSound();
-            }
-        #endif
+        // only enable / disable sound if we're soloing creature audio
+        if( SoloCreatureAudio.solo && creatureSound != null )
+        {
+            creatureSound.EnableSound();
+        }
     }
 }

@@ -23,11 +23,9 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     // give US the input features
     // we will record what is the offset during that time
 
-    // TODO: generalize chuck code so that can have multiple of these components running
 
     // TODO: make a simpler version where randomly we pick between different phrases according to the prominence of the animation...
-
-    // Start is called before the first frame update
+    
     private RapidMixRegression myRegression;
 
     private AudioSource myAudioSource;
@@ -402,10 +400,11 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         myCurrentRecordedSampleSyncer.SyncInt( myChuck, myCurrentRecordedSample );
 
 
-        // only disable upon init in WebGL
-        #if UNITY_WEBGL
+        // disable my sound on start if we're soloing audio
+        if( SoloCreatureAudio.solo )
+        {
             DisableSound();
-        #endif
+        }
     }
 
     public void StartRecordingExamples()

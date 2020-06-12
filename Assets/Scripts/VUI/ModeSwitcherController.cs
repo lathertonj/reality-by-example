@@ -2,16 +2,26 @@
 
 public class ModeSwitcherController : MonoBehaviour
 {
+
+    public enum Mode { Main, Animation };
+    
     static private ModeSwitcherController me;
 
     private bool amEnabled = false;
     public Transform objectToSetPositionFrom;
     public GameObject theModeSwitcher;
+    public GameObject mainMode;
+    public GameObject animationMode;
 
     void Start()
     {
         me = this;
+
+        // default to invisible
         theModeSwitcher.SetActive( false );
+        
+        // default to main mode
+        SetMode( Mode.Main );
     }
 
 
@@ -34,5 +44,23 @@ public class ModeSwitcherController : MonoBehaviour
     {
         theModeSwitcher.transform.position = objectToSetPositionFrom.position;
         theModeSwitcher.transform.rotation = Quaternion.AngleAxis( objectToSetPositionFrom.eulerAngles.y, Vector3.up );
+    }
+
+    public static void SetMode( Mode newMode )
+    {
+        // first, set all modes to be invisible
+        me.mainMode.SetActive( false );
+        me.animationMode.SetActive( false );
+
+        // then, enable the right one
+        switch( newMode )
+        {
+            case Mode.Main:
+                me.mainMode.SetActive( true );
+                break;
+            case Mode.Animation:
+                me.animationMode.SetActive( true );
+                break;
+        }
     }
 }

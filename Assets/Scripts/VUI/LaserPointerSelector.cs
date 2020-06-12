@@ -67,7 +67,6 @@ public class LaserPointerSelector : MonoBehaviour
         {
             clickStartTime = Time.time;
             canSelectThings = false;
-            
         }
 
         if( selectAction.GetStateUp( handType ) )
@@ -246,6 +245,12 @@ public class LaserPointerSelector : MonoBehaviour
             if( selectable != null ) { selectable.Unselected(); }
         }
 
+        // potentially change menu back to main
+        if( SelectedObjectRequiresAnimationMenu() )
+        {
+            ModeSwitcherController.SetMode( ModeSwitcherController.Mode.Main );
+        }
+
         // hide marker
         selectedObject = null;
         theSelectionMarker.objectToFollow = null;
@@ -274,12 +279,25 @@ public class LaserPointerSelector : MonoBehaviour
 
         LaserPointerSelectable selectable = selectedObject.GetComponent< LaserPointerSelectable >();
         if( selectable != null ) { selectable.Selected(); }
+
+        // potentially change menu to animation menu
+        if( SelectedObjectRequiresAnimationMenu() )
+        {
+            ModeSwitcherController.SetMode( ModeSwitcherController.Mode.Animation );
+        }
     }
 
 
     public static bool WasPressMenu()
     {
         return mostRecentButtonPressWasMenu;
+    }
+
+    private static bool SelectedObjectRequiresAnimationMenu()
+    {
+        return selectedObject != null && 
+            (  selectedObject.GetComponent<AnimationByRecordedExampleController>() != null
+            || selectedObject.GetComponent<AnimationExample>() != null );
     }
 
 

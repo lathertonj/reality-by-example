@@ -1326,6 +1326,8 @@ MonoBehaviour:
   objectToTrack: {fileID: 0}
   slewSeconds: 1
   slewYRotation: 0
+  keepDistance: 1
+  distanceToKeep: 2
 --- !u!114 &700675871
 MonoBehaviour:
   m_ObjectHideFlags: 0

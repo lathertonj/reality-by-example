@@ -58,7 +58,7 @@ public class SlowlySpawnPrefab : MonoBehaviour
         {
             // set the width of the cone
             Vector2 thumbPosition = coneWidth.GetAxis( handType );
-            currentSpawnRadius = thumbPosition.y.Map( -1f, 1f, 2.5f, 15f );
+            currentSpawnRadius = thumbPosition.y.PowMap( -1f, 1f, 0.5f, 15f, 2f );
             myUICone.SetSize( currentSpawnRadius * 2 );
 
             // set the length of the cone and find where the spawn position is

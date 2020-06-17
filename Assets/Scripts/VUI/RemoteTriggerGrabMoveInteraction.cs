@@ -28,7 +28,7 @@ public class RemoteTriggerGrabMoveInteraction : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if( triggerPress.GetStateDown( handType ) && FindSelectedObject() )
+        if( triggerPress.GetStateDown( handType ) && interactingObject == null && FindSelectedObject() )
         {
             StartMoveGesture( selectedObject, LaserPointerSelector.GetSelectedObject().transform );
         }
@@ -132,7 +132,10 @@ public class RemoteTriggerGrabMoveInteraction : MonoBehaviour
 
     public void EndMoveGestureExternally()
     {
-        EndMoveGesture();
+        if( interactingObject != null )
+        {
+            EndMoveGesture();
+        }
     }
 
     private bool FindSelectedObject()

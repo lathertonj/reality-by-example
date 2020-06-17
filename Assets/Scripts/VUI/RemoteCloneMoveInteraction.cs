@@ -42,6 +42,9 @@ public class RemoteCloneMoveInteraction : MonoBehaviour
     // 3 methods for doing the interaction
     private void CloneAndStartMoveGesture()
     {
+        // if we were moving another object, stop it
+        myTriggerMover.EndMoveGestureExternally(); 
+        
         // clone
         Transform newObject = null;
         selectedObject.Clone( out newObject );

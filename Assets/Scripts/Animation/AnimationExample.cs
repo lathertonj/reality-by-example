@@ -137,24 +137,8 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
 
     void TriggerGrabMoveInteractable.FinalizeMovement( Vector3 endPosition )
     {
-        // rewrite my examples
-        UpdateFeatures();
-        
-        
-        // and tell my animator to update
+        // and tell my animator to update since I have a new position
         myAnimator.RescanProvidedExamples();
-    }
-
-    void UpdateFeatures()
-    {
-        // new features
-        float height, steepness, distanceAbove;
-        myAnimator.FindTerrainInformation( transform.position, out height, out steepness, out distanceAbove );
-
-        for( int i = 0; i < baseExamples.Count; i++ )
-        {
-            myAnimator.UpdateBaseDatum( baseExamples[i], height, steepness );
-        }
     }
 
     public void SetActivation( float a )
@@ -227,8 +211,6 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
 
     void CloneMoveInteractable.FinalizeMovement( Vector3 endPosition )
     {
-        // find new features
-        UpdateFeatures(); 
         // tell my animator I exist, finally
         myAnimator.ProvideExample( this );
     }

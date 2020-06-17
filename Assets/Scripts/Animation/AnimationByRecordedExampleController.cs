@@ -70,7 +70,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     // and, specify a data collection rate and a prediction output rate.
     public float dataCollectionRate = 0.1f;
-    public bool useFewerTrainingExamples = true;
 
 
     // other stuff
@@ -886,16 +885,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // averageForward.Normalize();
             // averageUp.Normalize();
             // newDatum.rotation = Quaternion.LookRotation( averageForward, averageUp );
-
-            newDatum.terrainHeight = currentHeight;
-            newDatum.terrainSteepness = currentSteepness;
-
+            
             currentBasePhrase.Add( newDatum );
 
             // sound
             if( mySounder )
             {
-                double[] input = SoundInput( newDatum.rotation, newDatum.terrainHeight, newDatum.terrainSteepness, heightAboveTerrain );
+                double[] input = SoundInput( newDatum.rotation, currentHeight, currentSteepness, heightAboveTerrain );
                 double[] output = mySounder.ProvideExample( input );
                 foreach( AnimationByRecordedExampleController creature in myGroup )
                 {
@@ -987,28 +983,24 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         }
     }
 
-    // base:
-    // predict the increment to modelBase location and rotation
-    // input features: y, steepness of terrain; previous location / rotation.
-    double[] BaseInput( ModelBaseDatum d )
+    double[] BaseInput( AnimationExample e )
     {
-        return new double[] {
-            d.terrainHeight,
-            d.terrainSteepness,
-        };
+        return FindBaseInput( e.transform.position );
     }
 
 
 
-    ModelBaseDatum _dummy = new ModelBaseDatum();
+    // base:
+    // predict the increment to modelBase location and rotation
+    // input features: y, steepness of terrain; previous location / rotation.
     double[] FindBaseInput( Vector3 worldPos )
     {
-        float h, s, da;
-        FindTerrainInformation( out h, out s, out da );
-        _dummy.terrainHeight = h;
-        _dummy.terrainSteepness = s;
-
-        return BaseInput( _dummy );
+        float h, s, _;
+        FindTerrainInformation( worldPos, out h, out s, out _ );
+        return new double[] {
+            h,
+            s
+        };
     }
 
     string BaseOutput( int label )
@@ -1016,17 +1008,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return label.ToString();
     }
 
-    public void UpdateBaseDatum( ModelBaseDatum d, float newHeight, float newSteepness )
-    {
-        d.terrainHeight = newHeight;
-        d.terrainSteepness = newSteepness;
-    }
-
     void Train()
     {
         currentlyUsedExamples.Clear();
         foreach( AnimationExample e in examples )
         {
+            // TODO: if ANY IN GROUP are enabled!
             if( e.IsEnabled() && currentRecordingAndPlaybackMode == e.myRecordingType ) 
             { 
                 currentlyUsedExamples.Add( e );
@@ -1053,15 +1040,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                     // skip it
                     continue;
                 }
-                List<ModelBaseDatum> phrase = e.baseExamples;
-                for( int i = 0; i < phrase.Count; i++ )
-                {
-                    #if UNITY_WEBGL
-                    myAnimationClassifier.RecordDataPoint( BaseInput( phrase[i] ), j );
-                    #else
-                    myAnimationClassifier.RecordDataPoint( BaseInput( phrase[i] ), BaseOutput( j ) );
-                    #endif
-                }
+                #if UNITY_WEBGL
+                myAnimationClassifier.RecordDataPoint( BaseInput( e ), j );
+                #else
+                myAnimationClassifier.RecordDataPoint( BaseInput( e ), BaseOutput( j ) );
+                #endif
             }
             myAnimationClassifier.Train();
         }
@@ -1072,15 +1055,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             for( int j = 0; j < currentlyUsedExamples.Count; j++ )
             {
                 AnimationExample e = currentlyUsedExamples[j];
-                List<ModelBaseDatum> phrase = e.baseExamples;
-                // for now, try using just one example per phrase:
-                // most of the inputs / outputs will be near-identical because of how these
-                // are recorded, and this way we may get less concrete / baked-in behavior
-                int numExamplesToUsePerPhrase = useFewerTrainingExamples ? 1 : phrase.Count;
-                for( int i = 0; i < numExamplesToUsePerPhrase; i++ )
-                {
-                    myAnimationRegression.RecordDataPoint( BaseInput( phrase[i] ), LabelToRegressionOutput( j, currentlyUsedExamples.Count ) );
-                }
+                // TODO: do this for EACH example in its group iff that example is enabled
+                // note: only one example per phrase
+                // because of the way things are recorded, the input features will not be different for each frame
+                // of the data. this way we get less baked-in behavior and more happy surprises.
+                myAnimationRegression.RecordDataPoint( BaseInput( e ), LabelToRegressionOutput( j, currentlyUsedExamples.Count ) );
             }
             myAnimationRegression.Train();
         }
@@ -1718,14 +1697,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     public class ModelBaseDatum
     {
         public Quaternion rotation;
-        public float terrainHeight, terrainSteepness;
 
         public ModelBaseDatum Clone()
         {
             ModelBaseDatum c = new ModelBaseDatum();
             c.rotation = rotation;
-            c.terrainHeight = terrainHeight;
-            c.terrainSteepness = terrainSteepness;
             return c;
         }
     }

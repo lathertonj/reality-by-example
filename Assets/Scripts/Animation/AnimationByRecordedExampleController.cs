@@ -1016,11 +1016,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return label.ToString();
     }
 
-    public void UpdateBaseDatum( ModelBaseDatum d, float newHeight, float newSteepness, Quaternion spinRotation )
+    public void UpdateBaseDatum( ModelBaseDatum d, float newHeight, float newSteepness )
     {
         d.terrainHeight = newHeight;
         d.terrainSteepness = newSteepness;
-        d.rotation = spinRotation * d.rotation;
     }
 
     void Train()

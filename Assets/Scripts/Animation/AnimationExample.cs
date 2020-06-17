@@ -27,7 +27,6 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
 
     public Color unactivated, fullyActivated, disabled;
     public MeshRenderer activationDisplay;
-    private float prevEulerY;
 
     // can't have a reference to the prefab itself. very frustrating.
     public string prefabName;
@@ -43,7 +42,6 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
     // Start is called before the first frame update
     void Start()
     {
-        prevEulerY = transform.rotation.eulerAngles.y;
         animationExamplePrefab = (GameObject) Resources.Load( "Prefabs/" + prefabName );
     }
 
@@ -153,14 +151,9 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         float height, steepness, distanceAbove;
         myAnimator.FindTerrainInformation( transform.position, out height, out steepness, out distanceAbove );
 
-        // rotate rotations
-        float newEulerY = transform.rotation.eulerAngles.y;
-        Quaternion spinRotation = Quaternion.AngleAxis( newEulerY - prevEulerY, Vector3.up );
-        prevEulerY = newEulerY;
-
         for( int i = 0; i < baseExamples.Count; i++ )
         {
-            myAnimator.UpdateBaseDatum( baseExamples[i], height, steepness, spinRotation );
+            myAnimator.UpdateBaseDatum( baseExamples[i], height, steepness );
         }
     }
 

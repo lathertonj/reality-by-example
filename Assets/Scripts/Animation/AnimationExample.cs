@@ -309,7 +309,16 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
     public SerializableAnimationExample Serialize()
     {
         SerializableAnimationExample serial = new SerializableAnimationExample();
-        serial.position = transform.position;
+        // things specific to each group member
+        serial.groupPositions = new List<Vector3>();
+        serial.groupEnableds = new List<bool>();
+        foreach( AnimationExample e in myGroup )
+        {
+            serial.groupPositions.Add( e.transform.position );
+            serial.groupEnableds.Add( e.amEnabled );
+        }
+        
+        // things shared across all group members
         serial.baseExamples = baseExamples;
         
         // dumb hack because apparently we can't serialize arrays of lists
@@ -322,7 +331,6 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         }
 
         serial.animationIntertime = animationIntertime;
-        serial.enabled = amEnabled;
         serial.recordingType = myRecordingType;
         serial.prefab = prefabName;
 
@@ -332,8 +340,8 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
     public static AnimationExample Deserialize( SerializableAnimationExample serial, AnimationByRecordedExampleController animator )
     {
         GameObject prefab = (GameObject) Resources.Load( "Prefabs/" + serial.prefab );
-        AnimationExample example = Instantiate( prefab ).GetComponent<AnimationExample>();
-        example.transform.position = serial.position;
+        AnimationExample firstGroupMember = Instantiate( prefab ).GetComponent<AnimationExample>();
+        firstGroupMember.transform.position = serial.groupPositions[0];
 
         // annoying conversion due to serialization limits
         List<AnimationByRecordedExampleController.ModelRelativeDatum>[] relativeExamples
@@ -343,16 +351,32 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
             relativeExamples[i] = serial.relativeExamples[i].examples;
         }
 
-        // TODO: handle groups in serialization
-        example.Initialize( serial.baseExamples, relativeExamples, animator, serial.recordingType, true );
-        example.Animate( serial.animationIntertime );
+        firstGroupMember.Initialize( serial.baseExamples, relativeExamples, animator, serial.recordingType, true );
+        firstGroupMember.myGroup = new List<AnimationExample>();
+        firstGroupMember.Animate( serial.animationIntertime );
 
-        if( !serial.enabled )
+        if( !serial.groupEnableds[0] )
         {
-            example.ToggleEnabled();
+            firstGroupMember.ToggleEnabled();
         }
 
-        return example;
+        // rest of the group members
+        for( int i = 1; i < serial.groupPositions.Count; i++ )
+        {
+            AnimationExample groupMember = Instantiate( prefab ).GetComponent<AnimationExample>();
+            groupMember.transform.position = serial.groupPositions[i];
+            groupMember.Initialize( serial.baseExamples, relativeExamples, animator, serial.recordingType, false );
+            groupMember.Animate( serial.animationIntertime );
+            if( !serial.groupEnableds[i] )
+            {
+                groupMember.ToggleEnabled();
+            }
+            // add to group
+            groupMember.myGroup = firstGroupMember.myGroup;
+            firstGroupMember.myGroup.Add( groupMember );
+        }
+
+        return firstGroupMember;
     }
 }
 
@@ -360,14 +384,12 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
 [System.Serializable]
 public class SerializableAnimationExample
 {
-    // TODO make list
-    public Vector3 position;
+    public List<Vector3> groupPositions;
     public List<AnimationByRecordedExampleController.ModelBaseDatum> baseExamples;
     public List<SerializableRelativeDatumList> relativeExamples;
     public float animationIntertime;
     public string prefab;
-    // TODO make list
-    public bool enabled;
+    public List<bool> groupEnableds;
     public AnimationByRecordedExampleController.RecordingType recordingType;
 }
 

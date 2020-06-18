@@ -42,14 +42,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     // input features: y, steepness of terrain; previous location / rotation.
     // --> 2 regressions for modelBase
     public List<AnimationExample> examples = null, currentlyUsedExamples;
-    //private List<List<ModelBaseDatum>> modelBasePositionData;
     private RapidMixClassifier myAnimationClassifier;
     private RapidMixRegression myAnimationRegression;
 
 
     // predict the position of each modelRelativePoint, relative to modelBase
     // input features: y, steepness of terrain, quaternion of current rotation
-    //private List<List<ModelRelativeDatum>>[] modelRelativePositionData;
 
     // and, have a maximum amount that each thing can actually move -- maybe a slew per frame.
     public float globalSlew = 0.1f;
@@ -468,6 +466,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     }
 
     // public Transform debug1, debug2, debug3, debug4;
+    private static AnimationByRecordedExampleController creatureWhoGetsToShowActivation = null;
     private void RunOneFrameRegression()
     {
         // 1. Run regression and normalize to get relative levels of each animation
@@ -487,9 +486,15 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         for( int i = 0; i < o.Length; i++ ) { o[i] /= sum; }
 
         // show activation
-        for( int i = 0; i < currentlyUsedExamples.Count; i++ ) 
+        if( creatureWhoGetsToShowActivation == this )
         {
-            currentlyUsedExamples[i].SetActivation( (float) o[i] );
+            for( int i = 0; i < currentlyUsedExamples.Count; i++ ) 
+            {
+                foreach( AnimationExample e in currentlyUsedExamples[i].Group() )
+                {
+                    e.SetActivation( (float) o[i] );
+                }
+            }
         }
 
         // how to do a weighted average of Quaternion? maybe with slerp?
@@ -630,8 +635,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         {
             goalLocalPositions[i] = Vector3.zero;
 
-            // TODO: number of examples not necessarily same as number of animations..??? some examples may reuse the same animation
-            // but in different positions. I smell a redesign!
+            // number of example-groups exactly same as number of animations..??? some examples may reuse the same animation
+            // but in different positions, but each group is only tracked once in currentlyUsedExamples
             for( int whichAnimation = 0; whichAnimation < currentlyUsedExamples.Count; whichAnimation++ )
             {
                 // weighted sum
@@ -661,7 +666,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         if( mostProminent < currentlyUsedExamples.Count && currentRuntimeFrame % currentlyUsedExamples[ mostProminent ].baseExamples.Count == 0 )
         {
             seamHideRotation = Quaternion.AngleAxis( 
-                goalBaseRotation.eulerAngles.y - currentlyUsedExamples[ mostProminent ].baseExamples[0].rotation.eulerAngles.y, 
+                goalBaseRotation.eulerAngles.y - GetBaseQuaternion( mostProminent, 0 ).eulerAngles.y, 
                 Vector3.up
             );
             currentRuntimeFrame = 0;
@@ -827,8 +832,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         // store the data in the example!
         AnimationExample newExample = Instantiate( examplePrefab, modelBaseDataSource.position + recordingModeOffset, Quaternion.identity );
         examples.Add( newExample );
-        // TODO ensure this is a shallow copy and that the lists are identical
-        newExample.Initialize( currentBasePhrase, currentRelativePhrases, this, currentRecordingAndPlaybackMode );
+        // this is a shallow copy and the lists are identical
+        newExample.Initialize( currentBasePhrase, currentRelativePhrases, this, currentRecordingAndPlaybackMode, true );
 
 
         // start sound
@@ -885,7 +890,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // averageForward.Normalize();
             // averageUp.Normalize();
             // newDatum.rotation = Quaternion.LookRotation( averageForward, averageUp );
-            
+
             currentBasePhrase.Add( newDatum );
 
             // sound
@@ -922,9 +927,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         }
     }
 
-    public void ForgetExample( AnimationExample e )
+    public void ForgetExample( AnimationExample e, bool shouldRescan = true )
     {
-        if( examples.Remove( e ) )
+        if( examples.Remove( e ) && shouldRescan )
         {
             // successfully removed example --> rescan remaining ones
             RescanProvidedExamples();
@@ -1011,12 +1016,16 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     void Train()
     {
         currentlyUsedExamples.Clear();
-        foreach( AnimationExample e in examples )
+        foreach( AnimationExample known in examples )
         {
-            // TODO: if ANY IN GROUP are enabled!
-            if( e.IsEnabled() && currentRecordingAndPlaybackMode == e.myRecordingType ) 
-            { 
-                currentlyUsedExamples.Add( e );
+            // if any of the group are enabled, add the group
+            foreach( AnimationExample e in known.Group() )
+            {
+                if( e.IsEnabled() && currentRecordingAndPlaybackMode == e.myRecordingType )
+                {
+                    currentlyUsedExamples.Add( known );
+                    break;
+                }
             }
         }
         if( currentlyUsedExamples.Count <= 0 )
@@ -1034,17 +1043,17 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             myAnimationClassifier.ResetClassifier();
             for( int j = 0; j < currentlyUsedExamples.Count; j++ )
             {
-                AnimationExample e = currentlyUsedExamples[j];
-                if( !e.IsEnabled() )
+                foreach( AnimationExample e in currentlyUsedExamples[j].Group() )
                 {
-                    // skip it
-                    continue;
+                    if( e.IsEnabled() )
+                    {
+                        #if UNITY_WEBGL
+                        myAnimationClassifier.RecordDataPoint( BaseInput( e ), j );
+                        #else
+                        myAnimationClassifier.RecordDataPoint( BaseInput( e ), BaseOutput( j ) );
+                        #endif
+                    }
                 }
-                #if UNITY_WEBGL
-                myAnimationClassifier.RecordDataPoint( BaseInput( e ), j );
-                #else
-                myAnimationClassifier.RecordDataPoint( BaseInput( e ), BaseOutput( j ) );
-                #endif
             }
             myAnimationClassifier.Train();
         }
@@ -1054,12 +1063,17 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             
             for( int j = 0; j < currentlyUsedExamples.Count; j++ )
             {
-                AnimationExample e = currentlyUsedExamples[j];
-                // TODO: do this for EACH example in its group iff that example is enabled
-                // note: only one example per phrase
-                // because of the way things are recorded, the input features will not be different for each frame
-                // of the data. this way we get less baked-in behavior and more happy surprises.
-                myAnimationRegression.RecordDataPoint( BaseInput( e ), LabelToRegressionOutput( j, currentlyUsedExamples.Count ) );
+                foreach( AnimationExample e in currentlyUsedExamples[j].Group() )
+                {
+                    // record each example in the group iff it's enabled
+                    if( e.IsEnabled() )
+                    {
+                        // note: only one example per phrase
+                        // because of the way things are recorded, the input features will not be different for each frame
+                        // of the data. this way we get less baked-in behavior and more happy surprises.
+                        myAnimationRegression.RecordDataPoint( BaseInput( e ), LabelToRegressionOutput( j, currentlyUsedExamples.Count ) );
+                    }
+                }
             }
             myAnimationRegression.Train();
         }
@@ -1086,8 +1100,16 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     private void ComputeStaticBoidsFeatures()
     {
         Vector3 sum = Vector3.zero;
-        for( int i = 0; i < currentlyUsedExamples.Count; i++ ) { sum += currentlyUsedExamples[i].transform.position; }
-        averageExamplePosition = sum / currentlyUsedExamples.Count;
+        int count = 0;
+        for( int i = 0; i < currentlyUsedExamples.Count; i++ ) 
+        {
+            foreach( AnimationExample e in currentlyUsedExamples[i].Group() )
+            {
+                sum += e.transform.position; 
+                count++;
+            } 
+        }
+        averageExamplePosition = sum / count;
     }
 
     private bool ForwardWillCollideWithLayerFromAbove( int layer )
@@ -1368,15 +1390,18 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         float minDistance = float.MaxValue;
         for( int i = 0; i < currentlyUsedExamples.Count; i++ )
         {
-            float d = ( modelBaseToAnimate.position - currentlyUsedExamples[i].transform.position ).magnitude;
-            if( d < maxDistanceFromAnyExample )
+            foreach( AnimationExample e in currentlyUsedExamples[i].Group() )
             {
-                // we don't have to do anything
-                return Vector3.zero;
-            }
-            else if( d < minDistance )
-            {
-                minDistance = d;
+                float d = ( modelBaseToAnimate.position - e.transform.position ).magnitude;
+                if( d < maxDistanceFromAnyExample )
+                {
+                    // we don't have to do anything
+                    return Vector3.zero;
+                }
+                else if( d < minDistance )
+                {
+                    minDistance = d;
+                }
             }
         }
 
@@ -1461,7 +1486,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // delete all my examples, only if I'm the last one left
             for( int i = 0; i < examples.Count; i++ )
             {
-                Destroy( examples[i].gameObject );
+                foreach( AnimationExample e in examples[i].Group() )
+                {
+                    Destroy( e.gameObject );
+                }
             }
         }
         else
@@ -1477,17 +1505,23 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     public void HideExamples()
     {
-        foreach( AnimationExample e in examples )
+        foreach( AnimationExample known in examples )
         {
-            e.gameObject.SetActive( false );
+            foreach( AnimationExample e in known.Group() )
+            {
+                e.gameObject.SetActive( false );
+            }
         }
     }
 
     public void ShowExamples()
     {
-        foreach( AnimationExample e in examples )
+        foreach( AnimationExample known in examples )
         {
-            e.gameObject.SetActive( true );
+            foreach( AnimationExample e in known.Group() )
+            {
+                e.gameObject.SetActive( true );
+            }
         }
     }
 
@@ -1531,6 +1565,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
         // also be nameable
         NameSystemController.SetObjectToName( this );
+
+        // also I get to show activation
+        creatureWhoGetsToShowActivation = this;
     }
 
     void LaserPointerSelectable.Unselected()
@@ -1567,6 +1604,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         serialGroup.examples = new List<SerializableAnimationExample>();
         foreach( AnimationExample e in examples )
         {
+            // TODO: is serialization different for group-examples?
             serialGroup.examples.Add( e.Serialize() );
         }
 

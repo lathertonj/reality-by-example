@@ -16,6 +16,7 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
     bool shouldAnimate = false;
     bool shouldReanimateOnEnable = false;
     public float globalSlew = 0.25f;
+    private bool amKnownToAnimator = false;
 
     private float animationIntertime;
 
@@ -32,6 +33,8 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
     public string prefabName;
     private GameObject animationExamplePrefab;
 
+    private List<AnimationExample> myGroup = null;
+
 
     // awake is called during Instantiate()
     void Awake()
@@ -43,6 +46,13 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
     void Start()
     {
         animationExamplePrefab = (GameObject) Resources.Load( "Prefabs/" + prefabName );
+
+        // if my group is null, I'm the first one and I haven't been initialized in a group
+        if( myGroup == null )
+        {
+            myGroup = new List<AnimationExample>();
+            myGroup.Add( this );
+        }
     }
 
     // Update is called once per frame
@@ -81,18 +91,23 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         List<AnimationByRecordedExampleController.ModelBaseDatum> baseData,
         List<AnimationByRecordedExampleController.ModelRelativeDatum>[] relativeData,
         AnimationByRecordedExampleController animator,
-        AnimationByRecordedExampleController.RecordingType recordingType
+        AnimationByRecordedExampleController.RecordingType recordingType,
+        bool knownToAnimator
     )
     {
         baseExamples = baseData;
         relativeExamples = relativeData;
         myAnimator = animator;
         myRecordingType = recordingType;
+        amKnownToAnimator = knownToAnimator;
     }
 
     public void ResetAnimator( AnimationByRecordedExampleController animator )
     {
-        myAnimator = animator;
+        foreach( AnimationExample e in myGroup )
+        {
+            e.myAnimator = animator;
+        }        
     }
 
     public void Animate( float interFrameTime )
@@ -126,8 +141,30 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
 
     void GripPlaceDeleteInteractable.AboutToBeDeleted()
     {
-        // forget me
-        myAnimator.ForgetExample( this );
+        // am I known to the animator? if so, tell it to forget me
+        if( amKnownToAnimator ) 
+        {
+            // don't rescan -- we will do it for sure below
+            myAnimator.ForgetExample( this, false );
+        }
+
+        // remove me from the group
+        myGroup.Remove( this );
+
+        // if I was not the last of my group, introduce another
+        // member of the group to the animator
+        if( amKnownToAnimator && myGroup.Count > 0 )
+        {
+            // will call Rescan
+            myAnimator.ProvideExample( myGroup[0], true );
+            // remember
+            myGroup[0].amKnownToAnimator = true;
+        }
+        else
+        {
+            // removed an example, so still need to rescan
+            myAnimator.RescanMyProvidedExamples();
+        }
     }
 
     void TriggerGrabMoveInteractable.InformOfTemporaryMovement( Vector3 currentPosition )
@@ -163,37 +200,19 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         // make a new version
         AnimationExample cloned = Instantiate( animationExamplePrefab, transform.position, transform.rotation ).GetComponent<AnimationExample>();
 
-        // clone data
-        List<AnimationByRecordedExampleController.ModelBaseDatum> clonedBaseExamples =
-            new List<AnimationByRecordedExampleController.ModelBaseDatum>();
-        for( int i = 0; i < baseExamples.Count; i++ )
-        {
-            clonedBaseExamples.Add( baseExamples[i].Clone() );
-        }
+        // don't need to clone data -- it's shared
+        // just pass a reference
+        // false: not known to animator directly (but will be accessed through myGroup)
+        cloned.Initialize( baseExamples, relativeExamples, newAnimator, myRecordingType, false );
 
-        List<AnimationByRecordedExampleController.ModelRelativeDatum>[] clonedRelativeExamples =
-            new List<AnimationByRecordedExampleController.ModelRelativeDatum>[ relativeExamples.Length ];
-        for( int i = 0; i < relativeExamples.Length; i++ )
-        {
-            clonedRelativeExamples[i] = new List<AnimationByRecordedExampleController.ModelRelativeDatum>();
-            for( int j = 0; j < relativeExamples[i].Count; j++ )
-            {
-                clonedRelativeExamples[i].Add( relativeExamples[i][j].Clone() );
-            }
-        }
-
-        // copy over data
-        cloned.Initialize(
-            clonedBaseExamples,
-            clonedRelativeExamples,
-            newAnimator,
-            myRecordingType
-        );
+        // add to group
+        cloned.myGroup = myGroup;
+        myGroup.Add( cloned );
 
         // start animating
         cloned.Animate( animationIntertime );
 
-
+        // disable
         if( !amEnabled )
         {
             cloned.ToggleEnabled();
@@ -212,7 +231,8 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
     void CloneMoveInteractable.FinalizeMovement( Vector3 endPosition )
     {
         // tell my animator I exist, finally
-        myAnimator.ProvideExample( this );
+        // I'm part of a group, so it will automatically find me if I:
+        myAnimator.RescanProvidedExamples();
     }
 
     private bool amEnabled = true;
@@ -249,6 +269,11 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         ToggleEnabled();
     }
 
+    public List<AnimationExample> Group()
+    {
+        return myGroup;
+    }
+
 
     public static void ShowHints( AnimationByRecordedExampleController creature, float pauseTimeBeforeFade )
     {
@@ -256,9 +281,12 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         if( creature == null ) { return; }
         
         // show a hint for all used examples, not just currently used ones
-        foreach( AnimationExample e in creature.examples )
+        foreach( AnimationExample g in creature.examples )
         {
-            e.ShowHint( pauseTimeBeforeFade );
+            foreach( AnimationExample e in g.Group() )
+            {
+                e.ShowHint( pauseTimeBeforeFade );
+            }
         }
     }
 
@@ -315,7 +343,8 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
             relativeExamples[i] = serial.relativeExamples[i].examples;
         }
 
-        example.Initialize( serial.baseExamples, relativeExamples, animator, serial.recordingType );
+        // TODO: handle groups in serialization
+        example.Initialize( serial.baseExamples, relativeExamples, animator, serial.recordingType, true );
         example.Animate( serial.animationIntertime );
 
         if( !serial.enabled )
@@ -331,11 +360,13 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
 [System.Serializable]
 public class SerializableAnimationExample
 {
+    // TODO make list
     public Vector3 position;
     public List<AnimationByRecordedExampleController.ModelBaseDatum> baseExamples;
     public List<SerializableRelativeDatumList> relativeExamples;
     public float animationIntertime;
     public string prefab;
+    // TODO make list
     public bool enabled;
     public AnimationByRecordedExampleController.RecordingType recordingType;
 }

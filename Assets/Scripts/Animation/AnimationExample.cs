@@ -42,17 +42,21 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         goalLocalPositions = new Vector3[ myRelativePointsToAnimate.Length ];
     }
 
-    // Start is called before the first frame update
-    void Start()
+    void InitMyGroup()
     {
-        animationExamplePrefab = (GameObject) Resources.Load( "Prefabs/" + prefabName );
-
         // if my group is null, I'm the first one and I haven't been initialized in a group
         if( myGroup == null )
         {
             myGroup = new List<AnimationExample>();
             myGroup.Add( this );
         }
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        animationExamplePrefab = (GameObject) Resources.Load( "Prefabs/" + prefabName );
+        InitMyGroup();
     }
 
     // Update is called once per frame
@@ -352,7 +356,7 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         }
 
         firstGroupMember.Initialize( serial.baseExamples, relativeExamples, animator, serial.recordingType, true );
-        firstGroupMember.myGroup = new List<AnimationExample>();
+        firstGroupMember.InitMyGroup();
         firstGroupMember.Animate( serial.animationIntertime );
 
         if( !serial.groupEnableds[0] )

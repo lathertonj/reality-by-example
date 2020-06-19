@@ -408,6 +408,9 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
             
             // finally, update all spawned object positions
             SpawnedObject.ResetSpawnedObjectHeights();
+
+            // and tell anyone else listening to reset
+            NotifyWhenChanges.Terrain();
         
         }
         else

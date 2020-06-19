@@ -134,6 +134,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         myNeck = GetComponent<NeckRotatable>();
     }
 
+    void Start()
+    {
+        // listen to terrain changes and rescan provided examples when they occur
+        NotifyWhenChanges.NotifyIfTerrainChanges( RescanMyProvidedExamples );
+    }
+
     public void AddToGroup( AnimationByRecordedExampleController groupLeader )
     {
         // reference to my group

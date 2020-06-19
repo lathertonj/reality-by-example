@@ -654,8 +654,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             mySounder.Predict( SoundInput(
                 modelBaseToAnimate.rotation,
                 currentHeight,
-                currentSteepness,
-                heightAboveTerrain
+                currentSteepness
             ) );
         }
 
@@ -708,8 +707,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             mySounder.Predict( SoundInput(
                 modelBaseToAnimate.rotation,
                 currentHeight,
-                currentSteepness,
-                heightAboveTerrain
+                currentSteepness
             ) );
         }
 
@@ -896,7 +894,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // sound
             if( mySounder )
             {
-                double[] input = SoundInput( newDatum.rotation, currentHeight, currentSteepness, heightAboveTerrain );
+                double[] input = SoundInput( newDatum.rotation, currentHeight, currentSteepness );
                 double[] output = mySounder.ProvideExample( input );
                 foreach( AnimationByRecordedExampleController creature in myGroup )
                 {
@@ -1455,11 +1453,11 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     }
 
 
-    double[] SoundInput( Quaternion baseRotation, float terrainHeight, float terrainSteepness, float heightAboveTerrain )
+    double[] SoundInput( Quaternion baseRotation, float terrainHeight, float terrainSteepness )
     {
         return new double[] {
             baseRotation.x, baseRotation.y, baseRotation.z, baseRotation.w,
-            terrainHeight, terrainSteepness, heightAboveTerrain
+            terrainHeight, terrainSteepness
         };
     }
 

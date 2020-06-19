@@ -1561,6 +1561,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     void LaserPointerSelectable.Selected()
     {
+        // show my examples (someone else might call this too)
+        ShowExamples();
+
         // also be nameable
         NameSystemController.SetObjectToName( this );
 

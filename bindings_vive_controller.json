@@ -49,7 +49,7 @@
             {
                "inputs" : {
                   "click" : {
-                     "output" : "/actions/rbe/in/takeactiongeneric"
+                     "output" : "/actions/rbe/in/grabobject"
                   }
                },
                "mode" : "button",
@@ -58,7 +58,7 @@
             {
                "inputs" : {
                   "click" : {
-                     "output" : "/actions/rbe/in/takeactiongeneric"
+                     "output" : "/actions/rbe/in/grabobject"
                   }
                },
                "mode" : "button",
@@ -85,7 +85,7 @@
             {
                "inputs" : {
                   "click" : {
-                     "output" : "/actions/rbe/in/grabobject"
+                     "output" : "/actions/rbe/in/takeactiongeneric"
                   }
                },
                "mode" : "button",
@@ -94,7 +94,7 @@
             {
                "inputs" : {
                   "click" : {
-                     "output" : "/actions/rbe/in/grabobject"
+                     "output" : "/actions/rbe/in/takeactiongeneric"
                   }
                },
                "mode" : "button",
@@ -132,9 +132,6 @@
             },
             {
                "inputs" : {
-                  "click" : {
-                     "output" : "/actions/rbe/in/takeactionmovement"
-                  },
                   "position" : {
                      "output" : "/actions/rbe/in/updowntouchpad"
                   },
@@ -147,9 +144,6 @@
             },
             {
                "inputs" : {
-                  "click" : {
-                     "output" : "/actions/rbe/in/takeactionmovement"
-                  },
                   "position" : {
                      "output" : "/actions/rbe/in/updowntouchpad"
                   },
@@ -159,6 +153,24 @@
                },
                "mode" : "trackpad",
                "path" : "/user/hand/right/input/trackpad"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/takeactionmovement"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/takeactionmovement"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/trigger"
             }
          ]
       },
@@ -275,8 +287,8 @@
    },
    "category" : "steamvr_input",
    "controller_type" : "vive_controller",
-   "description" : "",
-   "name" : "My Terrain By Example [Testing] configuration for Vive Controller",
+   "description" : "HTC Vive June 2020",
+   "name" : "Saved Terrain By Example [Testing] configuration for Vive Controller",
    "options" : {},
    "simulated_actions" : []
 }

@@ -1516,6 +1516,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     public void ShowExamples()
     {
+        // visually render the examples
         foreach( AnimationExample known in examples )
         {
             foreach( AnimationExample e in known.Group() )
@@ -1523,6 +1524,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 e.gameObject.SetActive( true );
             }
         }
+
+        // also show the hint now that we've enabled them
+        AnimationExample.ShowHints( this, SwitchToComponent.hintTime );        
     }
 
 
@@ -1557,12 +1561,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     void LaserPointerSelectable.Selected()
     {
-        // when selected, show my examples
-        ShowExamples();
-
-        // also show hints for my examples
-        AnimationExample.ShowHints( this, SwitchToComponent.hintTime );
-
         // also be nameable
         NameSystemController.SetObjectToName( this );
 

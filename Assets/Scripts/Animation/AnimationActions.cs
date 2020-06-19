@@ -61,7 +61,13 @@ public class AnimationActions : MonoBehaviour
                 if( selectedCreature != previouslySelectedCreature )
                 {
                     // hide the previously selected creature's examples
-                    if( previouslySelectedCreature != null ) { previouslySelectedCreature.HideExamples(); }
+                    if( previouslySelectedCreature != null ) 
+                    { 
+                        previouslySelectedCreature.HideExamples();
+                    }
+
+                    // show new creature's examples
+                    selectedCreature.ShowExamples();
                     
                     previouslySelectedCreature = selectedCreature;
                 }

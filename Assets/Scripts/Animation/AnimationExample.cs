@@ -163,7 +163,7 @@ public class AnimationExample : MonoBehaviour , GripPlaceDeleteInteractable , Tr
         else
         {
             // removed an example, so still need to rescan
-            myAnimator.RescanMyProvidedExamples();
+            myAnimator.RescanProvidedExamples();
         }
     }
 

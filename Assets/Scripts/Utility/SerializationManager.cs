@@ -16,6 +16,7 @@ public class SerializationManager : MonoBehaviour
     public bool saveDynamicEntities = false;
     public bool loadDynamicEntities = false;
     public bool loadLatestVersionOfWorld = false;
+    public bool loadRandomIfNoneFound = true;
     public bool saveToUniqueNumber = false;
 
     public string[] manualLoadDynamicEntities;
@@ -62,7 +63,7 @@ public class SerializationManager : MonoBehaviour
         {
             StartCoroutine( LoadAll() );
         }
-        else if( loadLatestVersionOfWorld )
+        else if( loadRandomIfNoneFound )
         {
             // we thought we'd be able to load something, but failed
             StartCoroutine( RandomizeTerrain.RandomizeWorld() );

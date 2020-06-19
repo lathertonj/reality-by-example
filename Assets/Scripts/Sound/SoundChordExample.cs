@@ -96,6 +96,7 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
 
     public static void ShowHints( float pauseTimeBeforeFade )
     {
+        if( myClassifier == null ) { return; }
         foreach( SoundChordExample e in myClassifier.myClassifierExamples )
         {
             e.ShowHint( pauseTimeBeforeFade );

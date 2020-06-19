@@ -102,6 +102,7 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
 
     public static void ShowHints( float pauseTimeBeforeFade )
     {
+        if( myRegressor == null ) { return; }
         foreach( SoundTempoExample e in myRegressor.myRegressionExamples )
         {
             e.ShowHint( pauseTimeBeforeFade );

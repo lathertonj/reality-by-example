@@ -14,7 +14,7 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
     private RapidMixRegression myRegression;
     [HideInInspector] public List<Sound0To1Example> myRegressionExamples;
     private bool haveTrained = false;
-    private float myDefaultValue;
+    public float myDefaultValue = 0.5f;
     private ColorablePlane myColorablePlane;
     private Vector3 previousPosition;
     private bool currentlyShowingData = false;
@@ -81,7 +81,6 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
         myRegressionExamples = new List<Sound0To1Example>();
 
         // initialize
-        myDefaultValue = 0.5f;
         previousPosition = transform.position;
     }
 

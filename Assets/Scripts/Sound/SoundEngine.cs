@@ -28,7 +28,7 @@ public class SoundEngine : MonoBehaviour
             // THINGS WE CONTROL
             2 => global int whichChords;
             0.5 => global float quarterNoteTempoSeconds;
-            1 => global float volumeSlider;
+            0 => global float volumeSlider;
             global JCRev theRev => dac;
             0.05 => theRev.mix;
 

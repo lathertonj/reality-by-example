@@ -23,7 +23,6 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
     private TerrainData myTerrainData;
     private ConnectedTerrainTextureController myTextureController;
 
-    public Transform examplePointsContainer;
     public ConnectedTerrainController leftNeighbor, rightNeighbor, upperNeighbor, lowerNeighbor;
 
     static int extraBorderPixels = 20;
@@ -269,32 +268,10 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
 
     void Start()
     {
-        if( examplePointsContainer )
-        {
-            foreach( Transform example in examplePointsContainer )
-            {
-                // remember
-                TerrainHeightExample e = example.GetComponent<TerrainHeightExample>();
-                if( e )
-                {
-                    e.JustPlaced();
-                }
-            }
-        }
-
         // edges
         SetNeighbors( true );
-
-        if( myRegressionExamples.Count > 0 )
-        {
-            // train and show
-            RescanProvidedExamples();
-        }
-        else
-        {
-            // just reset
-            SetTerrainData( true );
-        }
+        // reset data until told to rescan
+        SetTerrainData( true );
     }
 
 

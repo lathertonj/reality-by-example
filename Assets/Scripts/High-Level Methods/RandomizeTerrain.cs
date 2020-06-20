@@ -236,66 +236,90 @@ public class RandomizeTerrain : MonoBehaviour
     IEnumerator InitializeAll()
     {
         currentlyComputing = true;
-        yield return StartCoroutine( InitializeTerrainHeights() );
-        yield return StartCoroutine( InitializeTerrainBumps() );
+        InitializeTerrainHeights();
+        InitializeTerrainBumps();
         yield return StartCoroutine( InitializeTerrainTextures() );
         InitializeMusicalParameters();
         currentlyComputing = false;
     }
 
-    IEnumerator InitializeTerrainHeights()
+    void InitializeTerrainHeights( ConnectedTerrainController terrainController )
     {
-        // for each terrain
-        for( int i = 0; i < terrainHeightControllers.Length; i++ )
+        // generate N points in random locations, without scanning the terrain
+        for( int j = 0; j < heightExamples; j++ )
         {
-            // generate N points in random locations, without scanning the terrain
-            for( int j = 0; j < heightExamples; j++ )
-            {
-                TerrainHeightExample e = Instantiate( 
-                    heightPrefab,
-                    terrainHeightControllers[i].transform.position + GetRandomLocationWithinRadius( landRadius ),
-                    Quaternion.identity
-                );
+            TerrainHeightExample e = Instantiate( 
+                heightPrefab,
+                terrainController.transform.position + GetRandomLocationWithinRadius( landRadius ),
+                Quaternion.identity
+            );
 
-                // ~ JustPlaced
-                e.ManuallySpecifyTerrain( terrainHeightControllers[i] );
+            // ~ JustPlaced
+            e.ManuallySpecifyTerrain( terrainController );
 
-                terrainHeightControllers[i].ProvideExample( e, false );
-            }
-
-            // // wait before moving on
-            // for( int f = 0; f < computeFrames + 1; f++ ) { yield return null; }
-            yield return null;
+            terrainController.ProvideExample( e, false );
         }
-
-
     }
 
-    IEnumerator InitializeTerrainBumps()
+    void InitializeTerrainHeights()
     {
         // for each terrain
         for( int i = 0; i < terrainHeightControllers.Length; i++ )
         {
-            // generate N points in random locations
-            for( int j = 0; j < bumpExamples; j++ )
-            {
-                TerrainGISExample b = Instantiate( 
-                    bumpPrefab,
-                    terrainHeightControllers[i].transform.position + GetRandomLocationWithinRadius( landRadius ),
-                    Quaternion.identity 
-                );
+            InitializeTerrainHeights( terrainHeightControllers[i] );
+        }
+    }
 
-                // ~ JustPlaced
-                b.ManuallySpecifyTerrain( terrainHeightControllers[i] );
+    void InitializeTerrainBumps( ConnectedTerrainController terrainController )
+    {
+        // generate N points in random locations
+        for( int j = 0; j < bumpExamples; j++ )
+        {
+            TerrainGISExample b = Instantiate( 
+                bumpPrefab,
+                terrainController.transform.position + GetRandomLocationWithinRadius( landRadius ),
+                Quaternion.identity 
+            );
 
-                // for each point, randomize as well its type and intensity
-                b.Randomize();
+            // ~ JustPlaced
+            b.ManuallySpecifyTerrain( terrainController );
 
-                // inform terrain of example
-                terrainHeightControllers[i].ProvideExample( b, false );
-            }
-            // wait before moving on
-            yield return null;
+            // for each point, randomize as well its type and intensity
+            b.Randomize();
+
+            // inform terrain of example
+            terrainController.ProvideExample( b, false );
+        }
+    }
+
+    void InitializeTerrainBumps()
+    {
+        // for each terrain
+        for( int i = 0; i < terrainHeightControllers.Length; i++ )
+        {
+            InitializeTerrainBumps( terrainHeightControllers[i] );
+        }
+    }
+
+    void InitializeTerrainTextures( ConnectedTerrainController terrainHeight, ConnectedTerrainTextureController terrainTexture )
+    {
+        // generate N points in random locations
+        for( int j = 0; j < bumpExamples; j++ )
+        {
+            TerrainTextureExample t = Instantiate( 
+                texturePrefab,
+                terrainHeight.transform.position + GetRandomLocationWithinRadius( landRadius ),
+                Quaternion.identity 
+            );
+            
+            // ~ JustPlaced()
+            t.ManuallySpecifyTerrain( terrainTexture );
+            
+            // for each point, randomize as well its type and intensity
+            t.Randomize();
+
+            // inform terrain of example (shouldRetrain = false)
+            terrainTexture.ProvideExample( t, false );
         }
     }
 
@@ -304,30 +328,12 @@ public class RandomizeTerrain : MonoBehaviour
         // for each terrain
         for( int i = 0; i < terrainTextureControllers.Length; i++ )
         {
-            // generate N points in random locations
-            for( int j = 0; j < bumpExamples; j++ )
-            {
-                TerrainTextureExample t = Instantiate( 
-                    texturePrefab,
-                    terrainHeightControllers[i].transform.position + GetRandomLocationWithinRadius( landRadius ),
-                    Quaternion.identity 
-                );
-                
-                // ~ JustPlaced()
-                t.ManuallySpecifyTerrain( terrainTextureControllers[i] );
-                
-                // for each point, randomize as well its type and intensity
-                t.Randomize();
-
-                // inform terrain of example (shouldRetrain = false)
-                terrainTextureControllers[i].ProvideExample( t, false );
-            }
+            InitializeTerrainTextures( terrainHeightControllers[i], terrainTextureControllers[i] );
             // don't rescan just texture
             // terrainTextureControllers[i].RescanProvidedExamples();
-            // wait a frame before doing the next one
-            // yield return null;
 
             // rescan entire terrain -- it will do the texture at the end
+            Debug.Log( "rescan " + i );
             yield return StartCoroutine( RescanTerrain( terrainHeightControllers[i] ) );
         }
     }
@@ -401,9 +407,44 @@ public class RandomizeTerrain : MonoBehaviour
     {
         currentlyComputing = true;
 
-        ReRandomizeTerrainHeight( which, amount );
-        ReRandomizeTerrainBumpiness( which, amount );
-        ReRandomizeTerrainTexture( which, amount );
+        ConnectedTerrainController terrain = terrainHeightControllers[which];
+        ConnectedTerrainTextureController texture = terrainTextureControllers[which];
+
+        // height. have we done any work yet?
+        if( terrain.myRegressionExamples.Count == 0 )
+        {
+            // initialize
+            InitializeTerrainHeights( terrain );
+        }
+        else
+        {
+            // randomize only the points we already have
+            ReRandomizeTerrainHeight( which, amount );
+        }
+
+        // bump. have we done any work yet?
+        if( terrain.myGISRegressionExamples.Count == 0 )
+        {
+            // initialize
+            InitializeTerrainBumps( terrain );
+        }
+        else
+        {
+            // randomize only the points we already have
+            ReRandomizeTerrainBumpiness( which, amount );
+        }
+
+        // texture. have we done any work yet?
+        if( texture.myRegressionExamples.Count == 0 )
+        {
+            // initialize
+            InitializeTerrainTextures( terrain, texture );
+        }
+        else
+        {
+            // randomize only the points we already have
+            ReRandomizeTerrainTexture( which, amount );
+        }
 
         // rescan
         yield return StartCoroutine( RescanTerrain( terrainHeightControllers[ which ] ) );

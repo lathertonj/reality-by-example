@@ -333,7 +333,6 @@ public class RandomizeTerrain : MonoBehaviour
             // terrainTextureControllers[i].RescanProvidedExamples();
 
             // rescan entire terrain -- it will do the texture at the end
-            Debug.Log( "rescan " + i );
             yield return StartCoroutine( RescanTerrain( terrainHeightControllers[i] ) );
         }
     }
@@ -592,12 +591,18 @@ public class RandomizeTerrain : MonoBehaviour
     {
         currentlyComputing = true;
 
+        // make sure the destination has same number of examples as source
+        terrainHeightControllers[to].MatchNumberOfExamples( terrainHeightControllers[from] );
+        
+        // copy height
         CopyExampleLocations<TerrainHeightExample>( 
             terrainHeightControllers[from], 
             terrainHeightControllers[to], 
             terrainHeightControllers[from].myRegressionExamples,
             terrainHeightControllers[to].myRegressionExamples
         );
+        
+        // copy bump
         CopyExampleLocations<TerrainGISExample>( 
             terrainHeightControllers[from], 
             terrainHeightControllers[to],
@@ -606,6 +611,8 @@ public class RandomizeTerrain : MonoBehaviour
         );
         CopyBumpParameters( terrainHeightControllers[from].myGISRegressionExamples, 
             terrainHeightControllers[to].myGISRegressionExamples );
+        
+        // copy texture
         CopyExampleLocations<TerrainTextureExample>( 
             terrainHeightControllers[from], 
             terrainHeightControllers[to], 
@@ -632,16 +639,7 @@ public class RandomizeTerrain : MonoBehaviour
         if( sourceExamples.Count != toOverWrite.Count )
         {
             Debug.LogError( "different numbers of examples!" );
-            // TODO: make work if there's a different number!
             return;
-        }
-        if( sourceExamples.Count < toOverWrite.Count )
-        {
-            // add more
-        }
-        else if( sourceExamples.Count > toOverWrite.Count )
-        {
-            // remove until correct number
         }
         for( int i = 0; i < sourceExamples.Count; i++ )
         {

@@ -96,13 +96,32 @@ public class ConnectedTerrainTextureController : MonoBehaviour
         }
     }
 
-    public void ForgetExample( TerrainTextureExample example )
+    public void ForgetExample( TerrainTextureExample example, bool shouldRetrain = true )
     {
         // forget
-        if( myRegressionExamples.Remove( example ) )
+        if( myRegressionExamples.Remove( example ) && shouldRetrain )
         {
             // recompute
             RescanProvidedExamples();
+        }
+    }
+
+    // called before my examples are overwritten with other's examples
+    public void MatchNumberOfExamples( ConnectedTerrainTextureController other )
+    {
+        // first, perhaps delete extra examples
+        while( myRegressionExamples.Count > other.myRegressionExamples.Count )
+        {
+            TerrainTextureExample exampleToRemove = myRegressionExamples[0];
+            ForgetExample( exampleToRemove, false );
+            Destroy( exampleToRemove.gameObject );
+        }
+
+        // next, perhaps add blank examples
+        while( myRegressionExamples.Count < other.myRegressionExamples.Count )
+        {
+            TerrainTextureExample newExample = Instantiate( terrainExamplePrefab, transform.position, Quaternion.identity );
+            ProvideExample( newExample, false );
         }
     }
 

@@ -117,10 +117,10 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
         }
     }
 
-    public void ForgetExample( TerrainHeightExample example )
+    public void ForgetExample( TerrainHeightExample example, bool shouldRescan = true )
     {
         // forget
-        if( myRegressionExamples.Remove( example ) )
+        if( myRegressionExamples.Remove( example ) && shouldRescan )
         {
             // recompute
             RescanProvidedExamples();
@@ -141,15 +141,53 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
     }
 
 
-    public void ForgetExample( TerrainGISExample example )
+    public void ForgetExample( TerrainGISExample example, bool shouldRescan = true )
     {
         if( !addGISTexture ) return;
         // forget
-        if( myGISRegressionExamples.Remove( example ) )
+        if( myGISRegressionExamples.Remove( example ) && shouldRescan )
         {
             // recompute
             RescanProvidedExamples();
         }
+    }
+
+    // this will only be called before my examples are overwritten
+    public void MatchNumberOfExamples( ConnectedTerrainController other )
+    {
+        // since examples will be overwritten soon, doesn't matter if
+        // we delete or add examples / which ones
+
+        // first, perhaps delete extra examples
+        while( myRegressionExamples.Count > other.myRegressionExamples.Count )
+        {
+            TerrainHeightExample exampleToRemove = myRegressionExamples[0];
+            ForgetExample( exampleToRemove, false );
+            Destroy( exampleToRemove.gameObject );
+        }
+
+        while( myGISRegressionExamples.Count > other.myGISRegressionExamples.Count )
+        {
+            TerrainGISExample exampleToRemove = myGISRegressionExamples[0];
+            ForgetExample( exampleToRemove, false );
+            Destroy( exampleToRemove.gameObject );
+        }
+
+        // next, perhaps add blank examples
+        while( myRegressionExamples.Count < other.myRegressionExamples.Count )
+        {
+            TerrainHeightExample newExample = Instantiate( heightPrefab, transform.position, Quaternion.identity );
+            ProvideExample( newExample, false );
+        }
+
+        while( myGISRegressionExamples.Count < other.myGISRegressionExamples.Count )
+        {
+            TerrainGISExample newExample = Instantiate( gisPrefab, transform.position, Quaternion.identity );
+            ProvideExample( newExample, false );
+        }
+
+        // finally, check texture
+        myTextureController.MatchNumberOfExamples( other.myTextureController );
     }
 
     // TODO: can this be split into two phases: the base data and the GIS data,

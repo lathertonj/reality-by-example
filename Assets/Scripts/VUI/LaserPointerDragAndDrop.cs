@@ -147,6 +147,11 @@ public class LaserPointerDragAndDrop : MonoBehaviour
         currentlyIntersecting = false;
     }
 
+    public void OnDisable()
+    {
+        HideLaser();
+    }
+
     public T GetStartObject<T>()
     {
         return (firstCollidedObject != null) ? firstCollidedObject.GetComponentInParent<T>() : default(T);

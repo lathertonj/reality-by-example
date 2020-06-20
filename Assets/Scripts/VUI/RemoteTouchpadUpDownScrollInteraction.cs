@@ -17,6 +17,9 @@ public class RemoteTouchpadUpDownScrollInteraction : MonoBehaviour
     private RemoteTriggerGrabMoveInteraction mover;
 
 
+    public bool joystickScroll = true;
+    public float joystickSensitivity = 1f; 
+
 
     // Start is called before the first frame update
     void Awake()
@@ -41,21 +44,34 @@ public class RemoteTouchpadUpDownScrollInteraction : MonoBehaviour
         }
     }
 
+    float currentJoystick = 0;
     // 3 methods for doing the interaction
     private void StartUpDownGesture()
     {
         interactingObject = selectedObject;
         interactingGameObject = LaserPointerSelector.GetSelectedObject();
         updownStartPosition = touchpadXY.GetAxis( handType );
+        currentJoystick = 0;
     }
 
     private void ContinueUpDownGesture()
     {
-        Vector2 currentPosition = touchpadXY.GetAxis( handType );
-        Vector2 displacementSinceBeginning = currentPosition - updownStartPosition;
-        Vector2 displacementThisFrame = currentPosition - updownPreviousPosition;
-        if( interactingGameObject != null ){ interactingObject.InformOfUpOrDownMovement( displacementSinceBeginning.y, displacementThisFrame.y ); }
-        updownPreviousPosition = currentPosition;
+        if( joystickScroll )
+        {
+            float joystickY = touchpadXY.GetAxis( handType ).y;
+            float displacementThisFrame = joystickSensitivity * Time.deltaTime * joystickY;
+            float nextY = currentJoystick + displacementThisFrame;
+            if( interactingGameObject != null ) { interactingObject.InformOfUpOrDownMovement( nextY, displacementThisFrame ); }
+            currentJoystick = nextY;
+        }
+        else
+        {
+            Vector2 currentPosition = touchpadXY.GetAxis( handType );
+            Vector2 displacementSinceBeginning = currentPosition - updownStartPosition;
+            Vector2 displacementThisFrame = currentPosition - updownPreviousPosition;
+            if( interactingGameObject != null ){ interactingObject.InformOfUpOrDownMovement( displacementSinceBeginning.y, displacementThisFrame.y ); }
+            updownPreviousPosition = currentPosition;
+        }
     }
 
     private void EndUpDownGesture()

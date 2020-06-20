@@ -1,5 +1,5 @@
 {
-  "app_key": "application.generated.unity.steamvr.exe",
+  "app_key": "application.generated.unity.slorkbirdpiece.exe",
   "bindings": {
     "/actions/buggy": {
       "chords": [],
@@ -21,9 +21,191 @@
       "haptics": [],
       "sources": [],
       "skeleton": []
+    },
+    "/actions/rbe": {
+      "chords": [],
+      "poses": [
+        {
+          "output": "/actions/rbe/in/pose",
+          "path": "/user/hand/left/pose/handgrip"
+        },
+        {
+          "output": "/actions/rbe/in/pose",
+          "path": "/user/hand/right/pose/handgrip"
+        }
+      ],
+      "haptics": [
+        {
+          "output": "/actions/rbe/out/haptic",
+          "path": "/user/hand/left/output/haptic"
+        },
+        {
+          "output": "/actions/rbe/out/haptic",
+          "path": "/user/hand/right/output/haptic"
+        }
+      ],
+      "sources": [
+        {
+          "path": "/user/hand/left/input/joystick",
+          "mode": "joystick",
+          "parameters": {},
+          "inputs": {
+            "position": {
+              "output": "/actions/rbe/in/updowntouchpad"
+            },
+            "touch": {
+              "output": "/actions/rbe/in/updowntouchpadpressed"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/right/input/joystick",
+          "mode": "joystick",
+          "parameters": {},
+          "inputs": {
+            "position": {
+              "output": "/actions/rbe/in/updowntouchpad"
+            },
+            "touch": {
+              "output": "/actions/rbe/in/updowntouchpadpressed"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/left/input/joystick",
+          "mode": "dpad",
+          "parameters": {
+            "sub_mode": "touch"
+          },
+          "inputs": {
+            "east": {
+              "output": "/actions/rbe/in/rightclick"
+            },
+            "west": {
+              "output": "/actions/rbe/in/leftclick"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/right/input/joystick",
+          "mode": "dpad",
+          "parameters": {
+            "sub_mode": "touch"
+          },
+          "inputs": {
+            "east": {
+              "output": "/actions/rbe/in/rightclick"
+            },
+            "west": {
+              "output": "/actions/rbe/in/leftclick"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/left/input/grip",
+          "mode": "button",
+          "parameters": {},
+          "inputs": {
+            "click": {
+              "output": "/actions/rbe/in/grabobject"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/right/input/grip",
+          "mode": "button",
+          "parameters": {},
+          "inputs": {
+            "click": {
+              "output": "/actions/rbe/in/grabobject"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/left/input/trigger",
+          "mode": "trigger",
+          "parameters": {},
+          "inputs": {
+            "click": {
+              "output": "/actions/rbe/in/takeactiongeneric"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/right/input/trigger",
+          "mode": "trigger",
+          "parameters": {},
+          "inputs": {
+            "click": {
+              "output": "/actions/rbe/in/takeactiongeneric"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/left/input/trigger",
+          "mode": "trigger",
+          "parameters": {},
+          "inputs": {
+            "click": {
+              "output": "/actions/rbe/in/takeactionmovement"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/right/input/trigger",
+          "mode": "trigger",
+          "parameters": {},
+          "inputs": {
+            "click": {
+              "output": "/actions/rbe/in/takeactionmovement"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/left/input/x",
+          "mode": "button",
+          "parameters": {},
+          "inputs": {
+            "click": {
+              "output": "/actions/rbe/in/menuandselectlaser"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/right/input/x",
+          "mode": "button",
+          "parameters": {},
+          "inputs": {
+            "click": {
+              "output": "/actions/rbe/in/menuandselectlaser"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/left/input/y",
+          "mode": "button",
+          "parameters": {},
+          "inputs": {
+            "click": {
+              "output": "/actions/rbe/in/menuandselectlaser"
+            }
+          }
+        },
+        {
+          "path": "/user/hand/right/input/y",
+          "mode": "button",
+          "parameters": {},
+          "inputs": {
+            "click": {
+              "output": "/actions/rbe/in/menuandselectlaser"
+            }
+          }
+        }
+      ],
+      "skeleton": []
     }
   },
   "controller_type": "oculus_touch",
-  "description": "",
-  "name": "oculus_touch"
+  "description": "Oculus Touch June 2020",
+  "name": "Saved Terrain By Example [Testing] configuration for Oculus Touch"
 }

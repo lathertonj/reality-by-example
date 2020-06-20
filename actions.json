@@ -46,6 +46,11 @@
       "requirement": "mandatory"
     },
     {
+      "name": "/actions/rbe/in/PreviewActionGeneric",
+      "type": "boolean",
+      "requirement": "mandatory"
+    },
+    {
       "name": "/actions/rbe/out/Haptic",
       "type": "vibration",
       "requirement": "mandatory"

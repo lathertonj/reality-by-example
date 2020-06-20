@@ -89,6 +89,14 @@ namespace Valve.VR
             }
         }
         
+        public virtual SteamVR_Action_Boolean PreviewActionGeneric
+        {
+            get
+            {
+                return SteamVR_Actions.rbe_PreviewActionGeneric;
+            }
+        }
+        
         public virtual SteamVR_Action_Vibration Haptic
         {
             get

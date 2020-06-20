@@ -18,6 +18,9 @@ public class RemoteTriggerGrabMoveInteraction : MonoBehaviour
     public float touchpadMovingMinDistance = 1f;
     private Vector2 prevTouchpadPosition;
 
+    public bool joystickScroll = true;
+    public float joystickSensitivity = 2.5f;
+
 
     // Start is called before the first frame update
     void Awake()
@@ -68,7 +71,15 @@ public class RemoteTriggerGrabMoveInteraction : MonoBehaviour
                 Vector2 currentTouchpadPosition = touchpadXY.GetAxis( handType );
 
                 // difference in y == movement in world away / toward self
-                float difference = currentTouchpadPosition.y - prevTouchpadPosition.y;
+                float difference = 0;
+                if( joystickScroll )
+                {
+                    difference = currentTouchpadPosition.y * joystickSensitivity * Time.deltaTime;
+                }
+                else
+                {
+                    difference = currentTouchpadPosition.y - prevTouchpadPosition.y;
+                }
                 Vector3 offset = ( interactingTransform.position - transform.position );
                 float distance = offset.magnitude;
                 Vector3 direction = offset.normalized;

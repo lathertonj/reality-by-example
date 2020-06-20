@@ -40,7 +40,7 @@ public class FlyingTeleporter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if( touchpadPreview.GetState( handType ) )
+        if( ShouldShowLaser() )
         {
             ShowLaser();
         
@@ -54,6 +54,11 @@ public class FlyingTeleporter : MonoBehaviour
             HideLasers();
         }
 
+    }
+
+    private bool ShouldShowLaser()
+    {
+        return touchpadPreview.GetState( handType ) || ( touchpadXY.GetAxis( handType ) != Vector2.zero );
     }
 
     private float GetLaserLength()

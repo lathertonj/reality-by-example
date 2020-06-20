@@ -43,7 +43,7 @@ public class FlyingMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if( touchpadPreview.GetState( handType ) )
+        if( ShouldShowLaser() )
         {
             ShowLaser();
         
@@ -59,6 +59,11 @@ public class FlyingMovement : MonoBehaviour
 
         // actually do the flying
         room.position += flyOffset * percentDistancePerSecond * Time.deltaTime;
+    }
+
+    private bool ShouldShowLaser()
+    {
+        return touchpadPreview.GetState( handType ) || ( touchpadXY.GetAxis( handType ) != Vector2.zero );
     }
 
     private float GetLaserLength()

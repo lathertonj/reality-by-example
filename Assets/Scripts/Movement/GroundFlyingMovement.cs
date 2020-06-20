@@ -44,7 +44,7 @@ public class GroundFlyingMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if( touchpadPreview.GetState( handType ) )
+        if( ShouldShowLaser() )
         {
             ShowLaser();
         
@@ -64,6 +64,11 @@ public class GroundFlyingMovement : MonoBehaviour
             room.position += flyOffset * percentDistancePerSecond * Time.deltaTime;
             RealignToGround();
         }
+    }
+
+    private bool ShouldShowLaser()
+    {
+        return touchpadPreview.GetState( handType ) || ( touchpadXY.GetAxis( handType ) != Vector2.zero );
     }
 
     void RealignToGround()

@@ -7,7 +7,7 @@ public class LaserPointerDragAndDrop : MonoBehaviour
 {
 
     public SteamVR_Input_Sources handType;
-    public SteamVR_Action_Boolean click;
+    public SteamVR_Action_Boolean preview, click;
     private SteamVR_Behaviour_Pose controllerPose;
 
     public GameObject laserPrefab;
@@ -39,17 +39,7 @@ public class LaserPointerDragAndDrop : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if( click.GetStateDown( handType ) )
-        {
-            // laser color set to red, display forward
-            currentColor = start;
-            ShowForwardLaser( forwardLaserLength );
-
-            // reset object references
-            firstCollidedObject = null;
-            lastCollidedObject = null;
-        }
-        else if( click.GetStateUp( handType ) )
+        if( click.GetStateUp( handType ) )
         {
             HideLaser();
         }
@@ -99,6 +89,17 @@ public class LaserPointerDragAndDrop : MonoBehaviour
             {
                 ShowForwardLaser( forwardLaserLength );
             }
+        }
+        // preview: show the laser
+        else if( preview.GetState( handType ) )
+        {
+            // laser color set to red, display forward
+            currentColor = start;
+            ShowForwardLaser( forwardLaserLength );
+
+            // reset object references
+            firstCollidedObject = null;
+            lastCollidedObject = null;
         }
         else
         {

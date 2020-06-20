@@ -632,7 +632,16 @@ public class RandomizeTerrain : MonoBehaviour
         if( sourceExamples.Count != toOverWrite.Count )
         {
             Debug.LogError( "different numbers of examples!" );
+            // TODO: make work if there's a different number!
             return;
+        }
+        if( sourceExamples.Count < toOverWrite.Count )
+        {
+            // add more
+        }
+        else if( sourceExamples.Count > toOverWrite.Count )
+        {
+            // remove until correct number
         }
         for( int i = 0; i < sourceExamples.Count; i++ )
         {

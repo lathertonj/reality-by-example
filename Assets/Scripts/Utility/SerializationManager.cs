@@ -10,6 +10,8 @@ public class SerializationManager : MonoBehaviour
     public GameObject[] entitiesToSaveOnQuit;
     public GameObject[] entitiesToLoadOnStart;
     public string worldName;
+    public bool findWorldNameInFile = false;
+    public string fileWithWorldName;
     private string saveWorldName;
     private string loadWorldName;
 
@@ -24,6 +26,12 @@ public class SerializationManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // what is world name?
+        if( findWorldNameInFile )
+        {
+            FindWorldNameInFile();
+        }
+        
         // where to load from
         if( loadLatestVersionOfWorld )
         {
@@ -49,10 +57,14 @@ public class SerializationManager : MonoBehaviour
         #if UNITY_WEBGL
             // don't try to create folders on web
         #else
-            // ensure dirs exist
-            string loadFolder = DynamicExamplesLocation( true );
+            // ensure load dir exists
+            if( loadWorldName != "" )
+            {
+                string loadFolder = DynamicExamplesLocation( true );
+                if( !Directory.Exists( loadFolder ) ) { Directory.CreateDirectory( loadFolder ); }
+            }
+            // ensure save dir exists
             string saveFolder = DynamicExamplesLocation( false );
-            if( !Directory.Exists( loadFolder ) ) { Directory.CreateDirectory( loadFolder ); }
             if( !Directory.Exists( saveFolder ) ) { Directory.CreateDirectory( saveFolder ); }
         #endif
 
@@ -73,6 +85,12 @@ public class SerializationManager : MonoBehaviour
     void OnApplicationQuit()
     {
         SaveAll();
+    }
+
+    void FindWorldNameInFile()
+    {
+        StreamReader reader = new StreamReader( Application.streamingAssetsPath + "/" + fileWithWorldName );
+        worldName = reader.ReadLine().Split( null )[0];
     }
 
     string FindUniqueWorldName()
@@ -233,7 +251,7 @@ public class SerializationManager : MonoBehaviour
 
     void DynamicSaveExamples( DynamicSerializableByExample entity )
     {
-        StreamWriter writer = new StreamWriter( GetFilepath( entity, true ), false );
+        StreamWriter writer = new StreamWriter( GetFilepath( entity, false ), false );
         writer.Write( entity.SerializeExamples() );
         writer.Close();
     }

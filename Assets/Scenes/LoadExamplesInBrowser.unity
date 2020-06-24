@@ -165,7 +165,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58a61efbcfcdaf6449a64428e129706e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  examplePointsContainer: {fileID: 0}
   leftNeighbor: {fileID: 952970235}
   rightNeighbor: {fileID: 0}
   upperNeighbor: {fileID: 977297664}
@@ -225,7 +224,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58a61efbcfcdaf6449a64428e129706e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  examplePointsContainer: {fileID: 0}
   leftNeighbor: {fileID: 1884021153}
   rightNeighbor: {fileID: 0}
   upperNeighbor: {fileID: 0}
@@ -566,7 +564,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58a61efbcfcdaf6449a64428e129706e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  examplePointsContainer: {fileID: 0}
   leftNeighbor: {fileID: 0}
   rightNeighbor: {fileID: 952970235}
   upperNeighbor: {fileID: 967117020}
@@ -734,7 +731,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58a61efbcfcdaf6449a64428e129706e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  examplePointsContainer: {fileID: 0}
   leftNeighbor: {fileID: 0}
   rightNeighbor: {fileID: 1884021153}
   upperNeighbor: {fileID: 0}
@@ -1507,18 +1503,18 @@ MonoBehaviour:
   - {fileID: 952970232}
   - {fileID: 33815732}
   - {fileID: 832069737}
-  worldName: myWorldBackup
+  worldName: jacklantis
+  findWorldNameInFile: 0
+  fileWithWorldName: 
   saveDynamicEntities: 0
   loadDynamicEntities: 1
   loadLatestVersionOfWorld: 0
+  loadRandomIfNoneFound: 0
   saveToUniqueNumber: 0
-  manualLoadDynamicEntities:
-  - AnimatedCrow/creature_7
-  - AnimatedCrow/creature_11
-  - AnimatedFish1/creature_15
-  - AnimatedFish1/creature_19
-  - AnimatedWolf/creature_0
-  - AnimatedWolf/creature_3
+  manualLoadDynamicEntities: []
+  manualLoadDynamicEntitiesFile: {fileID: 4900000, guid: 9d7c7e1cbc5d9a143bf027e68008fa4c,
+    type: 3}
+  saveEverySeconds: 0
 --- !u!4 &717699732
 Transform:
   m_ObjectHideFlags: 0
@@ -2138,6 +2134,7 @@ MonoBehaviour:
   myParameter: 0
   objectToRunRegressionOn: {fileID: 700675862}
   myRegressionExamples: []
+  myDefaultValue: 0.5
   displayPlaneVisualization: 0
   examplePrefab: {fileID: -4807998583417813822, guid: c341e62198bb1ba4c807776342a9d400,
     type: 3}
@@ -2173,6 +2170,7 @@ MonoBehaviour:
   myParameter: 2
   objectToRunRegressionOn: {fileID: 700675862}
   myRegressionExamples: []
+  myDefaultValue: 0.5
   displayPlaneVisualization: 0
   examplePrefab: {fileID: -4807998583417813822, guid: c0a9ea61b1fad2344a349a7d29c6ffdd,
     type: 3}
@@ -2191,6 +2189,7 @@ MonoBehaviour:
   myParameter: 1
   objectToRunRegressionOn: {fileID: 700675862}
   myRegressionExamples: []
+  myDefaultValue: 0.5
   displayPlaneVisualization: 0
   examplePrefab: {fileID: -4807998583417813822, guid: dbc6ebb59fd3a9b47a59eae00429a8ed,
     type: 3}
@@ -2269,7 +2268,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58a61efbcfcdaf6449a64428e129706e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  examplePointsContainer: {fileID: 0}
   leftNeighbor: {fileID: 359564393}
   rightNeighbor: {fileID: 33815734}
   upperNeighbor: {fileID: 2009672320}
@@ -2314,7 +2312,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58a61efbcfcdaf6449a64428e129706e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  examplePointsContainer: {fileID: 0}
   leftNeighbor: {fileID: 0}
   rightNeighbor: {fileID: 2009672320}
   upperNeighbor: {fileID: 469433559}
@@ -2389,7 +2386,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58a61efbcfcdaf6449a64428e129706e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  examplePointsContainer: {fileID: 0}
   leftNeighbor: {fileID: 2009672320}
   rightNeighbor: {fileID: 0}
   upperNeighbor: {fileID: 197813566}
@@ -4022,7 +4018,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58a61efbcfcdaf6449a64428e129706e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  examplePointsContainer: {fileID: 0}
   leftNeighbor: {fileID: 469433559}
   rightNeighbor: {fileID: 197813566}
   upperNeighbor: {fileID: 0}
@@ -4296,7 +4291,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58a61efbcfcdaf6449a64428e129706e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  examplePointsContainer: {fileID: 0}
   leftNeighbor: {fileID: 967117020}
   rightNeighbor: {fileID: 977297664}
   upperNeighbor: {fileID: 1884021153}

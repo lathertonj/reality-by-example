@@ -22,6 +22,7 @@ public class SerializationManager : MonoBehaviour
     public bool saveToUniqueNumber = false;
 
     public string[] manualLoadDynamicEntities;
+    public TextAsset manualLoadDynamicEntitiesFile;
 
     public float saveEverySeconds = 0;
 
@@ -54,6 +55,12 @@ public class SerializationManager : MonoBehaviour
         else
         {
             saveWorldName = worldName;
+        }
+
+        // entities
+        if( manualLoadDynamicEntitiesFile != null )
+        {
+            manualLoadDynamicEntities = manualLoadDynamicEntitiesFile.text.Split( '\n' );
         }
 
         #if UNITY_WEBGL

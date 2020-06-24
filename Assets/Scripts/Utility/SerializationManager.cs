@@ -23,6 +23,8 @@ public class SerializationManager : MonoBehaviour
 
     public string[] manualLoadDynamicEntities;
 
+    public float saveEverySeconds = 0;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -79,6 +81,11 @@ public class SerializationManager : MonoBehaviour
         {
             // we thought we'd be able to load something, but failed
             StartCoroutine( RandomizeTerrain.RandomizeWorld() );
+        }
+
+        if( saveEverySeconds != 0 )
+        {
+            InvokeRepeating( "SaveAll", saveEverySeconds, saveEverySeconds );
         }
     }
 
@@ -187,7 +194,6 @@ public class SerializationManager : MonoBehaviour
             foreach( GameObject o in SceneManager.GetActiveScene().GetRootGameObjects() )
             {
                 DynamicSerializableByExample entity = o.GetComponent<DynamicSerializableByExample>();
-                
                 if( entity != null && entity.ShouldSerialize() )
                 {
                     DynamicSaveExamples( entity );

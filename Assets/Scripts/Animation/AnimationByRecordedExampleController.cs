@@ -86,7 +86,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     private Vector3 recordingModeOffset = Vector3.zero;
 
     public string myPrefabName;
-    private bool hasMyGroupBeenSerialized = false;
 
     private GameObject _yRotationBaseObject;
     private Transform yRotationBase;
@@ -1624,7 +1623,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             serialGroup.rotations.Add( groupMember.modelBaseToAnimate.rotation );
             serialGroup.nextFrames.Add( groupMember.currentRuntimeFrame );
             serialGroup.colors.Add( groupMember.myColor.Serialize() );
-            groupMember.hasMyGroupBeenSerialized = true;
         }
 
         // serialize audio system
@@ -1733,7 +1731,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     bool DynamicSerializableByExample.ShouldSerialize()
     {
-        return !hasMyGroupBeenSerialized;
+        // only the group leader should be serialized
+        return myGroup[0] == this;
     }
 
     [System.Serializable]

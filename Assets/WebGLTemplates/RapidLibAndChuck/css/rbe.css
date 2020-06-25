@@ -1,6 +1,6 @@
 .game-column {
     float: left;
-    width: 70vw;
+    width: 72vw;
     height: 98vh;
     margin: auto;
     background-color: #1f1f1f;
@@ -10,4 +10,27 @@
     float: left;
     width: 23vw;
     padding: 25px;
+    padding-right: 0px;
+}
+
+body {
+    font-family: "Helvetica Neue", HelveticaNeue, "TeX Gyre Heros", TeXGyreHeros, FreeSans, "Nimbus Sans L", "Liberation Sans", Arimo, Helvetica, Arial, sans-serif;
+    background-color: #eee;
+}
+
+h2 {
+    color: #800000;
+    font-size: 24px;
+}
+
+a {
+    color: #800000;
+}
+
+p {
+    font-size: 16px;
+}
+
+.bold {
+    font-weight: 600;
 }

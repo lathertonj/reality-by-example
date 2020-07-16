@@ -12,8 +12,6 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
     [HideInInspector] public List<SoundTempoExample> myRegressionExamples;
     private bool haveTrained = false;
     private float myDefaultTempo;
-    private ColorablePlane myColorablePlane;
-    private Vector3 previousPosition;
     private bool currentlyShowingData = false;
     private static SoundEngineTempoRegressor me;
 
@@ -57,15 +55,12 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
         // grab component reference
         myRegression = gameObject.AddComponent<RapidMixRegression>();
         mySoundEngine = GetComponent<SoundEngine>();
-        myColorablePlane = GetComponentInChildren<ColorablePlane>( true );
 
         // initialize list
         myRegressionExamples = new List<SoundTempoExample>();
 
         // initialize
         myDefaultTempo = 100f;
-        previousPosition = transform.position;
-
         me = this;
     }
 
@@ -78,8 +73,8 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
     {
         if( displayPlaneVisualization )
         {
-            myColorablePlane.gameObject.SetActive( true );
-            myColorablePlane.SetDataSource( this );
+            // don't use reference data source
+            ColorablePlane.SetDataSource( this, 0 );
             currentlyShowingData = true;
         }
     }
@@ -87,7 +82,7 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
     static public void Deactivate()
     {
         // TODO hide the plane -- want to do this, but only when NEITHER of our hands is using the plane...
-        me.myColorablePlane.gameObject.SetActive( false );
+        ColorablePlane.ClearDataSource( me );
 
         me.currentlyShowingData = false;
     }
@@ -112,12 +107,6 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
             if( haveTrained )
             {
                 tempo = (float) myRegression.Run( SoundEngineFeatures.InputVector( objectToRunRegressionOn.position ) )[0];
-
-                if( currentlyShowingData && previousPosition != transform.position )
-                {
-                    previousPosition = transform.position;
-                    myColorablePlane.UpdateColors();
-                }
             }
             // update sound engine
             mySoundEngine.SetQuarterNoteTime( TempoBPMToQuarterNoteSeconds( tempo ) );
@@ -159,7 +148,7 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
             haveTrained = true;
 
             // display
-            if( currentlyShowingData ) { myColorablePlane.UpdateColors(); }
+            if( currentlyShowingData ) { ColorablePlane.UpdateColors(); }
         }
         else
         {
@@ -168,9 +157,10 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
         }
     }
 
-    public float Intensity0To1( Vector3 worldPos )
+    float ColorablePlaneDataSource.Intensity0To1( Vector3 worldPos, float referenceData )
     {
         if( !haveTrained ) { return 0; }
+        // don't use reference data
         return ((float) myRegression.Run( SoundEngineFeatures.InputVector( worldPos ) )[0])
             .MapClamp( SoundTempoExample.minTempo, SoundTempoExample.maxTempo, 0, 1 ); 
     }

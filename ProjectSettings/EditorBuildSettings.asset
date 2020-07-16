@@ -8,13 +8,13 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/CombinedUI.unity
     guid: ebdcbbbfed4a2c24c9147d8973709b10
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/LoadExamplesInBrowser.unity
     guid: 0423c4d5625f79e44ae1141972f3bd85
   - enabled: 0
     path: Assets/Scenes/SaveAndLoadExamples.unity
     guid: bfcaec6ee089d814ea2d4c1b1b833043
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/BlankSlate.unity
     guid: 442ff552504f869478256eb6aaccad3e
   m_configObjects: {}

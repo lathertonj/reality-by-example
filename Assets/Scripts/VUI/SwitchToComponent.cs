@@ -102,31 +102,26 @@ public class SwitchToComponent : MonoBehaviour
                 touchpadInUse = true;
                 break;
             case InteractionType.PlaceTempo:
-                SoundEngineTempoRegressor.Activate();
                 SetGripPlacePrefab( controller );
                 // also, show tempo hint
                 SoundTempoExample.ShowHints( hintTime );
                 break;
             case InteractionType.PlaceTimbre:
-                SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.timbreRegressor );
                 SetGripPlacePrefab( controller );
                 // also, show timbre hint
                 Sound0To1Example.ShowHints( SoundEngine0To1Regressor.timbreRegressor, hintTime );
                 break;
             case InteractionType.PlaceDensity:
-                SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.densityRegressor );
                 SetGripPlacePrefab( controller );
                 // also, show density hint
                 Sound0To1Example.ShowHints( SoundEngine0To1Regressor.densityRegressor, hintTime );
                 break;
             case InteractionType.PlaceVolume:
-                SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.volumeRegressor );
                 SetGripPlacePrefab( controller );
                 // also, show volume hint
                 Sound0To1Example.ShowHints( SoundEngine0To1Regressor.volumeRegressor, hintTime );
                 break;
             case InteractionType.PlaceChord:
-                SoundEngineChordClassifier.Activate();
                 SetGripPlacePrefab( controller );
                 // also, show chord hint
                 SoundChordExample.ShowHints( hintTime );
@@ -357,12 +352,6 @@ public class SwitchToComponent : MonoBehaviour
         DisableComponent<LaserPointerColliderSelector>( o );
         DisableComponent<SlowlySpawnPrefab>( o );
         DisableComponent<LaserPointerDragAndDrop>( o );
-
-        SoundEngineTempoRegressor.Deactivate();
-        SoundEngineChordClassifier.Deactivate();
-        SoundEngine0To1Regressor.Deactivate( SoundEngine0To1Regressor.timbreRegressor );
-        SoundEngine0To1Regressor.Deactivate( SoundEngine0To1Regressor.densityRegressor );
-        SoundEngine0To1Regressor.Deactivate( SoundEngine0To1Regressor.volumeRegressor );
     }
 
     private IEnumerator AnimateSwell( float upSeconds, float upSlew, float downSlew, float increaseSizeBy )

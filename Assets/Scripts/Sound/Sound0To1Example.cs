@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable
+public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , LaserPointerSelectable
 {
 
     // default to 0.5
@@ -151,6 +151,18 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
         transform.position = serialized.position;
         myType = serialized.type;
         UpdateMyValue( serialized.value );
+    }
+
+    void LaserPointerSelectable.Selected()
+    {
+        // activate visualization when selected
+        SoundEngine0To1Regressor.Activate( myRegressor );
+    }
+
+    void LaserPointerSelectable.Unselected()
+    {
+        // deactivate visualization when unselected
+        SoundEngine0To1Regressor.Deactivate( myRegressor );
     }
 }
 

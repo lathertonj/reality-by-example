@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable
+public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , LaserPointerSelectable
 {
 
     // default to 0.5
@@ -131,6 +131,18 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
     {
         transform.position = serialized.position;
         UpdateMyChord( serialized.chord );
+    }
+
+    void LaserPointerSelectable.Selected()
+    {
+        // activate visualization when selected
+        SoundEngineChordClassifier.Activate();
+    }
+
+    void LaserPointerSelectable.Unselected()
+    {
+        // deactivate visualization when unselected
+        SoundEngineChordClassifier.Deactivate();
     }
 }
 

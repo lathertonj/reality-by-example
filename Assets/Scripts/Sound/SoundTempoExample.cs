@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable
+public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , LaserPointerSelectable
 {
 
     // default to 100
@@ -138,6 +138,20 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
         transform.position = serialized.position;
         UpdateMyTempo( serialized.tempo );
     }
+
+
+    void LaserPointerSelectable.Selected()
+    {
+        // activate visualization when selected
+        SoundEngineTempoRegressor.Activate();
+    }
+
+    void LaserPointerSelectable.Unselected()
+    {
+        // deactivate visualization when unselected
+        SoundEngineTempoRegressor.Deactivate();
+    }
+
 }
 
 [System.Serializable]

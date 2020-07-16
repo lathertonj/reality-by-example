@@ -12,8 +12,6 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
     [HideInInspector] public List<SoundChordExample> myClassifierExamples;
     private bool haveTrained = false;
     private int myDefaultChord = 0;
-    private ColorablePlane myColorablePlane;
-    private Vector3 previousPosition;
     private bool currentlyShowingData = false;
 
     private static SoundEngineChordClassifier me;
@@ -59,7 +57,6 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
         // grab component reference
         myClassifier = gameObject.AddComponent<RapidMixClassifier>();
         mySoundEngine = GetComponent<SoundEngine>();
-        myColorablePlane = GetComponentInChildren<ColorablePlane>( true );
         me = this;
 
         // initialize list
@@ -67,7 +64,6 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
 
         // initialize
         myDefaultChord = 0;
-        previousPosition = transform.position;
     }
 
     static public void Activate()
@@ -79,16 +75,15 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
     {
         if( displayPlaneVisualization )
         {
-            myColorablePlane.gameObject.SetActive( true );
-            myColorablePlane.SetDataSource( this );
+            // don't use reference data
+            ColorablePlane.SetDataSource( this, 0 );
             currentlyShowingData = true;
         }
     }
 
-    static public void Deactivate()
+    public static void Deactivate()
     {
-        // TODO hide the plane -- want to do this, but only when NEITHER of our hands is using the plane...
-        me.myColorablePlane.gameObject.SetActive( false );
+        ColorablePlane.ClearDataSource( me );
 
         me.currentlyShowingData = false;
     }
@@ -113,12 +108,6 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
             if( haveTrained )
             {
                 chord = RunClassifier( objectToRunRegressionOn.position );
-
-                if( currentlyShowingData && previousPosition != transform.position )
-                {
-                    previousPosition = transform.position;
-                    myColorablePlane.UpdateColors();
-                }
             }
             // update the sound engine
             mySoundEngine.SetChord( chord );
@@ -156,7 +145,7 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
             haveTrained = true;
 
             // display
-            if( currentlyShowingData ) { myColorablePlane.UpdateColors(); }
+            if( currentlyShowingData ) { ColorablePlane.UpdateColors(); }
         }
         else
         {
@@ -174,9 +163,10 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
         #endif
     }
 
-    public float Intensity0To1( Vector3 worldPos )
+    float ColorablePlaneDataSource.Intensity0To1( Vector3 worldPos, float referenceData )
     {
         if( !haveTrained ) { return 0; }
+        // ignore referenceData
         return RunClassifier( worldPos ) * 1.0f / SoundChordExample.numChords;
     }
 

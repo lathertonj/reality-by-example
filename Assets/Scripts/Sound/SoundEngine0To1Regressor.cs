@@ -15,8 +15,6 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
     [HideInInspector] public List<Sound0To1Example> myRegressionExamples;
     private bool haveTrained = false;
     public float myDefaultValue = 0.5f;
-    private ColorablePlane myColorablePlane;
-    private Vector3 previousPosition;
     private bool currentlyShowingData = false;
 
     public static SoundEngine0To1Regressor timbreRegressor, densityRegressor, volumeRegressor;
@@ -62,7 +60,6 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
         // grab component reference
         myRegression = gameObject.AddComponent<RapidMixRegression>();
         mySoundEngine = GetComponent<SoundEngine>();
-        myColorablePlane = GetComponentInChildren<ColorablePlane>( true );
         
         switch( myParameter )
         {
@@ -79,9 +76,6 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
 
         // initialize list
         myRegressionExamples = new List<Sound0To1Example>();
-
-        // initialize
-        previousPosition = transform.position;
     }
 
     static public void Activate( SoundEngine0To1Regressor me )
@@ -93,17 +87,15 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
     {
         if( displayPlaneVisualization )
         {
-            myColorablePlane.gameObject.SetActive( true );
-            myColorablePlane.SetDataSource( this );
+            // don't use reference data -- we already have a natural 0-to-1 output
+            ColorablePlane.SetDataSource( this, 0 );
             currentlyShowingData = true;
         }
     }
 
-    static public void Deactivate( SoundEngine0To1Regressor me )
+    public static void Deactivate( SoundEngine0To1Regressor me )
     {
-        // TODO hide the plane -- want to do this, but only when NEITHER of our hands is using the plane...
-        me.myColorablePlane.gameObject.SetActive( false );
-
+        ColorablePlane.ClearDataSource( me );
         me.currentlyShowingData = false;
     }
 
@@ -127,12 +119,6 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
             if( haveTrained )
             {
                 value = RunRegressionClamped( objectToRunRegressionOn.position );
-
-                if( currentlyShowingData && previousPosition != transform.position )
-                {
-                    previousPosition = transform.position;
-                    myColorablePlane.UpdateColors();
-                }
             }
             // update the sound engine
             switch( myParameter )
@@ -177,7 +163,7 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
             haveTrained = true;
 
             // display
-            if( currentlyShowingData ) { myColorablePlane.UpdateColors(); }
+            if( currentlyShowingData ) { ColorablePlane.UpdateColors(); }
         }
         else
         {
@@ -191,9 +177,10 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
         return Mathf.Clamp01( (float) myRegression.Run( SoundEngineFeatures.InputVector( pos ) )[0]);
     }
 
-    public float Intensity0To1( Vector3 worldPos )
+    float ColorablePlaneDataSource.Intensity0To1( Vector3 worldPos, float referenceData )
     {
         if( !haveTrained ) { return 0; }
+        // ignore reference data
         return RunRegressionClamped( worldPos );
     }
 
@@ -242,6 +229,7 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
                 return "_";
         }
     }
+
 }
 
 

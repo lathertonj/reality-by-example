@@ -533,7 +533,7 @@ public class ConnectedTerrainTextureController : MonoBehaviour
     {
         // FIRST POINT: normalized height at this location in terrain
         // TODO check if this is normalized already or if we need to divide by myTerrainData.heightmapHeight
-        float normHeight = myTerrainData.GetInterpolatedHeight( normX, normY ) / myTerrainData.heightmapHeight;
+        float normHeight = myTerrainData.GetInterpolatedHeight( normX, normY ) / myTerrainData.heightmapResolution;
 
         // SECOND POINT: normalized steepness at this location in terrain
         // according to Unity: "Steepness is given as an angle, 0..90 degrees"

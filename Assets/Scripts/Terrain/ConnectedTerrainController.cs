@@ -220,7 +220,7 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
         myGISRegressionExamples = new List<TerrainGISExample>();
 
         // compute sizes
-        verticesPerSide = myTerrainData.heightmapWidth;
+        verticesPerSide = myTerrainData.heightmapResolution;
         terrainSize = myTerrainData.size.x; // it is invariant to scale. scaling up doesn't affect the computations here.
         terrainHeight = myTerrainData.size.y;
         spaceBetweenVertices = terrainSize / ( verticesPerSide - 1 );
@@ -285,7 +285,7 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
     // steepness information and normals.
     private double[] GISInputVectorFromNormCoordinates( float normX, float normY )
     {
-        float normHeight = myTerrainData.GetInterpolatedHeight( normX, normY ) / myTerrainData.heightmapHeight;
+        float normHeight = myTerrainData.GetInterpolatedHeight( normX, normY ) / myTerrainData.heightmapResolution;
         float x = normX, y = normHeight, z = normY;
         return new double[] {
             x, y, z,

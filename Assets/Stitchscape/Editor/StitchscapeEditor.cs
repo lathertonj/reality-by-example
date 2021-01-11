@@ -179,14 +179,14 @@ public class StitchscapeEditor : ScriptableWizard {
 			}
 		}
 		
-		terrainRes = terrains[0].terrainData.heightmapWidth;
-		if (terrains[0].terrainData.heightmapHeight != terrainRes) {
+		terrainRes = terrains[0].terrainData.heightmapResolution;
+		if (terrains[0].terrainData.heightmapResolution != terrainRes) {
 			message = "Heightmap width and height must be the same";
 			return;
 		}
 		
 		foreach (var t in terrains) {
-			if (t.terrainData.heightmapWidth != terrainRes || t.terrainData.heightmapHeight != terrainRes) {
+			if (t.terrainData.heightmapResolution != terrainRes || t.terrainData.heightmapResolution != terrainRes) {
 				message = "All heightmaps must be the same resolution";
 				return;
 			}

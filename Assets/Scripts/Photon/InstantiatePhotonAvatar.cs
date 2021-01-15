@@ -13,6 +13,8 @@ public class InstantiatePhotonAvatar : MonoBehaviourPunCallbacks
         newAvatar.transform.parent = transform;
         newAvatar.transform.localPosition = Vector3.zero;
         newAvatar.transform.localRotation = Quaternion.identity;
+        // hide avatar to me
+        newAvatar.GetComponentInChildren<MeshRenderer>().enabled = false;
     }
     
 }

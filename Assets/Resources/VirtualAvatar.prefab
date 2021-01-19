@@ -136,7 +136,7 @@ GameObject:
   - component: {fileID: 635544735759339837}
   - component: {fileID: 4577690268129136243}
   m_Layer: 0
-  m_Name: VIrtualAvatar
+  m_Name: VirtualAvatar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -35,3 +35,11 @@ The following packages were updated:
   com.unity.xr.openvr.standalone from version 1.0.5 to 2.0.5
 The following packages were removed:
   com.unity.package-manager-ui@2.1.2
+
+=== Tue Jan 19 14:34:53 2021
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were updated:
+  com.unity.test-framework from version 1.1.19 to 1.1.20

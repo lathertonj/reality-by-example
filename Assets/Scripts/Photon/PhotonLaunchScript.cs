@@ -15,7 +15,7 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
     {
         launcher = this;
         // this makes sure we can use PhotonNetwork.LoadLevel() on the master client and all clients in the same room sync their level automatically
-        PhotonNetwork.AutomaticallySyncScene = true;
+        PhotonNetwork.AutomaticallySyncScene = false;
     }
 
     // Start is called before the first frame update
@@ -84,7 +84,7 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
         if( PhotonNetwork.IsMasterClient )
         {
             // TODO: send new player all information related to reconstructing the room
-
+            Debug.Log( "A player joined the room!" );
         }
     }
 

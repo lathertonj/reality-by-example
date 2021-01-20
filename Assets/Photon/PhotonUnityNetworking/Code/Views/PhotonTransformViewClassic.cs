@@ -53,6 +53,12 @@ namespace Photon.Pun
         /// </summary>
         bool m_firstTake = false;
 
+        /// <summary>
+        /// Flag to use position instead of localPosition and rotation instead of localRotation
+        /// </summary>
+        [Tooltip("Indicates if localPosition and localRotation should be used. Scale ignores this setting, and always uses localScale to avoid issues with lossyScale.")]
+        public bool m_UseLocal;
+
         void Awake()
         {
             this.m_PhotonView = GetComponent<PhotonView>();
@@ -86,7 +92,14 @@ namespace Photon.Pun
                 return;
             }
 
-            transform.localPosition = this.m_PositionControl.UpdatePosition(transform.localPosition);
+            if( m_UseLocal )
+            {
+                transform.localPosition = this.m_PositionControl.UpdatePosition(transform.localPosition);
+            }
+            else
+            {
+                transform.position = this.m_PositionControl.UpdatePosition( transform.position );
+            }
         }
 
         void UpdateRotation()
@@ -96,7 +109,14 @@ namespace Photon.Pun
                 return;
             }
 
-            transform.localRotation = this.m_RotationControl.GetRotation(transform.localRotation);
+            if( m_UseLocal )
+            {
+                transform.localRotation = this.m_RotationControl.GetRotation(transform.localRotation);
+            }
+            else
+            {
+                transform.rotation = this.m_RotationControl.GetRotation( transform.rotation );
+            }  
         }
 
         void UpdateScale()
@@ -125,8 +145,16 @@ namespace Photon.Pun
 
         public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
         {
-            this.m_PositionControl.OnPhotonSerializeView(transform.localPosition, stream, info);
-            this.m_RotationControl.OnPhotonSerializeView(transform.localRotation, stream, info);
+            if( m_UseLocal )
+            {
+                this.m_PositionControl.OnPhotonSerializeView(transform.localPosition, stream, info);
+                this.m_RotationControl.OnPhotonSerializeView(transform.localRotation, stream, info);
+            }
+            else
+            {
+                this.m_PositionControl.OnPhotonSerializeView(transform.position, stream, info);
+                this.m_RotationControl.OnPhotonSerializeView(transform.rotation, stream, info);
+            }
             this.m_ScaleControl.OnPhotonSerializeView(transform.localScale, stream, info);
 
             if (stream.IsReading == true)
@@ -140,12 +168,26 @@ namespace Photon.Pun
 
                     if (this.m_PositionModel.SynchronizeEnabled)
                     {
-                        this.transform.localPosition = this.m_PositionControl.GetNetworkPosition();
+                        if( m_UseLocal )
+                        {
+                            this.transform.localPosition = this.m_PositionControl.GetNetworkPosition();
+                        }
+                        else
+                        {
+                            this.transform.position = this.m_PositionControl.GetNetworkPosition();
+                        }
                     }
 
                     if (this.m_RotationModel.SynchronizeEnabled)
                     {
-                        this.transform.localRotation = this.m_RotationControl.GetNetworkRotation();
+                        if( m_UseLocal )
+                        {
+                            this.transform.localRotation = this.m_RotationControl.GetNetworkRotation();
+                        }
+                        else
+                        {
+                            this.transform.rotation = this.m_RotationControl.GetNetworkRotation();
+                        }
                     }
 
                     if (this.m_ScaleModel.SynchronizeEnabled)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
+using Photon.Pun;
 
 public class TerrainLaserRaiseLowerInteractor : MonoBehaviour
 {
@@ -12,12 +13,14 @@ public class TerrainLaserRaiseLowerInteractor : MonoBehaviour
     private LaserPointerColliderSelector laser;
 
     public TerrainHeightExample examplePrefab;
+    public bool isPrefabNetworked;
     private TerrainHeightExample currentlyPlacingExample;
     
     private float lazyRecomputeTime = 0.25f;
 
     public float movementAmplification = 10f;
     private Vector3 lastHandPos;
+
 
 
     void Start()
@@ -103,7 +106,14 @@ public class TerrainLaserRaiseLowerInteractor : MonoBehaviour
         ConnectedTerrainController foundTerrain = TerrainUtility.FindTerrain<ConnectedTerrainController>( startPos, out hitPoint );
         if( foundTerrain != null )
         {
-            currentlyPlacingExample = Instantiate( examplePrefab, hitPoint, Quaternion.identity );
+            if( isPrefabNetworked )
+            {
+                currentlyPlacingExample = PhotonNetwork.Instantiate( examplePrefab.name, hitPoint, Quaternion.identity ).GetComponent<TerrainHeightExample>();
+            }
+            else
+            {
+                currentlyPlacingExample = Instantiate( examplePrefab, hitPoint, Quaternion.identity );
+            }
             currentlyPlacingExample.ManuallySpecifyTerrain( foundTerrain );
             foundTerrain.ProvideExample( currentlyPlacingExample );
         }

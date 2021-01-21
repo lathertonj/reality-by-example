@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable
 {
@@ -36,7 +37,15 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
         ConnectedTerrainController maybeTerrain = FindTerrain();
         if( maybeTerrain == null )
         {
-            Destroy( gameObject );
+            PhotonView maybeNetworked = GetComponent<PhotonView>();
+            if( maybeNetworked != null )
+            {
+                PhotonNetwork.Destroy( maybeNetworked );
+            }
+            else
+            {
+                Destroy( gameObject );
+            }
         }
         else
         {

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, TouchpadLeftRightClickInteractable, TriggerGrabMoveInteractable, GripPlaceDeleteInteractable
 {
@@ -87,7 +88,15 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
 
         if( maybeTerrain == null )
         {
-            Destroy( gameObject );
+            PhotonView maybeNetworked = GetComponent<PhotonView>();
+            if( maybeNetworked != null )
+            {
+                PhotonNetwork.Destroy( maybeNetworked );
+            }
+            else
+            {
+                Destroy( gameObject );
+            }
         }
         else
         {

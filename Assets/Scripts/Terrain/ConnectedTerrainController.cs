@@ -180,6 +180,7 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
         {
             TerrainGISExample exampleToRemove = myGISRegressionExamples[0];
             ForgetExample( exampleToRemove, false );
+            // TODO: check if using Photon and if so use PhotonNetwork.Destroy
             Destroy( exampleToRemove.gameObject );
         }
 

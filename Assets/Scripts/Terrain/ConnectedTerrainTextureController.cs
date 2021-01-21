@@ -114,6 +114,7 @@ public class ConnectedTerrainTextureController : MonoBehaviour
         {
             TerrainTextureExample exampleToRemove = myRegressionExamples[0];
             ForgetExample( exampleToRemove, false );
+            // TODO: check if using Photon and if so use PhotonNetwork.Destroy
             Destroy( exampleToRemove.gameObject );
         }
 

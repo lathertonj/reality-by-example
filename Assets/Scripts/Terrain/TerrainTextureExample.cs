@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable
 {
@@ -68,7 +69,15 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
         
         if( maybeTerrain == null )
         {
-            Destroy( gameObject );
+            PhotonView maybeNetworked = GetComponent<PhotonView>();
+            if( maybeNetworked != null )
+            {
+                PhotonNetwork.Destroy( maybeNetworked );
+            }
+            else
+            {
+                Destroy( gameObject );
+            }
         }
         else
         {

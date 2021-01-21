@@ -36,6 +36,7 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
     public TerrainHeightExample heightPrefab;
     public bool isHeightPrefabNetworked;
     public TerrainGISExample bumpPrefab;
+    public bool isBumpPrefabNetworked;
     public TerrainTextureExample texturePrefab;
     public bool isTexturePrefabNetworked;
     public SoundChordExample chordPrefab;
@@ -293,11 +294,17 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
         // generate N points in random locations
         for( int j = 0; j < bumpExamples; j++ )
         {
-            TerrainGISExample b = Instantiate( 
-                bumpPrefab,
-                terrainController.transform.position + GetRandomLocationWithinRadius( landRadius ),
-                Quaternion.identity 
-            );
+            Vector3 newPosition = terrainController.transform.position + GetRandomLocationWithinRadius( landRadius );
+            TerrainGISExample b;
+            if( isBumpPrefabNetworked )
+            {
+                b = PhotonNetwork.Instantiate( bumpPrefab.name, newPosition, Quaternion.identity )
+                    .GetComponent<TerrainGISExample>();
+            }
+            else
+            {
+                b = Instantiate( bumpPrefab, newPosition, Quaternion.identity );
+            }
 
             // ~ JustPlaced
             b.ManuallySpecifyTerrain( terrainController );

@@ -234,6 +234,7 @@ public class TerrainTextureController : MonoBehaviour
         for( int i = 0; i < myRegressionExamples.Count; i++ )
         {
             // TODO Check if Photon and use PhotonNetwork.Destroy
+            // Except, I don't think this script is even used anymore.
             Destroy( myRegressionExamples[i].gameObject );
         }
         myRegressionExamples.Clear();

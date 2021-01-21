@@ -180,8 +180,14 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
         {
             TerrainGISExample exampleToRemove = myGISRegressionExamples[0];
             ForgetExample( exampleToRemove, false );
-            // TODO: check if using Photon and if so use PhotonNetwork.Destroy
-            Destroy( exampleToRemove.gameObject );
+            if( isGISPrefabNetworked )
+            {
+                PhotonNetwork.Destroy( exampleToRemove.gameObject );
+            }
+            else
+            {
+                Destroy( exampleToRemove.gameObject );
+            }
         }
 
         // next, perhaps add blank examples
@@ -202,7 +208,16 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
 
         while( myGISRegressionExamples.Count < other.myGISRegressionExamples.Count )
         {
-            TerrainGISExample newExample = Instantiate( gisPrefab, transform.position, Quaternion.identity );
+            TerrainGISExample newExample; 
+            if( isGISPrefabNetworked )
+            {
+                newExample = PhotonNetwork.Instantiate( gisPrefab.name, transform.position, Quaternion.identity )
+                    .GetComponent<TerrainGISExample>();
+            }
+            else
+            {
+                newExample = Instantiate( gisPrefab, transform.position, Quaternion.identity );
+            }
             ProvideExample( newExample, false );
         }
 
@@ -991,7 +1006,17 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
         // gis
         for( int i = 0; i < examples.gisExamples.Count; i++ )
         {
-            TerrainGISExample newExample = Instantiate( gisPrefab );
+            TerrainGISExample newExample; 
+            if( isGISPrefabNetworked )
+            {
+                newExample = PhotonNetwork.Instantiate( gisPrefab.name, Vector3.zero, Quaternion.identity )
+                    .GetComponent<TerrainGISExample>();
+            }
+            else
+            {
+                newExample = Instantiate( gisPrefab );
+            }
+
             newExample.ResetFromSerial( examples.gisExamples[i], this );
             // initialize it
             newExample.ManuallySpecifyTerrain( this );

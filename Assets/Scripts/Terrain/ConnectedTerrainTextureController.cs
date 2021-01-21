@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using Photon.Pun;
 
 public class ConnectedTerrainTextureController : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class ConnectedTerrainTextureController : MonoBehaviour
     private RapidMixRegression myRegression;
 
     public TerrainTextureExample terrainExamplePrefab;
+    public bool isPrefabNetworked;
 
 
     private ConnectedTerrainTextureController leftNeighbor, rightNeighbor, upperNeighbor, lowerNeighbor;
@@ -114,14 +116,30 @@ public class ConnectedTerrainTextureController : MonoBehaviour
         {
             TerrainTextureExample exampleToRemove = myRegressionExamples[0];
             ForgetExample( exampleToRemove, false );
-            // TODO: check if using Photon and if so use PhotonNetwork.Destroy
-            Destroy( exampleToRemove.gameObject );
+            // destroy (networked or normal)
+            if( isPrefabNetworked )
+            {
+                PhotonNetwork.Destroy( exampleToRemove.gameObject );
+            }
+            else
+            {
+                Destroy( exampleToRemove.gameObject );
+            }
         }
 
         // next, perhaps add blank examples
         while( myRegressionExamples.Count < other.myRegressionExamples.Count )
         {
-            TerrainTextureExample newExample = Instantiate( terrainExamplePrefab, transform.position, Quaternion.identity );
+            TerrainTextureExample newExample;
+            if( isPrefabNetworked )
+            {
+                newExample = PhotonNetwork.Instantiate( terrainExamplePrefab.name, transform.position, Quaternion.identity )
+                    .GetComponent<TerrainTextureExample>();
+            }
+            else
+            {
+                newExample = Instantiate( terrainExamplePrefab, transform.position, Quaternion.identity );
+            }
             ProvideExample( newExample, false );
         }
     }
@@ -591,7 +609,16 @@ public class ConnectedTerrainTextureController : MonoBehaviour
     {
         for( int i = 0; i < examples.Count; i++ )
         {
-            TerrainTextureExample newExample = Instantiate( terrainExamplePrefab );
+            TerrainTextureExample newExample;
+            if( isPrefabNetworked )
+            {
+                newExample = PhotonNetwork.Instantiate( terrainExamplePrefab.name, Vector3.zero, Quaternion.identity )
+                    .GetComponent<TerrainTextureExample>();
+            }
+            else
+            {
+                newExample = Instantiate( terrainExamplePrefab );
+            }
             newExample.ResetFromSerial( examples[i], transform );
             // initialize
             newExample.ManuallySpecifyTerrain( this );

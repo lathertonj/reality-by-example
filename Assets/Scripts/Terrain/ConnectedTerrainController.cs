@@ -168,7 +168,7 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
             ForgetExample( exampleToRemove, false );
             if( isHeightPrefabNetworked )
             {
-                PhotonNetwork.Destroy( exampleToRemove.GetComponent<PhotonView>() );
+                PhotonNetwork.Destroy( exampleToRemove.gameObject );
             }
             else
             {

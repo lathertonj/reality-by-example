@@ -4870,9 +4870,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 2
-  givenPrefab: {fileID: 8077804456191148359, guid: 9b69cecea4dff874bb750b361f9b63e5,
+  givenPrefab: {fileID: 8077804456191148359, guid: 40a4922213c9ec145bd72d5608c41e36,
     type: 3}
-  isPrefabNetworked: 0
+  isPrefabNetworked: 1
 --- !u!1 &3454028999997757152
 GameObject:
   m_ObjectHideFlags: 0

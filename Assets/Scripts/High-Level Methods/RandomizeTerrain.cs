@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
+using Photon.Pun;
 
-public class RandomizeTerrain : MonoBehaviour 
+public class RandomizeTerrain : MonoBehaviourPunCallbacks 
 {
 
     public enum ActionType { RandomizeAll, RandomizeCurrent, PerturbBig, PerturbSmall, Copy, DoNothing };
@@ -33,6 +34,7 @@ public class RandomizeTerrain : MonoBehaviour
     public int heightExamples = 5, bumpExamples = 5, textureExamples = 5, musicalParamExamples = 5;
 
     public TerrainHeightExample heightPrefab;
+    public bool isHeightPrefabNetworked;
     public TerrainGISExample bumpPrefab;
     public TerrainTextureExample texturePrefab;
     public SoundChordExample chordPrefab;
@@ -44,6 +46,8 @@ public class RandomizeTerrain : MonoBehaviour
     private Dictionary< ConnectedTerrainController, int > indices;
 
     public bool randomizeOnStart = true;
+
+    public bool waitForPhoton = false;
 
     private static RandomizeTerrain theRandomizer;
 
@@ -89,6 +93,14 @@ public class RandomizeTerrain : MonoBehaviour
             }
         }
 
+        if( !waitForPhoton )
+        {
+            this.OnJoinedRoom();
+        }
+    }
+
+    public override void OnJoinedRoom()
+    {
         if( randomizeOnStart )
         {
             StartCoroutine( RandomizeWorld() );
@@ -248,11 +260,16 @@ public class RandomizeTerrain : MonoBehaviour
         // generate N points in random locations, without scanning the terrain
         for( int j = 0; j < heightExamples; j++ )
         {
-            TerrainHeightExample e = Instantiate( 
-                heightPrefab,
-                terrainController.transform.position + GetRandomLocationWithinRadius( landRadius ),
-                Quaternion.identity
-            );
+            TerrainHeightExample e;
+            Vector3 newPosition = terrainController.transform.position + GetRandomLocationWithinRadius( landRadius );
+            if( isHeightPrefabNetworked )
+            {
+                e = PhotonNetwork.Instantiate( heightPrefab.name, newPosition, Quaternion.identity ).GetComponent<TerrainHeightExample>();
+            }
+            else
+            {
+                e = Instantiate( heightPrefab, newPosition, Quaternion.identity );
+            }
 
             // ~ JustPlaced
             e.ManuallySpecifyTerrain( terrainController );

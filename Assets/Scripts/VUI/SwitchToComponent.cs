@@ -14,6 +14,7 @@ public class SwitchToComponent : MonoBehaviour
         CreatureConstantTimeMode, CreatureMusicMode };
     public InteractionType switchTo;
     public Transform givenPrefab;
+    public bool isPrefabNetworked;
 
     private IEnumerator previousAnimation = null;
     private Vector3 originalScale;
@@ -257,6 +258,7 @@ public class SwitchToComponent : MonoBehaviour
         {
             gripPlace.enabled = true;
             gripPlace.currentPrefabToUse = givenPrefab;
+            gripPlace.isPrefabNetworked = isPrefabNetworked;
         }
 
         // and for remote grip
@@ -266,6 +268,7 @@ public class SwitchToComponent : MonoBehaviour
             remoteGripPlace.enabled = true;
             remoteGripPlace.currentPrefabToUse = givenPrefab;
             remoteGripPlace.isDeleteEnabled = false;
+            remoteGripPlace.isPrefabNetworked = isPrefabNetworked;
         }
 
         gripInUse = true;

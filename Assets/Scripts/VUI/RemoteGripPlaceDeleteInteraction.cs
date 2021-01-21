@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
+using Photon.Pun;
 
 public class RemoteGripPlaceDeleteInteraction : MonoBehaviour
 {
     public Transform currentPrefabToUse;
+    public bool isPrefabNetworked;
 
     public SteamVR_Input_Sources handType;
     public SteamVR_Action_Boolean gripPress;
@@ -63,7 +65,15 @@ public class RemoteGripPlaceDeleteInteraction : MonoBehaviour
 
         // instantiate prefab
         Vector3 newPosition = controllerPose.transform.position + objectPlaceDistance * controllerPose.transform.forward;
-        Transform newObject = Instantiate( currentPrefabToUse, newPosition, Quaternion.identity );
+        Transform newObject;
+        if( isPrefabNetworked )
+        {
+            newObject = PhotonNetwork.Instantiate( currentPrefabToUse.name, newPosition, Quaternion.identity ).transform;
+        }
+        else
+        {
+            newObject = Instantiate( currentPrefabToUse, newPosition, Quaternion.identity );
+        }
 
         // tell it that it has been instantiated
         GripPlaceDeleteInteractable shouldBeGrippable = newObject.GetComponent<GripPlaceDeleteInteractable>();
@@ -91,7 +101,14 @@ public class RemoteGripPlaceDeleteInteraction : MonoBehaviour
         myLeftRightClickInteraction.GameObjectBeingDeleted( selectedGameObject );
 
         // destroy it
-        Destroy( selectedGameObject );
+        if( isPrefabNetworked )
+        {
+            PhotonNetwork.Destroy( selectedGameObject.GetComponent<PhotonView>() );
+        }
+        else
+        {
+            Destroy( selectedGameObject );
+        }
 
         // forget it
         selectedGameObject = null;

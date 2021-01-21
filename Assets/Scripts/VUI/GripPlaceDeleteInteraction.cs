@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
+using Photon.Pun;
 
 public class GripPlaceDeleteInteraction : MonoBehaviour
 {
     public Transform currentPrefabToUse;
+    public bool isPrefabNetworked;
 
     public SteamVR_Input_Sources handType;
     public SteamVR_Action_Boolean gripPress;
@@ -61,7 +63,15 @@ public class GripPlaceDeleteInteraction : MonoBehaviour
         }
 
         // instantiate prefab
-        Transform newObject = Instantiate( currentPrefabToUse, transform.position, Quaternion.identity );
+        Transform newObject; 
+        if( isPrefabNetworked )
+        {
+            newObject = PhotonNetwork.Instantiate( currentPrefabToUse.name, transform.position, Quaternion.identity ).transform;
+        }
+        else
+        {
+            newObject = Instantiate( currentPrefabToUse, transform.position, Quaternion.identity );
+        }
         mostRecentlyCreated = newObject.gameObject;
 
         // tell it that it has been instantiated
@@ -85,7 +95,14 @@ public class GripPlaceDeleteInteraction : MonoBehaviour
 
 
         // destroy it
-        Destroy( collidingGameObject );
+        if( isPrefabNetworked )
+        {
+            PhotonNetwork.Destroy( collidingGameObject.GetComponent<PhotonView>() );
+        }
+        else
+        {
+            Destroy( collidingGameObject );
+        }
 
         // forget it
         ForgetCollidingObject();

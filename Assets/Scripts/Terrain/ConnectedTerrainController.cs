@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Stitchscape;
+using Photon.Pun;
 
 public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
 {
@@ -48,7 +49,9 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
 
 
     public TerrainHeightExample heightPrefab;
+    public bool isHeightPrefabNetworked;
     public TerrainGISExample gisPrefab;
+    public bool isGISPrefabNetworked;
 
     public string serializationIdentifier;
 
@@ -163,7 +166,14 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
         {
             TerrainHeightExample exampleToRemove = myRegressionExamples[0];
             ForgetExample( exampleToRemove, false );
-            Destroy( exampleToRemove.gameObject );
+            if( isHeightPrefabNetworked )
+            {
+                PhotonNetwork.Destroy( exampleToRemove.GetComponent<PhotonView>() );
+            }
+            else
+            {
+                Destroy( exampleToRemove.gameObject );
+            }
         }
 
         while( myGISRegressionExamples.Count > other.myGISRegressionExamples.Count )
@@ -176,7 +186,16 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
         // next, perhaps add blank examples
         while( myRegressionExamples.Count < other.myRegressionExamples.Count )
         {
-            TerrainHeightExample newExample = Instantiate( heightPrefab, transform.position, Quaternion.identity );
+            TerrainHeightExample newExample;
+            if( isHeightPrefabNetworked )
+            {
+                newExample = PhotonNetwork.Instantiate( heightPrefab.name, transform.position, Quaternion.identity )
+                    .GetComponent<TerrainHeightExample>();
+            }
+            else
+            {
+                newExample = Instantiate( heightPrefab, transform.position, Quaternion.identity );
+            }
             ProvideExample( newExample, false );
         }
 
@@ -951,7 +970,16 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
         // height
         for( int i = 0; i < examples.heightExamples.Count; i++ )
         {
-            TerrainHeightExample newExample = Instantiate( heightPrefab );
+            TerrainHeightExample newExample;
+            if( isHeightPrefabNetworked )
+            {
+                newExample = PhotonNetwork.Instantiate( heightPrefab.name, Vector3.zero, Quaternion.identity )
+                    .GetComponent<TerrainHeightExample>();
+            }
+            else
+            {
+                newExample = Instantiate( heightPrefab );
+            }
             newExample.ResetFromSerial( examples.heightExamples[i], this );
             // initialize it
             newExample.ManuallySpecifyTerrain( this );

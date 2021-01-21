@@ -270,6 +270,7 @@ GameObject:
   - component: {fileID: 700675863}
   - component: {fileID: 700675861}
   - component: {fileID: 700675865}
+  - component: {fileID: 700675866}
   m_Layer: 0
   m_Name: AudienceCamera
   m_TagString: Untagged
@@ -379,6 +380,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   avatarPrefab: {fileID: 6809139578259428636, guid: 5df8514ea6d6ffc4a983d132a8748fa5,
     type: 3}
+--- !u!114 &700675866
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 700675860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27640b2de967cd74fab216d6100d748a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &722428364
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource , SerializableByExample
 {
@@ -22,6 +23,7 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
     public bool displayPlaneVisualization = true;
 
     public Sound0To1Example examplePrefab;
+    public bool isExampleNetworked;
 
 
 
@@ -206,7 +208,16 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
         // height
         for( int i = 0; i < examples.examples.Count; i++ )
         {
-            Sound0To1Example newExample = Instantiate( examplePrefab );
+            Sound0To1Example newExample; 
+            if( isExampleNetworked )
+            {
+                newExample = PhotonNetwork.Instantiate( examplePrefab.name, Vector3.zero, Quaternion.identity )
+                    .GetComponent<Sound0To1Example>();
+            }
+            else
+            {
+                newExample = Instantiate( examplePrefab );
+            }
             newExample.ResetFromSerial( examples.examples[i] );
             newExample.Initialize( false );
         }

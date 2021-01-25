@@ -51,7 +51,7 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
         myRegressor.RescanProvidedExamples();
     }
 
-    private void UpdateMyTempo( float newTempo )
+    public void UpdateMyTempo( float newTempo )
     {
         if( !myText ) { myText = GetComponentInChildren<TextMesh>(); }
 

@@ -45,7 +45,7 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
         }
     }
 
-    private void UpdateMyValue( float newValue )
+    public void UpdateMyValue( float newValue )
     {
         if( !myText ) { myText = GetComponentInChildren<TextMesh>(); }
         

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSource , SerializableByExample
 {
@@ -19,6 +20,7 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
     public bool displayPlaneVisualization = true;
 
     public SoundChordExample examplePrefab;
+    public bool isExampleNetworked;
 
 
 
@@ -192,7 +194,16 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
         // height
         for( int i = 0; i < examples.examples.Count; i++ )
         {
-            SoundChordExample newExample = Instantiate( examplePrefab );
+            SoundChordExample newExample; 
+            if( isExampleNetworked )
+            {
+                newExample = PhotonNetwork.Instantiate( examplePrefab.name, Vector3.zero, Quaternion.identity )
+                    .GetComponent<SoundChordExample>();
+            }
+            else
+            {
+                newExample = Instantiate( examplePrefab );
+            }
             newExample.ResetFromSerial( examples.examples[i] );
             newExample.Initialize( false );
         }

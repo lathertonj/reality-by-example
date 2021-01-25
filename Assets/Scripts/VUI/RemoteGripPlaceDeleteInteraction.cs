@@ -101,7 +101,7 @@ public class RemoteGripPlaceDeleteInteraction : MonoBehaviour
         myLeftRightClickInteraction.GameObjectBeingDeleted( selectedGameObject );
 
         // destroy it
-        if( isPrefabNetworked )
+        if( selectedGameObject.GetComponent<PhotonView>() != null )
         {
             PhotonNetwork.Destroy( selectedGameObject );
         }

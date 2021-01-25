@@ -95,7 +95,7 @@ public class GripPlaceDeleteInteraction : MonoBehaviour
 
 
         // destroy it
-        if( isPrefabNetworked )
+        if( collidingGameObject.GetComponent<PhotonView>() != null )
         {
             PhotonNetwork.Destroy( collidingGameObject );
         }

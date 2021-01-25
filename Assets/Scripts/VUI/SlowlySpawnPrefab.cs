@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
+using Photon.Pun;
 
 
 public class SlowlySpawnPrefab : MonoBehaviour
@@ -14,6 +15,7 @@ public class SlowlySpawnPrefab : MonoBehaviour
     private SteamVR_Behaviour_Pose controllerPose;
     public LayerMask mask;
     public Transform prefabToSpawn;
+    public bool isPrefabNetworked;
     public float timeBetweenSpawns = 1f;
     private bool shouldSpawn = false;
     private float currentSpawnRadius = 0f;
@@ -110,7 +112,14 @@ public class SlowlySpawnPrefab : MonoBehaviour
                 Quaternion newRotation = Quaternion.AngleAxis( Random.Range( 0, 360 ), Vector3.up );
 
                 // spawn it there!
-                Transform newObject = Instantiate( prefabToSpawn, newPosition, newRotation );
+                if( isPrefabNetworked )
+                {
+                    GameObject newObject = PhotonNetwork.Instantiate( prefabToSpawn.name, newPosition, newRotation );
+                }
+                else
+                {
+                    Transform newObject = Instantiate( prefabToSpawn, newPosition, newRotation );
+                }
             }
 
             // every so often

@@ -130,6 +130,7 @@ public class SwitchToComponent : MonoBehaviour
             case InteractionType.SlowlySpawnPrefab:
                 EnableComponent<SlowlySpawnPrefab>( controller );
                 controller.GetComponent<SlowlySpawnPrefab>().prefabToSpawn = givenPrefab;
+                controller.GetComponent<SlowlySpawnPrefab>().isPrefabNetworked = isPrefabNetworked;
                 touchpadInUse = true;
                 break;
             case InteractionType.RandomizePerturbSmall:

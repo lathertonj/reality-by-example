@@ -1,9 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
+using Photon.Pun;
 
 public class SerializationManager : MonoBehaviour
 {
@@ -163,11 +165,21 @@ public class SerializationManager : MonoBehaviour
                 // name of prefab is name of directory
                 DirectoryInfo info = new DirectoryInfo( subdirectory );
                 string prefabName = info.Name;
-                GameObject prefab = (GameObject) Resources.Load( "Prefabs/" + prefabName );
+                // different location if Networked
+                GameObject prefab; 
+                bool prefabIsNetworked = prefabName.StartsWith( "Networked" );
+                if( prefabIsNetworked )
+                {
+                    prefab = (GameObject) Resources.Load( prefabName );
+                }
+                else
+                {
+                    prefab = (GameObject) Resources.Load( "Prefabs/" + prefabName );
+                }
 
                 foreach( FileInfo fileInfo in info.GetFiles( "*" + FileExtension() ) )
                 {
-                    yield return StartCoroutine( DynamicLoadExamples( fileInfo, prefab ) );
+                    yield return StartCoroutine( DynamicLoadExamples( fileInfo, prefab, prefabIsNetworked ) );
                 }
             }
             #endif
@@ -278,9 +290,18 @@ public class SerializationManager : MonoBehaviour
         if( !www.isNetworkError && !www.isHttpError )
         {
             // create
+            GameObject newObject;
             string prefabName = fileName.Split('/')[0];
-            GameObject prefab = (GameObject) Resources.Load( "Prefabs/" + prefabName );
-            GameObject newObject = Instantiate( prefab );
+            // instantiate with photon only if starts with Networked
+            if( prefabName.StartsWith( "Networked") )
+            {
+                newObject = PhotonNetwork.Instantiate( prefabName, Vector3.zero, Quaternion.identity );
+            }   
+            else
+            {
+                GameObject prefab = (GameObject) Resources.Load( "Prefabs/" + prefabName );
+                newObject = Instantiate( prefab );
+            }
             
             // initialize
             DynamicSerializableByExample entity = newObject.GetComponent<DynamicSerializableByExample>();
@@ -290,7 +311,7 @@ public class SerializationManager : MonoBehaviour
 
     #else
 
-    IEnumerator DynamicLoadExamples( FileInfo file, GameObject prefab )
+    IEnumerator DynamicLoadExamples( FileInfo file, GameObject prefab, bool isPrefabNetworked )
     {
         // read json
         StreamReader reader = file.OpenText();
@@ -298,7 +319,15 @@ public class SerializationManager : MonoBehaviour
         reader.Close();
 
         // create and initialize
-        GameObject newObject = Instantiate( prefab );
+        GameObject newObject; 
+        if( isPrefabNetworked )
+        {
+            newObject = PhotonNetwork.Instantiate( prefab.name, Vector3.zero, Quaternion.identity );
+        }
+        else
+        {
+            newObject = Instantiate( prefab );
+        }
         DynamicSerializableByExample entity = newObject.GetComponent<DynamicSerializableByExample>();
         yield return StartCoroutine( entity.LoadExamples( json ) );
     }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSource , SerializableByExample
 {
@@ -18,6 +19,7 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
     public bool displayPlaneVisualization = true;
 
     public SoundTempoExample examplePrefab;
+    public bool isExampleNetworked;
 
 
     public void ProvideExample( SoundTempoExample example, bool rescan = true )
@@ -187,7 +189,16 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
         // height
         for( int i = 0; i < examples.examples.Count; i++ )
         {
-            SoundTempoExample newExample = Instantiate( examplePrefab );
+            SoundTempoExample newExample; 
+            if( isExampleNetworked )
+            {
+                newExample = PhotonNetwork.Instantiate( examplePrefab.name, Vector3.zero, Quaternion.identity )
+                    .GetComponent<SoundTempoExample>();
+            }
+            else
+            {
+                newExample = Instantiate( examplePrefab );
+            }
             newExample.ResetFromSerial( examples.examples[i] );
             newExample.Initialize( false );
         }

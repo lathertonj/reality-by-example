@@ -34,14 +34,16 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
     public int heightExamples = 5, bumpExamples = 5, textureExamples = 5, musicalParamExamples = 5;
 
     public TerrainHeightExample heightPrefab;
-    public bool isHeightPrefabNetworked;
     public TerrainGISExample bumpPrefab;
-    public bool isBumpPrefabNetworked;
     public TerrainTextureExample texturePrefab;
+    public bool isHeightPrefabNetworked;
+    public bool isBumpPrefabNetworked;
     public bool isTexturePrefabNetworked;
     public SoundChordExample chordPrefab;
     public SoundTempoExample tempoPrefab;
     public Sound0To1Example densityPrefab, timbrePrefab, volumePrefab;
+    public bool isChordPrefabNetworked, isTempoPrefabNetworked, 
+        isDensityPrefabNetworked, isTimbrePrefabNetworked, isVolumePrefabNetworked;
     
     private bool currentlyComputing = false;
 
@@ -374,7 +376,16 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
         // volume:
         for( int i = 0; i < musicalParamExamples; i++ )
         {
-            Sound0To1Example v = Instantiate( volumePrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
+            Sound0To1Example v; 
+            if( isVolumePrefabNetworked )
+            {
+                v = PhotonNetwork.Instantiate( volumePrefab.name, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity )
+                    .GetComponent<Sound0To1Example>();
+            }
+            else
+            {
+                v = Instantiate( volumePrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
+            }
             v.Initialize( false );
             v.Randomize();
         }
@@ -384,7 +395,17 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
         // density:
         for( int i = 0; i < musicalParamExamples; i++ )
         {
-            Sound0To1Example d = Instantiate( densityPrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
+            Sound0To1Example d;
+            if( isDensityPrefabNetworked )
+            {
+                d = PhotonNetwork.Instantiate( densityPrefab.name, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity )
+                    .GetComponent<Sound0To1Example>();
+            }
+            else
+            {
+                d = Instantiate( densityPrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
+            }
+                
             d.Initialize( false );
             d.Randomize();
         }
@@ -394,7 +415,16 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
         // timbre:
         for( int i = 0; i < musicalParamExamples; i++ )
         {
-            Sound0To1Example t = Instantiate( timbrePrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
+            Sound0To1Example t;
+            if( isTimbrePrefabNetworked )
+            {
+                t = PhotonNetwork.Instantiate( timbrePrefab.name, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity )
+                    .GetComponent<Sound0To1Example>();
+            }
+            else
+            {
+                t = Instantiate( timbrePrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
+            }
             t.Initialize( false );
             t.Randomize();
         }
@@ -404,7 +434,16 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
         // tempo:
         for( int i = 0; i < musicalParamExamples; i++ )
         {
-            SoundTempoExample t = Instantiate( tempoPrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
+            SoundTempoExample t;
+            if( isTempoPrefabNetworked )
+            {
+                t = PhotonNetwork.Instantiate( tempoPrefab.name, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity )
+                    .GetComponent<SoundTempoExample>();
+            }
+            else
+            {
+                t = Instantiate( tempoPrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
+            }
             t.Initialize( false );
             t.Randomize();
         }
@@ -414,7 +453,16 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
         // chord:
         for( int i = 0; i < musicalParamExamples; i++ )
         {
-            SoundChordExample c = Instantiate( chordPrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
+            SoundChordExample c; 
+            if( isChordPrefabNetworked )
+            {
+                c = PhotonNetwork.Instantiate( chordPrefab.name, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity )
+                    .GetComponent<SoundChordExample>();
+            }
+            else
+            {
+                c = Instantiate( chordPrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
+            }
             c.Initialize( false );
             c.Randomize();
         }

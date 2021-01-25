@@ -33,7 +33,7 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
         myClassifier.RescanProvidedExamples();
     }
 
-    private void UpdateMyChord( int newChord )
+    public void UpdateMyChord( int newChord )
     {
         if( !myText ) { myText = GetComponentInChildren<TextMesh>(); }
         

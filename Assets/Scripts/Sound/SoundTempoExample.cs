@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , LaserPointerSelectable
+public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , LaserPointerSelectable , IPunInstantiateMagicCallback
 {
 
     // default to 100
@@ -76,6 +77,16 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
     public void JustPlaced()
     {
         Initialize( true );
+    }
+
+    void IPunInstantiateMagicCallback.OnPhotonInstantiate( PhotonMessageInfo info )
+    {
+        // check who this came from
+        PhotonView photonView = GetComponent<PhotonView>();
+        if( !photonView.IsMine && PhotonNetwork.IsConnected )
+        {
+            Initialize( rescan: false );
+        }
     }
 
     public void Initialize( bool rescan )

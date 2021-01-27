@@ -258,6 +258,7 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
     // (this class is an unfortunate mixture of Initialize and High Level Randomize)
     public IEnumerator RescanAll()
     {
+        Debug.Log( "Only doing a rescan!" );
         for( int i = 0; i < terrainHeightControllers.Length; i++ )
         {
             // rescan entire terrain

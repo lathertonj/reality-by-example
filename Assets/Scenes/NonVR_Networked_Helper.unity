@@ -174,10 +174,12 @@ MonoBehaviour:
   addGISTexture: 1
   debugGISFeatures: 0
   debugUI: {fileID: 0}
-  heightPrefab: {fileID: 6496100472159615916, guid: d8e28aa4c2e02aa40937ebf53f59f772,
+  heightPrefab: {fileID: 6496100472159615916, guid: ac21d30ad1556bd4cbc6d93a52b55f50,
     type: 3}
-  gisPrefab: {fileID: 2939087599369755246, guid: 199698c37a454aa48b5db20271abfdd2,
+  isHeightPrefabNetworked: 1
+  gisPrefab: {fileID: 2939087599369755246, guid: 4fb819c82dde5d146ad7a81d4ea763f1,
     type: 3}
+  isGISPrefabNetworked: 1
   serializationIdentifier: 9
   myGISRegressionExamples: []
 --- !u!114 &33815735
@@ -192,8 +194,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca78464fab042f64298ae92448a638de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
+  terrainExamplePrefab: {fileID: 1418052469, guid: 40a4922213c9ec145bd72d5608c41e36,
     type: 3}
+  isPrefabNetworked: 1
   myRegressionExamples: []
 --- !u!1 &74633835
 GameObject:
@@ -237,7 +240,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 13
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &197813565
 GameObject:
@@ -277,10 +280,12 @@ MonoBehaviour:
   addGISTexture: 1
   debugGISFeatures: 0
   debugUI: {fileID: 0}
-  heightPrefab: {fileID: 6496100472159615916, guid: d8e28aa4c2e02aa40937ebf53f59f772,
+  heightPrefab: {fileID: 6496100472159615916, guid: ac21d30ad1556bd4cbc6d93a52b55f50,
     type: 3}
-  gisPrefab: {fileID: 2939087599369755246, guid: 199698c37a454aa48b5db20271abfdd2,
+  isHeightPrefabNetworked: 1
+  gisPrefab: {fileID: 2939087599369755246, guid: 4fb819c82dde5d146ad7a81d4ea763f1,
     type: 3}
+  isGISPrefabNetworked: 1
   serializationIdentifier: 3
   myGISRegressionExamples: []
 --- !u!114 &197813567
@@ -295,8 +300,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca78464fab042f64298ae92448a638de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
+  terrainExamplePrefab: {fileID: 1418052469, guid: 40a4922213c9ec145bd72d5608c41e36,
     type: 3}
+  isPrefabNetworked: 1
   myRegressionExamples: []
 --- !u!4 &197813568
 Transform:
@@ -605,10 +611,12 @@ MonoBehaviour:
   addGISTexture: 1
   debugGISFeatures: 0
   debugUI: {fileID: 0}
-  heightPrefab: {fileID: 6496100472159615916, guid: d8e28aa4c2e02aa40937ebf53f59f772,
+  heightPrefab: {fileID: 6496100472159615916, guid: ac21d30ad1556bd4cbc6d93a52b55f50,
     type: 3}
-  gisPrefab: {fileID: 2939087599369755246, guid: 199698c37a454aa48b5db20271abfdd2,
+  isHeightPrefabNetworked: 1
+  gisPrefab: {fileID: 2939087599369755246, guid: 4fb819c82dde5d146ad7a81d4ea763f1,
     type: 3}
+  isGISPrefabNetworked: 1
   serializationIdentifier: 7
   myGISRegressionExamples: []
 --- !u!114 &359564394
@@ -623,8 +631,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca78464fab042f64298ae92448a638de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
+  terrainExamplePrefab: {fileID: 1418052469, guid: 40a4922213c9ec145bd72d5608c41e36,
     type: 3}
+  isPrefabNetworked: 1
   myRegressionExamples: []
 --- !u!4 &359564395
 Transform:
@@ -846,10 +855,12 @@ MonoBehaviour:
   addGISTexture: 1
   debugGISFeatures: 0
   debugUI: {fileID: 0}
-  heightPrefab: {fileID: 6496100472159615916, guid: d8e28aa4c2e02aa40937ebf53f59f772,
+  heightPrefab: {fileID: 6496100472159615916, guid: ac21d30ad1556bd4cbc6d93a52b55f50,
     type: 3}
-  gisPrefab: {fileID: 2939087599369755246, guid: 199698c37a454aa48b5db20271abfdd2,
+  isHeightPrefabNetworked: 1
+  gisPrefab: {fileID: 2939087599369755246, guid: 4fb819c82dde5d146ad7a81d4ea763f1,
     type: 3}
+  isGISPrefabNetworked: 1
   serializationIdentifier: 1
   myGISRegressionExamples: []
 --- !u!114 &469433560
@@ -864,8 +875,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca78464fab042f64298ae92448a638de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
+  terrainExamplePrefab: {fileID: 1418052469, guid: 40a4922213c9ec145bd72d5608c41e36,
     type: 3}
+  isPrefabNetworked: 1
   myRegressionExamples: []
 --- !u!4 &469433561
 Transform:
@@ -1015,7 +1027,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 12
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &526888887
 GameObject:
@@ -1499,9 +1511,8 @@ GameObject:
   m_Component:
   - component: {fileID: 700675862}
   - component: {fileID: 700675864}
-  - component: {fileID: 700675863}
   - component: {fileID: 700675861}
-  - component: {fileID: 700675865}
+  - component: {fileID: 700675863}
   m_Layer: 0
   m_Name: AudienceCamera
   m_TagString: Untagged
@@ -1516,14 +1527,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 700675860}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6e0264ae3218cc4bb7a114116227750, type: 3}
+  m_Script: {fileID: 11500000, guid: bac8016461183664fb59f0dae37a8370, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectToFollow: {fileID: 0}
-  positionSlew: 5
-  rotationSlew: 5
+  avatarPrefab: {fileID: 6809139578259428636, guid: 5df8514ea6d6ffc4a983d132a8748fa5,
+    type: 3}
 --- !u!4 &700675862
 Transform:
   m_ObjectHideFlags: 0
@@ -1538,22 +1548,14 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &700675863
-MonoBehaviour:
+--- !u!81 &700675863
+AudioListener:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 700675860}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a83f509221c07844a8be1a25b1f0f0f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  keyToSwitch: f
-  minFOV: 50
-  maxFOV: 100
-  slewSeconds: 4
 --- !u!20 &700675864
 Camera:
   m_ObjectHideFlags: 0
@@ -1597,20 +1599,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!114 &700675865
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 700675860}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bac8016461183664fb59f0dae37a8370, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  avatarPrefab: {fileID: 6809139578259428636, guid: 5df8514ea6d6ffc4a983d132a8748fa5,
-    type: 3}
 --- !u!1 &715404167
 GameObject:
   m_ObjectHideFlags: 0
@@ -1835,7 +1823,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ebd44c97c4e04328abf7e75de2c77cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  microphoneIdentifier: HTC
+  microphoneIdentifier: 
 --- !u!82 &778294192
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1944,7 +1932,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &796377949
 GameObject:
@@ -2035,6 +2023,394 @@ Terrain:
   m_GroupingID: 0
   m_RenderingLayerMask: 1
   m_AllowAutoConnect: 1
+--- !u!1 &832069737
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 832069740}
+  - component: {fileID: 832069739}
+  - component: {fileID: 832069738}
+  - component: {fileID: 832069741}
+  - component: {fileID: 832069742}
+  - component: {fileID: 832069743}
+  - component: {fileID: 832069749}
+  - component: {fileID: 832069744}
+  - component: {fileID: 832069745}
+  - component: {fileID: 832069748}
+  - component: {fileID: 832069747}
+  - component: {fileID: 832069746}
+  m_Layer: 0
+  m_Name: SoundEngine
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &832069738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 832069737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b409d6d9706b41988cd9e32bd055751, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  chuckMainInstance: {fileID: 778294191}
+  spatialize: 0
+--- !u!82 &832069739
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 832069737}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!4 &832069740
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 832069737}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 30, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 2104359080}
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &832069741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 832069737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 094d4d298a9047f43b4a06f0636916ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &832069742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 832069737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d095e787a9d9f01468ffac082b5b083d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minDensityToMakeSound: 0.3
+  densityAboveWhichAlwaysPlay: 0.9
+--- !u!114 &832069743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 832069737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 992ff8b383b5c2e42b333ae1770dae84, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minDensityCutoff: 0.1
+  maxDensityCutoff: 0.4
+--- !u!114 &832069744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 832069737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63e3e8190a0f98c40a9cf421dbfcd822, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectToRunRegressionOn: {fileID: 0}
+  myRegressionExamples: []
+  displayPlaneVisualization: 0
+  examplePrefab: {fileID: 1253047615649007799, guid: 061df0ac843f172409a170930b40c622,
+    type: 3}
+  isExampleNetworked: 1
+--- !u!114 &832069745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 832069737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a10a19cc5d9f50439aed867c039681e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myParameter: 0
+  objectToRunRegressionOn: {fileID: 0}
+  myRegressionExamples: []
+  myDefaultValue: 0.5
+  displayPlaneVisualization: 0
+  examplePrefab: {fileID: -4807998583417813822, guid: cfa5c16a9ccc50840a517a6df722c077,
+    type: 3}
+  isExampleNetworked: 1
+--- !u!114 &832069746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 832069737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f45b70f9eb0db3d4d86c981472c99b15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectToRunRegressionOn: {fileID: 0}
+  myClassifierExamples: []
+  displayPlaneVisualization: 0
+  examplePrefab: {fileID: 7557995561620796117, guid: 54b5fa50eb28bd84d86c35fc62ac2c99,
+    type: 3}
+  isExampleNetworked: 1
+--- !u!114 &832069747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 832069737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a10a19cc5d9f50439aed867c039681e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myParameter: 2
+  objectToRunRegressionOn: {fileID: 0}
+  myRegressionExamples: []
+  myDefaultValue: 0.5
+  displayPlaneVisualization: 0
+  examplePrefab: {fileID: -4807998583417813822, guid: 1686b78fbc7d5314f8c9a9618c4a0650,
+    type: 3}
+  isExampleNetworked: 1
+--- !u!114 &832069748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 832069737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a10a19cc5d9f50439aed867c039681e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myParameter: 1
+  objectToRunRegressionOn: {fileID: 0}
+  myRegressionExamples: []
+  myDefaultValue: 0.5
+  displayPlaneVisualization: 0
+  examplePrefab: {fileID: -4807998583417813822, guid: 0e70df0e41e9bb04da08f643cd879436,
+    type: 3}
+  isExampleNetworked: 1
+--- !u!114 &832069749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 832069737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d78ed9e552358e04992557b54f8a1090, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minDensityCutoff: 0.1
+  midDensityCutoff: 0.4
+  maxDensityCutoff: 0.7
+--- !u!1 &872825386
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 872825387}
+  - component: {fileID: 872825388}
+  m_Layer: 0
+  m_Name: TheRandomizer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &872825387
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 872825386}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 50.02, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &872825388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 872825386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77f287ab98ddc4d4195c19751a6db543, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentAction: 5
+  currentHand: 0
+  gripPress:
+    actionPath: /actions/rbe/in/TakeActionGeneric
+    needsReinit: 0
+  currentLaser: {fileID: 0}
+  soundEngine: {fileID: 832069741}
+  landRadius: {x: 50, y: 30, z: 50}
+  musicRadius: {x: 150, y: 50, z: 150}
+  perturbBigRadius: {x: 5, y: 5, z: 5}
+  perturbSmallRadius: {x: 0.2, y: 0.2, z: 0.2}
+  perturbBigBumpRange: 0.2
+  perturbSmallBumpRange: 0.02
+  heightExamples: 5
+  bumpExamples: 5
+  textureExamples: 5
+  musicalParamExamples: 10
+  heightPrefab: {fileID: 6496100472159615916, guid: ac21d30ad1556bd4cbc6d93a52b55f50,
+    type: 3}
+  bumpPrefab: {fileID: 2939087599369755246, guid: 4fb819c82dde5d146ad7a81d4ea763f1,
+    type: 3}
+  texturePrefab: {fileID: 1418052469, guid: 40a4922213c9ec145bd72d5608c41e36, type: 3}
+  isHeightPrefabNetworked: 1
+  isBumpPrefabNetworked: 1
+  isTexturePrefabNetworked: 1
+  chordPrefab: {fileID: 7557995561620796117, guid: 54b5fa50eb28bd84d86c35fc62ac2c99,
+    type: 3}
+  tempoPrefab: {fileID: 1253047615649007799, guid: 061df0ac843f172409a170930b40c622,
+    type: 3}
+  densityPrefab: {fileID: -4807998583417813822, guid: 0e70df0e41e9bb04da08f643cd879436,
+    type: 3}
+  timbrePrefab: {fileID: -4807998583417813822, guid: cfa5c16a9ccc50840a517a6df722c077,
+    type: 3}
+  volumePrefab: {fileID: -4807998583417813822, guid: 1686b78fbc7d5314f8c9a9618c4a0650,
+    type: 3}
+  isChordPrefabNetworked: 1
+  isTempoPrefabNetworked: 1
+  isDensityPrefabNetworked: 1
+  isTimbrePrefabNetworked: 1
+  isVolumePrefabNetworked: 1
+  randomizeOnStart: 0
+  waitForPhoton: 1
 --- !u!1 &877824049
 GameObject:
   m_ObjectHideFlags: 0
@@ -2111,8 +2487,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca78464fab042f64298ae92448a638de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
+  terrainExamplePrefab: {fileID: 1418052469, guid: 40a4922213c9ec145bd72d5608c41e36,
     type: 3}
+  isPrefabNetworked: 1
   myRegressionExamples: []
 --- !u!114 &952970235
 MonoBehaviour:
@@ -2134,10 +2511,12 @@ MonoBehaviour:
   addGISTexture: 1
   debugGISFeatures: 0
   debugUI: {fileID: 0}
-  heightPrefab: {fileID: 6496100472159615916, guid: d8e28aa4c2e02aa40937ebf53f59f772,
+  heightPrefab: {fileID: 6496100472159615916, guid: ac21d30ad1556bd4cbc6d93a52b55f50,
     type: 3}
-  gisPrefab: {fileID: 2939087599369755246, guid: 199698c37a454aa48b5db20271abfdd2,
+  isHeightPrefabNetworked: 1
+  gisPrefab: {fileID: 2939087599369755246, guid: 4fb819c82dde5d146ad7a81d4ea763f1,
     type: 3}
+  isGISPrefabNetworked: 1
   serializationIdentifier: 8
   myGISRegressionExamples: []
 --- !u!1 &967117019
@@ -2178,10 +2557,12 @@ MonoBehaviour:
   addGISTexture: 1
   debugGISFeatures: 0
   debugUI: {fileID: 0}
-  heightPrefab: {fileID: 6496100472159615916, guid: d8e28aa4c2e02aa40937ebf53f59f772,
+  heightPrefab: {fileID: 6496100472159615916, guid: ac21d30ad1556bd4cbc6d93a52b55f50,
     type: 3}
-  gisPrefab: {fileID: 2939087599369755246, guid: 199698c37a454aa48b5db20271abfdd2,
+  isHeightPrefabNetworked: 1
+  gisPrefab: {fileID: 2939087599369755246, guid: 4fb819c82dde5d146ad7a81d4ea763f1,
     type: 3}
+  isGISPrefabNetworked: 1
   serializationIdentifier: 4
   myGISRegressionExamples: []
 --- !u!114 &967117021
@@ -2196,8 +2577,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca78464fab042f64298ae92448a638de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
+  terrainExamplePrefab: {fileID: 1418052469, guid: 40a4922213c9ec145bd72d5608c41e36,
     type: 3}
+  isPrefabNetworked: 1
   myRegressionExamples: []
 --- !u!4 &967117022
 Transform:
@@ -2258,7 +2640,7 @@ Transform:
   m_Children:
   - {fileID: 877824050}
   m_Father: {fileID: 0}
-  m_RootOrder: 10
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &970777581
 MonoBehaviour:
@@ -2272,7 +2654,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19a498ff32ebb7647ae53627bc5c1561, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectToTrack: {fileID: 0}
+  objectToTrack: {fileID: 700675862}
   slewSeconds: 2
   slewYRotation: 1
   keepDistance: 0
@@ -2315,10 +2697,12 @@ MonoBehaviour:
   addGISTexture: 1
   debugGISFeatures: 0
   debugUI: {fileID: 0}
-  heightPrefab: {fileID: 6496100472159615916, guid: d8e28aa4c2e02aa40937ebf53f59f772,
+  heightPrefab: {fileID: 6496100472159615916, guid: ac21d30ad1556bd4cbc6d93a52b55f50,
     type: 3}
-  gisPrefab: {fileID: 2939087599369755246, guid: 199698c37a454aa48b5db20271abfdd2,
+  isHeightPrefabNetworked: 1
+  gisPrefab: {fileID: 2939087599369755246, guid: 4fb819c82dde5d146ad7a81d4ea763f1,
     type: 3}
+  isGISPrefabNetworked: 1
   serializationIdentifier: 6
   myGISRegressionExamples: []
 --- !u!114 &977297665
@@ -2333,8 +2717,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca78464fab042f64298ae92448a638de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
+  terrainExamplePrefab: {fileID: 1418052469, guid: 40a4922213c9ec145bd72d5608c41e36,
     type: 3}
+  isPrefabNetworked: 1
   myRegressionExamples: []
 --- !u!4 &977297666
 Transform:
@@ -2388,7 +2773,7 @@ Transform:
   - {fileID: 952970233}
   - {fileID: 33815733}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1001802071
 GameObject:
@@ -3145,7 +3530,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1306502548
 GameObject:
@@ -3865,7 +4250,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1664042023
 PrefabInstance:
@@ -3888,7 +4273,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4566050111408774, guid: 418519ee5277eb6468b5b7d6cac28feb, type: 3}
       propertyPath: m_RootOrder
-      value: 7
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 4566050111408774, guid: 418519ee5277eb6468b5b7d6cac28feb, type: 3}
       propertyPath: m_LocalScale.x
@@ -4014,7 +4399,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 11
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1884021152
 GameObject:
@@ -4054,10 +4439,12 @@ MonoBehaviour:
   addGISTexture: 1
   debugGISFeatures: 0
   debugUI: {fileID: 0}
-  heightPrefab: {fileID: 6496100472159615916, guid: d8e28aa4c2e02aa40937ebf53f59f772,
+  heightPrefab: {fileID: 6496100472159615916, guid: ac21d30ad1556bd4cbc6d93a52b55f50,
     type: 3}
-  gisPrefab: {fileID: 2939087599369755246, guid: 199698c37a454aa48b5db20271abfdd2,
+  isHeightPrefabNetworked: 1
+  gisPrefab: {fileID: 2939087599369755246, guid: 4fb819c82dde5d146ad7a81d4ea763f1,
     type: 3}
+  isGISPrefabNetworked: 1
   serializationIdentifier: 2
   myGISRegressionExamples: []
 --- !u!114 &1884021154
@@ -4072,8 +4459,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca78464fab042f64298ae92448a638de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
+  terrainExamplePrefab: {fileID: 1418052469, guid: 40a4922213c9ec145bd72d5608c41e36,
     type: 3}
+  isPrefabNetworked: 1
   myRegressionExamples: []
 --- !u!4 &1884021155
 Transform:
@@ -4210,7 +4598,7 @@ Transform:
   - {fileID: 288645968}
   - {fileID: 1545990011}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2009672319
 GameObject:
@@ -4250,10 +4638,12 @@ MonoBehaviour:
   addGISTexture: 1
   debugGISFeatures: 0
   debugUI: {fileID: 0}
-  heightPrefab: {fileID: 6496100472159615916, guid: d8e28aa4c2e02aa40937ebf53f59f772,
+  heightPrefab: {fileID: 6496100472159615916, guid: ac21d30ad1556bd4cbc6d93a52b55f50,
     type: 3}
-  gisPrefab: {fileID: 2939087599369755246, guid: 199698c37a454aa48b5db20271abfdd2,
+  isHeightPrefabNetworked: 1
+  gisPrefab: {fileID: 2939087599369755246, guid: 4fb819c82dde5d146ad7a81d4ea763f1,
     type: 3}
+  isGISPrefabNetworked: 1
   serializationIdentifier: 5
   myGISRegressionExamples: []
 --- !u!114 &2009672321
@@ -4268,8 +4658,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca78464fab042f64298ae92448a638de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrainExamplePrefab: {fileID: 1418052469, guid: 9b69cecea4dff874bb750b361f9b63e5,
+  terrainExamplePrefab: {fileID: 1418052469, guid: 40a4922213c9ec145bd72d5608c41e36,
     type: 3}
+  isPrefabNetworked: 1
   myRegressionExamples: []
 --- !u!4 &2009672322
 Transform:
@@ -4337,7 +4728,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2065307834
 MonoBehaviour:
@@ -4346,7 +4737,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2065307832}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 868d14d84ff05324e94be1a46864d1b2, type: 3}
   m_Name: 
@@ -4361,16 +4752,131 @@ MonoBehaviour:
   - {fileID: 359564392}
   - {fileID: 952970232}
   - {fileID: 33815732}
-  - {fileID: 0}
+  - {fileID: 832069737}
   entitiesToLoadOnStart: []
   worldName: myWorld
   findWorldNameInFile: 0
   fileWithWorldName: 
-  saveDynamicEntities: 1
+  saveDynamicEntities: 0
   loadDynamicEntities: 0
   loadLatestVersionOfWorld: 0
-  loadRandomIfNoneFound: 1
+  loadRandomIfNoneFound: 0
   saveToUniqueNumber: 0
   manualLoadDynamicEntities: []
   manualLoadDynamicEntitiesFile: {fileID: 0}
   saveEverySeconds: 0
+--- !u!1 &2104359079
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2104359080}
+  - component: {fileID: 2104359084}
+  - component: {fileID: 2104359083}
+  - component: {fileID: 2104359082}
+  - component: {fileID: 2104359081}
+  m_Layer: 0
+  m_Name: Plane
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2104359080
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2104359079}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 832069740}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2104359081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2104359079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0556fa593cbdfd468344aee1384a9a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myLowColor:
+    serializedVersion: 2
+    rgba: 4294901805
+  myHighColor:
+    serializedVersion: 2
+    rgba: 4284416243
+  distanceAboveTerrain: 1
+  pointsPerSide: 26
+--- !u!64 &2104359082
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2104359079}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 0
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &2104359083
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2104359079}
+  m_Enabled: 0
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: dc0941b0b3157994d972a4010f8a42bf, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!33 &2104359084
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2104359079}
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}

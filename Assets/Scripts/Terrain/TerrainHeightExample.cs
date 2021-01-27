@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable
+public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , IPunInstantiateMagicCallback 
 {
     [HideInInspector] public ConnectedTerrainController myTerrain;
 
@@ -51,6 +51,26 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
         {
             ManuallySpecifyTerrain( maybeTerrain );
             myTerrain.ProvideExample( this );
+        }
+    }
+
+    void IPunInstantiateMagicCallback.OnPhotonInstantiate( PhotonMessageInfo info )
+    {
+        // check who this came from
+        PhotonView photonView = GetComponent<PhotonView>();
+        Debug.Log("this got called" );
+        if( !photonView.IsMine && PhotonNetwork.IsConnected )
+        {
+            Debug.Log("found photon object not mine");
+            // this example came from someone else
+            ConnectedTerrainController maybeTerrain = FindTerrain();
+            if( maybeTerrain != null )
+            {
+                Debug.Log( "found terrain" );
+                ManuallySpecifyTerrain( maybeTerrain );
+                myTerrain.ProvideExample( this, false );
+                // TODO: need to rescan some time!
+            }
         }
     }
 
@@ -116,6 +136,7 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
         transform.position = myTerrain.transform.TransformPoint( serialized.localPosition );
     }
 
+    
 }
 
 

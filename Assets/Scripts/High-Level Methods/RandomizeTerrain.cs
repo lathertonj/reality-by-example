@@ -105,6 +105,11 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
+        // don't do anything if this isn't our scene
+        PhotonView maybeView = GetComponent<PhotonView>();
+        if( maybeView != null && !maybeView.IsMine ) { return; }
+
+        // otherwise, randomize the world
         if( randomizeOnStart )
         {
             StartCoroutine( RandomizeWorld() );
@@ -247,6 +252,23 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
 
         // wait before moving on
         for( int f = 0; f < computeFrames + gisFrames + 1; f++ ) { yield return null; }
+    }
+
+    // piggyback on this class having references to everything to make it easy to do initial scan
+    // (this class is an unfortunate mixture of Initialize and High Level Randomize)
+    public IEnumerator RescanAll()
+    {
+        for( int i = 0; i < terrainHeightControllers.Length; i++ )
+        {
+            // rescan entire terrain
+            yield return StartCoroutine( RescanTerrain( terrainHeightControllers[i] ) );
+        }
+        // music regressors are quick
+        volumeRegressor.RescanProvidedExamples();
+        densityRegressor.RescanProvidedExamples();
+        timbreRegressor.RescanProvidedExamples();
+        tempoRegressor.RescanProvidedExamples();
+        chordClassifier.RescanProvidedExamples();
     }
 
     IEnumerator InitializeAll()

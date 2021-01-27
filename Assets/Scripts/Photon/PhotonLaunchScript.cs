@@ -11,6 +11,11 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
 
     public static PhotonLaunchScript launcher;
 
+    public static bool someoneIsRescanning = false;
+    public RandomizeTerrain terrainInitializer;
+
+    public static float delayRescanTime = 1f;
+
     void Awake()
     {
         launcher = this;
@@ -76,6 +81,12 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
     {
         // note: this is called whether or not we create the rom
         Debug.Log("OnJoinedRoom() ws called -- now this client is in a room.");
+
+        if( !PhotonNetwork.IsMasterClient )
+        {
+            // need to do initial rescan
+            StartCoroutine( InitializeWorld() );
+        }
     }
 
     public override void OnPlayerEnteredRoom( Player newPlayer )
@@ -83,10 +94,23 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
         // only if it's my room
         if( PhotonNetwork.IsMasterClient )
         {
-            // TODO: send new player all information related to reconstructing the room
             Debug.Log( "A player joined the room!" );
         }
     }
 
-    // TODO: update the other client when an example changes
+    // method for non-master client to do something with all available examples after joining room
+    private IEnumerator InitializeWorld()
+    {
+        // pause any other rescans
+        someoneIsRescanning = true;
+         
+        // hopefully 1 second is enough time to receive all examples?
+        yield return new WaitForSecondsRealtime( delayRescanTime );
+
+        // rescan the world and wait
+        yield return StartCoroutine( terrainInitializer.RescanAll() );
+
+        // we are done
+        someoneIsRescanning = false;
+    }
 }

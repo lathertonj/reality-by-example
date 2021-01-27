@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, TouchpadLeftRightClickInteractable, TriggerGrabMoveInteractable, GripPlaceDeleteInteractable
+public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, TouchpadLeftRightClickInteractable, TriggerGrabMoveInteractable, GripPlaceDeleteInteractable , IPunInstantiateMagicCallback
 {
     public enum GISType { Smooth = 0, Hilly = 1, River = 2, Boulder = 3, Mountain = 4, Spines = 5 };
 
@@ -102,6 +102,23 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
         {
             ManuallySpecifyTerrain( maybeTerrain );
             myTerrain.ProvideExample( this );
+        }
+    }
+
+    void IPunInstantiateMagicCallback.OnPhotonInstantiate( PhotonMessageInfo info )
+    {
+        // check who this came from
+        PhotonView photonView = GetComponent<PhotonView>();
+        if( !photonView.IsMine && PhotonNetwork.IsConnected )
+        {
+            // this example came from someone else
+            ConnectedTerrainController maybeTerrain = FindTerrain();
+            if( maybeTerrain != null )
+            {
+                // inform this terrain that I exist, but don't rescan
+                ManuallySpecifyTerrain( maybeTerrain );
+                myTerrain.ProvideExample( this, false );
+            }
         }
     }
 

@@ -64,9 +64,9 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
             ConnectedTerrainController maybeTerrain = FindTerrain();
             if( maybeTerrain != null )
             {
+                // inform this terrain that I exist
                 ManuallySpecifyTerrain( maybeTerrain );
                 myTerrain.ProvideExample( this, false );
-                // TODO: need to rescan some time!
             }
         }
     }

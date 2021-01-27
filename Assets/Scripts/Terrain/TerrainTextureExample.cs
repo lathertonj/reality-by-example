@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable
+public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , IPunInstantiateMagicCallback
 {
     private static List< TerrainTextureExample > allExamples = new List< TerrainTextureExample >();
 
@@ -90,6 +90,23 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
     {
         myTerrain = c;
         allExamples.Add( this );
+    }
+
+    void IPunInstantiateMagicCallback.OnPhotonInstantiate( PhotonMessageInfo info )
+    {
+        // check who this came from
+        PhotonView photonView = GetComponent<PhotonView>();
+        if( !photonView.IsMine && PhotonNetwork.IsConnected )
+        {
+            // this example came from someone else
+            ConnectedTerrainTextureController maybeTerrain = FindTerrain();
+            if( maybeTerrain != null )
+            {
+                // inform this terrain that I exist, but don't rescan
+                ManuallySpecifyTerrain( maybeTerrain );
+                myTerrain.ProvideExample( this, false );
+            }
+        }
     }
 
     void GripPlaceDeleteInteractable.AboutToBeDeleted()

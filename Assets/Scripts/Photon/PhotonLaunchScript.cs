@@ -14,7 +14,7 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
     public static bool someoneIsRescanning = false;
     public RandomizeTerrain terrainInitializer;
 
-    public static float delayRescanTime = 2f;
+    public static float delayRescanTime = 3f;
 
     void Awake()
     {
@@ -84,9 +84,8 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
 
         if( !PhotonNetwork.IsMasterClient )
         {
-            Debug.Log( "here is where rescan would happen" );
             // need to do initial rescan
-            // StartCoroutine( InitializeWorld() );
+            StartCoroutine( InitializeWorld() );
         }
     }
 
@@ -108,6 +107,7 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
         // hopefully 1 second is enough time to receive all examples?
         yield return new WaitForSecondsRealtime( delayRescanTime );
 
+        Debug.Log( "starting rescan" );
         // rescan the world and wait
         yield return StartCoroutine( terrainInitializer.RescanAll() );
 

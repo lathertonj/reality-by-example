@@ -470,8 +470,10 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
             SpawnedObject.ResetSpawnedObjectHeights();
 
             // and tell anyone else listening to reset
-            NotifyWhenChanges.Terrain();
-        
+            NotifyWhenChanges.Terrain(); 
+
+            // TODO: finally, need to tell all neighbors to rescan their textures
+                   
         }
         else
         {

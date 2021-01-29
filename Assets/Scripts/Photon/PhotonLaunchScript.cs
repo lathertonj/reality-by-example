@@ -11,7 +11,7 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
 
     public static PhotonLaunchScript launcher;
 
-    public static bool someoneIsRescanning = false;
+    public static bool launchRescanInProgress = false;
     public RandomizeTerrain terrainInitializer;
 
     public static float delayRescanTime = 3f;
@@ -102,7 +102,7 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
     private IEnumerator InitializeWorld()
     {
         // pause any other rescans
-        someoneIsRescanning = true;
+        launchRescanInProgress = true;
 
         // hopefully 1 second is enough time to receive all examples?
         yield return new WaitForSecondsRealtime( delayRescanTime );
@@ -112,6 +112,6 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
         yield return StartCoroutine( terrainInitializer.RescanAll() );
 
         // we are done
-        someoneIsRescanning = false;
+        launchRescanInProgress = false;
     }
 }

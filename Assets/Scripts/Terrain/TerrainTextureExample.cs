@@ -92,23 +92,6 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
         allExamples.Add( this );
     }
 
-    void IPunInstantiateMagicCallback.OnPhotonInstantiate( PhotonMessageInfo info )
-    {
-        // check who this came from
-        PhotonView photonView = GetComponent<PhotonView>();
-        if( !photonView.IsMine && PhotonNetwork.IsConnected )
-        {
-            // this example came from someone else
-            ConnectedTerrainTextureController maybeTerrain = FindTerrain();
-            if( maybeTerrain != null )
-            {
-                // inform this terrain that I exist, but don't rescan
-                ManuallySpecifyTerrain( maybeTerrain );
-                myTerrain.ProvideExample( this, false );
-            }
-        }
-    }
-
     void GripPlaceDeleteInteractable.AboutToBeDeleted()
     {
         myTerrain.ForgetExample( this );
@@ -119,12 +102,14 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
     {
         SwitchToPreviousMaterial();
         myTerrain.RescanProvidedExamples();
+        this.AlertOthersToChanges();
     }
 
     void TouchpadLeftRightClickInteractable.InformOfRightClick()
     {
         SwitchToNextMaterial();
         myTerrain.RescanProvidedExamples();
+        this.AlertOthersToChanges();
     }
 
     void TriggerGrabMoveInteractable.InformOfTemporaryMovement( Vector3 currentPosition )
@@ -147,6 +132,7 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
             // stick with myTerrain
             myTerrain.RescanProvidedExamples();
         }
+        this.AlertOthersToChanges();
     }
 
     public void Randomize( bool informMyTerrain = false )
@@ -160,6 +146,7 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
         {
             myTerrain.RescanProvidedExamples();
         }
+        AlertOthersToChanges();
     }
 
     public void CopyFrom( TerrainTextureExample from )
@@ -222,6 +209,11 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
 
     void IPhotonExample.AlertOthersToChanges()
     {
+        AlertOthersToChanges();
+    }
+
+    void AlertOthersToChanges()
+    {
         // if we have a PhotonView component...
         PhotonView maybeNetworked = GetComponent<PhotonView>();
         // and the corresponding object belongs to us and we're on the network
@@ -235,7 +227,60 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
     [PunRPC]
     void TerrainTextureLazyRescan()
     {
-        PhotonRescanManager.LazyRescan( myTerrain );
+        // see if we've been moved to a new terrain
+        ConnectedTerrainTextureController newTerrain = FindTerrain();
+        if( newTerrain != null && newTerrain != myTerrain )
+        {
+            myTerrain.ForgetExample( this, shouldRetrain: false );
+            newTerrain.ProvideExample( this, shouldRetrain: false );
+            PhotonRescanManager.LazyRescan( myTerrain );
+            PhotonRescanManager.LazyRescan( newTerrain );
+            myTerrain = newTerrain;
+        }
+        else
+        {
+            // stick with myTerrain
+            PhotonRescanManager.LazyRescan( myTerrain );
+        }
+    }
+
+    // photon: init
+    void IPunInstantiateMagicCallback.OnPhotonInstantiate( PhotonMessageInfo info )
+    {
+        // check who this came from
+        PhotonView photonView = GetComponent<PhotonView>();
+        if( !photonView.IsMine && PhotonNetwork.IsConnected )
+        {
+            // this example came from someone else
+            ConnectedTerrainTextureController maybeTerrain = FindTerrain();
+            if( maybeTerrain != null )
+            {
+                // inform this terrain that I exist, but don't rescan
+                ManuallySpecifyTerrain( maybeTerrain );
+                myTerrain.ProvideExample( this, shouldRetrain: false );
+
+                // rescan eventually if we're not in init
+                if( !PhotonLaunchScript.launchRescanInProgress )
+                {
+                    PhotonRescanManager.LazyRescan( myTerrain );
+                }
+            }
+        }
+    }
+
+
+    // handle photon.destroy
+    void OnDestroy()
+    {
+        // if we have a PhotonView component...
+        PhotonView maybeNetworked = GetComponent<PhotonView>();
+        // and the corresponding object doesn't belong to us and we're on the network
+        if( maybeNetworked != null && !maybeNetworked.IsMine && PhotonNetwork.IsConnected )
+        {
+            // then my terrain needs to forget me
+            myTerrain.ForgetExample( this, shouldRetrain: false );
+            PhotonRescanManager.LazyRescan( myTerrain );
+        }
     }
 }
 

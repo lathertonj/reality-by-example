@@ -25,8 +25,8 @@ public class PhotonRescanManager : MonoBehaviour
 
     void CheckRescans()
     {
-        // don't rescan if someone else is
-        if( PhotonLaunchScript.someoneIsRescanning ) { return; }
+        // don't rescan during launch
+        if( PhotonLaunchScript.launchRescanInProgress ) { return; }
         
         // rescan ones whose time has been reached
         foreach( KeyValuePair< IPhotonExampleRescanner, float > pair in rescanTimes )

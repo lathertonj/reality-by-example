@@ -146,7 +146,7 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
         {
             myTerrain.RescanProvidedExamples();
         }
-        AlertOthersToChanges();
+        this.AlertOthersToChanges();
     }
 
     public void CopyFrom( TerrainTextureExample from )
@@ -258,12 +258,7 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
                 // inform this terrain that I exist, but don't rescan
                 ManuallySpecifyTerrain( maybeTerrain );
                 myTerrain.ProvideExample( this, shouldRetrain: false );
-
-                // rescan eventually if we're not in init
-                if( !PhotonLaunchScript.launchRescanInProgress )
-                {
-                    PhotonRescanManager.LazyRescan( myTerrain );
-                }
+                PhotonRescanManager.LazyRescan( myTerrain );
             }
         }
     }

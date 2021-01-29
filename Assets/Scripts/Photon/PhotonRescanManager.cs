@@ -25,31 +25,31 @@ public class PhotonRescanManager : MonoBehaviour
 
     IEnumerator CheckRescans()
     {
-        // don't rescan during launch
-        while( PhotonLaunchScript.launchRescanInProgress ) { yield return new WaitForSecondsRealtime( checkFrequency ); }
-        
-        // rescan ones whose time has been reached
-        foreach( KeyValuePair< IPhotonExampleRescanner, float > pair in rescanTimes )
+        while( true )
         {
-            if( pair.Value >= Time.time )
+            // rescan ones whose time has been reached
+            foreach( KeyValuePair< IPhotonExampleRescanner, float > pair in rescanTimes )
             {
-                // rescan
-                pair.Key.RescanProvidedExamples();
-                // wait for rescan to finish
-                for( int i = 0; i < pair.Key.NumFramesToRescan(); i++ ) { yield return null; }
-                // forget this later
-                _toRemove.Add( pair.Key );
+                if( pair.Value >= Time.time )
+                {
+                    // rescan
+                    pair.Key.RescanProvidedExamples();
+                    // wait for rescan to finish
+                    for( int i = 0; i < pair.Key.NumFramesToRescan(); i++ ) { yield return null; }
+                    // forget this later
+                    _toRemove.Add( pair.Key );
+                }
             }
-        }
 
-        // forget the ones that rescanned
-        foreach( IPhotonExampleRescanner r in _toRemove )
-        {
-            rescanTimes.Remove( r );
-        }
-        _toRemove.Clear();
+            // forget the ones that rescanned
+            foreach( IPhotonExampleRescanner r in _toRemove )
+            {
+                rescanTimes.Remove( r );
+            }
+            _toRemove.Clear();
 
-        yield return new WaitForSecondsRealtime( checkFrequency );
+            yield return new WaitForSecondsRealtime( checkFrequency );
+        }
     }
 
     // assign the rescanner to be rescanned in the future,

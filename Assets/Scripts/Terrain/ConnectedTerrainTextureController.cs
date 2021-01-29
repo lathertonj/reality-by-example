@@ -147,6 +147,7 @@ public class ConnectedTerrainTextureController : MonoBehaviour , IPhotonExampleR
     public void RescanProvidedExamples()
     {
         StartCoroutine( RescanProvidedExamples( 3 ) );
+        Debug.Log( gameObject.name + " texture is rescanning" );
     }
 
     int IPhotonExampleRescanner.NumFramesToRescan()

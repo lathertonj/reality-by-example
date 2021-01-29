@@ -105,23 +105,6 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
         }
     }
 
-    void IPunInstantiateMagicCallback.OnPhotonInstantiate( PhotonMessageInfo info )
-    {
-        // check who this came from
-        PhotonView photonView = GetComponent<PhotonView>();
-        if( !photonView.IsMine && PhotonNetwork.IsConnected )
-        {
-            // this example came from someone else
-            ConnectedTerrainController maybeTerrain = FindTerrain();
-            if( maybeTerrain != null )
-            {
-                // inform this terrain that I exist, but don't rescan
-                ManuallySpecifyTerrain( maybeTerrain );
-                myTerrain.ProvideExample( this, false );
-            }
-        }
-    }
-
     public void ManuallySpecifyTerrain( ConnectedTerrainController c )
     {
         myTerrain = c;
@@ -271,7 +254,73 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
 
     void IPhotonExample.AlertOthersToChanges()
     {
-        throw new System.NotImplementedException();
+        AlertOthersToChanges();
+    }
+
+    void AlertOthersToChanges()
+    {
+        // if we have a PhotonView component...
+        PhotonView maybeNetworked = GetComponent<PhotonView>();
+        // and the corresponding object belongs to us and we're on the network
+        if( maybeNetworked != null && maybeNetworked.IsMine && PhotonNetwork.IsConnected )
+        {
+            // then tell others they need to rescan
+            maybeNetworked.RPC( "TerrainGISLazyRescan", RpcTarget.Others );
+        }
+    }
+
+    [PunRPC]
+    void TerrainGISLazyRescan()
+    {
+        // see if we've been moved to a new terrain
+        ConnectedTerrainController newTerrain = FindTerrain();
+        if( newTerrain != null && newTerrain != myTerrain )
+        {
+            myTerrain.ForgetExample( this, shouldRescan: false );
+            newTerrain.ProvideExample( this, shouldRescan: false );
+            PhotonRescanManager.LazyRescan( myTerrain );
+            PhotonRescanManager.LazyRescan( newTerrain );
+            myTerrain = newTerrain;
+        }
+        else
+        {
+            // stick with myTerrain
+            PhotonRescanManager.LazyRescan( myTerrain );
+        }
+    }
+
+    // photon: init
+    void IPunInstantiateMagicCallback.OnPhotonInstantiate( PhotonMessageInfo info )
+    {
+        // check who this came from
+        PhotonView photonView = GetComponent<PhotonView>();
+        if( !photonView.IsMine && PhotonNetwork.IsConnected )
+        {
+            // this example came from someone else
+            ConnectedTerrainController maybeTerrain = FindTerrain();
+            if( maybeTerrain != null )
+            {
+                // inform this terrain that I exist
+                ManuallySpecifyTerrain( maybeTerrain );
+                myTerrain.ProvideExample( this, false );
+                PhotonRescanManager.LazyRescan( myTerrain );
+            }
+        }
+    }
+
+
+    // handle photon.destroy
+    void OnDestroy()
+    {
+        // if we have a PhotonView component...
+        PhotonView maybeNetworked = GetComponent<PhotonView>();
+        // and the corresponding object doesn't belong to us and we're on the network
+        if( maybeNetworked != null && !maybeNetworked.IsMine && PhotonNetwork.IsConnected )
+        {
+            // then my terrain needs to forget me
+            myTerrain.ForgetExample( this, shouldRescan: false );
+            PhotonRescanManager.LazyRescan( myTerrain );
+        }
     }
     
 }

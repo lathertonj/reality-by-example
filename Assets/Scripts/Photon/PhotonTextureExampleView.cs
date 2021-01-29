@@ -27,7 +27,6 @@ public class PhotonTextureExampleView : MonoBehaviour , IPunObservable
         {
             int myNewType = (int) stream.ReceiveNext();
             myTexture.SwitchTo( myNewType );
-            Debug.Log( "am I called all the time or only when there's a change?" );
         }
     }
 }

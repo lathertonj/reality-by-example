@@ -30,7 +30,7 @@ public class PhotonRescanManager : MonoBehaviour
             // rescan ones whose time has been reached
             foreach( KeyValuePair< IPhotonExampleRescanner, float > pair in rescanTimes )
             {
-                if( pair.Value >= Time.time )
+                if( pair.Value <= Time.time )
                 {
                     // rescan
                     pair.Key.RescanProvidedExamples();

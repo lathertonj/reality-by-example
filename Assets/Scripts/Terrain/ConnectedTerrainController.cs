@@ -230,6 +230,11 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample 
         RescanProvidedExamples( lazy: false );
     }
 
+    int IPhotonExampleRescanner.NumFramesToRescan()
+    {
+        return 33;
+    }
+
     // TODO: can this be split into two phases: the base data and the GIS data,
     // so that we can only recompute one when it changes? :|
     public void RescanProvidedExamples( bool lazy, int framesToSpreadOver = 15, int framesToSpreadGISOver = 15, int framesToSpreadTextureOver = 3 )

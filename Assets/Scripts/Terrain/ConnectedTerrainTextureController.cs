@@ -149,6 +149,11 @@ public class ConnectedTerrainTextureController : MonoBehaviour , IPhotonExampleR
         StartCoroutine( RescanProvidedExamples( 3 ) );
     }
 
+    int IPhotonExampleRescanner.NumFramesToRescan()
+    {
+        return 3;
+    }
+
     public IEnumerator RescanProvidedExamples( int framesToSpreadOver )
     {
         // train and recompute

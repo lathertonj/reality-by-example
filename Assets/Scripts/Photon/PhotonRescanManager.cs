@@ -20,20 +20,24 @@ public class PhotonRescanManager : MonoBehaviour
 
     void Start()
     {
-        InvokeRepeating( "CheckRescans", checkFrequency, checkFrequency );
+        StartCoroutine( CheckRescans() );
     }
 
-    void CheckRescans()
+    IEnumerator CheckRescans()
     {
         // don't rescan during launch
-        if( PhotonLaunchScript.launchRescanInProgress ) { return; }
+        while( PhotonLaunchScript.launchRescanInProgress ) { yield return new WaitForSecondsRealtime( checkFrequency ); }
         
         // rescan ones whose time has been reached
         foreach( KeyValuePair< IPhotonExampleRescanner, float > pair in rescanTimes )
         {
             if( pair.Value >= Time.time )
             {
+                // rescan
                 pair.Key.RescanProvidedExamples();
+                // wait for rescan to finish
+                for( int i = 0; i < pair.Key.NumFramesToRescan(); i++ ) { yield return null; }
+                // forget this later
                 _toRemove.Add( pair.Key );
             }
         }
@@ -44,6 +48,8 @@ public class PhotonRescanManager : MonoBehaviour
             rescanTimes.Remove( r );
         }
         _toRemove.Clear();
+
+        yield return new WaitForSecondsRealtime( checkFrequency );
     }
 
     // assign the rescanner to be rescanned in the future,

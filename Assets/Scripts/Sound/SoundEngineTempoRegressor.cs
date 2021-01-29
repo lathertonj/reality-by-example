@@ -50,6 +50,11 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
         TrainRegression();
     }
 
+    int IPhotonExampleRescanner.NumFramesToRescan()
+    {
+        return 1;
+    }
+
 
     // Use this for initialization
     void Awake()

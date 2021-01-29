@@ -55,6 +55,11 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
         TrainRegression();
     }
 
+    int IPhotonExampleRescanner.NumFramesToRescan()
+    {
+        return 1;
+    }
+
 
     // Use this for initialization
     void Awake()

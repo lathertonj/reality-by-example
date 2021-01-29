@@ -52,6 +52,11 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
         TrainClassifier();
     }
 
+    int IPhotonExampleRescanner.NumFramesToRescan()
+    {
+        return 1;
+    }
+
 
     // Use this for initialization
     void Awake()

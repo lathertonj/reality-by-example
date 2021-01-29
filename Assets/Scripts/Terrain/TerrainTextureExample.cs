@@ -222,7 +222,20 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
 
     void IPhotonExample.AlertOthersToChanges()
     {
-        throw new System.NotImplementedException();
+        // if we have a PhotonView component...
+        PhotonView maybeNetworked = GetComponent<PhotonView>();
+        // and the corresponding object belongs to us and we're on the network
+        if( maybeNetworked != null && maybeNetworked.IsMine && PhotonNetwork.IsConnected )
+        {
+            // then tell others they need to rescan
+            maybeNetworked.RPC( "TerrainTextureLazyRescan", RpcTarget.Others );
+        }
+    }
+
+    [PunRPC]
+    void TerrainTextureLazyRescan()
+    {
+        PhotonRescanManager.LazyRescan( myTerrain );
     }
 }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSource , SerializableByExample
+public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSource , SerializableByExample , IPhotonExampleRescanner
 {
     public Transform objectToRunRegressionOn;
     private SoundEngine mySoundEngine;

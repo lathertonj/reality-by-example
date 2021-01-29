@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource , SerializableByExample
+public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource , SerializableByExample , IPhotonExampleRescanner
 {
     public enum Parameter { Timbre, Density, Volume };
     public Parameter myParameter;

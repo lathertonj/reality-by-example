@@ -5,7 +5,7 @@ using UnityEngine;
 using Stitchscape;
 using Photon.Pun;
 
-public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
+public class ConnectedTerrainController : MonoBehaviour , SerializableByExample , IPhotonExampleRescanner
 {
     // CRIT NOTES
     // - could do a comparison between this and linear regression and to non-ML interpolation
@@ -225,9 +225,14 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
         myTextureController.MatchNumberOfExamples( other.myTextureController );
     }
 
+    public void RescanProvidedExamples()
+    {
+        RescanProvidedExamples( lazy: false );
+    }
+
     // TODO: can this be split into two phases: the base data and the GIS data,
     // so that we can only recompute one when it changes? :|
-    public void RescanProvidedExamples( bool lazy = false, int framesToSpreadOver = 15, int framesToSpreadGISOver = 15, int framesToSpreadTextureOver = 3 )
+    public void RescanProvidedExamples( bool lazy, int framesToSpreadOver = 15, int framesToSpreadGISOver = 15, int framesToSpreadTextureOver = 3 )
     {
         StartCoroutine( RescanProvidedExamplesCoroutine( lazy, framesToSpreadOver, framesToSpreadGISOver, framesToSpreadTextureOver ) );
     }

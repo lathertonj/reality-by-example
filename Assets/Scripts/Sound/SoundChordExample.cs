@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
-public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , LaserPointerSelectable , IPunInstantiateMagicCallback
+public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , LaserPointerSelectable , IPunInstantiateMagicCallback , IPhotonExample
 {
 
     // default to 0.5
@@ -153,6 +153,11 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
     {
         // deactivate visualization when unselected
         SoundEngineChordClassifier.Deactivate();
+    }
+
+    void IPhotonExample.AlertOthersToChanges()
+    {
+        throw new System.NotImplementedException();
     }
 }
 

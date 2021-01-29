@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , IPunInstantiateMagicCallback 
+public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , IPunInstantiateMagicCallback , IPhotonExample
 {
     [HideInInspector] public ConnectedTerrainController myTerrain;
 
@@ -133,7 +133,10 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
         transform.position = myTerrain.transform.TransformPoint( serialized.localPosition );
     }
 
-    
+    void IPhotonExample.AlertOthersToChanges()
+    {
+        throw new System.NotImplementedException();
+    }
 }
 
 

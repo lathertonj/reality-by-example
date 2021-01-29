@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , IPunInstantiateMagicCallback
+public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , IPunInstantiateMagicCallback , IPhotonExample
 {
     private static List< TerrainTextureExample > allExamples = new List< TerrainTextureExample >();
 
@@ -217,6 +217,12 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
         transform.position = myTerrain.TransformPoint( serialized.localPosition );
         myCurrentValue = serialized.material;
         UpdateMaterial();
+    }
+
+
+    void IPhotonExample.AlertOthersToChanges()
+    {
+        throw new System.NotImplementedException();
     }
 }
 

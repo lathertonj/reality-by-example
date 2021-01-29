@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , LaserPointerSelectable , IPunInstantiateMagicCallback
+public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , LaserPointerSelectable , IPunInstantiateMagicCallback , IPhotonExample
 {
 
     // default to 0.5
@@ -174,6 +174,11 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
     {
         // deactivate visualization when unselected
         SoundEngine0To1Regressor.Deactivate( myRegressor );
+    }
+
+    void IPhotonExample.AlertOthersToChanges()
+    {
+        throw new System.NotImplementedException();
     }
 }
 

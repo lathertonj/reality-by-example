@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, TouchpadLeftRightClickInteractable, TriggerGrabMoveInteractable, GripPlaceDeleteInteractable , IPunInstantiateMagicCallback
+public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, TouchpadLeftRightClickInteractable, TriggerGrabMoveInteractable, GripPlaceDeleteInteractable , IPunInstantiateMagicCallback , IPhotonExample
 {
     public enum GISType { Smooth = 0, Hilly = 1, River = 2, Boulder = 3, Mountain = 4, Spines = 5 };
 
@@ -267,6 +267,11 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
     {
         transform.position = myTerrain.transform.TransformPoint( serialized.localPosition );
         UpdateMyValue( serialized.type, serialized.value );
+    }
+
+    void IPhotonExample.AlertOthersToChanges()
+    {
+        throw new System.NotImplementedException();
     }
     
 }

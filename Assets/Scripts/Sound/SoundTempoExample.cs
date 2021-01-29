@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , LaserPointerSelectable , IPunInstantiateMagicCallback
+public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , LaserPointerSelectable , IPunInstantiateMagicCallback , IPhotonExample
 {
 
     // default to 100
@@ -163,6 +163,10 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
         SoundEngineTempoRegressor.Deactivate();
     }
 
+    void IPhotonExample.AlertOthersToChanges()
+    {
+        throw new System.NotImplementedException();
+    }
 }
 
 [System.Serializable]

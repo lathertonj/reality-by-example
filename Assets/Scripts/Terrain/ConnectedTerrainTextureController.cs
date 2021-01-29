@@ -4,7 +4,7 @@ using UnityEngine;
 using System.IO;
 using Photon.Pun;
 
-public class ConnectedTerrainTextureController : MonoBehaviour
+public class ConnectedTerrainTextureController : MonoBehaviour , IPhotonExampleRescanner
 {
     private Terrain myTerrain;
     private TerrainData myTerrainData;

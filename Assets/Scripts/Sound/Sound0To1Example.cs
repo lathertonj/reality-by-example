@@ -33,7 +33,7 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
         // tell the controller to recompute parameter
         myRegressor.RescanProvidedExamples();
         // tell other network examples to rescan
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
     public void Randomize( bool informRegressor = false )
@@ -47,7 +47,7 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
             myRegressor.RescanProvidedExamples();
         }
         // alert others to rescan lazily
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
     public void UpdateMyValue( float newValue )
@@ -82,7 +82,7 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
         // tell the controller to recompute tempo
         myRegressor.RescanProvidedExamples();
         // alert others to rescan lazily
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
     public void JustPlaced()
@@ -172,12 +172,12 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
         SoundEngine0To1Regressor.Deactivate( myRegressor );
     }
 
-    void IPhotonExample.AlertOthersToChanges()
+    void IPhotonExample.AlertNetworkToChanges()
     {
-        AlertOthersToChanges();
+        AlertNetworkToChanges();
     }
 
-    void AlertOthersToChanges()
+    void AlertNetworkToChanges()
     {
         // if we have a PhotonView component...
         PhotonView maybeNetworked = GetComponent<PhotonView>();

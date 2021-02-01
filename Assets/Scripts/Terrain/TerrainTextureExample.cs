@@ -102,14 +102,14 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
     {
         SwitchToPreviousMaterial();
         myTerrain.RescanProvidedExamples();
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
     void TouchpadLeftRightClickInteractable.InformOfRightClick()
     {
         SwitchToNextMaterial();
         myTerrain.RescanProvidedExamples();
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
     void TriggerGrabMoveInteractable.InformOfTemporaryMovement( Vector3 currentPosition )
@@ -132,7 +132,7 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
             // stick with myTerrain
             myTerrain.RescanProvidedExamples();
         }
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
     public void Randomize( bool informMyTerrain = false )
@@ -146,7 +146,7 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
         {
             myTerrain.RescanProvidedExamples();
         }
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
     public void CopyFrom( TerrainTextureExample from )
@@ -207,12 +207,12 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
     }
 
 
-    void IPhotonExample.AlertOthersToChanges()
+    void IPhotonExample.AlertNetworkToChanges()
     {
-        AlertOthersToChanges();
+        AlertNetworkToChanges();
     }
 
-    void AlertOthersToChanges()
+    void AlertNetworkToChanges()
     {
         // if we have a PhotonView component...
         PhotonView maybeNetworked = GetComponent<PhotonView>();

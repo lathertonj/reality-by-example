@@ -27,7 +27,7 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
             myClassifier.RescanProvidedExamples();
         }
         // inform network too
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
     public void UpdateMyChord( int newChord )
@@ -51,7 +51,7 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
         // tell the controller to recompute tempo
         myClassifier.RescanProvidedExamples();
         // inform network too
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
     public void JustPlaced()
@@ -85,7 +85,7 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
         UpdateMyChord( myChord + numChords - 1 );
         myClassifier.RescanProvidedExamples();
         // inform network too
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
     public void InformOfRightClick()
@@ -93,7 +93,7 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
         UpdateMyChord( myChord + 1 );
         myClassifier.RescanProvidedExamples();
         // inform network too
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
 
@@ -148,12 +148,12 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
         SoundEngineChordClassifier.Deactivate();
     }
 
-    void IPhotonExample.AlertOthersToChanges()
+    void IPhotonExample.AlertNetworkToChanges()
     {
-        AlertOthersToChanges();
+        AlertNetworkToChanges();
     }
 
-    void AlertOthersToChanges()
+    void AlertNetworkToChanges()
     {
         // if we have a PhotonView component...
         PhotonView maybeNetworked = GetComponent<PhotonView>();

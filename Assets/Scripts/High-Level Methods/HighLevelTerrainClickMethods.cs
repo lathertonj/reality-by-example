@@ -119,6 +119,8 @@ public class HighLevelTerrainClickMethods : HighLevelMethods , TouchpadLeftRight
         foreach( TerrainTextureExample e in terrain.myRegressionExamples )
         {
             e.SwitchTo( map[e.myCurrentValue] );
+            // method to enable other terrains on the network to rescan
+            e.AlertNetworkToChanges();
         }
         terrain.RescanProvidedExamples();
     }
@@ -130,6 +132,8 @@ public class HighLevelTerrainClickMethods : HighLevelMethods , TouchpadLeftRight
             int start = _GISToInt( e.myType );
             int next = map[start];
             e.UpdateMyValue( _IntToGIS( next ), e.myValue );
+            // method to enable other terrains on the network to rescan
+            e.AlertNetworkToChanges();
         }
         currentTerrain.RescanProvidedExamples();
     }

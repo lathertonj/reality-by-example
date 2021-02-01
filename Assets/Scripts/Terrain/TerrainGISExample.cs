@@ -269,7 +269,7 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
         AlertNetworkToChanges();
     }
 
-    void AlertNetworkToChanges()
+    public void AlertNetworkToChanges()
     {
         // if we have a PhotonView component...
         PhotonView maybeNetworked = GetComponent<PhotonView>();

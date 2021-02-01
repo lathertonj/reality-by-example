@@ -208,6 +208,8 @@ public class HighLevelTerrainMethods : HighLevelMethods , TouchpadUpDownInteract
         foreach( TerrainHeightExample e in currentTerrain.myRegressionExamples )
         {
             e.transform.position += delta;
+            // method to allow other terrains on the network to rescan
+            e.AlertNetworkToChanges();
         }
 
         currentTerrain.RescanProvidedExamples();
@@ -244,6 +246,9 @@ public class HighLevelTerrainMethods : HighLevelMethods , TouchpadUpDownInteract
             float delta = pos.y - _averageHeight;
             pos.y = _averageHeight + multiplier * delta;
             e.transform.position = pos;
+
+            // method to allow other terrains on the network to rescan
+            e.AlertNetworkToChanges();
         }
 
         _heightDifference = newDifference;
@@ -363,6 +368,9 @@ public class HighLevelTerrainMethods : HighLevelMethods , TouchpadUpDownInteract
                 bumpsToUse[i],
                 currentTerrain.myGISRegressionExamples[i].myValue
             );
+
+            // method to allow other terrains on the network to rescan
+            currentTerrain.myGISRegressionExamples[i].AlertNetworkToChanges();
         }
 
         // rescan
@@ -426,6 +434,9 @@ public class HighLevelTerrainMethods : HighLevelMethods , TouchpadUpDownInteract
         for( int i = 0; i < terrain.myRegressionExamples.Count; i++ )
         {
             terrain.myRegressionExamples[i].SwitchTo( texturesToUse[i] );
+
+            // method to allow other terrains on the network to rescan
+            terrain.myRegressionExamples[i].AlertNetworkToChanges();
         }
 
         terrain.RescanProvidedExamples();

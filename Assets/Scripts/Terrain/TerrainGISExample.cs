@@ -121,12 +121,16 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
     {
         SwitchToPreviousGISType();
         myTerrain.RescanProvidedExamples();
+        // inform others on network
+        this.AlertOthersToChanges();
     }
 
     void TouchpadLeftRightClickInteractable.InformOfRightClick()
     {
         SwitchToNextGISType();
         myTerrain.RescanProvidedExamples();
+        // inform others on network
+        this.AlertOthersToChanges();
     }
 
     void TriggerGrabMoveInteractable.InformOfTemporaryMovement( Vector3 currentPosition )
@@ -149,11 +153,13 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
             // stick with myTerrain
             myTerrain.RescanProvidedExamples();
         }
+        // inform others on network
+        this.AlertOthersToChanges();
     }
 
 
 
-    public void InformOfUpOrDownMovement( float verticalDisplacementSinceBeginning, float verticalDisplacementThisFrame )
+    void TouchpadUpDownInteractable.InformOfUpOrDownMovement( float verticalDisplacementSinceBeginning, float verticalDisplacementThisFrame )
     {
         float multiplier = 1f;
         if( verticalDisplacementThisFrame < 0 )
@@ -167,10 +173,12 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
         UpdateMyValue( myType, multiplier * myValue );
     }
 
-    public void FinalizeMovement()
+    void TouchpadUpDownInteractable.FinalizeMovement()
     {
         // tell the controller to recompute tempo
         myTerrain.RescanProvidedExamples();
+        // alert others on network
+        this.AlertOthersToChanges();
     }
 
 
@@ -188,6 +196,8 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
         {
             myTerrain.RescanProvidedExamples();
         }
+        // alert others on network
+        this.AlertOthersToChanges();
     }
 
 
@@ -203,6 +213,8 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
         {
             myTerrain.RescanProvidedExamples();
         }
+        // alert others on network
+        this.AlertOthersToChanges();
     }
 
     public void CopyFrom( TerrainGISExample other )

@@ -14,7 +14,7 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
 
     private TextMesh myText;
 
-    public void InformOfUpOrDownMovement( float verticalDisplacementSinceBeginning, float verticalDisplacementThisFrame )
+    void TouchpadUpDownInteractable.InformOfUpOrDownMovement( float verticalDisplacementSinceBeginning, float verticalDisplacementThisFrame )
     {
         float multiplier = 1f;
         if( verticalDisplacementThisFrame < 0 )
@@ -28,10 +28,12 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
         UpdateMyValue( multiplier * myValue );
     }
 
-    public void FinalizeMovement()
+    void TouchpadUpDownInteractable.FinalizeMovement()
     {
         // tell the controller to recompute parameter
         myRegressor.RescanProvidedExamples();
+        // tell other network examples to rescan
+        this.AlertOthersToChanges();
     }
 
     public void Randomize( bool informRegressor = false )
@@ -44,6 +46,8 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
         {
             myRegressor.RescanProvidedExamples();
         }
+        // alert others to rescan lazily
+        this.AlertOthersToChanges();
     }
 
     public void UpdateMyValue( float newValue )
@@ -77,21 +81,13 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
     {
         // tell the controller to recompute tempo
         myRegressor.RescanProvidedExamples();
+        // alert others to rescan lazily
+        this.AlertOthersToChanges();
     }
 
     public void JustPlaced()
     {
         Initialize( true );
-    }
-
-    void IPunInstantiateMagicCallback.OnPhotonInstantiate( PhotonMessageInfo info )
-    {
-        // check who this came from
-        PhotonView photonView = GetComponent<PhotonView>();
-        if( !photonView.IsMine && PhotonNetwork.IsConnected )
-        {
-            Initialize( rescan: false );
-        }
     }
 
     public void Initialize( bool rescan )
@@ -178,7 +174,52 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
 
     void IPhotonExample.AlertOthersToChanges()
     {
-        throw new System.NotImplementedException();
+        AlertOthersToChanges();
+    }
+
+    void AlertOthersToChanges()
+    {
+        // if we have a PhotonView component...
+        PhotonView maybeNetworked = GetComponent<PhotonView>();
+        // and the corresponding object belongs to us and we're on the network
+        if( maybeNetworked != null && maybeNetworked.IsMine && PhotonNetwork.IsConnected )
+        {
+            // then tell others they need to rescan
+            maybeNetworked.RPC( "Sound0To1LazyRescan", RpcTarget.Others );
+        }
+    }
+
+    [PunRPC]
+    void Sound0To1LazyRescan()
+    {
+        // do a lazy rescan
+        PhotonRescanManager.LazyRescan( myRegressor );
+    }
+
+    // photon: init
+    void IPunInstantiateMagicCallback.OnPhotonInstantiate( PhotonMessageInfo info )
+    {
+        // check who this came from
+        PhotonView photonView = GetComponent<PhotonView>();
+        if( !photonView.IsMine && PhotonNetwork.IsConnected )
+        {
+            Initialize( rescan: false );
+        }
+    }
+
+    // handle photon.destroy
+    void OnDestroy()
+    {
+        // if we have a PhotonView component...
+        PhotonView maybeNetworked = GetComponent<PhotonView>();
+        // and the corresponding object doesn't belong to us and we're on the network
+        if( maybeNetworked != null && !maybeNetworked.IsMine && PhotonNetwork.IsConnected )
+        {
+            // then my regressor needs to forget me
+            myRegressor.ForgetExample( this, rescan: false );
+            // lazily rescan soon
+            PhotonRescanManager.LazyRescan( myRegressor );
+        }
     }
 }
 

@@ -47,6 +47,11 @@ public class SpawnedObject : MonoBehaviour , GripPlaceDeleteInteractable , Dynam
 
     void GripPlaceDeleteInteractable.AboutToBeDeleted()
     {
+        // nothing. do in OnDestroy() instead
+    }
+
+    void OnDestroy()
+    {
         allSpawnedObjects.Remove( this );
     }
 

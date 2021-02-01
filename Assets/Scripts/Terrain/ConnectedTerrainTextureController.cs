@@ -147,7 +147,6 @@ public class ConnectedTerrainTextureController : MonoBehaviour , IPhotonExampleR
     public void RescanProvidedExamples()
     {
         StartCoroutine( RescanProvidedExamples( 3 ) );
-        Debug.Log( gameObject.name + " texture is rescanning" );
     }
 
     int IPhotonExampleRescanner.NumFramesToRescan()
@@ -176,6 +175,10 @@ public class ConnectedTerrainTextureController : MonoBehaviour , IPhotonExampleR
                 // remember
                 myRegression.RecordDataPoint( InputVector( example.transform.position ), example.myValues );
                 //Debug.Log( string.Join( ", ", InputVector( example.transform.position ) ) );
+                if( gameObject.name == "Terrain1" )
+                {
+                    Debug.Log( string.Join( ", ", InputVector( example.transform.position ) ) );
+                }
             }
 
             // train
@@ -596,6 +599,7 @@ public class ConnectedTerrainTextureController : MonoBehaviour , IPhotonExampleR
             // normSteepness * normal.x,
             // normSteepness * normal.z
         };
+
     }
 
 

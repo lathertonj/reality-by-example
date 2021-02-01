@@ -39,10 +39,10 @@ public class SoundEngine0To1Regressor : MonoBehaviour , ColorablePlaneDataSource
         }
     }
 
-    public void ForgetExample( Sound0To1Example example )
+    public void ForgetExample( Sound0To1Example example, bool rescan = true )
     {
         // forget
-        if( myRegressionExamples.Remove( example ) )
+        if( myRegressionExamples.Remove( example ) && rescan )
         {
             // recompute
             RescanProvidedExamples();

@@ -36,10 +36,10 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
         }
     }
 
-    public void ForgetExample( SoundChordExample example )
+    public void ForgetExample( SoundChordExample example, bool rescan = true )
     {
         // forget
-        if( myClassifierExamples.Remove( example ) )
+        if( myClassifierExamples.Remove( example ) && rescan )
         {
             // recompute
             RescanProvidedExamples();

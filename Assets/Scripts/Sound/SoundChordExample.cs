@@ -24,13 +24,10 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
         // update classifier
         if( informClassifier )
         {
-            Rescan();
+            myClassifier.RescanProvidedExamples();
         }
-    }
-
-    public void Rescan()
-    {
-        myClassifier.RescanProvidedExamples();
+        // inform network too
+        this.AlertOthersToChanges();
     }
 
     public void UpdateMyChord( int newChord )
@@ -52,22 +49,14 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
     public void FinalizeMovement( Vector3 endPosition )
     {
         // tell the controller to recompute tempo
-        Rescan();
+        myClassifier.RescanProvidedExamples();
+        // inform network too
+        this.AlertOthersToChanges();
     }
 
     public void JustPlaced()
     {
         Initialize( true );
-    }
-
-    void IPunInstantiateMagicCallback.OnPhotonInstantiate( PhotonMessageInfo info )
-    {
-        // check who this came from
-        PhotonView photonView = GetComponent<PhotonView>();
-        if( !photonView.IsMine && PhotonNetwork.IsConnected )
-        {
-            Initialize( rescan: false );
-        }
     }
 
     public void Initialize( bool rescan )
@@ -94,13 +83,17 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
     public void InformOfLeftClick()
     {
         UpdateMyChord( myChord + numChords - 1 );
-        Rescan();
+        myClassifier.RescanProvidedExamples();
+        // inform network too
+        this.AlertOthersToChanges();
     }
 
     public void InformOfRightClick()
     {
         UpdateMyChord( myChord + 1 );
-        Rescan();
+        myClassifier.RescanProvidedExamples();
+        // inform network too
+        this.AlertOthersToChanges();
     }
 
 
@@ -157,7 +150,52 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
 
     void IPhotonExample.AlertOthersToChanges()
     {
-        throw new System.NotImplementedException();
+        AlertOthersToChanges();
+    }
+
+    void AlertOthersToChanges()
+    {
+        // if we have a PhotonView component...
+        PhotonView maybeNetworked = GetComponent<PhotonView>();
+        // and the corresponding object belongs to us and we're on the network
+        if( maybeNetworked != null && maybeNetworked.IsMine && PhotonNetwork.IsConnected )
+        {
+            // then tell others they need to rescan
+            maybeNetworked.RPC( "SoundChordLazyRescan", RpcTarget.Others );
+        }
+    }
+
+    [PunRPC]
+    void SoundChordLazyRescan()
+    {
+        // do a lazy rescan
+        PhotonRescanManager.LazyRescan( myClassifier );
+    }
+
+    // photon: init
+    void IPunInstantiateMagicCallback.OnPhotonInstantiate( PhotonMessageInfo info )
+    {
+        // check who this came from
+        PhotonView photonView = GetComponent<PhotonView>();
+        if( !photonView.IsMine && PhotonNetwork.IsConnected )
+        {
+            Initialize( rescan: false );
+        }
+    }
+
+    // handle photon.destroy
+    void OnDestroy()
+    {
+        // if we have a PhotonView component...
+        PhotonView maybeNetworked = GetComponent<PhotonView>();
+        // and the corresponding object doesn't belong to us and we're on the network
+        if( maybeNetworked != null && !maybeNetworked.IsMine && PhotonNetwork.IsConnected )
+        {
+            // then my regressor needs to forget me
+            myClassifier.ForgetExample( this, rescan: false );
+            // lazily rescan soon
+            PhotonRescanManager.LazyRescan( myClassifier );
+        }
     }
 }
 

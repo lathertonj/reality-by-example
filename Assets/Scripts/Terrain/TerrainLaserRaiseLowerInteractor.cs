@@ -75,8 +75,8 @@ public class TerrainLaserRaiseLowerInteractor : MonoBehaviour
     {
         if( currentlyPlacingExample != null )
         {
-            // finalize terrain
-            currentlyPlacingExample.myTerrain.RescanProvidedExamples();
+            // inform example it's finished moving; it will tell relevant terrains to rescan
+            currentlyPlacingExample.FinalizeMovement();
 
             // stop moving currentlyPlacingExample
             currentlyPlacingExample = null;
@@ -93,7 +93,7 @@ public class TerrainLaserRaiseLowerInteractor : MonoBehaviour
 
         while( currentlyPlacingExample != null )
         {
-            // lazily recompute terrain
+            // lazily recompute terrain for viewing estimate
             currentlyPlacingExample.myTerrain.RescanProvidedExamples( true );
 
             yield return new WaitForSecondsRealtime( lazyRecomputeTime );

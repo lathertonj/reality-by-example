@@ -212,7 +212,7 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
         AlertNetworkToChanges();
     }
 
-    void AlertNetworkToChanges()
+    public void AlertNetworkToChanges()
     {
         // if we have a PhotonView component...
         PhotonView maybeNetworked = GetComponent<PhotonView>();

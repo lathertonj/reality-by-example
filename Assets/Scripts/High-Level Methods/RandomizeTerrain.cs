@@ -236,12 +236,6 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
         }
     }
 
-    Vector3 FindLocationToCopyFrom()
-    {
-        // TODO: how?
-        return Vector3.zero;
-    }
-
     IEnumerator RescanTerrain( ConnectedTerrainController t )
     {
         // rescan entire terrain -- it will do the texture at the end
@@ -252,24 +246,6 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
 
         // wait before moving on
         for( int f = 0; f < computeFrames + gisFrames + 1; f++ ) { yield return null; }
-    }
-
-    // piggyback on this class having references to everything to make it easy to do initial scan
-    // (this class is an unfortunate mixture of Initialize and High Level Randomize)
-    public IEnumerator RescanAll()
-    {
-        Debug.Log( "Only doing a rescan!" );
-        for( int i = 0; i < terrainHeightControllers.Length; i++ )
-        {
-            // rescan entire terrain
-            yield return StartCoroutine( RescanTerrain( terrainHeightControllers[i] ) );
-        }
-        // music regressors are quick
-        volumeRegressor.RescanProvidedExamples();
-        densityRegressor.RescanProvidedExamples();
-        timbreRegressor.RescanProvidedExamples();
-        tempoRegressor.RescanProvidedExamples();
-        chordClassifier.RescanProvidedExamples();
     }
 
     IEnumerator InitializeAll()
@@ -385,9 +361,8 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
         for( int i = 0; i < terrainTextureControllers.Length; i++ )
         {
             InitializeTerrainTextures( terrainHeightControllers[i], terrainTextureControllers[i] );
+            
             // don't rescan just texture
-            // terrainTextureControllers[i].RescanProvidedExamples();
-
             // rescan entire terrain -- it will do the texture at the end
             yield return StartCoroutine( RescanTerrain( terrainHeightControllers[i] ) );
         }
@@ -410,6 +385,7 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
                 v = Instantiate( volumePrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
             }
             v.Initialize( false );
+            // randomize (also alerts network to new values)
             v.Randomize();
         }
         // rescan to check for new random values
@@ -430,6 +406,7 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
             }
                 
             d.Initialize( false );
+            // randomize (also alerts network to new values)
             d.Randomize();
         }
         // rescan to check for new random values
@@ -449,6 +426,7 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
                 t = Instantiate( timbrePrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
             }
             t.Initialize( false );
+            // randomize (also alerts network to new values)
             t.Randomize();
         }
         // rescan to check for new random values
@@ -468,6 +446,7 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
                 t = Instantiate( tempoPrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
             }
             t.Initialize( false );
+            // randomize (also alerts network to new values)
             t.Randomize();
         }
         // rescan to check for new random values
@@ -487,6 +466,7 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
                 c = Instantiate( chordPrefab, GetRandomLocationWithinRadius( musicRadius ), Quaternion.identity );
             }
             c.Initialize( false );
+            // randomize (also alerts network to new values)
             c.Randomize();
         }
         // rescan to check for new random values
@@ -574,6 +554,8 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
                     examples[j].transform.position += GetRandomLocationWithinTallRadius( perturbSmallRadius );
                     break;
             }
+            // alert examples on the network to changes
+            examples[j].AlertNetworkToChanges();
         }
         // We don't rescan the terrain because we will do it after the bumps are randomized too
     }
@@ -606,6 +588,7 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
                     examples[j].Perturb( perturbSmallBumpRange );
                     break;
             }
+            // Randomize() and Perturb() alert the network to changes, so no need to do it here
         }
         // We don't rescan the terrain because we will do it in the above function
     }
@@ -636,6 +619,8 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
                     // DON'T perturb the color -- it's too drastic of a change for a "perturbation"
                     break;
             }
+            // alert examples on network to changes
+            examples[j].AlertNetworkToChanges();
         }
         // We don't rescan the terrain because we will do it in the above function
     }
@@ -646,8 +631,9 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
         // volume:
         for( int i = 0; i < volumeRegressor.myRegressionExamples.Count; i++ )
         {
-            volumeRegressor.myRegressionExamples[i].Randomize();
             volumeRegressor.myRegressionExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
+            // randomize (also alerts network to new values)
+            volumeRegressor.myRegressionExamples[i].Randomize();
         }
         // rescan to check for new random values
         volumeRegressor.RescanProvidedExamples();
@@ -655,8 +641,9 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
         // density:
         for( int i = 0; i < densityRegressor.myRegressionExamples.Count; i++ )
         {
-            densityRegressor.myRegressionExamples[i].Randomize();
             densityRegressor.myRegressionExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
+            // randomize (also alerts network to new values)
+            densityRegressor.myRegressionExamples[i].Randomize();
         }
         // rescan to check for new random values
         densityRegressor.RescanProvidedExamples();
@@ -664,8 +651,9 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
         // timbre:
         for( int i = 0; i < timbreRegressor.myRegressionExamples.Count; i++ )
         {
-            timbreRegressor.myRegressionExamples[i].Randomize();
             timbreRegressor.myRegressionExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
+            // randomize (also alerts network to new values)
+            timbreRegressor.myRegressionExamples[i].Randomize();
         }
         // rescan to check for new random values
         timbreRegressor.RescanProvidedExamples();
@@ -673,8 +661,9 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
         // tempo:
         for( int i = 0; i < tempoRegressor.myRegressionExamples.Count; i++ )
         {
-            tempoRegressor.myRegressionExamples[i].Randomize();
             tempoRegressor.myRegressionExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
+            // randomize (also alerts network to new values)
+            tempoRegressor.myRegressionExamples[i].Randomize();
         }
         // rescan to check for new random values
         tempoRegressor.RescanProvidedExamples();
@@ -682,8 +671,9 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
         // chord:
         for( int i = 0; i < chordClassifier.myClassifierExamples.Count; i++ )
         {
-            chordClassifier.myClassifierExamples[i].Randomize();
             chordClassifier.myClassifierExamples[i].transform.position = GetRandomLocationWithinRadius( musicRadius );
+            // randomize (also alerts network to new values)
+            chordClassifier.myClassifierExamples[i].Randomize();
         }
         // rescan to check for new random values
         chordClassifier.RescanProvidedExamples();
@@ -705,24 +695,24 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
         );
         
         // copy bump
+        CopyBumpParameters( terrainHeightControllers[from].myGISRegressionExamples, 
+            terrainHeightControllers[to].myGISRegressionExamples );
         CopyExampleLocations<TerrainGISExample>( 
             terrainHeightControllers[from], 
             terrainHeightControllers[to],
             terrainHeightControllers[from].myGISRegressionExamples, 
             terrainHeightControllers[to].myGISRegressionExamples
         );
-        CopyBumpParameters( terrainHeightControllers[from].myGISRegressionExamples, 
-            terrainHeightControllers[to].myGISRegressionExamples );
         
         // copy texture
+        CopyTextureParameters( terrainTextureControllers[from].myRegressionExamples, 
+            terrainTextureControllers[to].myRegressionExamples );
         CopyExampleLocations<TerrainTextureExample>( 
             terrainHeightControllers[from], 
             terrainHeightControllers[to], 
             terrainTextureControllers[from].myRegressionExamples, 
             terrainTextureControllers[to].myRegressionExamples
         );
-        CopyTextureParameters( terrainTextureControllers[from].myRegressionExamples, 
-            terrainTextureControllers[to].myRegressionExamples );
 
         // rescan terrain
         yield return StartCoroutine( RescanTerrain( terrainHeightControllers[ to ] ) );
@@ -747,6 +737,8 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
         {
             toOverWrite[i].transform.position = sourceExamples[i].transform.position
                 - from.transform.position + to.transform.position;
+            // after changing position, alert the network that it has changed
+            toOverWrite[i].GetComponent<IPhotonExample>().AlertNetworkToChanges();
         }
     }
 

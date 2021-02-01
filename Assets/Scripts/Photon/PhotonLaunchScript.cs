@@ -81,12 +81,6 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
     {
         // note: this is called whether or not we create the rom
         Debug.Log("OnJoinedRoom() ws called -- now this client is in a room.");
-
-        if( !PhotonNetwork.IsMasterClient )
-        {
-            // need to do initial rescan
-            StartCoroutine( InitializeWorld() );
-        }
     }
 
     public override void OnPlayerEnteredRoom( Player newPlayer )
@@ -96,22 +90,5 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
         {
             Debug.Log( "A player joined the room!" );
         }
-    }
-
-    // method for non-master client to do something with all available examples after joining room
-    private IEnumerator InitializeWorld()
-    {
-        // pause any other rescans
-        //launchRescanInProgress = true;
-
-        // hopefully N second is enough time to receive all examples?
-        yield return new WaitForSecondsRealtime( delayRescanTime );
-
-        // Debug.Log( "starting rescan" );
-        // rescan the world and wait
-        // yield return StartCoroutine( terrainInitializer.RescanAll() );
-
-        // we are done
-        // launchRescanInProgress = false;
     }
 }

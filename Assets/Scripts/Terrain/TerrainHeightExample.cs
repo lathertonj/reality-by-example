@@ -127,7 +127,7 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
         AlertNetworkToChanges();
     }
 
-    void AlertNetworkToChanges()
+    public void AlertNetworkToChanges()
     {
         // if we have a PhotonView component...
         PhotonView maybeNetworked = GetComponent<PhotonView>();

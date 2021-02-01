@@ -122,7 +122,7 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
         SwitchToPreviousGISType();
         myTerrain.RescanProvidedExamples();
         // inform others on network
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
     void TouchpadLeftRightClickInteractable.InformOfRightClick()
@@ -130,7 +130,7 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
         SwitchToNextGISType();
         myTerrain.RescanProvidedExamples();
         // inform others on network
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
     void TriggerGrabMoveInteractable.InformOfTemporaryMovement( Vector3 currentPosition )
@@ -154,7 +154,7 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
             myTerrain.RescanProvidedExamples();
         }
         // inform others on network
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
 
@@ -178,7 +178,7 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
         // tell the controller to recompute tempo
         myTerrain.RescanProvidedExamples();
         // alert others on network
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
 
@@ -197,7 +197,7 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
             myTerrain.RescanProvidedExamples();
         }
         // alert others on network
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
 
@@ -214,7 +214,7 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
             myTerrain.RescanProvidedExamples();
         }
         // alert others on network
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
     public void CopyFrom( TerrainGISExample other )
@@ -264,12 +264,12 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
         UpdateMyValue( serialized.type, serialized.value );
     }
 
-    void IPhotonExample.AlertOthersToChanges()
+    void IPhotonExample.AlertNetworkToChanges()
     {
-        AlertOthersToChanges();
+        AlertNetworkToChanges();
     }
 
-    void AlertOthersToChanges()
+    void AlertNetworkToChanges()
     {
         // if we have a PhotonView component...
         PhotonView maybeNetworked = GetComponent<PhotonView>();

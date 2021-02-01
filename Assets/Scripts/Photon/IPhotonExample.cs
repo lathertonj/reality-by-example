@@ -1,4 +1,4 @@
 ﻿public interface IPhotonExample
 {
-    void AlertOthersToChanges();
+    void AlertNetworkToChanges();
 }

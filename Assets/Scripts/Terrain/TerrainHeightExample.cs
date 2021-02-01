@@ -17,6 +17,11 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
 
     void TriggerGrabMoveInteractable.FinalizeMovement( Vector3 endPosition )
     {
+        FinalizeMovement();
+    }
+
+    public void FinalizeMovement()
+    {
         ConnectedTerrainController newTerrain = FindTerrain();
         if( newTerrain != null && newTerrain != myTerrain )
         {
@@ -30,7 +35,7 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
             // tell my terrain to update
             myTerrain.RescanProvidedExamples();
         }
-        this.AlertOthersToChanges();
+        this.AlertNetworkToChanges();
     }
 
     public void JustPlaced()
@@ -117,12 +122,12 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
         transform.position = myTerrain.transform.TransformPoint( serialized.localPosition );
     }
 
-    void IPhotonExample.AlertOthersToChanges()
+    void IPhotonExample.AlertNetworkToChanges()
     {
-        AlertOthersToChanges();
+        AlertNetworkToChanges();
     }
 
-    void AlertOthersToChanges()
+    void AlertNetworkToChanges()
     {
         // if we have a PhotonView component...
         PhotonView maybeNetworked = GetComponent<PhotonView>();

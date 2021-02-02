@@ -9,17 +9,12 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
     [SerializeField] private byte maxPlayersPerRoom = 4;
     private string gameVersion = "1";
 
-    public static PhotonLaunchScript launcher;
-
-    public static bool launchRescanInProgress = false;
-    public RandomizeTerrain terrainInitializer;
 
     public static float delayRescanTime = 3f;
 
     void Awake()
     {
-        launcher = this;
-        // this makes sure we can use PhotonNetwork.LoadLevel() on the master client and all clients in the same room sync their level automatically
+        // if true, this makes sure we can use PhotonNetwork.LoadLevel() on the master client and all clients in the same room sync their level automatically
         PhotonNetwork.AutomaticallySyncScene = false;
     }
 

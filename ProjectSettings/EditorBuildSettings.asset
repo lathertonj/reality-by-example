@@ -17,7 +17,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/BlankSlate.unity
     guid: 442ff552504f869478256eb6aaccad3e
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/CombinedUI_Networked.unity
     guid: c9778736cd6aa5e4b808ea01ac970866
+  - enabled: 1
+    path: Assets/Scenes/BlankSlate_Networked.unity
+    guid: 032a67f2a929f6a44b8f1de45cd3c70c
   m_configObjects: {}

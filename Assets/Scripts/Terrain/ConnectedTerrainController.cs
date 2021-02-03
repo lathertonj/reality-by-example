@@ -25,6 +25,7 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample 
     private ConnectedTerrainTextureController myTextureController;
 
     public ConnectedTerrainController leftNeighbor, rightNeighbor, upperNeighbor, lowerNeighbor;
+    private List<ConnectedTerrainController> neighborhood;
 
     static int extraBorderPixels = 20;
 
@@ -232,17 +233,23 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample 
 
     int IPhotonExampleRescanner.NumFramesToRescan()
     {
-        return 33;
+        // 43 to rescan us, plus 3 to rescan texture of all our neighbors
+        return 43 + NumFramesToRescanNeighbors();
+    }
+
+    public int NumFramesToRescanNeighbors()
+    {
+        return 3 * neighborhood.Count;
     }
 
     // TODO: can this be split into two phases: the base data and the GIS data,
     // so that we can only recompute one when it changes? :|
-    public void RescanProvidedExamples( bool lazy, int framesToSpreadOver = 15, int framesToSpreadGISOver = 15, int framesToSpreadTextureOver = 3 )
+    public void RescanProvidedExamples( bool lazy, int framesToSpreadOver = 20, int framesToSpreadGISOver = 20, int framesToSpreadTextureOver = 3 )
     {
         StartCoroutine( RescanProvidedExamplesCoroutine( lazy, framesToSpreadOver, framesToSpreadGISOver, framesToSpreadTextureOver ) );
     }
 
-    private IEnumerator RescanProvidedExamplesCoroutine( bool lazy, int framesToSpreadOver, int framesToSpreadGISOver, int framesToSpreadTextureOver )
+    public IEnumerator RescanProvidedExamplesCoroutine( bool lazy, int framesToSpreadOver, int framesToSpreadGISOver, int framesToSpreadTextureOver )
     {
         // train and recompute
         TrainRegression();
@@ -263,6 +270,7 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample 
         // initialize list
         myRegressionExamples = new List<TerrainHeightExample>();
         myGISRegressionExamples = new List<TerrainGISExample>();
+        InitNeighborhood();
 
         // compute sizes
         verticesPerSide = myTerrainData.heightmapResolution;
@@ -288,6 +296,50 @@ public class ConnectedTerrainController : MonoBehaviour , SerializableByExample 
             // but I'm not quite sure by how much / why, so let's just fudge it
             float scaleDownFactor = 10f;
             LoadGISData( verticesPerSide + 2 * extraBorderPixels, scaleDownFactor * terrainHeight );
+        }
+    }
+
+    private void InitNeighborhood()
+    {
+        // new list
+        neighborhood = new List<ConnectedTerrainController>();
+
+        // add left and right
+        if( leftNeighbor != null )
+        {
+            neighborhood.Add( leftNeighbor );
+        }
+        if( rightNeighbor != null )
+        {
+            neighborhood.Add( rightNeighbor );
+        }
+
+        // add any neighbors above us
+        if( upperNeighbor != null )
+        {
+            neighborhood.Add( upperNeighbor );
+            if( upperNeighbor.leftNeighbor != null )
+            {
+                neighborhood.Add( upperNeighbor.leftNeighbor );
+            }
+            if( upperNeighbor.rightNeighbor != null )
+            {
+                neighborhood.Add( upperNeighbor.rightNeighbor );
+            }
+        }
+
+        // add any neighbors below us
+        if( lowerNeighbor != null )
+        {
+            neighborhood.Add( lowerNeighbor );
+            if( lowerNeighbor.leftNeighbor != null )
+            {
+                neighborhood.Add( lowerNeighbor.leftNeighbor );
+            }
+            if( lowerNeighbor.rightNeighbor != null )
+            {
+                neighborhood.Add( lowerNeighbor.rightNeighbor );
+            }
         }
     }
 
@@ -449,15 +501,18 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
                 // compute GIS
                 yield return StartCoroutine( ComputeGISAddition( framesToSpreadGISOver ) );
             }
+
+
+            // OLD WAY OF DOING THINGS: Terrain Texture based on non-stitched terrain
             // on a final pass, rescan the textures when the height is re-finalized
             // do this BEFORE smoothing edges -- that way you can "copy" one terrain to another
             // and the texture will look the same instead of wildly different
             
             // to do this,
             // add the data into the terrain component in a lazy way so we can compute features.. s a d
-            SetTerrainData( false );
+            // SetTerrainData( false );
             // do it!
-            yield return StartCoroutine( myTextureController.RescanProvidedExamples( framesToSpreadTextureOver ) );
+            // yield return StartCoroutine( myTextureController.RescanProvidedExamples( framesToSpreadTextureOver ) );
 
             // smoothing
             SmoothEdgeRegion();
@@ -466,14 +521,20 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
             StitchEdges();
             SetBottomTerrainData( true );
             
-            // finally, update all spawned object positions
+            // update all spawned object positions
             SpawnedObject.ResetSpawnedObjectHeights();
+
+            // finally, need to rescan my texture and tell all neighbors to rescan their textures
+            yield return StartCoroutine( myTextureController.RescanProvidedExamples( framesToSpreadTextureOver ) );
+            foreach( ConnectedTerrainController neighbor in neighborhood )
+            {
+                yield return StartCoroutine( neighbor.myTextureController.RescanProvidedExamples( framesToSpreadTextureOver ) );
+            }
+
+            Debug.Log( "internal finished for " + gameObject.name );
 
             // and tell anyone else listening to reset
             NotifyWhenChanges.Terrain(); 
-
-            // TODO: finally, need to tell all neighbors to rescan their textures
-                   
         }
         else
         {

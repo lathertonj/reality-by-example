@@ -242,10 +242,7 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
         int computeFrames = 20;
         int gisFrames = 20;
         int textureFrames = 3;
-        t.RescanProvidedExamples( false, computeFrames, gisFrames, textureFrames );
-
-        // wait before moving on
-        for( int f = 0; f < computeFrames + gisFrames + 1; f++ ) { yield return null; }
+        yield return StartCoroutine( t.RescanProvidedExamplesCoroutine( false, computeFrames, gisFrames, textureFrames ) );
     }
 
     IEnumerator InitializeAll()

@@ -43,13 +43,17 @@ public class LaserPointerDragAndDrop : MonoBehaviour
         {
             HideLaser();
         }
+        else if( click.GetStateDown( handType ) ) 
+        {
+            StartCopy();
+        }
         else if( click.GetState( handType ) )
         {
             RaycastHit hit;
             // show laser
             if( Physics.Raycast( controllerPose.transform.position, transform.forward, out hit, Mathf.Infinity, mask ) )
             {
-                if( firstCollidedObject == null )
+                if( firstCollidedObject == null && !HitDummyTerrain( hit ) )
                 {
                     // we found a first collided object!
                     firstCollidedObject = hit.collider;
@@ -60,7 +64,7 @@ public class LaserPointerDragAndDrop : MonoBehaviour
                     // haptic feedback 
                     HapticFeedback();
                 }
-                else if( hit.collider != firstCollidedObject && hit.collider != lastCollidedObject )
+                else if( hit.collider != firstCollidedObject && hit.collider != lastCollidedObject && !HitDummyTerrain( hit ) )
                 {
                     // update the "to" object
                     lastCollidedObject = hit.collider;
@@ -93,13 +97,7 @@ public class LaserPointerDragAndDrop : MonoBehaviour
         // preview: show the laser
         else if( preview.GetState( handType ) )
         {
-            // laser color set to red, display forward
-            currentColor = start;
-            ShowForwardLaser( forwardLaserLength );
-
-            // reset object references
-            firstCollidedObject = null;
-            lastCollidedObject = null;
+            StartCopy();
         }
         else
         {
@@ -112,6 +110,22 @@ public class LaserPointerDragAndDrop : MonoBehaviour
     {
         // vibrate controller (TODO values?)
         vibrateController.Vibrate( 0.1f, 100, 50 );
+    }
+
+    private bool HitDummyTerrain( RaycastHit hit )
+    {
+        return hit.collider.gameObject.GetComponent<DummyTerrain>() != null;
+    }
+
+    private void StartCopy()
+    {
+        // laser color set to red, display forward
+        currentColor = start;
+        ShowForwardLaser( forwardLaserLength );
+
+        // reset object references
+        firstCollidedObject = null;
+        lastCollidedObject = null;
     }
 
 

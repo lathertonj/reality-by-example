@@ -14,6 +14,7 @@ public class PhotonAnimatedCreatureView : MonoBehaviour , IPunObservable
         myBase = myCreature.modelBaseToAnimate;
         myLimbs = myCreature.modelRelativePointsToAnimate;
     }
+    
     void IPunObservable.OnPhotonSerializeView( PhotonStream stream, PhotonMessageInfo info )
     {
         // Write to others

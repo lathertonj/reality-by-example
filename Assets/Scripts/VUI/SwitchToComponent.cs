@@ -191,7 +191,7 @@ public class SwitchToComponent : MonoBehaviour
                 // we have another component for processing animation commands
                 if( animationAction )
                 {
-                    animationAction.ProcessUIChange( switchTo, givenPrefab );
+                    animationAction.ProcessUIChange( switchTo, givenPrefab, isPrefabNetworked );
                 }
                 // all these things use the grip (TODO except music mode / time mode... might remove those though)
                 gripInUse = true;

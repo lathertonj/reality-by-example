@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
+using Photon.Pun;
 
 public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDeleteInteractable , LaserPointerSelectable , DynamicSerializableByExample , Nameable
 {
@@ -93,6 +94,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     public TextMesh myDisplayName;
     private string myBaseName;
 
+    private PhotonView myPhotonView;
+
     void Awake()
     {
         allCreatures.Add( this );
@@ -131,6 +134,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
         // get neck reference
         myNeck = GetComponent<NeckRotatable>();
+
+        // get photon view
+        myPhotonView = GetComponent<PhotonView>();
     }
 
     void Start()
@@ -176,6 +182,13 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     float goalSpeedMultiplier = 0, currentSpeedMultiplier = 0;
     void Update()
     {
+        // short circuit for photon
+        if( myPhotonView != null && !myPhotonView.IsMine )
+        {
+            // don't run animations at runtime OR record if it belongs to someone else
+            return;
+        }
+
         if( runtimeMode )
         {
             // keep track of how much movement happens

@@ -11901,9 +11901,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 21
-  givenPrefab: {fileID: 1119379321810116582, guid: 125213b617f509246b7ad5c716bff9cd,
+  givenPrefab: {fileID: 1119379321810116582, guid: aa32ed1243f48ed4e9bc56268744abed,
     type: 3}
-  isPrefabNetworked: 0
+  isPrefabNetworked: 1
 --- !u!1 &6079454235155533227
 GameObject:
   m_ObjectHideFlags: 0
@@ -17299,9 +17299,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 21
-  givenPrefab: {fileID: 1119379321810116582, guid: 125213b617f509246b7ad5c716bff9cd,
+  givenPrefab: {fileID: 1119379321810116582, guid: aa32ed1243f48ed4e9bc56268744abed,
     type: 3}
-  isPrefabNetworked: 0
+  isPrefabNetworked: 1
 --- !u!1 &8758146918499213738
 GameObject:
   m_ObjectHideFlags: 0

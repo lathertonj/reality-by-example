@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
+using Photon.Pun;
 
 public class AnimationActions : MonoBehaviour
 {
@@ -105,13 +106,22 @@ public class AnimationActions : MonoBehaviour
     }
 
     // hacky custom UI...
-    public void ProcessUIChange( SwitchToComponent.InteractionType interaction, Transform prefab )
+    public void ProcessUIChange( SwitchToComponent.InteractionType interaction, Transform prefab, bool isPrefabNetworked )
     {
         switch( interaction )
         {
             case SwitchToComponent.InteractionType.CreatureCreate:
                 // create new bird
-                AnimationByRecordedExampleController newCreature = Instantiate( prefab, CalcSpawnPosition(), CalcSpawnRotation() ).GetComponent<AnimationByRecordedExampleController>();
+                AnimationByRecordedExampleController newCreature;
+                if( isPrefabNetworked )
+                {
+                    newCreature = PhotonNetwork.Instantiate( prefab.name, CalcSpawnPosition(), CalcSpawnRotation() )
+                        .GetComponent<AnimationByRecordedExampleController>();
+                }
+                else
+                {
+                    newCreature = Instantiate( prefab, CalcSpawnPosition(), CalcSpawnRotation() ).GetComponent<AnimationByRecordedExampleController>();
+                }
                 newCreature.prefabThatCreatedMe = prefab;
                 
                 // set data sources
@@ -122,7 +132,7 @@ public class AnimationActions : MonoBehaviour
                 LaserPointerSelector.SelectNewObject( newCreature.gameObject );
 
                 // and after we make a new creature, switch immediately into recording mode
-                ProcessUIChange( SwitchToComponent.InteractionType.CreatureExampleRecord, null );
+                ProcessUIChange( SwitchToComponent.InteractionType.CreatureExampleRecord, null, isPrefabNetworked );
                 break;
             case SwitchToComponent.InteractionType.CreatureSelect:
                 // this is no longer an option, now that we can select anything at any time

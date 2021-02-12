@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using Photon.Pun;
 
 #if UNITY_WEBGL
 using CK_INT = System.Int32;
@@ -44,6 +45,10 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
 
     List<AnimationAudioExample> myRegressionData = new List<AnimationAudioExample>();
     private bool wereWeCloned = false;
+
+    private PhotonView myPhotonView;
+
+    private int myPlayingSample;
 
     public void CloneFrom( AnimationSoundRecorderPlaybackController other, bool shareSamples )
     {
@@ -110,6 +115,8 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         myRegression = gameObject.AddComponent<RapidMixRegression>();
         myTempoListener = gameObject.AddComponent<ChuckEventListener>();
         myAudioSource = GetComponent<AudioSource>();
+        myPhotonView = GetComponent<PhotonView>();
+        myPlayingSample = 0;
     }
 
     void InitFromSerial( CK_FLOAT[] samples, int nextAudioFrame )
@@ -135,6 +142,11 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         #else
             myChuck.ListenForChuckEventOnce( mySerialInitEvent, RespondToChuckSerialInit );
         #endif
+        SetAudioData( samples, nextAudioFrame );
+    }
+
+    public void SetAudioData( CK_FLOAT[] samples, int nextAudioFrame )
+    {
         myChuck.SetFloatArray( mySamples, samples );
         myChuck.SetInt( myCurrentRecordedSample, nextAudioFrame );
     }
@@ -401,7 +413,8 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
 
 
         // disable my sound on start if we're soloing audio
-        if( SoloCreatureAudio.solo )
+        // OR if we're networked and this object doesn't belong to us
+        if( SoloCreatureAudio.solo || ( myPhotonView != null && !myPhotonView.IsMine ) )
         {
             DisableSound();
         }
@@ -475,8 +488,19 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         // predict output and then set new chuck thing
         double[] o = myRegression.Run( input );
         while( o[0] < 0 ) { o[0] += UnityEngine.Random.Range( 1000, 20000 ); }
-        myChuck.SetInt( myNewSamplePosition, (int) o[0] );
+        SetSamplePosition( (int) o[0] );
+    }
+
+    public void SetSamplePosition( int pos )
+    {
+        myPlayingSample = pos;
+        myChuck.SetInt( myNewSamplePosition, pos );
         myChuck.BroadcastEvent( myNewSamplePositionReady );
+    }
+
+    public int GetSamplePosition()
+    {
+        return myPlayingSample;
     }
 
     public void CatchUpToGroup()

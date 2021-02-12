@@ -1484,6 +1484,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         // do nothing
     }
 
+    // TODO: for photon, OnDestroy also needs to delete relative points to animate or else they will get cluttered
     void GripPlaceDeleteInteractable.AboutToBeDeleted()
     {
         // stop tracking

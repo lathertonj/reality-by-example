@@ -2242,6 +2242,7 @@ GameObject:
   - component: {fileID: 8643764058247663999}
   - component: {fileID: 7702838845416534949}
   - component: {fileID: 3237313080262538619}
+  - component: {fileID: 4638765323466062211}
   m_Layer: 10
   m_Name: NetworkedAnimatedCrow
   m_TagString: Creature
@@ -2547,6 +2548,7 @@ MonoBehaviour:
   Synchronization: 3
   OwnershipTransfer: 0
   ObservedComponents:
+  - {fileID: 7702838845416534949}
   - {fileID: 3237313080262538619}
   viewIdField: 0
   InstantiationId: 0
@@ -2579,6 +2581,18 @@ MonoBehaviour:
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 1
   m_UseLocal: 0
+--- !u!114 &4638765323466062211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1119379321810116576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3da67837111730442af3af532e2cb112, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1119379321811636571
 GameObject:
   m_ObjectHideFlags: 0

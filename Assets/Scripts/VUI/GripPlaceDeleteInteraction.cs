@@ -116,7 +116,10 @@ public class GripPlaceDeleteInteraction : MonoBehaviour
         }
 
         GripPlaceDeleteInteractable maybeCollidingObject = col.GetComponentInParent<GripPlaceDeleteInteractable>();
-        if( maybeCollidingObject != null )
+        PhotonView maybePhotonView = col.GetComponentInParent<PhotonView>();
+        if( maybeCollidingObject != null &&
+            // only delete objects we own
+            ( maybePhotonView == null || maybePhotonView.IsMine ) )
         {
             collidingObject = maybeCollidingObject;
             // there is no way to get to the came object from the Interface

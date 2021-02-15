@@ -8,11 +8,24 @@ public class PhotonAnimatedCreatureView : MonoBehaviour , IPunObservable
 
     Transform myBase;
     Transform[] myLimbs;
+
+    Vector3 myGoalBase;
+    Quaternion myGoalRotation;
+    Vector3[] myGoalLimbs;
+
+    PhotonView myView;
+
+    public float interpAmount = 0.1f;
+    
     void Awake()
     {
         AnimationByRecordedExampleController myCreature = GetComponent<AnimationByRecordedExampleController>();
         myBase = myCreature.modelBaseToAnimate;
+        myGoalBase = myBase.position;
+        myGoalRotation = myBase.rotation;
         myLimbs = myCreature.modelRelativePointsToAnimate;
+        myGoalLimbs = new Vector3[ myLimbs.Length ];
+        myView = GetComponent<PhotonView>();
     }
     
     void IPunObservable.OnPhotonSerializeView( PhotonStream stream, PhotonMessageInfo info )
@@ -32,12 +45,30 @@ public class PhotonAnimatedCreatureView : MonoBehaviour , IPunObservable
         // Read from others
         else
         {
-            myBase.position = (Vector3) stream.ReceiveNext();
-            myBase.rotation = (Quaternion) stream.ReceiveNext();
+            myGoalBase = (Vector3) stream.ReceiveNext();
+            myGoalRotation = (Quaternion) stream.ReceiveNext();
             for( int i = 0; i < myLimbs.Length; i++ )
             {
-                myLimbs[i].position = (Vector3) stream.ReceiveNext();
+                myGoalLimbs[i] = (Vector3) stream.ReceiveNext();
             }
+        }
+    }
+
+
+    void Update()
+    {
+        if( !PhotonView.IsMine )
+        {
+            // lerp
+            myBase.position += interpAmount * ( myGoalBase - myBase.position );
+            myBase.rotation = Quaternion.Slerp( myBase.rotation, myGoalRotation, interpAmount );
+
+            for( int i = 0; i < myLimbs.Length; i++ )
+            {
+                myLimbs[i].position += interpAmount * ( myGoalLimbs[i] - myLimbs[i].position );   
+            }
+
+            // TODO: use this interp on the avatar too... does that mean it should be a more general component?
         }
     }
 }

@@ -67,8 +67,6 @@ public class PhotonAnimatedCreatureView : MonoBehaviour , IPunObservable
             {
                 myLimbs[i].position += interpAmount * ( myGoalLimbs[i] - myLimbs[i].position );   
             }
-
-            // TODO: use this interp on the avatar too... does that mean it should be a more general component?
         }
     }
 }

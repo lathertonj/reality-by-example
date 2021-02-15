@@ -120,7 +120,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6944908861764981765}
   - component: {fileID: 635544735759339837}
-  - component: {fileID: 4577690268129136243}
+  - component: {fileID: 1925209360801187197}
   m_Layer: 0
   m_Name: VirtualAvatarHand
   m_TagString: Untagged
@@ -162,11 +162,11 @@ MonoBehaviour:
   Synchronization: 3
   OwnershipTransfer: 0
   ObservedComponents:
-  - {fileID: 4577690268129136243}
+  - {fileID: 1925209360801187197}
   viewIdField: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &4577690268129136243
+--- !u!114 &1925209360801187197
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -175,28 +175,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 6809139578259428636}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8efc6b1d64977384eb3405357896c656, type: 3}
+  m_Script: {fileID: 11500000, guid: 2de27594a3472aa46b6409ba5d005b9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_PositionModel:
-    SynchronizeEnabled: 1
-    TeleportEnabled: 1
-    TeleportIfDistanceGreaterThan: 3
-    InterpolateOption: 4
-    InterpolateMoveTowardsSpeed: 1
-    InterpolateLerpSpeed: 10
-    ExtrapolateOption: 0
-    ExtrapolateSpeed: 1
-    ExtrapolateIncludingRoundTripTime: 1
-    ExtrapolateNumberOfStoredPositions: 1
-  m_RotationModel:
-    SynchronizeEnabled: 1
-    InterpolateOption: 1
-    InterpolateRotateTowardsSpeed: 180
-    InterpolateLerpSpeed: 5
-  m_ScaleModel:
-    SynchronizeEnabled: 0
-    InterpolateOption: 0
-    InterpolateMoveTowardsSpeed: 1
-    InterpolateLerpSpeed: 0
-  m_UseLocal: 0
+  lerpPosition: 1
+  lerpRotation: 1
+  lerpAmount: 0.1

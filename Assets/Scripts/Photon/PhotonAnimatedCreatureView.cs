@@ -57,7 +57,7 @@ public class PhotonAnimatedCreatureView : MonoBehaviour , IPunObservable
 
     void Update()
     {
-        if( !PhotonView.IsMine )
+        if( !myView.IsMine )
         {
             // lerp
             myBase.position += interpAmount * ( myGoalBase - myBase.position );

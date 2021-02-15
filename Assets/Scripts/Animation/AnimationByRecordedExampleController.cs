@@ -1575,9 +1575,33 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         }
     }
 
+    public void SetDisplayName( string newName, int newNumber )
+    {
+        myBaseName = newName;
+        UpdateMyDisplayName( newNumber );
+    }
+
+
     string Nameable.GetDisplayName()
     {
+        return GetBaseName();
+    }
+
+    public string GetBaseName()
+    {
         return myBaseName;
+    }
+
+    public int GetBaseNumber()
+    {
+        for( int i = 0; i < myGroup.Count; i++ )
+        {
+            if( this == myGroup[i] )
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     void LaserPointerSelectable.Selected()

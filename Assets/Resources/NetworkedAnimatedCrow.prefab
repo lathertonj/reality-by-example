@@ -2241,10 +2241,6 @@ GameObject:
   - component: {fileID: 8612108215265258980}
   - component: {fileID: 8643764058247663999}
   - component: {fileID: 7702838845416534949}
-  - component: {fileID: 3237313080262538619}
-  - component: {fileID: 4638765323466062211}
-  - component: {fileID: -3444456520770497963}
-  - component: {fileID: 4286444134348376399}
   m_Layer: 10
   m_Name: NetworkedAnimatedCrow
   m_TagString: Creature
@@ -2432,6 +2428,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabThatCreatedMe: {fileID: 0}
+  myPrefabWasNetworked: 0
   creatureType: 0
   predictionType: 1
   currentRecordingAndPlaybackMode: 0
@@ -2551,9 +2548,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   ObservedComponents:
   - {fileID: 7702838845416534949}
-  - {fileID: 3237313080262538619}
-  - {fileID: 4638765323466062211}
-  - {fileID: -3444456520770497963}
+  - {fileID: 0}
   viewIdField: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -2567,58 +2562,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5fb20c63c0896ca43b86ce10f4252711, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &3237313080262538619
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1119379321810116576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SynchronizePosition: 1
-  m_SynchronizeRotation: 1
-  m_SynchronizeScale: 1
-  m_UseLocal: 0
---- !u!114 &4638765323466062211
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1119379321810116576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3da67837111730442af3af532e2cb112, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &-3444456520770497963
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1119379321810116576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4fe9d763f1dfb1141abd2f01be7bd494, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &4286444134348376399
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1119379321810116576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0926c6f78e5e97944b38947ec566c903, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1119379321811636571

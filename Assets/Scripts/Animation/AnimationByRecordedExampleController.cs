@@ -1491,13 +1491,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         allCreatures.Remove( this );
         myGroup.Remove( this );
 
-        // delete my animation points, which are now outside my transform
-        Destroy( modelBaseToAnimate.gameObject );
-        for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
-        {
-            Destroy( modelRelativePointsToAnimate[i].gameObject );
-        }
-
         if( myGroup.Count == 0 )
         {
             // delete all my examples, only if I'm the last one left
@@ -1517,6 +1510,16 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             {
                 examples[i].ResetAnimator( myGroup[0] );
             } 
+        }
+    }
+
+    void OnDestroy()
+    {
+        // delete my animation points, which are now outside my transform
+        Destroy( modelBaseToAnimate.gameObject );
+        for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
+        {
+            Destroy( modelRelativePointsToAnimate[i].gameObject );
         }
     }
 

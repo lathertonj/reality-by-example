@@ -118,7 +118,7 @@ public class RemoteGripPlaceDeleteInteraction : MonoBehaviour
     private bool FindSelectedObject()
     {
         selectedGameObject = LaserPointerSelector.GetSelectedObject();
-        PhotonView maybePhotonView = selectedGameObject.GetComponent<PhotonView>();
+        PhotonView maybePhotonView = ( selectedGameObject != null ? selectedGameObject.GetComponent<PhotonView>() : null );
         if( selectedGameObject && 
             // only delete objects we own
             ( maybePhotonView == null || maybePhotonView.IsMine ) )

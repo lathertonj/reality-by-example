@@ -123,6 +123,7 @@ public class AnimationActions : MonoBehaviour
                     newCreature = Instantiate( prefab, CalcSpawnPosition(), CalcSpawnRotation() ).GetComponent<AnimationByRecordedExampleController>();
                 }
                 newCreature.prefabThatCreatedMe = prefab;
+                newCreature.myPrefabWasNetworked = isPrefabNetworked;
                 
                 // set data sources
                 newCreature.modelBaseDataSource = DefaultAnimationDataSources.theBaseDataSource;
@@ -213,15 +214,24 @@ public class AnimationActions : MonoBehaviour
         if( FindSelectedCreature() )
         {
             // create new one 
-            AnimationByRecordedExampleController newCreature = 
-                Instantiate( selectedCreature.prefabThatCreatedMe, CalcSpawnPosition(), selectedCreature.transform.rotation )
-                .GetComponent<AnimationByRecordedExampleController>();
+            AnimationByRecordedExampleController newCreature;
+            if( selectedCreature.myPrefabWasNetworked )
+            {
+                newCreature = PhotonNetwork.Instantiate( selectedCreature.prefabThatCreatedMe.name, CalcSpawnPosition(), selectedCreature.transform.rotation )
+                    .GetComponent<AnimationByRecordedExampleController>();
+            }
+            else
+            {
+                newCreature = Instantiate( selectedCreature.prefabThatCreatedMe, CalcSpawnPosition(), selectedCreature.transform.rotation )
+                    .GetComponent<AnimationByRecordedExampleController>();
+            }
             
             // set data sources
             newCreature.modelBaseDataSource = DefaultAnimationDataSources.theBaseDataSource;
             newCreature.modelRelativePointsDataSource = DefaultAnimationDataSources.theRelativePointsDataSources;
             newCreature.SwitchRecordingMode( selectedCreature );
             newCreature.prefabThatCreatedMe = selectedCreature.prefabThatCreatedMe;
+            newCreature.myPrefabWasNetworked = selectedCreature.myPrefabWasNetworked;
             
 
             if( intoGroup )

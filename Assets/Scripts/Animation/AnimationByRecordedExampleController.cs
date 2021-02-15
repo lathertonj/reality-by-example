@@ -11,6 +11,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     private int myGroupID = 0;
     private static int nextGroupID = 0;
     [HideInInspector] public Transform prefabThatCreatedMe;
+    [HideInInspector] public bool myPrefabWasNetworked = false;
 
     public enum CreatureType { Flying, Land, Water };
     public CreatureType creatureType = CreatureType.Flying;
@@ -1715,6 +1716,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             newCreature.modelRelativePointsDataSource = groupLeader.modelRelativePointsDataSource;
             newCreature.SwitchRecordingMode( groupLeader );
             newCreature.prefabThatCreatedMe = groupLeader.prefabThatCreatedMe;
+            newCreature.myPrefabWasNetworked = groupLeader.myPrefabWasNetworked;
 
             newCreature.AddToGroup( groupLeader );
 

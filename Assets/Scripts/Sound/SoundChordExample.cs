@@ -180,6 +180,7 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
         if( !photonView.IsMine && PhotonNetwork.IsConnected )
         {
             Initialize( rescan: false );
+            PhotonRescanManager.LazyRescan( myClassifier );
         }
     }
 

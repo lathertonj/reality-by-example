@@ -204,6 +204,7 @@ public class Sound0To1Example : MonoBehaviour , TouchpadUpDownInteractable , Tri
         if( !photonView.IsMine && PhotonNetwork.IsConnected )
         {
             Initialize( rescan: false );
+            PhotonRescanManager.LazyRescan( myRegressor );
         }
     }
 

@@ -51,6 +51,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     private int myPlayingSample;
 
     private PhotonTransferFloatArray myFloatTransfer;
+    private bool hasInit = false;
 
     public void CloneFrom( AnimationSoundRecorderPlaybackController other, bool shareSamples )
     {
@@ -426,6 +427,8 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         {
             myFloatTransfer.InformWhenReceived( ReceiveAudio );
         }
+
+        hasInit = true;
     }
 
     public void StartRecordingExamples()
@@ -502,8 +505,11 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
     public void SetSamplePosition( int pos )
     {
         myPlayingSample = pos;
-        myChuck.SetInt( myNewSamplePosition, pos );
-        myChuck.BroadcastEvent( myNewSamplePositionReady );
+        if( hasInit )
+        {
+            myChuck.SetInt( myNewSamplePosition, pos );
+            myChuck.BroadcastEvent( myNewSamplePositionReady );
+        }
     }
 
     public int GetSamplePosition()

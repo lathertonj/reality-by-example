@@ -50,6 +50,8 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
 
     private int myPlayingSample;
 
+    private PhotonTransferFloatArray myFloatTransfer;
+
     public void CloneFrom( AnimationSoundRecorderPlaybackController other, bool shareSamples )
     {
         // flag for later
@@ -116,6 +118,7 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         myTempoListener = gameObject.AddComponent<ChuckEventListener>();
         myAudioSource = GetComponent<AudioSource>();
         myPhotonView = GetComponent<PhotonView>();
+        myFloatTransfer = GetComponent<PhotonTransferFloatArray>();
         myPlayingSample = 0;
     }
 
@@ -418,6 +421,11 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         {
             DisableSound();
         }
+
+        if( myFloatTransfer != null )
+        {
+            myFloatTransfer.InformWhenReceived( ReceiveAudio );
+        }
     }
 
     public void StartRecordingExamples()
@@ -519,9 +527,30 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         myTempoListener.StopListening();
     }
 
+    private bool transferSamplesNextFrame = false;
     public void GetMySamples( CK_FLOAT[] samples, CK_UINT numSamples )
     {
         myAudioData = samples;
+        transferSamplesNextFrame = true;
+    }
+
+    // transfer audio to other clients
+    private void Update()
+    {
+        if( transferSamplesNextFrame )
+        {
+            transferSamplesNextFrame = false;
+            if( myFloatTransfer != null )
+            {
+                myFloatTransfer.TransferArray( myAudioData, myCurrentRecordedSampleSyncer.GetCurrentValue() );
+            }
+        }
+    }
+
+    public void ReceiveAudio( CK_FLOAT[] array )
+    {
+        SetAudioData( array, array.Length );
+        EnableSound();
     }
 
     public void DisableSound()
@@ -537,6 +566,9 @@ public class AnimationSoundRecorderPlaybackController : MonoBehaviour
         myChuck.enabled = true;
         myChuck.BroadcastEvent( myEnableEvent );
     }
+
+
+
 
 
     public SerializedAnimationAudio Serialize()

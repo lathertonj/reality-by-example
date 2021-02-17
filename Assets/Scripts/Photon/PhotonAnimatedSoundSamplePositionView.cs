@@ -23,7 +23,9 @@ public class PhotonAnimatedSoundSamplePositionView : MonoBehaviour , IPunObserva
         else
         {
             // receive current sample position
-            mySound.SetSamplePosition( (int) stream.ReceiveNext() );
+            int samplePosition = (int) stream.ReceiveNext();
+            mySound.SetSamplePosition( samplePosition );
+            Debug.Log( "received sample position: " + samplePosition );
         }
     }
 }

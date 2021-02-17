@@ -188,7 +188,7 @@ public class ConnectedTerrainTextureController : MonoBehaviour , IPhotonExampleR
     private IEnumerator ComputeTerrainSplatMaps( int framesToSpreadOver )
     {
         if( !haveTrained ) { yield break; }
-        if( myTerrainData.alphamapLayers != myRegressionExamples[0].myValues.Length )
+        if( myRegressionExamples.Count > 0 && myTerrainData.alphamapLayers != myRegressionExamples[0].myValues.Length )
         {
             Debug.Log( "Terrain has a different number of layers than the examples know about." );
         }

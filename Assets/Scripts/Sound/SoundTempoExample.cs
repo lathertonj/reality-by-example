@@ -186,6 +186,7 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
         if( !photonView.IsMine && PhotonNetwork.IsConnected )
         {
             Initialize( rescan: false );
+            PhotonRescanManager.LazyRescan( myRegressor );
         }
     }
 

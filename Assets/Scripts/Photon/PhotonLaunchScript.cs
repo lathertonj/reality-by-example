@@ -69,7 +69,7 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
         Debug.Log("OnJoinRandomFailed() was called -- no room available. Creating a room instead.");
 
         // TODO specify room options
-        PhotonNetwork.CreateRoom(null, new RoomOptions { MaxPlayers = maxPlayersPerRoom });
+        PhotonNetwork.CreateRoom(null, new RoomOptions { MaxPlayers = maxPlayersPerRoom, IsOpen = true });
     }
 
     public override void OnJoinedRoom()

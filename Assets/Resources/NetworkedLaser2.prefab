@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 8163972133412374888}
   - component: {fileID: 8191968368830265266}
   - component: {fileID: 3649808485909542198}
-  - component: {fileID: 1148976165389280894}
   - component: {fileID: 8410418914283181864}
   - component: {fileID: 4059999211201209541}
+  - component: {fileID: 2240000901160678220}
   m_Layer: 0
   m_Name: NetworkedLaser2
   m_TagString: Untagged
@@ -102,28 +102,11 @@ MonoBehaviour:
   Synchronization: 3
   OwnershipTransfer: 0
   ObservedComponents:
-  - {fileID: 1148976165389280894}
   - {fileID: 8410418914283181864}
   - {fileID: 4059999211201209541}
   viewIdField: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &1148976165389280894
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4345626581362647167}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SynchronizePosition: 1
-  m_SynchronizeRotation: 1
-  m_SynchronizeScale: 1
-  m_UseLocal: 0
 --- !u!114 &8410418914283181864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -148,3 +131,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4518d044354d0214487da739e4c61f30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2240000901160678220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4345626581362647167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2de27594a3472aa46b6409ba5d005b9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lerpPosition: 1
+  lerpRotation: 1
+  lerpAmount: 0.1

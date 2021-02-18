@@ -18,13 +18,13 @@ public class PhotonColorView : MonoBehaviour , IPunObservable
         // Write to others
         if (stream.IsWriting)
         {
-            Color c = me.material.color;
+            Vector4 c = me.material.color;
             stream.SendNext( c );
         }
         // Read from others
         else
         {
-            Color c = (Color) stream.ReceiveNext();
+            Color c = (Vector4) stream.ReceiveNext();
             me.material.color = c;
         }
     }

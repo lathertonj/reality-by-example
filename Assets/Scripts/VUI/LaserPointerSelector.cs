@@ -4,7 +4,7 @@ using UnityEngine;
 using Valve.VR;
 using Photon.Pun;
 
-public class LaserPointerSelector : MonoBehaviour
+public class LaserPointerSelector : MonoBehaviourPunCallbacks
 {
     public SteamVR_Input_Sources handType;
     public SteamVR_Action_Boolean selectAction;
@@ -34,13 +34,28 @@ public class LaserPointerSelector : MonoBehaviour
     public float timeCutoffForMenu = 0.3f;
     private float clickStartTime = -10;
 
+    private bool haveInit = false;
+
     private static bool mostRecentButtonPressWasMenu = false;
 
     private static Vector3 originalScale;
     private static Vector3 smallScale;
 
-    // Start is called before the first frame update
-    void Awake()
+    public void Start()
+    {
+        if( !arePrefabsNetworked )
+        {
+            Init();
+        }
+    }
+
+    // When networked, delay from Start() to when we joined a room
+    public override void OnJoinedRoom()
+    {
+        Init();
+    }
+
+    void Init()
     {
         if( arePrefabsNetworked )
         {
@@ -77,12 +92,16 @@ public class LaserPointerSelector : MonoBehaviour
             // and store its properties
             originalScale = theSelectionMarker.transform.localScale;
             smallScale = 0.25f * originalScale;
+
         }
+        haveInit = true;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if( !haveInit ) { return; }
+        
         if( selectAction.GetStateDown( handType ) )
         {
             clickStartTime = Time.time;

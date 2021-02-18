@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
+using Photon.Pun;
 
 public class LaserPointerSelector : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class LaserPointerSelector : MonoBehaviour
 
     public MeshRenderer laserPrefab;
     public ParticleSystemFollower selectedPrefab;
+    public bool arePrefabsNetworked;
     private static ParticleSystemFollower theSelectionMarker = null;
 
     private MeshRenderer laser;
@@ -40,7 +42,16 @@ public class LaserPointerSelector : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        laser = Instantiate(laserPrefab);
+        if( arePrefabsNetworked )
+        {
+            laser = PhotonNetwork.Instantiate( laserPrefab.name, Vector3.zero, Quaternion.identity )
+                .GetComponent<MeshRenderer>();
+        }
+        else
+        {
+            laser = Instantiate(laserPrefab);
+        }
+
         laserTransform = laser.transform;
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
         vibration = GetComponent<VibrateController>();
@@ -49,7 +60,16 @@ public class LaserPointerSelector : MonoBehaviour
         if( theSelectionMarker == null )
         {
             // create it
-            theSelectionMarker = Instantiate( selectedPrefab );
+            if( arePrefabsNetworked )
+            {
+                theSelectionMarker = PhotonNetwork.Instantiate( selectedPrefab.name, Vector3.zero, Quaternion.identity )
+                    .GetComponent<ParticleSystemFollower>();
+            }
+            else
+            {
+                theSelectionMarker = Instantiate( selectedPrefab );
+            }
+                
 
             // and hide it
             UnselectObject();

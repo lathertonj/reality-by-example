@@ -8,7 +8,7 @@ public class PhotonColorView : MonoBehaviour , IPunObservable
 
     MeshRenderer me;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         me = GetComponent<MeshRenderer>();
     }

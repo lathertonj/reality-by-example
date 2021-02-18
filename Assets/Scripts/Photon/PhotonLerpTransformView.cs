@@ -7,7 +7,6 @@ public class PhotonLerpTransformView : MonoBehaviour , IPunObservable
 {
     public bool lerpPosition = true;
     public bool lerpRotation = true;
-    public bool transmitScale = false;
     public float lerpAmount = 0.1f;
 
 
@@ -41,11 +40,6 @@ public class PhotonLerpTransformView : MonoBehaviour , IPunObservable
             {
                 stream.SendNext( transform.rotation );
             }
-
-            if( transmitScale )
-            {
-                stream.SendNext( transform.localScale );
-            }
         }
         // Read from others
         else
@@ -58,11 +52,6 @@ public class PhotonLerpTransformView : MonoBehaviour , IPunObservable
             if( lerpRotation )
             {
                 goalRotation = (Quaternion) stream.ReceiveNext();
-            }
-
-            if( transmitScale )
-            {
-                transform.localScale = (Vector3) stream.ReceiveNext();
             }
         }
     }

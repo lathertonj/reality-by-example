@@ -11,7 +11,8 @@ public class SwitchToComponent : MonoBehaviour
         SlowlySpawnPrefab,
         RandomizePerturbSmall, RandomizePerturbBig, RandomizeCopy, RandomizeCurrent, RandomizeAll,
         CreatureCreate, CreatureSelect, CreatureClone, CreatureExampleRecord, CreatureExampleClone, CreatureExampleDelete,
-        CreatureConstantTimeMode, CreatureMusicMode };
+        CreatureConstantTimeMode, CreatureMusicMode,
+        DrawInAir, DrawOnGround };
     public InteractionType switchTo;
     public Transform givenPrefab;
     public bool isPrefabNetworked;
@@ -32,7 +33,7 @@ public class SwitchToComponent : MonoBehaviour
     }
 
 
-    bool gripInUse = false, triggerInUse = false, touchpadInUse = false;
+    bool genericActionInUse = false, grabActionInUse = false, touchpadInUse = false;
     public void ActivateMode( GameObject controller )
     {
         // get and disable randomizer
@@ -43,12 +44,13 @@ public class SwitchToComponent : MonoBehaviour
         }
         DisablePlacementInteractors( controller );
         DisableMovementInteractors( controller );
+        DisableCommunicationInteractors( controller );
         // disable animation interactors
         AnimationActions animationAction = controller.GetComponent<AnimationActions>();
         if( animationAction ) { animationAction.DisablePreUIChange(); }
 
-        gripInUse = false;
-        triggerInUse = false;
+        genericActionInUse = false;
+        grabActionInUse = false;
         touchpadInUse = false;
         switch( switchTo )
         {
@@ -59,13 +61,13 @@ public class SwitchToComponent : MonoBehaviour
                 break;
             case InteractionType.PlaceTerrainGrowth:
                 EnableComponent<TerrainGradualInteractor>( controller );
-                gripInUse = true;
+                genericActionInUse = true;
                 // also, show height hint
                 TerrainHeightExample.ShowHints( hintTime );
                 break;
             case InteractionType.PlaceTerrainLocalRaiseLower:
                 EnableComponent<TerrainLocalRaiseLowerInteractor>( controller );
-                gripInUse = true;
+                genericActionInUse = true;
                 // also, show height hint
                 TerrainHeightExample.ShowHints( hintTime );
                 break;
@@ -137,21 +139,21 @@ public class SwitchToComponent : MonoBehaviour
                 if( randomizer != null ) 
                 { 
                     randomizer.SetGripAction( RandomizeTerrain.ActionType.PerturbSmall, controller );
-                    gripInUse = true;
+                    genericActionInUse = true;
                 }
                 break;
             case InteractionType.RandomizePerturbBig:
                 if( randomizer != null ) 
                 {
                     randomizer.SetGripAction( RandomizeTerrain.ActionType.PerturbBig, controller );
-                    gripInUse = true;
+                    genericActionInUse = true;
                 }
                 break;
             case InteractionType.RandomizeCopy:
                 if( randomizer != null ) 
                 { 
                     randomizer.SetGripAction( RandomizeTerrain.ActionType.Copy, controller );
-                    gripInUse = true;
+                    genericActionInUse = true;
                     // we need the drag and drop for this one only
                     EnableComponent<LaserPointerDragAndDrop>( controller );
                 }
@@ -160,14 +162,14 @@ public class SwitchToComponent : MonoBehaviour
                 if( randomizer != null ) 
                 { 
                     randomizer.SetGripAction( RandomizeTerrain.ActionType.RandomizeCurrent, controller );
-                    gripInUse = true;
+                    genericActionInUse = true;
                 }
                 break;
             case InteractionType.RandomizeAll:
                 if( randomizer != null ) 
                 { 
                     randomizer.SetGripAction( RandomizeTerrain.ActionType.RandomizeAll, controller );
-                    gripInUse = true;
+                    genericActionInUse = true;
                 }
                 break;
             case InteractionType.CreatureExampleDelete:
@@ -179,7 +181,7 @@ public class SwitchToComponent : MonoBehaviour
                 RemoteGripPlaceDeleteInteraction remoteGrip = controller.GetComponent<RemoteGripPlaceDeleteInteraction>();
                 if( remoteGrip ) { remoteGrip.isDeleteEnabled = true; }
 
-                gripInUse = true;
+                genericActionInUse = true;
                 break;
             case InteractionType.CreatureCreate:
             case InteractionType.CreatureClone:
@@ -194,7 +196,7 @@ public class SwitchToComponent : MonoBehaviour
                     animationAction.ProcessUIChange( switchTo, givenPrefab, isPrefabNetworked );
                 }
                 // all these things use the grip (TODO except music mode / time mode... might remove those though)
-                gripInUse = true;
+                genericActionInUse = true;
 
                 // annoyingly there is a special case for just this one
                 if( switchTo == InteractionType.MoveFollowCreature )
@@ -203,7 +205,15 @@ public class SwitchToComponent : MonoBehaviour
                     touchpadInUse = true;
                 }
                 break;
+            // communication methods
+            case InteractionType.DrawInAir:
+                EnableComponent<DrawInAirController>( controller );
+                genericActionInUse = true;
+                Color colorToUse = GetComponent<MeshRenderer>().material.color;
+                controller.GetComponent<DrawInAirController>().SetColor( colorToUse );
+                break;
             // disabled
+            case InteractionType.DrawOnGround:
             case InteractionType.CreatureSelect:
             default:
                 break;
@@ -218,7 +228,7 @@ public class SwitchToComponent : MonoBehaviour
         StartCoroutine( previousAnimation );
 
         // reenable what we can
-        if( !gripInUse )
+        if( !genericActionInUse )
         {
             EnableComponent<GripPlaceDeleteInteraction>( controller );
             EnableComponent<RemoteGripPlaceDeleteInteraction>( controller );
@@ -227,7 +237,7 @@ public class SwitchToComponent : MonoBehaviour
         {
             EnableTouchpadPrimaryInteractors( controller );
         }
-        if( !triggerInUse )
+        if( !grabActionInUse )
         {
             EnableComponent<TriggerGrabMoveInteraction>( controller );
             
@@ -272,7 +282,7 @@ public class SwitchToComponent : MonoBehaviour
             remoteGripPlace.isPrefabNetworked = isPrefabNetworked;
         }
 
-        gripInUse = true;
+        genericActionInUse = true;
     }
 
     private void DisableGripPlacers( GameObject o )
@@ -356,6 +366,11 @@ public class SwitchToComponent : MonoBehaviour
         DisableComponent<LaserPointerColliderSelector>( o );
         DisableComponent<SlowlySpawnPrefab>( o );
         DisableComponent<LaserPointerDragAndDrop>( o );
+    }
+
+    private void DisableCommunicationInteractors( GameObject o )
+    {
+        DisableComponent<DrawInAirController>( o );
     }
 
     private IEnumerator AnimateSwell( float upSeconds, float upSlew, float downSlew, float increaseSizeBy )

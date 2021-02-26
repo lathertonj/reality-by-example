@@ -3,7 +3,7 @@
 public class ModeSwitcherController : MonoBehaviour
 {
 
-    public enum Mode { Main, Animation };
+    public enum Mode { Main, Animation, Communication };
     
     static private ModeSwitcherController me;
 
@@ -12,6 +12,7 @@ public class ModeSwitcherController : MonoBehaviour
     public GameObject theModeSwitcher;
     public GameObject mainMode;
     public GameObject animationMode;
+    public GameObject communicationMode;
 
     void Start()
     {
@@ -51,6 +52,7 @@ public class ModeSwitcherController : MonoBehaviour
         // first, set all modes to be invisible
         me.mainMode.SetActive( false );
         me.animationMode.SetActive( false );
+        me.communicationMode.SetActive( false );
 
         // then, enable the right one
         switch( newMode )
@@ -60,6 +62,9 @@ public class ModeSwitcherController : MonoBehaviour
                 break;
             case Mode.Animation:
                 me.animationMode.SetActive( true );
+                break;
+            case Mode.Communication:
+                me.communicationMode.SetActive( true );
                 break;
         }
     }

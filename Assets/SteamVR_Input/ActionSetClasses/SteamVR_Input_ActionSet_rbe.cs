@@ -97,6 +97,14 @@ namespace Valve.VR
             }
         }
         
+        public virtual SteamVR_Action_Single PreviewActionPull
+        {
+            get
+            {
+                return SteamVR_Actions.rbe_PreviewActionPull;
+            }
+        }
+        
         public virtual SteamVR_Action_Vibration Haptic
         {
             get

@@ -46,13 +46,14 @@
       "requirement": "mandatory"
     },
     {
-      "name": "/actions/rbe/in/PreviewActionGeneric",
+      "name": "/actions/rbe/in/PreviewAction",
       "type": "boolean",
-      "requirement": "suggested"
+      "requirement": "mandatory"
     },
     {
-      "name": "/actions/rbe/in/PreviewActionPull",
-      "type": "vector1"
+      "name": "/actions/rbe/in/TakePreviewedAction",
+      "type": "boolean",
+      "requirement": "mandatory"
     },
     {
       "name": "/actions/rbe/out/Haptic",

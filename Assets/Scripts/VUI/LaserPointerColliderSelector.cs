@@ -8,8 +8,6 @@ public class LaserPointerColliderSelector : MonoBehaviour
 
     public SteamVR_Input_Sources handType;
     public SteamVR_Action_Boolean preview;
-    public SteamVR_Action_Single previewTrigger;
-    private float previousTrigger, thisTrigger;
     public SteamVR_Action_Boolean stopShowingLaser;
     public bool stopShowingOnUp = true;
     private SteamVR_Behaviour_Pose controllerPose;
@@ -38,14 +36,11 @@ public class LaserPointerColliderSelector : MonoBehaviour
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
         vibration = GetComponent<VibrateController>();
         HideLaser();
-        previousTrigger = thisTrigger = 0f;
     }
 
     // Update is called once per frame
     void Update()
     {
-        thisTrigger = previewTrigger.GetAxis( handType );
-
         if( IsAButtonPressedDown() )
         {
             canShowPreview = true; 
@@ -75,29 +70,26 @@ public class LaserPointerColliderSelector : MonoBehaviour
         {
             HideLaser();
         }
-
-        previousTrigger = thisTrigger;
     }
 
     float triggerCutoff = 0.5f;
     bool IsAButtonPressedDown()
     {
-        return preview.GetStateDown( handType ) || 
+        return preview.GetStateDown( handType );// || 
         // stopShowingLaser.GetStateDown( handType );
-        ( thisTrigger > triggerCutoff && previousTrigger <= triggerCutoff );
+
     }
 
     bool IsAButtonPressed()
     {
-        return preview.GetState( handType ) ||
+        return preview.GetState( handType );// ||
         // stopShowingLaser.GetState( handType );
-        thisTrigger > triggerCutoff;
     }
 
 
     bool ShouldStopShowing()
     {
-        return !canShowPreview || ( stopShowingOnUp && stopShowingLaser.GetStateUp( handType ) )
+        return !canShowPreview || ( stopShowingOnUp && preview.GetStateUp( handType ) )
             || ( !stopShowingOnUp && stopShowingLaser.GetState( handType ) );
     }
 

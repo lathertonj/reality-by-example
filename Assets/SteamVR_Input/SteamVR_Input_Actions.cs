@@ -35,9 +35,9 @@ namespace Valve.VR
         
         private static SteamVR_Action_Boolean p_rbe_UpDownTouchpadPressed;
         
-        private static SteamVR_Action_Boolean p_rbe_PreviewActionGeneric;
+        private static SteamVR_Action_Boolean p_rbe_PreviewAction;
         
-        private static SteamVR_Action_Single p_rbe_PreviewActionPull;
+        private static SteamVR_Action_Boolean p_rbe_TakePreviewedAction;
         
         private static SteamVR_Action_Vibration p_rbe_Haptic;
         
@@ -113,19 +113,19 @@ namespace Valve.VR
             }
         }
         
-        public static SteamVR_Action_Boolean rbe_PreviewActionGeneric
+        public static SteamVR_Action_Boolean rbe_PreviewAction
         {
             get
             {
-                return SteamVR_Actions.p_rbe_PreviewActionGeneric.GetCopy<SteamVR_Action_Boolean>();
+                return SteamVR_Actions.p_rbe_PreviewAction.GetCopy<SteamVR_Action_Boolean>();
             }
         }
         
-        public static SteamVR_Action_Single rbe_PreviewActionPull
+        public static SteamVR_Action_Boolean rbe_TakePreviewedAction
         {
             get
             {
-                return SteamVR_Actions.p_rbe_PreviewActionPull.GetCopy<SteamVR_Action_Single>();
+                return SteamVR_Actions.p_rbe_TakePreviewedAction.GetCopy<SteamVR_Action_Boolean>();
             }
         }
         
@@ -149,8 +149,8 @@ namespace Valve.VR
                     SteamVR_Actions.rbe_RightClick,
                     SteamVR_Actions.rbe_UpDownTouchpad,
                     SteamVR_Actions.rbe_UpDownTouchpadPressed,
-                    SteamVR_Actions.rbe_PreviewActionGeneric,
-                    SteamVR_Actions.rbe_PreviewActionPull,
+                    SteamVR_Actions.rbe_PreviewAction,
+                    SteamVR_Actions.rbe_TakePreviewedAction,
                     SteamVR_Actions.rbe_Haptic};
             Valve.VR.SteamVR_Input.actionsIn = new Valve.VR.ISteamVR_Action_In[] {
                     SteamVR_Actions.rbe_GrabObject,
@@ -162,8 +162,8 @@ namespace Valve.VR
                     SteamVR_Actions.rbe_RightClick,
                     SteamVR_Actions.rbe_UpDownTouchpad,
                     SteamVR_Actions.rbe_UpDownTouchpadPressed,
-                    SteamVR_Actions.rbe_PreviewActionGeneric,
-                    SteamVR_Actions.rbe_PreviewActionPull};
+                    SteamVR_Actions.rbe_PreviewAction,
+                    SteamVR_Actions.rbe_TakePreviewedAction};
             Valve.VR.SteamVR_Input.actionsOut = new Valve.VR.ISteamVR_Action_Out[] {
                     SteamVR_Actions.rbe_Haptic};
             Valve.VR.SteamVR_Input.actionsVibration = new Valve.VR.SteamVR_Action_Vibration[] {
@@ -178,9 +178,9 @@ namespace Valve.VR
                     SteamVR_Actions.rbe_LeftClick,
                     SteamVR_Actions.rbe_RightClick,
                     SteamVR_Actions.rbe_UpDownTouchpadPressed,
-                    SteamVR_Actions.rbe_PreviewActionGeneric};
-            Valve.VR.SteamVR_Input.actionsSingle = new Valve.VR.SteamVR_Action_Single[] {
-                    SteamVR_Actions.rbe_PreviewActionPull};
+                    SteamVR_Actions.rbe_PreviewAction,
+                    SteamVR_Actions.rbe_TakePreviewedAction};
+            Valve.VR.SteamVR_Input.actionsSingle = new Valve.VR.SteamVR_Action_Single[0];
             Valve.VR.SteamVR_Input.actionsVector2 = new Valve.VR.SteamVR_Action_Vector2[] {
                     SteamVR_Actions.rbe_UpDownTouchpad};
             Valve.VR.SteamVR_Input.actionsVector3 = new Valve.VR.SteamVR_Action_Vector3[0];
@@ -194,8 +194,8 @@ namespace Valve.VR
                     SteamVR_Actions.rbe_RightClick,
                     SteamVR_Actions.rbe_UpDownTouchpad,
                     SteamVR_Actions.rbe_UpDownTouchpadPressed,
-                    SteamVR_Actions.rbe_PreviewActionGeneric,
-                    SteamVR_Actions.rbe_PreviewActionPull};
+                    SteamVR_Actions.rbe_PreviewAction,
+                    SteamVR_Actions.rbe_TakePreviewedAction};
         }
         
         private static void PreInitActions()
@@ -209,8 +209,8 @@ namespace Valve.VR
             SteamVR_Actions.p_rbe_RightClick = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/rbe/in/RightClick")));
             SteamVR_Actions.p_rbe_UpDownTouchpad = ((SteamVR_Action_Vector2)(SteamVR_Action.Create<SteamVR_Action_Vector2>("/actions/rbe/in/UpDownTouchpad")));
             SteamVR_Actions.p_rbe_UpDownTouchpadPressed = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/rbe/in/UpDownTouchpadPressed")));
-            SteamVR_Actions.p_rbe_PreviewActionGeneric = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/rbe/in/PreviewActionGeneric")));
-            SteamVR_Actions.p_rbe_PreviewActionPull = ((SteamVR_Action_Single)(SteamVR_Action.Create<SteamVR_Action_Single>("/actions/rbe/in/PreviewActionPull")));
+            SteamVR_Actions.p_rbe_PreviewAction = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/rbe/in/PreviewAction")));
+            SteamVR_Actions.p_rbe_TakePreviewedAction = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/rbe/in/TakePreviewedAction")));
             SteamVR_Actions.p_rbe_Haptic = ((SteamVR_Action_Vibration)(SteamVR_Action.Create<SteamVR_Action_Vibration>("/actions/rbe/out/Haptic")));
         }
     }

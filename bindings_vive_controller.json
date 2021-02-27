@@ -159,6 +159,48 @@
             {
                "inputs" : {
                   "click" : {
+                     "output" : "/actions/rbe/in/takepreviewedaction"
+                  },
+                  "touch" : {
+                     "output" : "/actions/rbe/in/previewaction"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/left/input/trackpad"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/takepreviewedaction"
+                  },
+                  "touch" : {
+                     "output" : "/actions/rbe/in/previewaction"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/right/input/trackpad"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/takeactionmovement"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/left/input/trackpad"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/takeactionmovement"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/right/input/trackpad"
+            },
+            {
+               "inputs" : {
+                  "click" : {
                      "output" : "/actions/rbe/in/takeactionmovement"
                   }
                },
@@ -172,30 +214,6 @@
                   }
                },
                "mode" : "button",
-               "path" : "/user/hand/right/input/trigger"
-            },
-            {
-               "inputs" : {
-                  "click" : {
-                     "output" : "/actions/rbe/in/previewactiongeneric"
-                  },
-                  "pull" : {
-                     "output" : "/actions/rbe/in/previewactionpull"
-                  }
-               },
-               "mode" : "trigger",
-               "path" : "/user/hand/left/input/trigger"
-            },
-            {
-               "inputs" : {
-                  "click" : {
-                     "output" : "/actions/rbe/in/previewactiongeneric"
-                  },
-                  "pull" : {
-                     "output" : "/actions/rbe/in/previewactionpull"
-                  }
-               },
-               "mode" : "trigger",
                "path" : "/user/hand/right/input/trigger"
             }
          ]

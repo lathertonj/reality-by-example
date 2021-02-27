@@ -76,6 +76,8 @@ public class SwitchToComponent : MonoBehaviour
                 EnableComponent<TerrainLaserRaiseLowerInteractor>( controller );
                 EnableComponent<LaserPointerColliderSelector>( controller );
                 touchpadInUse = true;
+                // specifically hide the laser once the button is clicked for this method
+                controller.GetComponent<LaserPointerColliderSelector>().stopShowingOnUp = false;
                 // also, show height hint
                 TerrainHeightExample.ShowHints( hintTime );
                 break;
@@ -220,6 +222,8 @@ public class SwitchToComponent : MonoBehaviour
                 {
                     // also need the collider laser
                     EnableComponent<LaserPointerColliderSelector>( controller );
+                    // specifically hide the laser once the preview is gone for this method
+                    controller.GetComponent<LaserPointerColliderSelector>().stopShowingOnUp = true;
                 }
                 break;
             // disabled

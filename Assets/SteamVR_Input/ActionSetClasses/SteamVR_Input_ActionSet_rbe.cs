@@ -89,19 +89,19 @@ namespace Valve.VR
             }
         }
         
-        public virtual SteamVR_Action_Boolean PreviewActionGeneric
+        public virtual SteamVR_Action_Boolean PreviewAction
         {
             get
             {
-                return SteamVR_Actions.rbe_PreviewActionGeneric;
+                return SteamVR_Actions.rbe_PreviewAction;
             }
         }
         
-        public virtual SteamVR_Action_Single PreviewActionPull
+        public virtual SteamVR_Action_Boolean TakePreviewedAction
         {
             get
             {
-                return SteamVR_Actions.rbe_PreviewActionPull;
+                return SteamVR_Actions.rbe_TakePreviewedAction;
             }
         }
         

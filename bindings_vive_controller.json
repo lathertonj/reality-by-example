@@ -178,6 +178,9 @@
                "inputs" : {
                   "click" : {
                      "output" : "/actions/rbe/in/previewactiongeneric"
+                  },
+                  "pull" : {
+                     "output" : "/actions/rbe/in/previewactionpull"
                   }
                },
                "mode" : "trigger",
@@ -187,6 +190,9 @@
                "inputs" : {
                   "click" : {
                      "output" : "/actions/rbe/in/previewactiongeneric"
+                  },
+                  "pull" : {
+                     "output" : "/actions/rbe/in/previewactionpull"
                   }
                },
                "mode" : "trigger",
@@ -204,8 +210,8 @@
    },
    "category" : "steamvr_input",
    "controller_type" : "vive_controller",
-   "description" : "HTC Vive June 2020",
-   "name" : "Saved Terrain By Example [Testing] configuration for Vive Controller",
+   "description" : "HTC Vive February 2021",
+   "name" : "Saved Reality By Example [Testing] configuration for Vive Controller",
    "options" : {},
    "simulated_actions" : []
 }

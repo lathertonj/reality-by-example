@@ -207,13 +207,22 @@ public class SwitchToComponent : MonoBehaviour
                 break;
             // communication methods
             case InteractionType.DrawInAir:
+            case InteractionType.DrawOnGround:
+                // components
                 EnableComponent<DrawInAirController>( controller );
                 genericActionInUse = true;
+                // settings
+                DrawInAirController draw = controller.GetComponent<DrawInAirController>();
                 Color colorToUse = GetComponent<MeshRenderer>().material.color;
-                controller.GetComponent<DrawInAirController>().SetColor( colorToUse );
+                draw.SetColor( colorToUse );
+                draw.SetMode( switchTo );
+                if( switchTo == InteractionType.DrawOnGround )
+                {
+                    // also need the collider laser
+                    EnableComponent<LaserPointerColliderSelector>( controller );
+                }
                 break;
             // disabled
-            case InteractionType.DrawOnGround:
             case InteractionType.CreatureSelect:
             default:
                 break;

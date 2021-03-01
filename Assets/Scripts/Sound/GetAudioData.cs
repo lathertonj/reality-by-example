@@ -14,7 +14,7 @@ public class GetAudioData : MonoBehaviour
     public float smoothAmount = 2f;
 
     float[] window;
-    float pitch = 100f, spectralCentroid = 1000f;
+    float pitch = 100f, spectralCentroid = 1000f, loudness = 0f;
 
 
     // Start is called before the first frame update
@@ -31,7 +31,10 @@ public class GetAudioData : MonoBehaviour
         {
             // compute zero crossing rate
             pitch = CalculateZeroCrossingRatePitch( samples );
-            
+
+            // compute RMS loudness
+            loudness = CalculateRMSLoudness( samples );
+
             // window and compute fft
             Float2Complex( samples, complexSamples, window );
             CalculateFFT( complexSamples, fft, false );
@@ -106,6 +109,16 @@ public class GetAudioData : MonoBehaviour
         // cycles / buffer * buffers / sec == cycles / sec == Hz
         float bufsPerSecond = AudioSettings.outputSampleRate * 1.0f / samples.Length;
         return bufsPerSecond * numCrossings;
+    }
+
+    private float CalculateRMSLoudness( float[] samples )
+    {
+        float sumSqrd = 0f;
+        for( int i = 0; i < samples.Length; i++ )
+        {
+            sumSqrd += samples[i] * samples[i];
+        }
+        return Mathf.Sqrt( sumSqrd / samples.Length );
     }
 
 

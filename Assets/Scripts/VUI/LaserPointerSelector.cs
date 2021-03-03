@@ -343,7 +343,8 @@ public class LaserPointerSelector : MonoBehaviourPunCallbacks
 
     private static bool SelectedObjectRequiresAnimationMenu()
     {
-        return selectedObject != null && 
+        // only master client gets to see the animation menu
+        return PhotonNetwork.IsMasterClient && selectedObject != null && 
             (  selectedObject.GetComponent<AnimationByRecordedExampleController>() != null
             || selectedObject.GetComponent<AnimationExample>() != null );
     }

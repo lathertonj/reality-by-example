@@ -126,9 +126,18 @@ public class LaserPointerSelector : MonoBehaviourPunCallbacks
             }
             else
             {
-                // TODO: just turn on instead?
-                // toggle the menu
-                ModeSwitcherController.ToggleEnabled();
+                // different people get to see different menus
+                if( PhotonNetwork.IsMasterClient )
+                {
+                    // turn on / off or cycle between modes
+                    ModeSwitcherController.CycleToNextMode();
+                }
+                else
+                {
+                    // non-main player only gets to see the communication menu
+                    ModeSwitcherController.SetMode( ModeSwitcherController.Mode.Communication );
+                    ModeSwitcherController.ToggleEnabled();
+                }
                 mostRecentButtonPressWasMenu = true;
             }
         }
@@ -284,10 +293,10 @@ public class LaserPointerSelector : MonoBehaviourPunCallbacks
             if( selectable != null ) { selectable.Unselected(); }
         }
 
-        // potentially change menu back to main
+        // potentially change menu back to what it was before animation was selected
         if( SelectedObjectRequiresAnimationMenu() )
         {
-            ModeSwitcherController.SetMode( ModeSwitcherController.Mode.Main );
+            ModeSwitcherController.ResetMode();
         }
 
         // hide marker

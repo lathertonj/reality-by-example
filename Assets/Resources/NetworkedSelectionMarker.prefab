@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 5027993201736162655}
   - component: {fileID: 5605559717302265318}
   - component: {fileID: 7758397049109152231}
+  - component: {fileID: 2573726949110968545}
   m_Layer: 0
   m_Name: NetworkedSelectionMarker
   m_TagString: Untagged
@@ -4841,3 +4842,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4518d044354d0214487da739e4c61f30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2573726949110968545
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6743024261359457251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63241f000574bb6408fb308758982ce3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myColor: {r: 0, g: 0.79607844, b: 1, a: 0.89411765}
+  othersColor: {r: 1, g: 0.2509804, b: 0.4862745, a: 0.8862745}

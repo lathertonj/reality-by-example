@@ -76,10 +76,6 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
     {
         // note: this is called whether or not we create the rom
         Debug.Log("OnJoinedRoom() ws called -- now this client is in a room.");
-
-        // TODO: only if not master client, and give master client a way to use communication methods too
-        // if( !PhotonNetwork.IsMasterClient )
-        ModeSwitcherController.SetMode( ModeSwitcherController.Mode.Communication );
     }
 
     public override void OnPlayerEnteredRoom( Player newPlayer )

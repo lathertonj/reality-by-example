@@ -13,7 +13,7 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
 
 
     public SteamVR_Input_Sources currentHand;
-    public SteamVR_Action_Boolean gripPress;
+    public SteamVR_Action_Boolean gripPress, copyAction;
 
     public LaserPointerDragAndDrop currentLaser;
 
@@ -128,7 +128,7 @@ public class RandomizeTerrain : MonoBehaviourPunCallbacks
 
         if( currentAction == ActionType.Copy )
         {
-            if( gripPress.GetStateUp( currentHand ) )
+            if( copyAction.GetStateUp( currentHand ) )
             {
                 Copy( currentLaser );
             }

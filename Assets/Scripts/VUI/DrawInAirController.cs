@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
+using Photon.Pun;
 
-public class DrawInAirController : MonoBehaviour
+public class DrawInAirController : MonoBehaviourPunCallbacks
 {
     public SteamVR_Action_Boolean drawTrail;
     private SteamVR_Input_Sources handType;
+    public ParticleSystem trailPrefab;
+    public bool isPrefabNetworked;
+    public Vector3 prefabLocalPosition = new Vector3( 0, -0.04f, 0.02f );
     private ParticleSystem myTrail;
-    private ParticleSystem.EmissionModule myTrailEmission;
     private FollowColliderLaserEndPoint myLaserFollower;
     public float airEmissionRate = 200f;
     public float airStartSize = 0.035f;
@@ -23,15 +26,52 @@ public class DrawInAirController : MonoBehaviour
     {
         handType = GetComponent<SteamVR_Behaviour_Pose>().inputSource;
         myLaserFollower = GetComponent<FollowColliderLaserEndPoint>();
-        myTrail = GetComponentInChildren<ParticleSystem>();
-        myTrailEmission = myTrail.emission;
-        trailLocalPosition = myTrail.transform.localPosition;
+
+        if( !isPrefabNetworked ) 
+        {
+            InitTrail();
+        }
+        else
+        {
+            // need to enable it so that it will here OnJoinedRoom
+            this.enabled = true;
+        }
+    }
+
+    public override void OnJoinedRoom()
+    {
+        InitTrail();
+        this.enabled = false;
+    }
+
+    void InitTrail()
+    {
+        if( isPrefabNetworked )
+        {
+            myTrail = PhotonNetwork.Instantiate( trailPrefab.name, transform.position, Quaternion.identity )
+                .GetComponent<ParticleSystem>();
+            myTrail.GetComponent<PhotonLaserParticleEmitterView>().Init( this );
+        }
+        else
+        {
+            myTrail = Instantiate( trailPrefab );
+        }
+        myTrail.transform.parent = transform;
+        myTrail.transform.localPosition = prefabLocalPosition;
+        
+        // don't render
         StopRenderingTrail();
     }
 
     // Update is called once per frame
     void Update()
     {
+        // don't do anything until init is complete
+        if( myTrail == null )
+        {
+            return;
+        }
+
         if( drawTrail.GetStateDown( handType ) )
         {
             RenderTrail();
@@ -42,25 +82,53 @@ public class DrawInAirController : MonoBehaviour
         }
     }
 
-    void OnDisable()
+    public override void OnDisable()
     {
+        base.OnDisable();
         StopRenderingTrail();
     }
 
     void RenderTrail()
     {
-        myTrailEmission.enabled = true;
+        var emission = myTrail.emission;
+        emission.enabled = true;
     }
 
     void StopRenderingTrail()
     {
-        myTrailEmission.enabled = false;
+        var emission = myTrail.emission;
+        emission.enabled = false;
     }
 
+    public bool GetEnabled()
+    {
+        var emission = myTrail.emission;
+        return emission.enabled;
+    }
+
+    public void SetEnabled( bool e )
+    {
+        if( e )
+        {
+            RenderTrail();
+        }
+        else
+        {
+            StopRenderingTrail();
+        }
+    }
+
+    private Color myColor;
     public void SetColor( Color c )
     {
-        ParticleSystem.MainModule m = myTrail.main;
-        m.startColor = c;
+        var main = myTrail.main;
+        main.startColor = c;
+        myColor = c;
+    }
+
+    public Color GetColor()
+    {
+        return myColor;
     }
 
     public void SetMode( SwitchToComponent.InteractionType mode )
@@ -80,27 +148,55 @@ public class DrawInAirController : MonoBehaviour
         }
     }
 
+    private float myStartSize = 0, myEmissionRate = 0;
     private void SetMode( DrawMode mode )
     {
         myMode = mode;
-        ParticleSystem.MainModule m = myTrail.main;
         switch( mode )
         {
             case DrawMode.Air:
-                m.startSize = airStartSize;
-                myTrailEmission.rateOverDistance = airEmissionRate;
+                myStartSize = airStartSize;
+                myEmissionRate = airEmissionRate;
                 // parent it to me and disable any following
                 ParentEmitterToTransform( transform );
                 myLaserFollower.StopFollowing();
                 break;
             case DrawMode.Ground:
-                m.startSize = groundStartSize;
-                myTrailEmission.rateOverDistance = groundEmissionRate;
+                myStartSize = groundStartSize;
+                myEmissionRate = groundEmissionRate;
                 // "parent" my trail to the end of the laser
                 ParentEmitterToTransform( null );
                 myLaserFollower.FollowEndPoint( myTrail.transform );
                 break;
         }
+        var main = myTrail.main;
+        main.startSize = myStartSize;
+        var emission = myTrail.emission;
+        emission.rateOverDistance = myEmissionRate;
+    }
+
+    public float GetSize()
+    {
+        return myStartSize;
+    }
+
+    public void SetSize( float s )
+    {
+        myStartSize = s;
+        var main = myTrail.main;
+        main.startSize = s;
+    }
+
+    public float GetEmissionRate()
+    {
+        return myEmissionRate;
+    }
+
+    public void SetEmissionRate( float r )
+    {
+        myEmissionRate = r;
+        var emission = myTrail.emission;
+        emission.rateOverDistance = r;
     }
 
     private void ParentEmitterToTransform( Transform t )
@@ -109,6 +205,7 @@ public class DrawInAirController : MonoBehaviour
         // parent to new object
         emitter.parent = t;
         // preserve local position
-        emitter.localPosition = trailLocalPosition;
+        emitter.localPosition = prefabLocalPosition;
     }
+
 }

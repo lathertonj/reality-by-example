@@ -15,7 +15,7 @@ public class CommunicateSynthMapping : MonoBehaviour
     private SteamVR_Behaviour_Pose pose;
 
     public enum Mode { RecordExample, PlaybackExamples, ManualMapping1, ManualMapping2 };
-    public Mode myMode = Mode.ManualMapping1;
+    private Mode myMode = Mode.ManualMapping1;
     private bool amOn = false;
     
     void Awake()
@@ -43,32 +43,46 @@ public class CommunicateSynthMapping : MonoBehaviour
 
         if( amOn )
         {
+            float volume = 0, pitch = 100, timbre = 0;
+            Vector3 euler = GetModifiedEulerAngles();
             switch( myMode )
             {
                 case Mode.ManualMapping1:
                     // speed = volume
-                    float volume = pose.GetVelocity().magnitude.PowMapClamp( 0, 4, 0, 1, 0.5f );
-                    
+                    volume = pose.GetVelocity().magnitude.PowMapClamp( 0, 4, 0, 1, 0.5f );
                     // euler x = pitch
-                    Vector3 euler = GetModifiedEulerAngles();
-                    float pitch = euler.x.PowMapClamp( -80, 80, 1200, 100, 0.5f );
-
+                    pitch = euler.x.PowMapClamp( -80, 80, 1200, 100, 0.5f );
                     // euler z = timbre
-                    float timbre = euler.z.PowMapClamp( -80, 80, 0, 1, 1.5f );
-
-                    myCommunicator.SetPitch( pitch );
-                    myCommunicator.SetTimbre( timbre );
-                    myCommunicator.SetAmplitude( volume );
+                    timbre = euler.z.PowMapClamp( -80, 80, 0, 1, 1.5f );
                     break;
                 case Mode.ManualMapping2:
                     // speed = timbre
+                    timbre = pose.GetVelocity().magnitude.PowMapClamp( 0, 4, 0, 1, 0.5f );
                     // constant volume
-                    // ?? = pitch
+                    volume = 1;
+                    // euler z = pitch
+                    pitch = euler.z.PowMapClamp( -80, 80, 1200, 100, 0.5f );
                     break;
                 case Mode.PlaybackExamples:
                 default:
+                    // whatever it is, turn it off
+                    volume = 0;
                     break;
             }
+            myCommunicator.SetPitch( pitch );
+            myCommunicator.SetTimbre( timbre );
+            myCommunicator.SetAmplitude( volume );
+        }
+    }
+
+    public void SetMode( Mode m )
+    {
+        myMode = m;
+        switch( myMode )
+        {
+            // specific handling here
+            default:
+                break;
         }
     }
 

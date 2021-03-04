@@ -106,18 +106,6 @@ public class DrawInAirController : MonoBehaviourPunCallbacks
         return emission.enabled;
     }
 
-    public void SetEnabled( bool e )
-    {
-        if( e )
-        {
-            RenderTrail();
-        }
-        else
-        {
-            StopRenderingTrail();
-        }
-    }
-
     private Color myColor;
     public void SetColor( Color c )
     {
@@ -180,23 +168,9 @@ public class DrawInAirController : MonoBehaviourPunCallbacks
         return myStartSize;
     }
 
-    public void SetSize( float s )
-    {
-        myStartSize = s;
-        var main = myTrail.main;
-        main.startSize = s;
-    }
-
     public float GetEmissionRate()
     {
         return myEmissionRate;
-    }
-
-    public void SetEmissionRate( float r )
-    {
-        myEmissionRate = r;
-        var emission = myTrail.emission;
-        emission.rateOverDistance = r;
     }
 
     private void ParentEmitterToTransform( Transform t )

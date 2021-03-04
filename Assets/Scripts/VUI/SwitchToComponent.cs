@@ -12,8 +12,9 @@ public class SwitchToComponent : MonoBehaviour
         RandomizePerturbSmall, RandomizePerturbBig, RandomizeCopy, RandomizeCurrent, RandomizeAll,
         CreatureCreate, CreatureSelect, CreatureClone, CreatureExampleRecord, CreatureExampleClone, CreatureExampleDelete,
         CreatureConstantTimeMode, CreatureMusicMode,
-        DrawInAir, DrawOnGround };
+        DrawInAir, DrawOnGround, CommunicateAudio };
     public InteractionType switchTo;
+    public CommunicateSynthMapping.Mode communicationMode;
     public Transform givenPrefab;
     public bool isPrefabNetworked;
 
@@ -226,6 +227,11 @@ public class SwitchToComponent : MonoBehaviour
                     controller.GetComponent<LaserPointerColliderSelector>().stopShowingOnUp = true;
                 }
                 break;
+            case InteractionType.CommunicateAudio:
+                EnableComponent<CommunicateSynthMapping>( controller );
+                CommunicateSynthMapping c = controller.GetComponent<CommunicateSynthMapping>();
+                c.SetMode( communicationMode );
+                break;
             // disabled
             case InteractionType.CreatureSelect:
             default:
@@ -384,6 +390,7 @@ public class SwitchToComponent : MonoBehaviour
     private void DisableCommunicationInteractors( GameObject o )
     {
         DisableComponent<DrawInAirController>( o );
+        DisableComponent<CommunicateSynthMapping>( o );
     }
 
     private IEnumerator AnimateSwell( float upSeconds, float upSlew, float downSlew, float increaseSizeBy )

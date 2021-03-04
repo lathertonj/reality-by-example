@@ -108,6 +108,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 19
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &2009458588836444
@@ -517,6 +518,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 30
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &142963127079360656
@@ -1049,6 +1051,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 16
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &448490240089882224
@@ -1791,6 +1794,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 7
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &925328863519170086
@@ -2009,6 +2013,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 21
+  communicationMode: 0
   givenPrefab: {fileID: 3021957342214940217, guid: ba4e55fcf0fa4104f9ba5649c3151f7d,
     type: 3}
   isPrefabNetworked: 1
@@ -2151,6 +2156,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 24
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &1084182250913022285
@@ -2323,6 +2329,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 29
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &1108540532597555358
@@ -2478,6 +2485,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 15
+  communicationMode: 0
   givenPrefab: {fileID: 2152512744624280649, guid: 37b50a4b6feb87741821533675724dca,
     type: 3}
   isPrefabNetworked: 1
@@ -2852,6 +2860,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 23
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &1448587915006710172
@@ -3060,6 +3069,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 29
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &1567045870942002829
@@ -3279,6 +3289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 18
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &1614996453449290937
@@ -3643,6 +3654,117 @@ TextMesh:
   m_Color:
     serializedVersion: 2
     rgba: 4294967295
+--- !u!1 &1826130915052631622
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 34019678043116243}
+  - component: {fileID: 3247674825056627945}
+  - component: {fileID: 2567414167859127224}
+  - component: {fileID: 530116018148126803}
+  - component: {fileID: 2175989351446125332}
+  m_Layer: 10
+  m_Name: SoundMapping1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &34019678043116243
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1826130915052631622}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.328, y: 0, z: 0.93}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_Children:
+  - {fileID: 1380545292312094187}
+  m_Father: {fileID: 3114333823881219535}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &3247674825056627945
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1826130915052631622}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &2567414167859127224
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1826130915052631622}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 863396ca1fb63d04f9b6ba5781ddd248, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!135 &530116018148126803
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1826130915052631622}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2175989351446125332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1826130915052631622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6790aad1e0500344e9d58803bb5fdd4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  switchTo: 31
+  communicationMode: 2
+  givenPrefab: {fileID: 0}
+  isPrefabNetworked: 0
 --- !u!1 &1854586791227234718
 GameObject:
   m_ObjectHideFlags: 0
@@ -3735,6 +3857,102 @@ Transform:
   m_Father: {fileID: 880960157131576753}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1887558751717108626
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1380545292312094187}
+  - component: {fileID: 1556202422574157633}
+  - component: {fileID: 7109322075094001025}
+  m_Layer: 0
+  m_Name: New Text
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1380545292312094187
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1887558751717108626}
+  m_LocalRotation: {x: -0.0000000037382124, y: 0.10308584, z: -0.0000000018365752,
+    w: 0.9946725}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.10000001, y: 0.099999994, z: 0.10000001}
+  m_Children: []
+  m_Father: {fileID: 34019678043116243}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 11.834001, z: 0}
+--- !u!23 &1556202422574157633
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1887558751717108626}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10100, guid: 0000000000000000e000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!102 &7109322075094001025
+TextMesh:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1887558751717108626}
+  m_Text: 'Draw
+
+    Sound (1)'
+  m_OffsetZ: 0
+  m_CharacterSize: 1
+  m_LineSpacing: 1
+  m_Anchor: 4
+  m_Alignment: 1
+  m_TabSize: 4
+  m_FontSize: 0
+  m_FontStyle: 0
+  m_RichText: 1
+  m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Color:
+    serializedVersion: 2
+    rgba: 4294967295
 --- !u!1 &1909926055233820264
 GameObject:
   m_ObjectHideFlags: 0
@@ -4129,6 +4347,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 27
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &2085366925685420471
@@ -4282,6 +4501,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 15
+  communicationMode: 0
   givenPrefab: {fileID: 2260205859787446003, guid: b3ad2a089a6a0504ea2c8e81c8c31f82,
     type: 3}
   isPrefabNetworked: 1
@@ -4551,6 +4771,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 29
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &2293416081419714881
@@ -4726,6 +4947,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 8
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &2396425219627796991
@@ -5153,6 +5375,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 30
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &2552652912917894095
@@ -5327,6 +5550,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 15
+  communicationMode: 0
   givenPrefab: {fileID: 8713490503724772173, guid: eebb0d7ec10c02145b8380cfdb774282,
     type: 3}
   isPrefabNetworked: 1
@@ -5597,6 +5821,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 29
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &2721011655006306310
@@ -5708,6 +5933,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 30
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &2746933992674522418
@@ -5819,6 +6045,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 6
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &2766454746031753865
@@ -6341,6 +6568,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 29
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &3116539715343183519
@@ -6871,6 +7099,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 8
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &3359372521057491479
@@ -7358,6 +7587,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 2
+  communicationMode: 0
   givenPrefab: {fileID: 8077804456191148359, guid: 40a4922213c9ec145bd72d5608c41e36,
     type: 3}
   isPrefabNetworked: 1
@@ -7931,6 +8161,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 26
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &3684510476690065460
@@ -8415,7 +8646,9 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.155, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 34019678043116243}
+  - {fileID: 5450638978055338504}
   m_Father: {fileID: 8807089709270432499}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -8527,6 +8760,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 25
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &3975303621259768277
@@ -8589,6 +8823,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 21
+  communicationMode: 0
   givenPrefab: {fileID: 8207187041518786410, guid: 790f3f1854f83ee49808d85ddc2fe403,
     type: 3}
   isPrefabNetworked: 1
@@ -8803,6 +9038,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 28
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &4084171758797242561
@@ -9086,6 +9322,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 30
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &4113015549988959548
@@ -9197,6 +9434,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 30
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &4142101894809728482
@@ -9579,6 +9817,102 @@ Transform:
   m_Father: {fileID: 2962611461520267595}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4245298976325101614
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4976204114953288322}
+  - component: {fileID: 7027245338247114977}
+  - component: {fileID: 771589354422133520}
+  m_Layer: 0
+  m_Name: New Text
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4976204114953288322
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4245298976325101614}
+  m_LocalRotation: {x: -0.0000000037382124, y: 0.10308584, z: -0.0000000018365752,
+    w: 0.9946725}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.10000001, y: 0.099999994, z: 0.10000001}
+  m_Children: []
+  m_Father: {fileID: 5450638978055338504}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 11.834001, z: 0}
+--- !u!23 &7027245338247114977
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4245298976325101614}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10100, guid: 0000000000000000e000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!102 &771589354422133520
+TextMesh:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4245298976325101614}
+  m_Text: 'Draw
+
+    Sound (2)'
+  m_OffsetZ: 0
+  m_CharacterSize: 1
+  m_LineSpacing: 1
+  m_Anchor: 4
+  m_Alignment: 1
+  m_TabSize: 4
+  m_FontSize: 0
+  m_FontStyle: 0
+  m_RichText: 1
+  m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Color:
+    serializedVersion: 2
+    rgba: 4294967295
 --- !u!1 &4264664041627821044
 GameObject:
   m_ObjectHideFlags: 0
@@ -10162,6 +10496,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 29
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &4448246422483576702
@@ -11111,6 +11446,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 30
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &4766059925750003034
@@ -11252,6 +11588,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 12
+  communicationMode: 0
   givenPrefab: {fileID: 1253047615649007792, guid: 1686b78fbc7d5314f8c9a9618c4a0650,
     type: 3}
   isPrefabNetworked: 1
@@ -11363,6 +11700,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 0
+  communicationMode: 0
   givenPrefab: {fileID: 8077804456191148359, guid: ac21d30ad1556bd4cbc6d93a52b55f50,
     type: 3}
   isPrefabNetworked: 1
@@ -11474,6 +11812,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 14
+  communicationMode: 0
   givenPrefab: {fileID: 8077804456191148359, guid: 4fb819c82dde5d146ad7a81d4ea763f1,
     type: 3}
   isPrefabNetworked: 1
@@ -11664,6 +12003,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 10
+  communicationMode: 0
   givenPrefab: {fileID: 1253047615649007792, guid: cfa5c16a9ccc50840a517a6df722c077,
     type: 3}
   isPrefabNetworked: 1
@@ -11776,6 +12116,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 6
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &4820108430129703917
@@ -11886,6 +12227,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 13
+  communicationMode: 0
   givenPrefab: {fileID: 1253047615649007792, guid: 54b5fa50eb28bd84d86c35fc62ac2c99,
     type: 3}
   isPrefabNetworked: 1
@@ -11997,6 +12339,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 11
+  communicationMode: 0
   givenPrefab: {fileID: 1253047615649007792, guid: 0e70df0e41e9bb04da08f643cd879436,
     type: 3}
   isPrefabNetworked: 1
@@ -12108,6 +12451,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 9
+  communicationMode: 0
   givenPrefab: {fileID: 1253047615649007792, guid: 061df0ac843f172409a170930b40c622,
     type: 3}
   isPrefabNetworked: 1
@@ -12299,6 +12643,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 4
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &4820108430770678196
@@ -12518,6 +12863,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 15
+  communicationMode: 0
   givenPrefab: {fileID: 1959977730178342773, guid: 145c62c4bed1ff14898663e6d146876a,
     type: 3}
   isPrefabNetworked: 1
@@ -12630,6 +12976,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 7
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &4820108431028249249
@@ -12741,6 +13088,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 5
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &4868403527826166059
@@ -12944,6 +13292,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 5
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &4985679879689383284
@@ -14125,6 +14474,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 8
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &5524456049073620478
@@ -14345,6 +14695,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 20
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &5591393949343078203
@@ -14456,6 +14807,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 6
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &5649004309248579430
@@ -14612,6 +14964,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 15
+  communicationMode: 0
   givenPrefab: {fileID: 3411478440032586920, guid: f2c0c4ea7ce0cf3498f7a643138f062b,
     type: 3}
   isPrefabNetworked: 1
@@ -14753,6 +15106,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 17
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &5765348484692957379
@@ -14895,6 +15249,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 30
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &5814208037063114250
@@ -15036,6 +15391,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 29
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &5877035105511475330
@@ -15178,6 +15534,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 30
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &5908745416623355155
@@ -15288,6 +15645,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 26
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &5985865732001107060
@@ -15429,6 +15787,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 29
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &6029735712655946027
@@ -16401,6 +16760,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 21
+  communicationMode: 0
   givenPrefab: {fileID: 1119379321810116582, guid: aa32ed1243f48ed4e9bc56268744abed,
     type: 3}
   isPrefabNetworked: 1
@@ -17985,6 +18345,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 5
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &6163491799661640094
@@ -18158,6 +18519,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 30
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &6184176877495766504
@@ -19050,6 +19412,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 15
+  communicationMode: 0
   givenPrefab: {fileID: 1785911051070656935, guid: 00d9176eafee4844cbd4b0cd51892c57,
     type: 3}
   isPrefabNetworked: 1
@@ -20312,6 +20675,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 21
+  communicationMode: 0
   givenPrefab: {fileID: 3021957342214940217, guid: ba4e55fcf0fa4104f9ba5649c3151f7d,
     type: 3}
   isPrefabNetworked: 1
@@ -20977,6 +21341,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 30
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &7549605243995244783
@@ -21166,6 +21531,117 @@ TextMesh:
   m_Color:
     serializedVersion: 2
     rgba: 4294967295
+--- !u!1 &7614050008334854891
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5450638978055338504}
+  - component: {fileID: 2892640520364331623}
+  - component: {fileID: 6379046935335431873}
+  - component: {fileID: 6293483425831187955}
+  - component: {fileID: 3745859003642725938}
+  m_Layer: 10
+  m_Name: SoundMapping2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5450638978055338504
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7614050008334854891}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.328, y: -0.1303, z: 0.93}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_Children:
+  - {fileID: 4976204114953288322}
+  m_Father: {fileID: 3114333823881219535}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &2892640520364331623
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7614050008334854891}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &6379046935335431873
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7614050008334854891}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 863396ca1fb63d04f9b6ba5781ddd248, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!135 &6293483425831187955
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7614050008334854891}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3745859003642725938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7614050008334854891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6790aad1e0500344e9d58803bb5fdd4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  switchTo: 31
+  communicationMode: 3
+  givenPrefab: {fileID: 0}
+  isPrefabNetworked: 0
 --- !u!1 &7659479427229357916
 GameObject:
   m_ObjectHideFlags: 0
@@ -21732,6 +22208,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 7
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &7949311056885745783
@@ -22381,6 +22858,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 29
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &8189860199241406516
@@ -22443,6 +22921,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 21
+  communicationMode: 0
   givenPrefab: {fileID: 8207187041518786410, guid: 790f3f1854f83ee49808d85ddc2fe403,
     type: 3}
   isPrefabNetworked: 1
@@ -23168,6 +23647,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 29
+  communicationMode: 0
   givenPrefab: {fileID: 0}
   isPrefabNetworked: 0
 --- !u!1 &8645163675870332073
@@ -23261,6 +23741,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchTo: 21
+  communicationMode: 0
   givenPrefab: {fileID: 1119379321810116582, guid: aa32ed1243f48ed4e9bc56268744abed,
     type: 3}
   isPrefabNetworked: 1

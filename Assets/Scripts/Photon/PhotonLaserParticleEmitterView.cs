@@ -5,11 +5,17 @@ using Photon.Pun;
 
 public class PhotonLaserParticleEmitterView : MonoBehaviour , IPunObservable
 {
-    private DrawInAirController myDrawer;
+    private DrawInAirController myDrawer = null;
+    private ParticleSystem myParticles;
 
     public void Init( DrawInAirController c )
     {
         myDrawer = c;
+    }
+
+    void Start()
+    {
+        myParticles = GetComponent<ParticleSystem>();
     }
 
     void IPunObservable.OnPhotonSerializeView( PhotonStream stream, PhotonMessageInfo info )
@@ -17,6 +23,7 @@ public class PhotonLaserParticleEmitterView : MonoBehaviour , IPunObservable
         // Write to others
         if( stream.IsWriting )
         {
+            // read from the myDrawer component
             bool enabled = myDrawer.GetEnabled();
             float rate = myDrawer.GetEmissionRate();
             float size = myDrawer.GetSize();
@@ -41,10 +48,13 @@ public class PhotonLaserParticleEmitterView : MonoBehaviour , IPunObservable
             float b = (float) stream.ReceiveNext();
             float a = (float) stream.ReceiveNext();
 
-            myDrawer.SetEmissionRate( rate );
-            myDrawer.SetSize( size );
-            myDrawer.SetColor( new Color( r, g, b, a ) );
-            myDrawer.SetEnabled( enabled );
+            // write directly to the particle emitter component
+            var main = myParticles.main;
+            var emission = myParticles.emission;
+            main.startSize = size;
+            main.startColor = new Color( r, g, b, a );
+            emission.rateOverDistance = rate;
+            emission.enabled = enabled;
         }
     }
 }

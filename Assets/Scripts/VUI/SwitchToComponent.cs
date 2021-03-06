@@ -12,7 +12,7 @@ public class SwitchToComponent : MonoBehaviour
         RandomizePerturbSmall, RandomizePerturbBig, RandomizeCopy, RandomizeCurrent, RandomizeAll,
         CreatureCreate, CreatureSelect, CreatureClone, CreatureExampleRecord, CreatureExampleClone, CreatureExampleDelete,
         CreatureConstantTimeMode, CreatureMusicMode,
-        DrawInAir, DrawOnGround, CommunicateAudio };
+        DrawInAir, DrawOnGround, CommunicateAudio, CommunicateAudioClear };
     public InteractionType switchTo;
     public CommunicateSynthMapping.Mode communicationMode;
     public Transform givenPrefab;
@@ -228,8 +228,14 @@ public class SwitchToComponent : MonoBehaviour
                 }
                 break;
             case InteractionType.CommunicateAudio:
+            case InteractionType.CommunicateAudioClear:
                 EnableComponent<CommunicateSynthMapping>( controller );
                 CommunicateSynthMapping c = controller.GetComponent<CommunicateSynthMapping>();
+                // crucially: clear
+                if( switchTo == InteractionType.CommunicateAudioClear )
+                {
+                    c.ResetExamples();
+                }
                 c.SetMode( communicationMode );
                 break;
             // disabled

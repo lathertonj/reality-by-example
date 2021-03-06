@@ -14,39 +14,49 @@ public class GetAudioData : MonoBehaviour
     public float smoothAmount = 2f;
 
     float[] window;
-    float pitch = 100f, spectralCentroid = 1000f, loudness = 0f;
+    private static GetAudioData me;
 
 
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-        
+        me = this;
     }
 
-    // Update is called once per frame
-    void Update()
+    public static void GetData( out float pitch, out float loudness, out float spectralCentroid, bool smoothCentroid )
     {
         // calc properties if arrays exist
-        if( fft != null )
+        if( me.fft != null )
         {
             // compute zero crossing rate
-            pitch = CalculateZeroCrossingRatePitch( samples );
+            pitch = CalculateZeroCrossingRatePitch( me.samples );
 
             // compute RMS loudness
-            loudness = CalculateRMSLoudness( samples );
+            loudness = CalculateRMSLoudness( me.samples );
 
             // window and compute fft
-            Float2Complex( samples, complexSamples, window );
-            CalculateFFT( complexSamples, fft, false );
+            Float2Complex( me.samples, me.complexSamples, me.window );
+            CalculateFFT( me.complexSamples, me.fft, false );
 
             // compute spectral centroid
-            spectralCentroid = CalculateSpectralCentroid( fft );
+            spectralCentroid = CalculateSpectralCentroid( me.fft );
             if( !float.IsNaN( spectralCentroid ) )
             {
                 // smooth spectral centroid
-                smoothedCentroid += smoothAmount * Time.deltaTime * ( spectralCentroid - smoothedCentroid );
-            } 
+                me.smoothedCentroid += me.smoothAmount * Time.deltaTime * ( spectralCentroid - me.smoothedCentroid );
+            }
+
+            if( smoothCentroid )
+            {
+                spectralCentroid = me.smoothedCentroid;
+            }
         }
+        else
+        {
+            pitch = 100;
+            loudness = 0;
+            spectralCentroid = 1000;
+        }
+
     }
 
     void OnAudioFilterRead( float[] data, int channels )
@@ -80,7 +90,7 @@ public class GetAudioData : MonoBehaviour
         }
     }
 
-    private float CalculateSpectralCentroid( float[] fft )
+    private static float CalculateSpectralCentroid( float[] fft )
     {
         float numSum = 0f, denomSum = 0f;
         for( int i = 0; i < fft.Length; i++ )
@@ -95,7 +105,7 @@ public class GetAudioData : MonoBehaviour
         return hzPerBin * numSum / denomSum;
     }
 
-    private float CalculateZeroCrossingRatePitch( float[] samples )
+    private static float CalculateZeroCrossingRatePitch( float[] samples )
     {
         int numCrossings = 0;
         for( int i = 1; i < samples.Length; i++ )
@@ -111,7 +121,7 @@ public class GetAudioData : MonoBehaviour
         return bufsPerSecond * numCrossings;
     }
 
-    private float CalculateRMSLoudness( float[] samples )
+    private static float CalculateRMSLoudness( float[] samples )
     {
         float sumSqrd = 0f;
         for( int i = 0; i < samples.Length; i++ )
@@ -192,7 +202,7 @@ public class GetAudioData : MonoBehaviour
         }
     }
     
-    private void Float2Complex( float[] input, Complex[] result, float[] window )
+    private static void Float2Complex( float[] input, Complex[] result, float[] window )
     {
         for (int i = 0; i < input.Length; i++)
         {

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class SwitchToComponent : MonoBehaviour
 {
@@ -12,9 +13,10 @@ public class SwitchToComponent : MonoBehaviour
         RandomizePerturbSmall, RandomizePerturbBig, RandomizeCopy, RandomizeCurrent, RandomizeAll,
         CreatureCreate, CreatureSelect, CreatureClone, CreatureExampleRecord, CreatureExampleClone, CreatureExampleDelete,
         CreatureConstantTimeMode, CreatureMusicMode,
-        DrawInAir, DrawOnGround, CommunicateAudio, CommunicateAudioClear };
+        DrawInAir, DrawOnGround, CommunicateAudio, CommunicateAudioClear, CommunicateAudioFeature };
     public InteractionType switchTo;
     public CommunicateSynthMapping.Mode communicationMode;
+    public CommunicateSynthMapping.Feature communicationFeature;
     public Transform givenPrefab;
     public bool isPrefabNetworked;
 
@@ -237,6 +239,19 @@ public class SwitchToComponent : MonoBehaviour
                     c.ResetExamples();
                 }
                 c.SetMode( communicationMode );
+                break;
+            case InteractionType.CommunicateAudioFeature:
+                // change whether it's enabled
+                CommunicateSynthMapping co = controller.GetComponent<CommunicateSynthMapping>();
+                bool currentlyEnabled = co.ToggleFeature( communicationFeature );
+                // update UI
+                string featureName = Enum.GetName( typeof( CommunicateSynthMapping.Feature), communicationFeature );
+                string onOff = currentlyEnabled ? "(on)" : "(off)";
+                string displayText = string.Format( "Use Feature\n{0} {1}", featureName, onOff );
+                GetComponentInChildren<TextMesh>().text = displayText;
+                // return to playback mode
+                EnableComponent<CommunicateSynthMapping>( controller );
+                co.SetMode( CommunicateSynthMapping.Mode.PlaybackExamples );
                 break;
             // disabled
             case InteractionType.CreatureSelect:

@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
+using System;
 
 public class CommunicateSynthMapping : MonoBehaviour
 {
     // TODO: make photon-ready
     //public CommunicateSynth synthPrefab;
     //private static CommunicateSynth myCommunicator;
+
+    public enum Feature { VelocityX = 0, VelocityY = 1, VelocityZ = 2, VelocityMagnitude = 3, AngleX = 4, AngleY = 5, AngleZ = 6, PositionX = 7, PositionY = 8, PositionZ = 9, Distance = 10 };
+    private static Dictionary< Feature, bool > enabledFeatures;
     public CommunicateSynth myCommunicator;
 
     public SteamVR_Action_Boolean turnOnCommunicator;
@@ -37,6 +41,16 @@ public class CommunicateSynthMapping : MonoBehaviour
             communicatorRegression = myCommunicator.gameObject.AddComponent<RapidMixRegression>();
             communicatorRegressionInputs = new List<double[]>();
             communicatorRegressionOutputs = new List<double[]>();
+        }
+
+        if( enabledFeatures == null )
+        {
+            enabledFeatures = new Dictionary<Feature, bool>();
+            foreach( Feature f in Enum.GetValues( typeof(Feature) ) )
+            {
+                // all enabled by default
+                enabledFeatures[f] = true;
+            }
         }
     }
 
@@ -130,6 +144,18 @@ public class CommunicateSynthMapping : MonoBehaviour
         }
     }
 
+    public bool ToggleFeature( Feature f )
+    {
+        enabledFeatures[f] = !enabledFeatures[f];
+        // if we've already trained, retrain on what is the new subset of features
+        if( haveTrained )
+        {
+            Train();
+        }
+        Debug.Log( f + "is now turned " + (enabledFeatures[f]? "on" :"off") );
+        return enabledFeatures[f];
+    }
+
 
     private double[] InputVector()
     {
@@ -151,10 +177,19 @@ public class CommunicateSynthMapping : MonoBehaviour
         };
     }
 
-    // TODO: be able to customize inputs
-    private double[] FilterInput( double[] i )
+
+    // be able to customize inputs
+    private double[] FilterInput( double[] input )
     {
-        return i;      
+        List<double> filtered = new List<double>();
+        for( int i = 0; i < input.Length; i++ )
+        {
+            if( enabledFeatures[(Feature) i] ) 
+            {
+                filtered.Add( input[i] );
+            }
+        }
+        return filtered.ToArray();      
     }
 
     // TODO: be able to customize outputs? can do this in the runtime

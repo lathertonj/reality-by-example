@@ -82,6 +82,15 @@ public class DrawInAirController : MonoBehaviourPunCallbacks
         }
     }
 
+    public override void OnEnable()
+    {
+        base.OnEnable();
+        if( myMode == DrawMode.Ground )
+        {
+            EnableLaser();
+        }
+    }
+
     public override void OnDisable()
     {
         base.OnDisable();
@@ -145,6 +154,8 @@ public class DrawInAirController : MonoBehaviourPunCallbacks
             case DrawMode.Air:
                 myStartSize = airStartSize;
                 myEmissionRate = airEmissionRate;
+                // disable laser just in case OnEnable() just turned it on
+                DisableLaser();
                 // parent it to me and disable any following
                 ParentEmitterToTransform( transform );
                 myLaserFollower.StopFollowing();
@@ -152,6 +163,8 @@ public class DrawInAirController : MonoBehaviourPunCallbacks
             case DrawMode.Ground:
                 myStartSize = groundStartSize;
                 myEmissionRate = groundEmissionRate;
+                // turn on laser component and set parameters
+                EnableLaser();
                 // "parent" my trail to the end of the laser
                 ParentEmitterToTransform( null );
                 myLaserFollower.FollowEndPoint( myTrail.transform );
@@ -161,6 +174,20 @@ public class DrawInAirController : MonoBehaviourPunCallbacks
         main.startSize = myStartSize;
         var emission = myTrail.emission;
         emission.rateOverDistance = myEmissionRate;
+    }
+
+    void EnableLaser()
+    {
+        LaserPointerColliderSelector myLaser = GetComponent<LaserPointerColliderSelector>();
+        myLaser.enabled = true;
+        myLaser.stopShowingOnUp = true;
+    }
+
+    void DisableLaser()
+    {
+        LaserPointerColliderSelector myLaser = GetComponent<LaserPointerColliderSelector>();
+        myLaser.enabled = false;
+        myLaser.stopShowingOnUp = false;
     }
 
     public float GetSize()

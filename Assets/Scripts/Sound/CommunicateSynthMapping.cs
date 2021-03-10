@@ -240,7 +240,7 @@ public class CommunicateSynthMapping : MonoBehaviourPunCallbacks
 
     private void DebugOutput( double[] output )
     {
-        Debug.Log( output[0] + " " + output[1] + " " + output[2] );
+        //Debug.Log( output[0] + " " + output[1] + " " + output[2] );
     }
 
     private IEnumerator RecordExamples()

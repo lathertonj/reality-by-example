@@ -221,12 +221,11 @@ public class SwitchToComponent : MonoBehaviour
                 Color colorToUse = GetComponent<MeshRenderer>().material.color;
                 draw.SetColor( colorToUse );
                 draw.SetMode( switchTo );
-                if( switchTo == InteractionType.DrawOnGround )
+
+                // reenable synth if it was previously active -- we can use both communication types at once
+                if( communicateSynthWasActive )
                 {
-                    // also need the collider laser
-                    EnableComponent<LaserPointerColliderSelector>( controller );
-                    // specifically hide the laser once the preview is gone for this method
-                    controller.GetComponent<LaserPointerColliderSelector>().stopShowingOnUp = true;
+                    EnableComponent<CommunicateSynthMapping>( controller );
                 }
                 break;
             case InteractionType.CommunicateAudio:
@@ -239,6 +238,12 @@ public class SwitchToComponent : MonoBehaviour
                     c.ResetExamples();
                 }
                 c.SetMode( communicationMode );
+
+                // reenable drawing if it was previously active -- we can use both communication types at once
+                if( drawInAirWasActive )
+                {
+                    EnableComponent<DrawInAirController>( controller );
+                }
                 break;
             case InteractionType.CommunicateAudioFeature:
                 // change whether it's enabled
@@ -252,6 +257,12 @@ public class SwitchToComponent : MonoBehaviour
                 // return to playback mode
                 EnableComponent<CommunicateSynthMapping>( controller );
                 co.SetMode( CommunicateSynthMapping.Mode.PlaybackExamples );
+
+                // reenable drawing if it was previously active -- we can use both communication types at once
+                if( drawInAirWasActive )
+                {
+                    EnableComponent<DrawInAirController>( controller );
+                }
                 break;
             // disabled
             case InteractionType.CreatureSelect:
@@ -408,8 +419,13 @@ public class SwitchToComponent : MonoBehaviour
         DisableComponent<LaserPointerDragAndDrop>( o );
     }
 
+
+    private bool drawInAirWasActive = false;
+    private bool communicateSynthWasActive = false;
     private void DisableCommunicationInteractors( GameObject o )
     {
+        drawInAirWasActive = ComponentIsEnabled<DrawInAirController>( o );
+        communicateSynthWasActive = ComponentIsEnabled<CommunicateSynthMapping> ( o );
         DisableComponent<DrawInAirController>( o );
         DisableComponent<CommunicateSynthMapping>( o );
     }
@@ -457,6 +473,12 @@ public class SwitchToComponent : MonoBehaviour
         {
             component.enabled = false;
         }
+    }
+
+    public static bool ComponentIsEnabled<T>( GameObject o ) where T : MonoBehaviour
+    {
+        T component = o.GetComponent<T>();
+        return ( component != null ) && ( component.enabled );
     }
 
 }

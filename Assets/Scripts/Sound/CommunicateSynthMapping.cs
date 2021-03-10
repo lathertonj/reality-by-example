@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
 using System;
+using Photon.Pun;
 
-public class CommunicateSynthMapping : MonoBehaviour
+public class CommunicateSynthMapping : MonoBehaviourPunCallbacks
 {
     // TODO: make photon-ready
     //public CommunicateSynth synthPrefab;
@@ -12,7 +13,9 @@ public class CommunicateSynthMapping : MonoBehaviour
 
     public enum Feature { VelocityX = 0, VelocityY = 1, VelocityZ = 2, VelocityMagnitude = 3, AngleX = 4, AngleY = 5, AngleZ = 6, PositionX = 7, PositionY = 8, PositionZ = 9, Distance = 10 };
     private static Dictionary< Feature, bool > enabledFeatures;
-    public CommunicateSynth myCommunicator;
+    public CommunicateSynth communicatorPrefab;
+    public bool isPrefabNetworked;
+    private static CommunicateSynth myCommunicator;
 
     public SteamVR_Action_Boolean turnOnCommunicator;
     private SteamVR_Input_Sources handType;
@@ -34,6 +37,39 @@ public class CommunicateSynthMapping : MonoBehaviour
     {
         pose = GetComponent<SteamVR_Behaviour_Pose>();
         handType = pose.inputSource;
+
+        if( !isPrefabNetworked ) 
+        {
+            InitAll();
+        }
+        else
+        {
+            // need to enable it so that it will here OnJoinedRoom
+            this.enabled = true;
+        }
+    }
+
+    public override void OnJoinedRoom()
+    {
+        InitAll();
+        this.enabled = false;
+    }
+
+    void InitAll()
+    {
+        // instantiate my communicator
+        if( myCommunicator == null )
+        {
+            if( isPrefabNetworked )
+            {
+                myCommunicator = PhotonNetwork.Instantiate( communicatorPrefab.name, Vector3.zero, Quaternion.identity )
+                    .GetComponent<CommunicateSynth>();
+            }
+            else
+            {
+                myCommunicator = Instantiate( communicatorPrefab, Vector3.zero, Quaternion.identity );
+            }
+        }
 
         // add to CommunicateSynth so that only my copy of it has a regression on it, not the network's
         if( communicatorRegression == null )
@@ -113,10 +149,10 @@ public class CommunicateSynthMapping : MonoBehaviour
                     if( haveTrained )
                     {
                         double[] output = communicatorRegression.Run( FilterInput( InputVector() ) );
-                        // clamp the pitch to 50-4000 Hz
-                        pitch = Mathf.Clamp( (float) output[0], 50, 4000 );
-                        // double the volume and clamp to 0, 1
-                        volume = ((float) output[1]).MapClamp( 0, 0.5f, 0, 1 );
+                        // clamp the pitch to 100-2000 Hz
+                        pitch = Mathf.Clamp( (float) output[0], 100, 2000 );
+                        // *4 the volume and clamp to 0, 1
+                        volume = ((float) output[1]).MapClamp( 0, 0.25f, 0, 1 );
                         // map clamp spectral centroid into 0, 1 (not sure if this is right exponent)
                         timbre = ((float) output[2]).PowMapClamp( 50, 5000, 0, 1, 0.5f );
                         
@@ -127,9 +163,7 @@ public class CommunicateSynthMapping : MonoBehaviour
                     volume = 0;
                     break;
             }
-            myCommunicator.SetPitch( pitch );
-            myCommunicator.SetTimbre( timbre );
-            myCommunicator.SetAmplitude( volume );
+            myCommunicator.SetAll( pitch, volume, timbre );
         }
     }
 
@@ -152,7 +186,7 @@ public class CommunicateSynthMapping : MonoBehaviour
         {
             Train();
         }
-        Debug.Log( f + "is now turned " + (enabledFeatures[f]? "on" :"off") );
+        Debug.Log( f + " is now turned " + (enabledFeatures[f]? "on" :"off") );
         return enabledFeatures[f];
     }
 

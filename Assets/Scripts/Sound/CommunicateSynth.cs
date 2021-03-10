@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public class CommunicateSynth : MonoBehaviour
 {
@@ -9,9 +10,12 @@ public class CommunicateSynth : MonoBehaviour
     string myPitch, myAmplitude, myTimbre;
     float currentPitch, currentAmplitude, currentTimbre;
     bool amOn;
+    PhotonView myView = null;
     ChuckMainInstance myChuck;
     void Start()
     {
+        myView = GetComponent<PhotonView>();
+
         myChuck = TheChuck.instance;
         myPitch = myChuck.GetUniqueVariableName( "pitch" );
         myAmplitude = myChuck.GetUniqueVariableName( "amplitude" );
@@ -51,14 +55,54 @@ public class CommunicateSynth : MonoBehaviour
 
     public void TurnOn()
     {
+        if( myView )
+        {
+            myView.RPC( "TurnOnCommunicateSynth", RpcTarget.All );
+        }
+        else
+        {
+            TurnOnCommunicateSynth();
+        }
+    }
+
+    [PunRPC]
+    void TurnOnCommunicateSynth()
+    {
         amOn = true;
         SetAmplitude( currentAmplitude );
-    }
+    } 
     
     public void TurnOff()
     {
+        if( myView )
+        {
+            myView.RPC( "TurnOffCommunicateSynth", RpcTarget.All );
+        }
+        else
+        {
+            TurnOffCommunicateSynth();
+        }
+    }
+
+    [PunRPC]
+    void TurnOffCommunicateSynth()
+    {
         amOn = false;
         SetAmplitude( currentAmplitude );
+    }
+
+    public void SetAll( float pitch, float amplitude, float timbre )
+    {
+        SetPitch( pitch );
+        SetTimbre( timbre );
+        SetAmplitude( amplitude );
+    }
+
+    public void GetAll( out float pitch, out float amplitude, out float timbre )
+    {
+        pitch = currentPitch;
+        amplitude = currentAmplitude;
+        timbre = currentTimbre;
     }
 
     public void SetAmplitude( float a )

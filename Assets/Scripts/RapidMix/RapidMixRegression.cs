@@ -99,6 +99,7 @@ public class RapidMixRegression : MonoBehaviour
         haveTrained = false;
         
         // reset data too
+        myInputLength = 0;
         myOutputLength = 0; 
         cleanupTrainingData( myTrainingID );
         myTrainingID = createEmptyTrainingData();

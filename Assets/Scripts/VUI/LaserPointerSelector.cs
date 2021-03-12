@@ -13,7 +13,7 @@ public class LaserPointerSelector : MonoBehaviourPunCallbacks
 
     public MeshRenderer laserPrefab;
     public ParticleSystemFollower selectedPrefab;
-    public bool arePrefabsNetworked;
+    public bool isLaserNetworked, isSelectionNetworked;
     private static ParticleSystemFollower theSelectionMarker = null;
 
     private MeshRenderer laser;
@@ -43,7 +43,8 @@ public class LaserPointerSelector : MonoBehaviourPunCallbacks
 
     public void Start()
     {
-        if( !arePrefabsNetworked )
+        // only if nothing is networked, init everything now. otherwise do it in OnJoinedRoom()
+        if( !isLaserNetworked && !isSelectionNetworked )
         {
             Init();
         }
@@ -57,7 +58,7 @@ public class LaserPointerSelector : MonoBehaviourPunCallbacks
 
     void Init()
     {
-        if( arePrefabsNetworked )
+        if( isLaserNetworked )
         {
             laser = PhotonNetwork.Instantiate( laserPrefab.name, Vector3.zero, Quaternion.identity )
                 .GetComponent<MeshRenderer>();
@@ -75,7 +76,7 @@ public class LaserPointerSelector : MonoBehaviourPunCallbacks
         if( theSelectionMarker == null )
         {
             // create it
-            if( arePrefabsNetworked )
+            if( isSelectionNetworked )
             {
                 theSelectionMarker = PhotonNetwork.Instantiate( selectedPrefab.name, Vector3.zero, Quaternion.identity )
                     .GetComponent<ParticleSystemFollower>();

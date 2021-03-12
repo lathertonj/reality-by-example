@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8191968368830265266}
   - component: {fileID: 3649808485909542198}
   - component: {fileID: 8410418914283181864}
-  - component: {fileID: 4059999211201209541}
+  - component: {fileID: 8701595990951071247}
   - component: {fileID: 4865188889364411229}
   m_Layer: 0
   m_Name: NetworkedLaser2
@@ -103,9 +103,8 @@ MonoBehaviour:
   OwnershipTransfer: 0
   ObservedComponents:
   - {fileID: 8410418914283181864}
-  - {fileID: 4059999211201209541}
-  - {fileID: 0}
   - {fileID: 4865188889364411229}
+  - {fileID: 8701595990951071247}
   viewIdField: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -121,7 +120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0337898aab5b1de4798b0144edb5966e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &4059999211201209541
+--- !u!114 &8701595990951071247
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4345626581362647167}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4518d044354d0214487da739e4c61f30, type: 3}
+  m_Script: {fileID: 11500000, guid: 94761f55b8b190646bad2de44990998d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &4865188889364411229

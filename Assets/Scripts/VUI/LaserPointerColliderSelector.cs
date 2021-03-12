@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
+using Photon.Pun;
 
-public class LaserPointerColliderSelector : MonoBehaviour
+public class LaserPointerColliderSelector : MonoBehaviourPunCallbacks
 {
 
     public SteamVR_Input_Sources handType;
@@ -14,6 +15,8 @@ public class LaserPointerColliderSelector : MonoBehaviour
     private VibrateController vibration;
 
     public MeshRenderer laserPrefab;
+    public bool isLaserNetworked;
+    private bool haveInit = false;
     private MeshRenderer laser;
     private Transform laserTransform;
     private Vector3 hitPoint;
@@ -31,16 +34,51 @@ public class LaserPointerColliderSelector : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        laser = Instantiate(laserPrefab);
-        laserTransform = laser.transform;
+        // init right away for non-networked
+        if( !isLaserNetworked )
+        {
+            Init();
+        }
+        else
+        {
+            // need to remain enabled long enough to respond to OnJoinedRoom
+            this.enabled = true;
+        }
+        // get references
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
         vibration = GetComponent<VibrateController>();
+    }
+
+    // When networked, delay from Awake() to when we joined a room
+    public override void OnJoinedRoom()
+    {
+        Init();
+        // re-disable self
+        this.enabled = false;
+    }
+
+    void Init()
+    {
+        if( isLaserNetworked )
+        {
+            laser = PhotonNetwork.Instantiate( laserPrefab.name, Vector3.zero, Quaternion.identity )
+                .GetComponent<MeshRenderer>();
+        }
+        else
+        {
+            laser = Instantiate(laserPrefab);
+        }
+        laserTransform = laser.transform;
         HideLaser();
+        haveInit = true;
     }
 
     // Update is called once per frame
     void Update()
     {
+        // short circuit for non-init networked
+        if( !haveInit ) { return; }
+
         if( IsAButtonPressedDown() )
         {
             canShowPreview = true; 
@@ -125,7 +163,8 @@ public class LaserPointerColliderSelector : MonoBehaviour
 
     private void ShowLaser( Vector3 endPoint, float distance, Color c )
     {
-        laser.gameObject.SetActive( true );
+        // enable / disable renderer, so the game object can continue running networked things
+        laser.enabled = true;
         laser.material.color = c;
         laserTransform.position = Vector3.Lerp( controllerPose.transform.position, endPoint, .5f );
         laserTransform.LookAt( endPoint );
@@ -139,13 +178,15 @@ public class LaserPointerColliderSelector : MonoBehaviour
 
     public void HideLaser()
     {
-        laser.gameObject.SetActive( false ); 
+        // enable / disable renderer (not game object), so the game object can continue running networked things
+        laser.enabled = false;
         currentlyIntersecting = false;
         canShowPreview = false;
     }
 
-    void OnDisable()
+    public override void OnDisable()
     {
         HideLaser();
+        base.OnDisable();
     }
 }

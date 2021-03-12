@@ -3,22 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class PhotonEnabledView : MonoBehaviour , IPunObservable
+public class PhotonRendererEnabledView : MonoBehaviour , IPunObservable
 {
+    MeshRenderer me;
+    void Awake()
+    {
+        me = GetComponent<MeshRenderer>();
+    }
+
     void IPunObservable.OnPhotonSerializeView( PhotonStream stream, PhotonMessageInfo info )
     {
         // Write to others
         if (stream.IsWriting)
         {
-            // is the game object active?
-            bool a = gameObject.activeSelf;
-            stream.SendNext( a );
+            // is the renderer active?
+            bool e = me.enabled;
+            stream.SendNext( e );
         }
         // Read from others
         else
         {
-            bool a = (bool) stream.ReceiveNext();
-            gameObject.SetActive( a );
+            bool e = (bool) stream.ReceiveNext();
+            me.enabled = e;
         }
     }
 }

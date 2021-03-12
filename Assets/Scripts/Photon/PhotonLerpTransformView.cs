@@ -7,11 +7,13 @@ public class PhotonLerpTransformView : MonoBehaviour , IPunObservable
 {
     public bool lerpPosition = true;
     public bool lerpRotation = true;
+    public bool lerpScale = false;
     public float lerpAmount = 0.1f;
 
 
     private Vector3 goalPosition;
     private Quaternion goalRotation;
+    private Vector3 goalScale;
     private PhotonView myView;
 
     void Awake()
@@ -23,6 +25,7 @@ public class PhotonLerpTransformView : MonoBehaviour , IPunObservable
     {
         goalPosition = transform.position;
         goalRotation = transform.rotation;
+        goalScale = transform.localScale;
     }
 
     void IPunObservable.OnPhotonSerializeView( PhotonStream stream, PhotonMessageInfo info )
@@ -40,6 +43,11 @@ public class PhotonLerpTransformView : MonoBehaviour , IPunObservable
             {
                 stream.SendNext( transform.rotation );
             }
+
+            if( lerpScale )
+            {
+                stream.SendNext( transform.localScale );
+            }
         }
         // Read from others
         else
@@ -53,6 +61,11 @@ public class PhotonLerpTransformView : MonoBehaviour , IPunObservable
             {
                 goalRotation = (Quaternion) stream.ReceiveNext();
             }
+
+            if( lerpScale )
+            {
+                goalScale = (Vector3) stream.ReceiveNext();
+            }
         }
     }
 
@@ -62,8 +75,18 @@ public class PhotonLerpTransformView : MonoBehaviour , IPunObservable
         if( !myView.IsMine )
         {
             // lerp
-            transform.position += lerpAmount * ( goalPosition - transform.position );
-            transform.rotation = Quaternion.Slerp( transform.rotation, goalRotation, lerpAmount );
+            if( lerpPosition ) 
+            {
+                transform.position += lerpAmount * ( goalPosition - transform.position );
+            }
+            if( lerpRotation )
+            {
+                transform.rotation = Quaternion.Slerp( transform.rotation, goalRotation, lerpAmount );
+            }
+            if( lerpScale )
+            {
+                transform.localScale += lerpAmount * ( goalScale - transform.localScale );
+            }
         }
     }
 }

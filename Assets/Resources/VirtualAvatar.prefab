@@ -194,4 +194,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lerpPosition: 1
   lerpRotation: 1
+  lerpScale: 0
   lerpAmount: 0.1

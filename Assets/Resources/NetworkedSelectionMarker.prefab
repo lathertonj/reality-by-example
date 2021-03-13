@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 2356639714532530219}
   - component: {fileID: 5027993201736162655}
   - component: {fileID: 5605559717302265318}
-  - component: {fileID: 7758397049109152231}
+  - component: {fileID: 3718744895187480945}
   - component: {fileID: 2573726949110968545}
   m_Layer: 0
   m_Name: NetworkedSelectionMarker
@@ -4795,7 +4795,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   ObservedComponents:
   - {fileID: 5605559717302265318}
-  - {fileID: 7758397049109152231}
+  - {fileID: 3718744895187480945}
   viewIdField: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -4830,7 +4830,7 @@ MonoBehaviour:
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 1
   m_UseLocal: 0
---- !u!114 &7758397049109152231
+--- !u!114 &3718744895187480945
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4839,7 +4839,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6743024261359457251}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4518d044354d0214487da739e4c61f30, type: 3}
+  m_Script: {fileID: 11500000, guid: fef0ea63269331749b4153a61bc845b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &2573726949110968545

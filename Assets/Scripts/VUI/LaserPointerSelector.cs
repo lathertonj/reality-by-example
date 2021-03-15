@@ -303,7 +303,17 @@ public class LaserPointerSelector : MonoBehaviourPunCallbacks
         // hide marker
         selectedObject = null;
         theSelectionMarker.objectToFollow = null;
-        theSelectionMarker.gameObject.SetActive( false );
+
+        // hide via photon or regular unity
+        PhotonView maybePhoton = theSelectionMarker.GetComponent<PhotonView>();
+        if( maybePhoton != null )
+        {
+            maybePhoton.RPC( "PhotonEnabledViewSetActive", RpcTarget.All, false );
+        }
+        else
+        {
+            theSelectionMarker.gameObject.SetActive( false );
+        }
     }
 
 
@@ -324,7 +334,17 @@ public class LaserPointerSelector : MonoBehaviourPunCallbacks
 
         selectedObject = newObject;
         theSelectionMarker.objectToFollow = selectedObject.transform;
-        theSelectionMarker.gameObject.SetActive( true );
+
+        // show via photon or regular unity
+        PhotonView maybePhoton = theSelectionMarker.GetComponent<PhotonView>();
+        if( maybePhoton != null )
+        {
+            maybePhoton.RPC( "PhotonEnabledViewSetActive", RpcTarget.All, true );
+        }
+        else
+        {
+            theSelectionMarker.gameObject.SetActive( true );
+        }
 
         LaserPointerSelectable selectable = selectedObject.GetComponent< LaserPointerSelectable >();
         if( selectable != null ) { selectable.Selected(); }

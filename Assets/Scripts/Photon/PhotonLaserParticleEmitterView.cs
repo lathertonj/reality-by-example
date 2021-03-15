@@ -13,7 +13,7 @@ public class PhotonLaserParticleEmitterView : MonoBehaviour , IPunObservable
         myDrawer = c;
     }
 
-    void Start()
+    void Awake()
     {
         myParticles = GetComponent<ParticleSystem>();
     }

@@ -48,7 +48,7 @@ ParticleSystem:
   stopAction: 0
   cullingMode: 0
   ringBufferMode: 0
-  ringBufferLoopRange: {x: 0, y: 1}
+  ringBufferLoopRange: {x: 0.7, y: 0.75}
   looping: 1
   prewarm: 0
   playOnAwake: 1
@@ -4777,6 +4777,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   ObservedComponents:
   - {fileID: -8211702861281728885}
+  - {fileID: -8056337852711938498}
   viewIdField: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0

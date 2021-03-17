@@ -13,7 +13,8 @@ public class SwitchToComponent : MonoBehaviour
         RandomizePerturbSmall, RandomizePerturbBig, RandomizeCopy, RandomizeCurrent, RandomizeAll,
         CreatureCreate, CreatureSelect, CreatureClone, CreatureExampleRecord, CreatureExampleClone, CreatureExampleDelete,
         CreatureConstantTimeMode, CreatureMusicMode,
-        DrawInAir, DrawOnGround, CommunicateAudio, CommunicateAudioClear, CommunicateAudioFeature };
+        DrawInAir, DrawOnGround, CommunicateAudio, CommunicateAudioClear, CommunicateAudioFeature,
+        DrawTrailEvaporate, DrawTrailPersist };
     public InteractionType switchTo;
     public CommunicateSynthMapping.Mode communicationMode;
     public CommunicateSynthMapping.Feature communicationFeature;
@@ -221,6 +222,25 @@ public class SwitchToComponent : MonoBehaviour
                 Color colorToUse = GetComponent<MeshRenderer>().material.color;
                 draw.SetColor( colorToUse );
                 draw.SetMode( switchTo );
+
+                // reenable synth if it was previously active -- we can use both communication types at once
+                if( communicateSynthWasActive )
+                {
+                    EnableComponent<CommunicateSynthMapping>( controller );
+                }
+                break;
+            case InteractionType.DrawTrailEvaporate:
+            case InteractionType.DrawTrailPersist:
+                DrawInAirController drawer = controller.GetComponent<DrawInAirController>();
+                DrawInAirController.TrailMode m = (switchTo == InteractionType.DrawTrailEvaporate) ?
+                    DrawInAirController.TrailMode.Evaporate : DrawInAirController.TrailMode.Persist;
+                drawer.SetTrailMode( m );
+
+                // reenable drawing if it was previously active -- we can use both communication types at once
+                if( drawInAirWasActive )
+                {
+                    EnableComponent<DrawInAirController>( controller );
+                }
 
                 // reenable synth if it was previously active -- we can use both communication types at once
                 if( communicateSynthWasActive )

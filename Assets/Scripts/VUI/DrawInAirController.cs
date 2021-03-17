@@ -10,6 +10,7 @@ public class DrawInAirController : MonoBehaviourPunCallbacks
     private SteamVR_Input_Sources handType;
     public ParticleSystem trailPrefab;
     public bool isPrefabNetworked;
+    private PhotonLaserParticleEmitterView emitterView;
     public Vector3 prefabLocalPosition = new Vector3( 0, -0.04f, 0.02f );
     private ParticleSystem myTrail;
     private FollowColliderLaserEndPoint myLaserFollower;
@@ -20,6 +21,7 @@ public class DrawInAirController : MonoBehaviourPunCallbacks
     private Vector3 trailLocalPosition;
 
     public enum DrawMode { Air, Ground }; 
+    public enum TrailMode { Evaporate, Persist };
     DrawMode myMode;
 
     void Awake()
@@ -58,6 +60,9 @@ public class DrawInAirController : MonoBehaviourPunCallbacks
         }
         myTrail.transform.parent = transform;
         myTrail.transform.localPosition = prefabLocalPosition;
+
+        // grab reference
+        emitterView = myTrail.GetComponent<PhotonLaserParticleEmitterView>();
         
         // don't render
         StopRenderingTrail();
@@ -143,6 +148,11 @@ public class DrawInAirController : MonoBehaviourPunCallbacks
                 Debug.LogError( "unknown drawing mode" );
                 break;
         }
+    }
+
+    public void SetTrailMode( TrailMode m )
+    {
+        emitterView.SetTrailDrawMode( m );
     }
 
     private float myStartSize = 0, myEmissionRate = 0;

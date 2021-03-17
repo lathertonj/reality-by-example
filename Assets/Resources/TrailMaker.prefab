@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2583585641819229782}
   - component: {fileID: 2583585641819229783}
   - component: {fileID: 2583585641819229780}
+  - component: {fileID: 6985033449448712983}
   m_Layer: 0
   m_Name: TrailMaker
   m_TagString: Untagged
@@ -45,7 +46,7 @@ ParticleSystem:
   stopAction: 0
   cullingMode: 0
   ringBufferMode: 0
-  ringBufferLoopRange: {x: 0, y: 1}
+  ringBufferLoopRange: {x: 0.7, y: 0.75}
   looping: 1
   prewarm: 0
   playOnAwake: 1
@@ -4754,3 +4755,15 @@ ParticleSystemRenderer:
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
   m_MaskInteraction: 0
+--- !u!114 &6985033449448712983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2583585641819229781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d16aa5914f10c44bb20c101ab1ba92, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

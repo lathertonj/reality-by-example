@@ -12,6 +12,9 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
 
     public static float delayRescanTime = 3f;
 
+    public Transform[] blankSlateHeights;
+    public TerrainHeightExample heightPrefab;
+
     void Awake()
     {
         // if true, this makes sure we can use PhotonNetwork.LoadLevel() on the master client and all clients in the same room sync their level automatically
@@ -76,6 +79,19 @@ public class PhotonLaunchScript : MonoBehaviourPunCallbacks
     {
         // note: this is called whether or not we create the rom
         Debug.Log("OnJoinedRoom() ws called -- now this client is in a room.");
+
+        // initialize the blank slate
+        if( PhotonNetwork.IsMasterClient )
+        {
+            Debug.Log( "Initializing Blank Slate" );
+            foreach( Transform t in blankSlateHeights )
+            {
+                TerrainHeightExample e = PhotonNetwork.Instantiate( heightPrefab.name, t.position, t.rotation )
+                    .GetComponent<TerrainHeightExample>();
+                // manually activate
+                e.JustPlaced();
+            }
+        }
     }
 
     public override void OnPlayerEnteredRoom( Player newPlayer )

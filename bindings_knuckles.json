@@ -1,250 +1,265 @@
 {
-  "app_key": "application.generated.unity.slorkbirdpiece.exe",
-  "bindings": {
-    "/actions/buggy": {
-      "chords": [],
-      "poses": [],
-      "haptics": [],
-      "sources": [],
-      "skeleton": []
-    },
-    "/actions/default": {
-      "chords": [],
-      "poses": [],
-      "haptics": [],
-      "sources": [],
-      "skeleton": []
-    },
-    "/actions/platformer": {
-      "chords": [],
-      "poses": [],
-      "haptics": [],
-      "sources": [],
-      "skeleton": []
-    },
-    "/actions/rbe": {
-      "chords": [],
-      "poses": [
-        {
-          "output": "/actions/rbe/in/pose",
-          "path": "/user/hand/left/pose/raw"
-        },
-        {
-          "output": "/actions/rbe/in/pose",
-          "path": "/user/hand/right/pose/raw"
-        }
-      ],
-      "haptics": [
-        {
-          "output": "/actions/rbe/out/haptic",
-          "path": "/user/hand/left/output/haptic"
-        },
-        {
-          "output": "/actions/rbe/out/haptic",
-          "path": "/user/hand/right/output/haptic"
-        }
-      ],
-      "sources": [
-        {
-          "path": "/user/hand/left/input/b",
-          "mode": "button",
-          "parameters": {},
-          "inputs": {
-            "click": {
-              "output": "/actions/rbe/in/menuandselectlaser"
-            }
-          }
-        },
-        {
-          "path": "/user/hand/right/input/b",
-          "mode": "button",
-          "parameters": {},
-          "inputs": {
-            "click": {
-              "output": "/actions/rbe/in/menuandselectlaser"
-            }
-          }
-        },
-        {
-          "path": "/user/hand/left/input/a",
-          "mode": "button",
-          "parameters": {},
-          "inputs": {
-            "click": {
-              "output": "/actions/rbe/in/menuandselectlaser"
-            }
-          }
-        },
-        {
-          "path": "/user/hand/right/input/a",
-          "mode": "button",
-          "parameters": {},
-          "inputs": {
-            "click": {
-              "output": "/actions/rbe/in/menuandselectlaser"
-            }
-          }
-        },
-        {
-          "path": "/user/hand/left/input/thumbstick",
-          "mode": "dpad",
-          "parameters": {
-            "sub_mode": "touch"
-          },
-          "inputs": {
-            "east": {
-              "output": "/actions/rbe/in/rightclick"
+   "action_manifest_version" : 0,
+   "alias_info" : {},
+   "app_key" : "application.generated.unity.realitybyexample.exe",
+   "bindings" : {
+      "/actions/buggy" : {
+         "chords" : [],
+         "haptics" : [],
+         "poses" : [],
+         "skeleton" : [],
+         "sources" : []
+      },
+      "/actions/default" : {
+         "chords" : [],
+         "haptics" : [],
+         "poses" : [],
+         "skeleton" : [],
+         "sources" : []
+      },
+      "/actions/platformer" : {
+         "chords" : [],
+         "haptics" : [],
+         "poses" : [],
+         "skeleton" : [],
+         "sources" : []
+      },
+      "/actions/rbe" : {
+         "chords" : [],
+         "haptics" : [
+            {
+               "output" : "/actions/rbe/out/haptic",
+               "path" : "/user/hand/left/output/haptic"
             },
-            "west": {
-              "output": "/actions/rbe/in/leftclick"
+            {
+               "output" : "/actions/rbe/out/haptic",
+               "path" : "/user/hand/right/output/haptic"
             }
-          }
-        },
-        {
-          "path": "/user/hand/right/input/thumbstick",
-          "mode": "dpad",
-          "parameters": {
-            "sub_mode": "touch"
-          },
-          "inputs": {
-            "east": {
-              "output": "/actions/rbe/in/rightclick"
+         ],
+         "poses" : [
+            {
+               "output" : "/actions/rbe/in/pose",
+               "path" : "/user/hand/left/pose/raw"
             },
-            "west": {
-              "output": "/actions/rbe/in/leftclick"
+            {
+               "output" : "/actions/rbe/in/pose",
+               "path" : "/user/hand/right/pose/raw"
             }
-          }
-        },
-        {
-          "path": "/user/hand/left/input/trackpad",
-          "mode": "trackpad",
-          "parameters": {},
-          "inputs": {
-            "position": {
-              "output": "/actions/rbe/in/updowntouchpad"
+         ],
+         "skeleton" : [],
+         "sources" : [
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/menuandselectlaser"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/b"
             },
-            "touch": {
-              "output": "/actions/rbe/in/updowntouchpadpressed"
-            }
-          }
-        },
-        {
-          "path": "/user/hand/right/input/trackpad",
-          "mode": "trackpad",
-          "parameters": {},
-          "inputs": {
-            "position": {
-              "output": "/actions/rbe/in/updowntouchpad"
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/menuandselectlaser"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/b"
             },
-            "touch": {
-              "output": "/actions/rbe/in/updowntouchpadpressed"
-            }
-          }
-        },
-        {
-          "path": "/user/hand/left/input/grip",
-          "mode": "button",
-          "parameters": {},
-          "inputs": {
-            "click": {
-              "output": "/actions/rbe/in/grabobject"
-            }
-          }
-        },
-        {
-          "path": "/user/hand/right/input/grip",
-          "mode": "button",
-          "parameters": {},
-          "inputs": {
-            "click": {
-              "output": "/actions/rbe/in/grabobject"
-            }
-          }
-        },
-        {
-          "path": "/user/hand/left/input/trigger",
-          "mode": "trigger",
-          "parameters": {},
-          "inputs": {
-            "click": {
-              "output": "/actions/rbe/in/takeactiongeneric"
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/menuandselectlaser"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/a"
             },
-            "touch": {
-              "output": "/actions/rbe/in/previewactiongeneric"
-            }
-          }
-        },
-        {
-          "path": "/user/hand/right/input/trigger",
-          "mode": "trigger",
-          "parameters": {},
-          "inputs": {
-            "click": {
-              "output": "/actions/rbe/in/takeactiongeneric"
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/menuandselectlaser"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/a"
             },
-            "touch": {
-              "output": "/actions/rbe/in/previewactiongeneric"
-            }
-          }
-        },
-        {
-          "path": "/user/hand/left/input/trigger",
-          "mode": "trigger",
-          "parameters": {},
-          "inputs": {
-            "click": {
-              "output": "/actions/rbe/in/takeactionmovement"
-            }
-          }
-        },
-        {
-          "path": "/user/hand/right/input/trigger",
-          "mode": "trigger",
-          "parameters": {},
-          "inputs": {
-            "click": {
-              "output": "/actions/rbe/in/takeactionmovement"
-            }
-          }
-        },
-        {
-          "path": "/user/hand/left/input/thumbstick",
-          "mode": "joystick",
-          "parameters": {},
-          "inputs": {
-            "position": {
-              "output": "/actions/rbe/in/updowntouchpad"
+            {
+               "inputs" : {
+                  "east" : {
+                     "output" : "/actions/rbe/in/rightclick"
+                  },
+                  "west" : {
+                     "output" : "/actions/rbe/in/leftclick"
+                  }
+               },
+               "mode" : "dpad",
+               "parameters" : {
+                  "sub_mode" : "touch"
+               },
+               "path" : "/user/hand/left/input/thumbstick"
             },
-            "touch": {
-              "output": "/actions/rbe/in/updowntouchpadpressed"
-            }
-          }
-        },
-        {
-          "path": "/user/hand/right/input/thumbstick",
-          "mode": "joystick",
-          "parameters": {},
-          "inputs": {
-            "position": {
-              "output": "/actions/rbe/in/updowntouchpad"
+            {
+               "inputs" : {
+                  "east" : {
+                     "output" : "/actions/rbe/in/rightclick"
+                  },
+                  "west" : {
+                     "output" : "/actions/rbe/in/leftclick"
+                  }
+               },
+               "mode" : "dpad",
+               "parameters" : {
+                  "sub_mode" : "touch"
+               },
+               "path" : "/user/hand/right/input/thumbstick"
             },
-            "touch": {
-              "output": "/actions/rbe/in/updowntouchpadpressed"
+            {
+               "inputs" : {
+                  "position" : {
+                     "output" : "/actions/rbe/in/updowntouchpad"
+                  },
+                  "touch" : {
+                     "output" : "/actions/rbe/in/updowntouchpadpressed"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/left/input/trackpad"
+            },
+            {
+               "inputs" : {
+                  "position" : {
+                     "output" : "/actions/rbe/in/updowntouchpad"
+                  },
+                  "touch" : {
+                     "output" : "/actions/rbe/in/updowntouchpadpressed"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/hand/right/input/trackpad"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/grabobject"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/grip"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/grabobject"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/grip"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/takeactiongeneric"
+                  },
+                  "touch" : {
+                     "output" : "/actions/rbe/in/previewactiongeneric"
+                  }
+               },
+               "mode" : "trigger",
+               "path" : "/user/hand/left/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/takeactiongeneric"
+                  },
+                  "touch" : {
+                     "output" : "/actions/rbe/in/previewactiongeneric"
+                  }
+               },
+               "mode" : "trigger",
+               "path" : "/user/hand/right/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/takeactionmovement"
+                  }
+               },
+               "mode" : "trigger",
+               "path" : "/user/hand/left/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/takeactionmovement"
+                  }
+               },
+               "mode" : "trigger",
+               "path" : "/user/hand/right/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "position" : {
+                     "output" : "/actions/rbe/in/updowntouchpad"
+                  },
+                  "touch" : {
+                     "output" : "/actions/rbe/in/updowntouchpadpressed"
+                  }
+               },
+               "mode" : "joystick",
+               "path" : "/user/hand/left/input/thumbstick"
+            },
+            {
+               "inputs" : {
+                  "position" : {
+                     "output" : "/actions/rbe/in/updowntouchpad"
+                  },
+                  "touch" : {
+                     "output" : "/actions/rbe/in/updowntouchpadpressed"
+                  }
+               },
+               "mode" : "joystick",
+               "path" : "/user/hand/right/input/thumbstick"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/takepreviewedaction"
+                  },
+                  "touch" : {
+                     "output" : "/actions/rbe/in/previewaction"
+                  }
+               },
+               "mode" : "trigger",
+               "path" : "/user/hand/left/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/rbe/in/takepreviewedaction"
+                  },
+                  "touch" : {
+                     "output" : "/actions/rbe/in/previewaction"
+                  }
+               },
+               "mode" : "trigger",
+               "path" : "/user/hand/right/input/trigger"
             }
-          }
-        }
-      ],
-      "skeleton": []
-    },
-    "/actions/terraingenerate": {
-      "chords": [],
-      "poses": [],
-      "haptics": [],
-      "sources": [],
-      "skeleton": []
-    }
-  },
-  "controller_type": "knuckles",
-  "description": "Index June 2020",
-  "name": "Saved Terrain By Example [Testing] configuration for Index Controller"
+         ]
+      },
+      "/actions/terraingenerate" : {
+         "chords" : [],
+         "haptics" : [],
+         "poses" : [],
+         "skeleton" : [],
+         "sources" : []
+      }
+   },
+   "category" : "steamvr_input",
+   "controller_type" : "knuckles",
+   "description" : "Index March 2021",
+   "name" : "Saved Terrain By Example [Testing] configuration for Index Controller",
+   "options" : {},
+   "simulated_actions" : []
 }

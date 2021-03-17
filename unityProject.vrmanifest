@@ -5,7 +5,7 @@
       "app_key": "application.generated.unity.realitybyexample.exe",
       "launch_type": "url",
       "url": "steam://launch/",
-      "action_manifest_path": "D:\\cygwin64\\home\\lja\\Unity\\reality-by-example\\actions.json",
+      "action_manifest_path": "C:\\cygwin64\\home\\Jack Atherton\\Unity\\reality-by-example\\actions.json",
       "strings": {
         "en_us": {
           "name": "Reality By Example [Testing]"

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class AvatarHintController : MonoBehaviour , IPunInstantiateMagicCallback
+public class AvatarHintController : MonoBehaviour
 {
     private static List<AvatarHintController> avatars;
     private PhotonView myPhotonView;
     public MeshRenderer myHintPrefab;
 
     private MeshRenderer myHint;
+    private MeshRenderer myBody;
 
     void Awake()
     {
@@ -19,18 +20,9 @@ public class AvatarHintController : MonoBehaviour , IPunInstantiateMagicCallback
         }
         avatars.Add( this );
         myPhotonView = GetComponent<PhotonView>();
-    }
-
-    void IPunInstantiateMagicCallback.OnPhotonInstantiate(PhotonMessageInfo info)
-    {
-        // instantiate my hint
-        if( myPhotonView.IsMine )
-        {
-            myHint = PhotonNetwork.Instantiate( myHintPrefab.name, transform.position, Quaternion.identity )
-                .GetComponent<MeshRenderer>();
-            // my hint should change color when I change as well
-            GetComponent<AvatarColorUpdater>().myMaterials.Add( myHint );
-        }
+        myBody = GetComponentInChildren<MeshRenderer>();
+        // instantiate my hint (local object)
+        myHint = Instantiate( myHintPrefab, transform.position, Quaternion.identity );
     }
 
     public static void ShowOthers( float hintTime )
@@ -62,10 +54,22 @@ public class AvatarHintController : MonoBehaviour , IPunInstantiateMagicCallback
     {
         // stop previous animation
         StopHintAnimation();
-        // put the hint where I am
-        myHint.transform.position = transform.position;
+        
+        // hint position and color
+        PrepareHint();
+
         // do the animation
         hintCoroutine = StartCoroutine( AnimateHint.AnimateHintFade( myHint, pauseTimeBeforeFade ) );
+    }
+
+    private void PrepareHint()
+    {
+        // set position to be my position
+        myHint.transform.position = transform.position;
+
+        // and color to be my color
+        Color c = myBody.material.color;
+        myHint.material.color = new Color( c.r, c.g, c.b, myHint.material.color.a );
     }
 
     private void StopHintAnimation()

@@ -135,6 +135,8 @@ GameObject:
   - component: {fileID: 6944908861764981765}
   - component: {fileID: 635544735759339837}
   - component: {fileID: 8735902176750465436}
+  - component: {fileID: -6712024839461525150}
+  - component: {fileID: 4931759007244234584}
   m_Layer: 0
   m_Name: VirtualAvatar
   m_TagString: Untagged
@@ -177,6 +179,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   ObservedComponents:
   - {fileID: 8735902176750465436}
+  - {fileID: -6712024839461525150}
   viewIdField: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -196,3 +199,28 @@ MonoBehaviour:
   lerpRotation: 1
   lerpScale: 0
   lerpAmount: 0.1
+--- !u!114 &-6712024839461525150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6809139578259428636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0337898aab5b1de4798b0144edb5966e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4931759007244234584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6809139578259428636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64c71e90831817d4a81237b67bd99fc0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  colorAlpha: 0.6

@@ -10,7 +10,7 @@ public class PhotonColorView : MonoBehaviour , IPunObservable
     // Start is called before the first frame update
     void Awake()
     {
-        me = GetComponent<MeshRenderer>();
+        me = GetComponentInChildren<MeshRenderer>();
     }
 
     void IPunObservable.OnPhotonSerializeView( PhotonStream stream, PhotonMessageInfo info )

@@ -14,7 +14,9 @@ public class SwitchToComponent : MonoBehaviour
         CreatureCreate, CreatureSelect, CreatureClone, CreatureExampleRecord, CreatureExampleClone, CreatureExampleDelete,
         CreatureConstantTimeMode, CreatureMusicMode,
         DrawInAir, DrawOnGround, CommunicateAudio, CommunicateAudioClear, CommunicateAudioFeature,
-        DrawTrailEvaporate, DrawTrailPersist };
+        DrawTrailEvaporate, DrawTrailPersist,
+        RandomizeAvatarColor
+    };
     public InteractionType switchTo;
     public CommunicateSynthMapping.Mode communicationMode;
     public CommunicateSynthMapping.Feature communicationFeature;
@@ -282,6 +284,28 @@ public class SwitchToComponent : MonoBehaviour
                 if( drawInAirWasActive )
                 {
                     EnableComponent<DrawInAirController>( controller );
+                }
+                break;
+            case InteractionType.RandomizeAvatarColor:
+                Color newColor = new Color(
+                    UnityEngine.Random.Range( 0f, 1f ),
+                    UnityEngine.Random.Range( 0f, 1f ),
+                    UnityEngine.Random.Range( 0f, 1f ),
+                    0.6f // alpha
+                );
+                // display on menu
+                GetComponent<MeshRenderer>().material.color = newColor;
+                // display on my avatar
+                AvatarColorUpdater.UpdateColors( newColor );
+
+                // reenable drawing and sound if they were active
+                if( drawInAirWasActive )
+                {
+                    EnableComponent<DrawInAirController>( controller );
+                }
+                if( communicateSynthWasActive )
+                {
+                    EnableComponent<CommunicateSynthMapping>( controller );
                 }
                 break;
             // disabled

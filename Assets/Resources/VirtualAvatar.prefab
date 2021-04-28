@@ -239,4 +239,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   myHintPrefab: {fileID: 563735963719483420, guid: fb1b52995760a274d9189db90c9e8e8b,
     type: 3}
-  myHint: {fileID: 0}

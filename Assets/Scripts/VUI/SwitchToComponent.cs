@@ -309,7 +309,7 @@ public class SwitchToComponent : MonoBehaviour
                 }
                 break;
             case InteractionType.ShowAvatarHint:
-                AvatarHintController.ShowOthers( hintTime );
+                AvatarHintController.ShowMe( hintTime );
 
                 // reenable drawing and sound if they were active
                 if( drawInAirWasActive )
@@ -322,7 +322,7 @@ public class SwitchToComponent : MonoBehaviour
                 }
                 break;
             case InteractionType.FindAvatars:
-                AvatarHintController.ShowMe( hintTime );
+                AvatarHintController.ShowOthers( hintTime );
 
                 // reenable drawing and sound if they were active
                 if( drawInAirWasActive )

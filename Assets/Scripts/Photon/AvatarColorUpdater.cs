@@ -6,9 +6,8 @@ using Photon.Pun;
 public class AvatarColorUpdater : MonoBehaviour
 {
     private static List<AvatarColorUpdater> avatars;
-    private MeshRenderer me;
+    private MeshRenderer[] myMaterials;
     private PhotonView myView;
-    public float colorAlpha = 0.6f;
     
     void Awake()
     {
@@ -18,14 +17,16 @@ public class AvatarColorUpdater : MonoBehaviour
         }    
         avatars.Add( this );
 
-        me = GetComponentInChildren<MeshRenderer>();
+        myMaterials = GetComponentsInChildren<MeshRenderer>();
         myView = GetComponent<PhotonView>();
     }
 
     private void UpdateColor( Color newColor )
     {
-        newColor.a = colorAlpha;
-        me.material.color = newColor;
+        foreach( MeshRenderer m in myMaterials )
+        {
+            m.material.color = new Color( newColor.r, newColor.g, newColor.b, m.material.color.a );
+        }
     }
 
     private bool BelongsToThisClient()
@@ -43,5 +44,10 @@ public class AvatarColorUpdater : MonoBehaviour
                 avatar.UpdateColor( newColor );
             }
         }
+    }
+
+    private void OnDestroy()
+    {
+        avatars.Remove( this );
     }
 }

@@ -11,9 +11,6 @@ GameObject:
   - component: {fileID: 965391747430261752}
   - component: {fileID: 8357504647184147937}
   - component: {fileID: 563735963719483420}
-  - component: {fileID: 2881719785791813213}
-  - component: {fileID: 4476282744659697312}
-  - component: {fileID: 5211264787866090850}
   m_Layer: 10
   m_Name: VirtualAvatarDisplayHint
   m_TagString: Untagged
@@ -82,55 +79,3 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &2881719785791813213
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3276803137096965913}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  observableSearch: 2
-  Synchronization: 3
-  OwnershipTransfer: 0
-  ObservedComponents:
-  - {fileID: 4476282744659697312}
-  - {fileID: 5211264787866090850}
-  viewIdField: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
---- !u!114 &4476282744659697312
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3276803137096965913}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2de27594a3472aa46b6409ba5d005b9c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lerpPosition: 1
-  lerpRotation: 1
-  lerpScale: 0
-  lerpAmount: 1
---- !u!114 &5211264787866090850
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3276803137096965913}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0337898aab5b1de4798b0144edb5966e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

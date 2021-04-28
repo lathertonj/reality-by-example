@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class AvatarHintController : MonoBehaviour
+public class AvatarHintController : MonoBehaviour , IPunInstantiateMagicCallback
 {
     private static List<AvatarHintController> avatars;
     private PhotonView myPhotonView;
@@ -19,15 +19,18 @@ public class AvatarHintController : MonoBehaviour
         }
         avatars.Add( this );
         myPhotonView = GetComponent<PhotonView>();
-
-        myHint = PhotonNetwork.Instantiate( myHintPrefab.name, transform.position, Quaternion.identity )
-            .GetComponent<MeshRenderer>();
     }
 
-    void Start()
+    void IPunInstantiateMagicCallback.OnPhotonInstantiate(PhotonMessageInfo info)
     {
-        // my hint should change color when I change as well
-        GetComponent<AvatarColorUpdater>().myMaterials.Add( myHint );
+        // instantiate my hint
+        if( myPhotonView.IsMine )
+        {
+            myHint = PhotonNetwork.Instantiate( myHintPrefab.name, transform.position, Quaternion.identity )
+                .GetComponent<MeshRenderer>();
+            // my hint should change color when I change as well
+            GetComponent<AvatarColorUpdater>().myMaterials.Add( myHint );
+        }
     }
 
     public static void ShowOthers( float hintTime )

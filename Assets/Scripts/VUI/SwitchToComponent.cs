@@ -15,7 +15,7 @@ public class SwitchToComponent : MonoBehaviour
         CreatureConstantTimeMode, CreatureMusicMode,
         DrawInAir, DrawOnGround, CommunicateAudio, CommunicateAudioClear, CommunicateAudioFeature,
         DrawTrailEvaporate, DrawTrailPersist,
-        RandomizeAvatarColor
+        RandomizeAvatarColor, ShowAvatarHint, FindAvatars
     };
     public InteractionType switchTo;
     public CommunicateSynthMapping.Mode communicationMode;
@@ -297,6 +297,32 @@ public class SwitchToComponent : MonoBehaviour
                 GetComponent<MeshRenderer>().material.color = newColor;
                 // display on my avatar
                 AvatarColorUpdater.UpdateColors( newColor );
+
+                // reenable drawing and sound if they were active
+                if( drawInAirWasActive )
+                {
+                    EnableComponent<DrawInAirController>( controller );
+                }
+                if( communicateSynthWasActive )
+                {
+                    EnableComponent<CommunicateSynthMapping>( controller );
+                }
+                break;
+            case InteractionType.ShowAvatarHint:
+                AvatarHintController.ShowOthers( hintTime );
+
+                // reenable drawing and sound if they were active
+                if( drawInAirWasActive )
+                {
+                    EnableComponent<DrawInAirController>( controller );
+                }
+                if( communicateSynthWasActive )
+                {
+                    EnableComponent<CommunicateSynthMapping>( controller );
+                }
+                break;
+            case InteractionType.FindAvatars:
+                AvatarHintController.ShowMe( hintTime );
 
                 // reenable drawing and sound if they were active
                 if( drawInAirWasActive )

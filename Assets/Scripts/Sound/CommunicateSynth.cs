@@ -93,6 +93,7 @@ public class CommunicateSynth : MonoBehaviour
 
     public void SetAll( float pitch, float amplitude, float timbre )
     {
+        if( myChuck == null ) { return; }
         SetPitch( pitch );
         SetTimbre( timbre );
         SetAmplitude( amplitude );

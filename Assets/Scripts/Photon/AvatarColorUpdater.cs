@@ -6,7 +6,7 @@ using Photon.Pun;
 public class AvatarColorUpdater : MonoBehaviour
 {
     private static List<AvatarColorUpdater> avatars;
-    private MeshRenderer[] myMaterials;
+    public List<MeshRenderer> myMaterials;
     private PhotonView myView;
     
     void Awake()
@@ -17,7 +17,8 @@ public class AvatarColorUpdater : MonoBehaviour
         }    
         avatars.Add( this );
 
-        myMaterials = GetComponentsInChildren<MeshRenderer>();
+        myMaterials = new List<MeshRenderer>();
+        myMaterials.Add( GetComponentInChildren<MeshRenderer>() );
         myView = GetComponent<PhotonView>();
     }
 

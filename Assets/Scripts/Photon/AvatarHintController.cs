@@ -7,6 +7,9 @@ public class AvatarHintController : MonoBehaviour
 {
     private static List<AvatarHintController> avatars;
     private PhotonView myPhotonView;
+    public MeshRenderer myHintPrefab;
+
+    private MeshRenderer myHint;
 
     void Awake()
     {
@@ -16,6 +19,15 @@ public class AvatarHintController : MonoBehaviour
         }
         avatars.Add( this );
         myPhotonView = GetComponent<PhotonView>();
+
+        myHint = PhotonNetwork.Instantiate( myHintPrefab.name, transform.position, Quaternion.identity )
+            .GetComponent<MeshRenderer>();
+    }
+
+    void Start()
+    {
+        // my hint should change color when I change as well
+        GetComponent<AvatarColorUpdater>().myMaterials.Add( myHint );
     }
 
     public static void ShowOthers( float hintTime )
@@ -40,13 +52,16 @@ public class AvatarHintController : MonoBehaviour
         }
     }
 
-    public MeshRenderer myHint;
     private Coroutine hintCoroutine;
 
     [PunRPC]
     private void ShowAvatarHint( float pauseTimeBeforeFade )
     {
+        // stop previous animation
         StopHintAnimation();
+        // put the hint where I am
+        myHint.transform.position = transform.position;
+        // do the animation
         hintCoroutine = StartCoroutine( AnimateHint.AnimateHintFade( myHint, pauseTimeBeforeFade ) );
     }
 

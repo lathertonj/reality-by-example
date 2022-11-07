@@ -9,6 +9,17 @@ public class TestClassifier : MonoBehaviour
     {
         RapidMixClassifier myClassifier = GetComponent<RapidMixClassifier>();
 
+        #if UNITY_WEBGL
+        myClassifier.RecordDataPoint( new double[] {0.0}, 0 );
+        myClassifier.RecordDataPoint( new double[] {0.1}, 0 );
+        myClassifier.RecordDataPoint( new double[] {-0.1}, 0 );
+        myClassifier.RecordDataPoint( new double[] {1.1}, 1 );
+        myClassifier.RecordDataPoint( new double[] {0.9}, 1 );
+        myClassifier.RecordDataPoint( new double[] {1.0}, 1 );
+        myClassifier.RecordDataPoint( new double[] {-1.0}, -1 );
+        myClassifier.RecordDataPoint( new double[] {-1.1}, -1 );
+        myClassifier.RecordDataPoint( new double[] {-0.9}, -1 );
+        #else
         myClassifier.RecordDataPoint( new double[] {0.0}, "middle" );
         myClassifier.RecordDataPoint( new double[] {0.1}, "middle" );
         myClassifier.RecordDataPoint( new double[] {-0.1}, "middle" );
@@ -18,6 +29,7 @@ public class TestClassifier : MonoBehaviour
         myClassifier.RecordDataPoint( new double[] {-1.0}, "left" );
         myClassifier.RecordDataPoint( new double[] {-1.1}, "left" );
         myClassifier.RecordDataPoint( new double[] {-0.9}, "left" );
+        #endif
 
         myClassifier.Train();
 

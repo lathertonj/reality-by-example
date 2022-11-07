@@ -17,21 +17,21 @@ namespace Valve.VR
     public partial class SteamVR_Actions
     {
         
-        private static SteamVR_Input_ActionSet_terraingenerate p_terraingenerate;
+        private static SteamVR_Input_ActionSet_rbe p_rbe;
         
-        public static SteamVR_Input_ActionSet_terraingenerate terraingenerate
+        public static SteamVR_Input_ActionSet_rbe rbe
         {
             get
             {
-                return SteamVR_Actions.p_terraingenerate.GetCopy<SteamVR_Input_ActionSet_terraingenerate>();
+                return SteamVR_Actions.p_rbe.GetCopy<SteamVR_Input_ActionSet_rbe>();
             }
         }
         
         private static void StartPreInitActionSets()
         {
-            SteamVR_Actions.p_terraingenerate = ((SteamVR_Input_ActionSet_terraingenerate)(SteamVR_ActionSet.Create<SteamVR_Input_ActionSet_terraingenerate>("/actions/terraingenerate")));
+            SteamVR_Actions.p_rbe = ((SteamVR_Input_ActionSet_rbe)(SteamVR_ActionSet.Create<SteamVR_Input_ActionSet_rbe>("/actions/rbe")));
             Valve.VR.SteamVR_Input.actionSets = new Valve.VR.SteamVR_ActionSet[] {
-                    SteamVR_Actions.terraingenerate};
+                    SteamVR_Actions.rbe};
         }
     }
 }

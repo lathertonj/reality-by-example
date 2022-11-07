@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSource
+public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSource , SerializableByExample
 {
     public Transform objectToRunRegressionOn;
     private SoundEngine mySoundEngine;
@@ -12,11 +12,13 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
     [HideInInspector] public List<SoundChordExample> myClassifierExamples;
     private bool haveTrained = false;
     private int myDefaultChord = 0;
-    private ColorablePlane myColorablePlane;
-    private Vector3 previousPosition;
     private bool currentlyShowingData = false;
 
     private static SoundEngineChordClassifier me;
+
+    public bool displayPlaneVisualization = true;
+
+    public SoundChordExample examplePrefab;
 
 
 
@@ -55,7 +57,6 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
         // grab component reference
         myClassifier = gameObject.AddComponent<RapidMixClassifier>();
         mySoundEngine = GetComponent<SoundEngine>();
-        myColorablePlane = GetComponentInChildren<ColorablePlane>( true );
         me = this;
 
         // initialize list
@@ -63,20 +64,26 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
 
         // initialize
         myDefaultChord = 0;
-        previousPosition = transform.position;
     }
 
     static public void Activate()
     {
-        me.myColorablePlane.gameObject.SetActive( true );
-        me.myColorablePlane.SetDataSource( me );
-        me.currentlyShowingData = true;
+        me.ActivatePlane();
     }
 
-    static public void Deactivate()
+    private void ActivatePlane()
     {
-        // TODO hide the plane -- want to do this, but only when NEITHER of our hands is using the plane...
-        me.myColorablePlane.gameObject.SetActive( false );
+        if( displayPlaneVisualization )
+        {
+            // don't use reference data
+            ColorablePlane.SetDataSource( this, 0 );
+            currentlyShowingData = true;
+        }
+    }
+
+    public static void Deactivate()
+    {
+        ColorablePlane.ClearDataSource( me );
 
         me.currentlyShowingData = false;
     }
@@ -101,12 +108,6 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
             if( haveTrained )
             {
                 chord = RunClassifier( objectToRunRegressionOn.position );
-
-                if( currentlyShowingData && previousPosition != transform.position )
-                {
-                    previousPosition = transform.position;
-                    myColorablePlane.UpdateColors();
-                }
             }
             // update the sound engine
             mySoundEngine.SetChord( chord );
@@ -130,7 +131,11 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
                 Vector3 point = example.transform.position;
 
                 // remember
+                #if UNITY_WEBGL
+                myClassifier.RecordDataPoint( InputVector( point ), example.myChord );
+                #else
                 myClassifier.RecordDataPoint( InputVector( point ), example.myChord.ToString() );
+                #endif
             }
 
             // train
@@ -140,7 +145,7 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
             haveTrained = true;
 
             // display
-            if( currentlyShowingData ) { myColorablePlane.UpdateColors(); }
+            if( currentlyShowingData ) { ColorablePlane.UpdateColors(); }
         }
         else
         {
@@ -151,12 +156,59 @@ public class SoundEngineChordClassifier : MonoBehaviour , ColorablePlaneDataSour
 
     private int RunClassifier( Vector3 pos )
     {
+        #if UNITY_WEBGL
+        return myClassifier.Run( SoundEngineFeatures.InputVector( pos ) );
+        #else
         return int.Parse( myClassifier.Run( SoundEngineFeatures.InputVector( pos ) ) );
+        #endif
     }
 
-    public float Intensity0To1( Vector3 worldPos )
+    float ColorablePlaneDataSource.Intensity0To1( Vector3 worldPos, float referenceData )
     {
         if( !haveTrained ) { return 0; }
+        // ignore referenceData
         return RunClassifier( worldPos ) * 1.0f / SoundChordExample.numChords;
     }
+
+    string SerializableByExample.SerializeExamples()
+    {
+        SerializableChordExamples examples = new SerializableChordExamples();
+        examples.examples = new List<SerializableChordExample>();
+
+        foreach( SoundChordExample example in myClassifierExamples )
+        {
+            examples.examples.Add( example.Serialize() );
+        }
+
+        // convert to json
+        return SerializationManager.ConvertToJSON<SerializableChordExamples>( examples );
+    }
+
+    IEnumerator SerializableByExample.LoadExamples( string serializedExamples )
+    {
+        SerializableChordExamples examples = 
+            SerializationManager.ConvertFromJSON<SerializableChordExamples>( serializedExamples );
+        
+        // height
+        for( int i = 0; i < examples.examples.Count; i++ )
+        {
+            SoundChordExample newExample = Instantiate( examplePrefab );
+            newExample.ResetFromSerial( examples.examples[i] );
+            newExample.Initialize( false );
+        }
+
+        RescanProvidedExamples();
+        yield break;
+    }
+
+    string SerializableByExample.FilenameIdentifier()
+    {
+        return "chord";
+    }
+}
+
+[System.Serializable]
+public class SerializableChordExamples
+{
+    public List< SerializableChordExample > examples;
 }

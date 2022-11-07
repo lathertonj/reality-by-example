@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSource
+public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSource , SerializableByExample
 {
     public Transform objectToRunRegressionOn;
     private SoundEngine mySoundEngine;
@@ -12,10 +12,12 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
     [HideInInspector] public List<SoundTempoExample> myRegressionExamples;
     private bool haveTrained = false;
     private float myDefaultTempo;
-    private ColorablePlane myColorablePlane;
-    private Vector3 previousPosition;
     private bool currentlyShowingData = false;
     private static SoundEngineTempoRegressor me;
+
+    public bool displayPlaneVisualization = true;
+
+    public SoundTempoExample examplePrefab;
 
 
     public void ProvideExample( SoundTempoExample example, bool rescan = true )
@@ -53,29 +55,34 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
         // grab component reference
         myRegression = gameObject.AddComponent<RapidMixRegression>();
         mySoundEngine = GetComponent<SoundEngine>();
-        myColorablePlane = GetComponentInChildren<ColorablePlane>( true );
 
         // initialize list
         myRegressionExamples = new List<SoundTempoExample>();
 
         // initialize
         myDefaultTempo = 100f;
-        previousPosition = transform.position;
-
         me = this;
     }
 
     static public void Activate()
     {
-        me.myColorablePlane.gameObject.SetActive( true );
-        me.myColorablePlane.SetDataSource( me );
-        me.currentlyShowingData = true;
+        me.ActivatePlane();
+    }
+
+    private void ActivatePlane()
+    {
+        if( displayPlaneVisualization )
+        {
+            // don't use reference data source
+            ColorablePlane.SetDataSource( this, 0 );
+            currentlyShowingData = true;
+        }
     }
 
     static public void Deactivate()
     {
         // TODO hide the plane -- want to do this, but only when NEITHER of our hands is using the plane...
-        me.myColorablePlane.gameObject.SetActive( false );
+        ColorablePlane.ClearDataSource( me );
 
         me.currentlyShowingData = false;
     }
@@ -100,12 +107,6 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
             if( haveTrained )
             {
                 tempo = (float) myRegression.Run( SoundEngineFeatures.InputVector( objectToRunRegressionOn.position ) )[0];
-
-                if( currentlyShowingData && previousPosition != transform.position )
-                {
-                    previousPosition = transform.position;
-                    myColorablePlane.UpdateColors();
-                }
             }
             // update sound engine
             mySoundEngine.SetQuarterNoteTime( TempoBPMToQuarterNoteSeconds( tempo ) );
@@ -147,7 +148,7 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
             haveTrained = true;
 
             // display
-            if( currentlyShowingData ) { myColorablePlane.UpdateColors(); }
+            if( currentlyShowingData ) { ColorablePlane.UpdateColors(); }
         }
         else
         {
@@ -156,10 +157,53 @@ public class SoundEngineTempoRegressor : MonoBehaviour , ColorablePlaneDataSourc
         }
     }
 
-    public float Intensity0To1( Vector3 worldPos )
+    float ColorablePlaneDataSource.Intensity0To1( Vector3 worldPos, float referenceData )
     {
         if( !haveTrained ) { return 0; }
+        // don't use reference data
         return ((float) myRegression.Run( SoundEngineFeatures.InputVector( worldPos ) )[0])
             .MapClamp( SoundTempoExample.minTempo, SoundTempoExample.maxTempo, 0, 1 ); 
     }
+
+    string SerializableByExample.SerializeExamples()
+    {
+        SerializableTempoExamples examples = new SerializableTempoExamples();
+        examples.examples = new List<SerializableTempoExample>();
+
+        foreach( SoundTempoExample example in myRegressionExamples )
+        {
+            examples.examples.Add( example.Serialize() );
+        }
+
+        // convert to json
+        return SerializationManager.ConvertToJSON<SerializableTempoExamples>( examples );
+    }
+
+    IEnumerator SerializableByExample.LoadExamples( string serializedExamples )
+    {
+        SerializableTempoExamples examples = 
+            SerializationManager.ConvertFromJSON<SerializableTempoExamples>( serializedExamples );
+        
+        // height
+        for( int i = 0; i < examples.examples.Count; i++ )
+        {
+            SoundTempoExample newExample = Instantiate( examplePrefab );
+            newExample.ResetFromSerial( examples.examples[i] );
+            newExample.Initialize( false );
+        }
+
+        RescanProvidedExamples();
+        yield break;
+    }
+
+    string SerializableByExample.FilenameIdentifier()
+    {
+        return "tempo";
+    }
+}
+
+[System.Serializable]
+public class SerializableTempoExamples
+{
+    public List< SerializableTempoExample > examples;
 }

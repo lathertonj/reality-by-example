@@ -9,7 +9,6 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
     private static List< TerrainHeightExample > allExamples = new List< TerrainHeightExample >();
 
 
-
     void TriggerGrabMoveInteractable.InformOfTemporaryMovement( Vector3 currentPosition )
     {
         // don't respond to movements midway
@@ -65,20 +64,7 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
 
     ConnectedTerrainController FindTerrain()
     {
-        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
-        int layerMask = 1 << 8;
-
-        RaycastHit hit;
-        // Check from a point really high above us, in the downward direction (in case we are below terrain)
-        if( Physics.Raycast( transform.position + 400 * Vector3.up, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
-        {
-            ConnectedTerrainController foundTerrain = hit.transform.GetComponentInParent<ConnectedTerrainController>();
-            if( foundTerrain != null )
-            {
-                return foundTerrain;
-            }
-        }
-        return null;
+        return TerrainUtility.FindTerrain<ConnectedTerrainController>( transform.position );
     }
 
 
@@ -106,4 +92,27 @@ public class TerrainHeightExample : MonoBehaviour , TriggerGrabMoveInteractable 
         }
     }
 
+    public SerializableTerrainHeightExample Serialize( ConnectedTerrainController myTerrain )
+    {
+        // myTerrain passed just in case!
+
+        SerializableTerrainHeightExample serial = new SerializableTerrainHeightExample();
+        
+        serial.localPosition = myTerrain.transform.InverseTransformPoint( transform.position );
+        return serial;
+    }
+
+    public void ResetFromSerial( SerializableTerrainHeightExample serialized, ConnectedTerrainController myTerrain )
+    {
+        transform.position = myTerrain.transform.TransformPoint( serialized.localPosition );
+    }
+
 }
+
+
+[System.Serializable]
+public class SerializableTerrainHeightExample
+{
+    public Vector3 localPosition;
+}
+

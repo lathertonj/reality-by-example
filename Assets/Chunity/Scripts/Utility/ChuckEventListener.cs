@@ -22,11 +22,15 @@ public class ChuckEventListener : MonoBehaviour
         StopListening();
 
         // start up again
-        myVoidCallback = Chuck.CreateVoidCallback( MyCallback );
         userCallback = callback;
         myChuck = chuck;
         myEventName = eventToListenFor;
+        #if UNITY_WEBGL
+        myChuck.StartListeningForChuckEvent( myEventName, gameObject.name, "MyDirectCallback" );
+        #else
+        myVoidCallback = MyCallback;
         myChuck.StartListeningForChuckEvent( myEventName, myVoidCallback );
+        #endif
     }
 
 
@@ -37,12 +41,20 @@ public class ChuckEventListener : MonoBehaviour
     // ----------------------------------------------------
     public void StopListening()
     {
+        #if UNITY_WEBGL
+        if( myChuck != null && myEventName != "" )
+        {
+            myChuck.StopListeningForChuckEvent( myEventName, gameObject.name, "MyDirectCallback" );
+        }
+        #else
         if( myChuck != null && myVoidCallback != null )
         {
             myChuck.StopListeningForChuckEvent( myEventName, myVoidCallback );
         }
-        myChuck = null;
         myVoidCallback = null;
+        #endif
+
+        myChuck = null;
         myEventName = "";
     }
 
@@ -55,22 +67,37 @@ public class ChuckEventListener : MonoBehaviour
     ChuckSubInstance myChuck = null;
     string myEventName = "";
 
+#if UNITY_WEBGL
+    // don't need to call userCallback, because it will be called using MyDirectCallback
+#else
     private void Update()
     {
+        // call the user callback the number of times that the builtin callback was called
         while( numTimesCalled > 0 )
         {
             userCallback();
             numTimesCalled--;
         }
     }
+#endif
 
+    #if UNITY_WEBGL
+    #else
     private Chuck.VoidCallback myVoidCallback;
+    #endif
     private Action userCallback;
 
     private int numTimesCalled = 0;
+    
+    [AOT.MonoPInvokeCallback(typeof(Chuck.VoidCallback))]
     private void MyCallback()
     {
         numTimesCalled++;
+    }
+
+    private void MyDirectCallback()
+    {
+        userCallback();
     }
 
 

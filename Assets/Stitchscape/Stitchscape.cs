@@ -10,13 +10,13 @@ public enum StitchDirection {Across, Down}
 public class Stitch {
 		
 	public static void TerrainStitch (TerrainData terrain1, TerrainData terrain2, StitchDirection thisDirection, float stitchWidthPercent, float blendStrength, bool singleTerrain) {
-		int terrainRes = terrain1.heightmapWidth;
-		int terrainRes2 = terrain2.heightmapWidth;
+		int terrainRes = terrain1.heightmapResolution;
+		int terrainRes2 = terrain2.heightmapResolution;
 		if (terrainRes != terrainRes2) {
 			Debug.LogError ("TerrainStitch: terrain heightmap resolution must be the same for both terrains (terrain1 is " + terrainRes + " and terrain2 is " + terrainRes2 + ")");
 			return;
 		}
-		if (terrain1.heightmapHeight != terrainRes || terrain2.heightmapHeight != terrainRes) {
+		if (terrain1.heightmapResolution != terrainRes || terrain2.heightmapResolution != terrainRes) {
 			Debug.LogError ("TerrainStitch: heightmap width and height must be the same");
 			return;
 		}

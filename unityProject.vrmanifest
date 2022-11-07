@@ -2,13 +2,13 @@
   "source": "Unity",
   "applications": [
     {
-      "app_key": "application.generated.unity.slorkbirdpiece.exe",
+      "app_key": "application.generated.unity.realitybyexample.exe",
       "launch_type": "url",
       "url": "steam://launch/",
-      "action_manifest_path": "C:\\cygwin64\\home\\Jack\\Unity\\terrain-by-example\\actions.json",
+      "action_manifest_path": "C:\\cygwin64\\home\\Jack Atherton\\Unity\\reality-by-example\\actions.json",
       "strings": {
         "en_us": {
-          "name": "Terrain By Example [Testing]"
+          "name": "Reality By Example [Testing]"
         }
       }
     }

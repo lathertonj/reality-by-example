@@ -8,6 +8,7 @@ TagManager:
   - TerrainTextureExample
   - MenuItem
   - BoidAvoidance
+  - Creature
   layers:
   - Default
   - TransparentFX
@@ -19,8 +20,8 @@ TagManager:
   - 
   - ConnectedTerrains
   - Animatables
-  - 
-  - 
+  - LaserSelectable
+  - AnimatedWater
   - 
   - 
   - 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable
+public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , LaserPointerSelectable
 {
 
     // default to 100
@@ -53,6 +53,8 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
 
     private void UpdateMyTempo( float newTempo )
     {
+        if( !myText ) { myText = GetComponentInChildren<TextMesh>(); }
+
         // clamp to min / max
         myTempo = Mathf.Clamp( newTempo, minTempo, maxTempo );
 
@@ -85,7 +87,6 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
         }
 
         // update text too
-        myText = GetComponentInChildren<TextMesh>();
         UpdateMyTempo( myTempo );
         
         // inform it
@@ -101,6 +102,7 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
 
     public static void ShowHints( float pauseTimeBeforeFade )
     {
+        if( myRegressor == null ) { return; }
         foreach( SoundTempoExample e in myRegressor.myRegressionExamples )
         {
             e.ShowHint( pauseTimeBeforeFade );
@@ -122,4 +124,40 @@ public class SoundTempoExample : MonoBehaviour , TouchpadUpDownInteractable , Tr
             StopCoroutine( hintCoroutine );
         }
     }
+
+    public SerializableTempoExample Serialize()
+    {
+        SerializableTempoExample serial = new SerializableTempoExample();
+        serial.position = transform.position;
+        serial.tempo = myTempo;
+        return serial;
+    }
+
+    public void ResetFromSerial( SerializableTempoExample serialized )
+    {
+        transform.position = serialized.position;
+        UpdateMyTempo( serialized.tempo );
+    }
+
+
+    void LaserPointerSelectable.Selected()
+    {
+        // activate visualization when selected
+        SoundEngineTempoRegressor.Activate();
+    }
+
+    void LaserPointerSelectable.Unselected()
+    {
+        // deactivate visualization when unselected
+        SoundEngineTempoRegressor.Deactivate();
+    }
+
 }
+
+[System.Serializable]
+public class SerializableTempoExample
+{
+    public Vector3 position;
+    public float tempo;
+}
+

@@ -16,6 +16,7 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
     [HideInInspector] public float myValue = 1.0f;
     [HideInInspector] public GISType myType = GISType.Smooth;
 
+
     private TextMesh myText;
 
     void Awake()
@@ -27,7 +28,7 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
 
 
 
-    private void UpdateMyValue( GISType newType, float newValue )
+    public void UpdateMyValue( GISType newType, float newValue )
     {
         // set previous one to zero
         myValues[ (int) myType ] = 0;
@@ -77,16 +78,7 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
 
     private ConnectedTerrainController FindTerrain()
     {
-        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
-        int layerMask = 1 << 8;
-
-        RaycastHit hit;
-        // Check from a point really high above us, in the downward direction (in case we are below terrain)
-        if( Physics.Raycast( transform.position + 400 * Vector3.up, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
-        {
-            return hit.transform.GetComponentInParent<ConnectedTerrainController>();
-        }
-        return null;
+        return TerrainUtility.FindTerrain<ConnectedTerrainController>( transform.position );
     }
 
     void GripPlaceDeleteInteractable.JustPlaced()
@@ -234,8 +226,34 @@ public class TerrainGISExample : MonoBehaviour, TouchpadUpDownInteractable, Touc
             StopCoroutine( hintCoroutine );
         }
     }
+
+
+    public SerializableTerrainGISExample Serialize( ConnectedTerrainController myTerrain )
+    {
+        SerializableTerrainGISExample serial = new SerializableTerrainGISExample();
+        serial.localPosition = myTerrain.transform.InverseTransformPoint( transform.position );
+        serial.type = myType;
+        serial.value = myValue;
+        return serial;
+    }
+
+    public void ResetFromSerial( SerializableTerrainGISExample serialized, ConnectedTerrainController myTerrain )
+    {
+        transform.position = myTerrain.transform.TransformPoint( serialized.localPosition );
+        UpdateMyValue( serialized.type, serialized.value );
+    }
     
 }
+
+
+[System.Serializable]
+public class SerializableTerrainGISExample
+{
+    public Vector3 localPosition;
+    public TerrainGISExample.GISType type;
+    public float value;
+}
+
 
 public static class GISExtensions
 {

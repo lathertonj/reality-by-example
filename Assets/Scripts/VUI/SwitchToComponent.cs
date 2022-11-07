@@ -30,202 +30,328 @@ public class SwitchToComponent : MonoBehaviour
         transform.localScale = originalScale;
     }
 
+
+    bool gripInUse = false, triggerInUse = false, touchpadInUse = false;
+    public void ActivateMode( GameObject controller )
+    {
+        // get and disable randomizer
+        RandomizeTerrain randomizer = controller.transform.root.GetComponentInChildren<RandomizeTerrain>();
+        if( randomizer != null )
+        {
+            randomizer.SetGripAction( RandomizeTerrain.ActionType.DoNothing, controller );
+        }
+        DisablePlacementInteractors( controller );
+        DisableMovementInteractors( controller );
+        // disable animation interactors
+        AnimationActions animationAction = controller.GetComponent<AnimationActions>();
+        if( animationAction ) { animationAction.DisablePreUIChange(); }
+
+        gripInUse = false;
+        triggerInUse = false;
+        touchpadInUse = false;
+        switch( switchTo )
+        {
+            case InteractionType.PlaceTerrainImmediate:
+                SetGripPlacePrefab( controller );
+                // also, show height hint
+                TerrainHeightExample.ShowHints( hintTime );
+                break;
+            case InteractionType.PlaceTerrainGrowth:
+                EnableComponent<TerrainGradualInteractor>( controller );
+                gripInUse = true;
+                // also, show height hint
+                TerrainHeightExample.ShowHints( hintTime );
+                break;
+            case InteractionType.PlaceTerrainLocalRaiseLower:
+                EnableComponent<TerrainLocalRaiseLowerInteractor>( controller );
+                gripInUse = true;
+                // also, show height hint
+                TerrainHeightExample.ShowHints( hintTime );
+                break;
+            case InteractionType.PlaceTerrainLaserPointerRaiseLower:
+                // enable the components we need
+                EnableComponent<TerrainLaserRaiseLowerInteractor>( controller );
+                EnableComponent<LaserPointerColliderSelector>( controller );
+                touchpadInUse = true;
+                // also, show height hint
+                TerrainHeightExample.ShowHints( hintTime );
+                break;
+            case InteractionType.PlaceTexture:
+                SetGripPlacePrefab( controller );
+                // also, show texture hint
+                TerrainTextureExample.ShowHints( hintTime );
+                break;
+            case InteractionType.PlaceGIS:
+                SetGripPlacePrefab( controller );
+                // also, show GIS hint
+                TerrainGISExample.ShowHints( hintTime );
+                break;
+            case InteractionType.MoveTeleport:
+                EnableComponent<FlyingTeleporter>( controller );
+                EnableComponent<SnapTurn>( controller );
+                touchpadInUse = true;
+                break;
+            case InteractionType.MoveFly:
+                EnableComponent<FlyingMovement>( controller );
+                EnableComponent<SnapTurn>( controller );
+                touchpadInUse = true;
+                break;
+            case InteractionType.MoveGroundFly:
+                EnableComponent<GroundFlyingMovement>( controller );
+                EnableComponent<SnapTurn>( controller );
+                touchpadInUse = true;
+                break;
+            case InteractionType.PlaceTempo:
+                SetGripPlacePrefab( controller );
+                // also, show tempo hint
+                SoundTempoExample.ShowHints( hintTime );
+                break;
+            case InteractionType.PlaceTimbre:
+                SetGripPlacePrefab( controller );
+                // also, show timbre hint
+                Sound0To1Example.ShowHints( SoundEngine0To1Regressor.timbreRegressor, hintTime );
+                break;
+            case InteractionType.PlaceDensity:
+                SetGripPlacePrefab( controller );
+                // also, show density hint
+                Sound0To1Example.ShowHints( SoundEngine0To1Regressor.densityRegressor, hintTime );
+                break;
+            case InteractionType.PlaceVolume:
+                SetGripPlacePrefab( controller );
+                // also, show volume hint
+                Sound0To1Example.ShowHints( SoundEngine0To1Regressor.volumeRegressor, hintTime );
+                break;
+            case InteractionType.PlaceChord:
+                SetGripPlacePrefab( controller );
+                // also, show chord hint
+                SoundChordExample.ShowHints( hintTime );
+                break;
+            case InteractionType.SlowlySpawnPrefab:
+                EnableComponent<SlowlySpawnPrefab>( controller );
+                controller.GetComponent<SlowlySpawnPrefab>().prefabToSpawn = givenPrefab;
+                touchpadInUse = true;
+                break;
+            case InteractionType.RandomizePerturbSmall:
+                if( randomizer != null ) 
+                { 
+                    randomizer.SetGripAction( RandomizeTerrain.ActionType.PerturbSmall, controller );
+                    gripInUse = true;
+                }
+                break;
+            case InteractionType.RandomizePerturbBig:
+                if( randomizer != null ) 
+                {
+                    randomizer.SetGripAction( RandomizeTerrain.ActionType.PerturbBig, controller );
+                    gripInUse = true;
+                }
+                break;
+            case InteractionType.RandomizeCopy:
+                if( randomizer != null ) 
+                { 
+                    randomizer.SetGripAction( RandomizeTerrain.ActionType.Copy, controller );
+                    gripInUse = true;
+                    // we need the drag and drop for this one only
+                    EnableComponent<LaserPointerDragAndDrop>( controller );
+                }
+                break;
+            case InteractionType.RandomizeCurrent:
+                if( randomizer != null ) 
+                { 
+                    randomizer.SetGripAction( RandomizeTerrain.ActionType.RandomizeCurrent, controller );
+                    gripInUse = true;
+                }
+                break;
+            case InteractionType.RandomizeAll:
+                if( randomizer != null ) 
+                { 
+                    randomizer.SetGripAction( RandomizeTerrain.ActionType.RandomizeAll, controller );
+                    gripInUse = true;
+                }
+                break;
+            case InteractionType.CreatureExampleDelete:
+                // enable grip deletion
+                EnableComponent<GripPlaceDeleteInteraction>( controller );
+                EnableComponent<RemoteGripPlaceDeleteInteraction>( controller );
+
+                // remote grip needs delete manually enabled so that it's not enabled otherwise
+                RemoteGripPlaceDeleteInteraction remoteGrip = controller.GetComponent<RemoteGripPlaceDeleteInteraction>();
+                if( remoteGrip ) { remoteGrip.isDeleteEnabled = true; }
+
+                gripInUse = true;
+                break;
+            case InteractionType.CreatureCreate:
+            case InteractionType.CreatureClone:
+            case InteractionType.CreatureExampleRecord: 
+            case InteractionType.CreatureExampleClone:
+            case InteractionType.CreatureConstantTimeMode:
+            case InteractionType.CreatureMusicMode:
+            case InteractionType.MoveFollowCreature:
+                // we have another component for processing animation commands
+                if( animationAction )
+                {
+                    animationAction.ProcessUIChange( switchTo, givenPrefab );
+                }
+                // all these things use the grip (TODO except music mode / time mode... might remove those though)
+                gripInUse = true;
+
+                // annoyingly there is a special case for just this one
+                if( switchTo == InteractionType.MoveFollowCreature )
+                {
+                    EnableComponent<SnapTurn>( controller );
+                    touchpadInUse = true;
+                }
+                break;
+            // disabled
+            case InteractionType.CreatureSelect:
+            default:
+                break;
+        }
+
+        // trigger haptic pulse
+        controller.GetComponent<VibrateController>().Vibrate( 0.05f, 30, 0.8f );
+
+        // animate
+        if( previousAnimation != null ) { StopCoroutine( previousAnimation ); }
+        previousAnimation = AnimateSwell( 0.14f, 0.4f, 0.03f, 1.3f );
+        StartCoroutine( previousAnimation );
+
+        // reenable what we can
+        if( !gripInUse )
+        {
+            EnableComponent<GripPlaceDeleteInteraction>( controller );
+            EnableComponent<RemoteGripPlaceDeleteInteraction>( controller );
+        }
+        if( !touchpadInUse )
+        {
+            EnableTouchpadPrimaryInteractors( controller );
+        }
+        if( !triggerInUse )
+        {
+            EnableComponent<TriggerGrabMoveInteraction>( controller );
+            
+            RemoteTriggerGrabMoveInteraction remoteTrigger = controller.GetComponent<RemoteTriggerGrabMoveInteraction>();
+            if( remoteTrigger != null )
+            {
+                remoteTrigger.enabled = true;
+                remoteTrigger.touchpadMovingEnabled = !touchpadInUse;
+            }
+        }
+
+
+    }
+
     private void OnTriggerEnter( Collider other )
     {
         FlyingTeleporter maybeController = other.GetComponent<FlyingTeleporter>();
         if( maybeController )
         {
-            GameObject o = maybeController.gameObject;
-            // get and disable randomizer
-            RandomizeTerrain randomizer = o.transform.root.GetComponentInChildren<RandomizeTerrain>();
-            randomizer.currentAction = RandomizeTerrain.ActionType.DoNothing;
-            DisablePlacementInteractors( o );
-            DisableMovementInteractors( o );
-            // disable animation interactors
-            AnimationActions animationAction = o.GetComponent<AnimationActions>();
-            if( animationAction ) { animationAction.DisablePreUIChange(); }
-            switch( switchTo )
-            {
-                case InteractionType.PlaceTerrainImmediate:
-                    SetGripPlacePrefab( o );
-                    // also, show height hint
-                    TerrainHeightExample.ShowHints( hintTime );
-                    break;
-                case InteractionType.PlaceTerrainGrowth:
-                    o.GetComponent<TerrainGradualInteractor>().enabled = true;
-                    // also, show height hint
-                    TerrainHeightExample.ShowHints( hintTime );
-                    break;
-                case InteractionType.PlaceTerrainLocalRaiseLower:
-                    o.GetComponent<TerrainLocalRaiseLowerInteractor>().enabled = true;
-                    // also, show height hint
-                    TerrainHeightExample.ShowHints( hintTime );
-                    break;
-                case InteractionType.PlaceTerrainLaserPointerRaiseLower:
-                    // enable the components we need
-                    o.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = true;
-                    // hacky way to distinguish between two laser pointers
-                    foreach( LaserPointerColliderSelector l in o.GetComponents<LaserPointerColliderSelector>() )
-                    {
-                        if( !l.stopShowingOnUp )
-                        {
-                            l.enabled = true;
-                        }
-                    }
-                    // also, show height hint
-                    TerrainHeightExample.ShowHints( hintTime );
-                    break;
-                case InteractionType.PlaceTexture:
-                    SetGripPlacePrefab( o );
-                    // also, show texture hint
-                    TerrainTextureExample.ShowHints( hintTime );
-                    break;
-                case InteractionType.PlaceGIS:
-                    SetGripPlacePrefab( o );
-                    // also, show GIS hint
-                    TerrainGISExample.ShowHints( hintTime );
-                    break;
-                case InteractionType.MoveTeleport:
-                    o.GetComponent<FlyingTeleporter>().enabled = true;
-                    break;
-                case InteractionType.MoveFly:
-                    o.GetComponent<FlyingMovement>().enabled = true;
-                    break;
-                case InteractionType.MoveGroundFly:
-                    o.GetComponent<GroundFlyingMovement>().enabled = true;
-                    break;
-                case InteractionType.PlaceTempo:
-                    SoundEngineTempoRegressor.Activate();
-                    SetGripPlacePrefab( o );
-                    // also, show tempo hint
-                    SoundTempoExample.ShowHints( hintTime );
-                    break;
-                case InteractionType.PlaceTimbre:
-                    SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.timbreRegressor );
-                    SetGripPlacePrefab( o );
-                    // also, show timbre hint
-                    Sound0To1Example.ShowHints( SoundEngine0To1Regressor.timbreRegressor, hintTime );
-                    break;
-                case InteractionType.PlaceDensity:
-                    SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.densityRegressor );
-                    SetGripPlacePrefab( o );
-                    // also, show density hint
-                    Sound0To1Example.ShowHints( SoundEngine0To1Regressor.densityRegressor, hintTime );
-                    break;
-                case InteractionType.PlaceVolume:
-                    SoundEngine0To1Regressor.Activate( SoundEngine0To1Regressor.volumeRegressor );
-                    SetGripPlacePrefab( o );
-                    // also, show volume hint
-                    Sound0To1Example.ShowHints( SoundEngine0To1Regressor.volumeRegressor, hintTime );
-                    break;
-                case InteractionType.PlaceChord:
-                    SoundEngineChordClassifier.Activate();
-                    SetGripPlacePrefab( o );
-                    // also, show chord hint
-                    SoundChordExample.ShowHints( hintTime );
-                    break;
-                case InteractionType.SlowlySpawnPrefab:
-                    o.GetComponent<SlowlySpawnPrefab>().enabled = true;
-                    o.GetComponent<SlowlySpawnPrefab>().prefabToSpawn = givenPrefab;
-                    break;
-                case InteractionType.RandomizePerturbSmall:
-                    randomizer.currentAction = RandomizeTerrain.ActionType.PerturbSmall;
-                    break;
-                case InteractionType.RandomizePerturbBig:
-                    randomizer.currentAction = RandomizeTerrain.ActionType.PerturbBig;
-                    break;
-                case InteractionType.RandomizeCopy:
-                    randomizer.currentAction = RandomizeTerrain.ActionType.Copy;
-                    // we need the drag and drop for this one only
-                    o.GetComponent<LaserPointerDragAndDrop>().enabled = true;
-                    break;
-                case InteractionType.RandomizeCurrent:
-                    randomizer.currentAction = RandomizeTerrain.ActionType.RandomizeCurrent;
-                    break;
-                case InteractionType.RandomizeAll:
-                    randomizer.currentAction = RandomizeTerrain.ActionType.RandomizeAll;
-                    break;
-                case InteractionType.CreatureCreate:
-                case InteractionType.CreatureSelect:
-                case InteractionType.CreatureClone:
-                case InteractionType.CreatureExampleRecord: 
-                case InteractionType.CreatureExampleClone:
-                case InteractionType.CreatureExampleDelete:
-                case InteractionType.CreatureConstantTimeMode:
-                case InteractionType.CreatureMusicMode:
-                case InteractionType.MoveFollowCreature:
-                    // we have another component for processing animation commands
-                    if( animationAction )
-                    {
-                        animationAction.ProcessUIChange( switchTo, givenPrefab );
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-            // trigger haptic pulse
-            o.GetComponent<VibrateController>().Vibrate( 0.05f, 30, 0.8f );
-
-            // animate
-            if( previousAnimation != null ) { StopCoroutine( previousAnimation ); }
-            previousAnimation = AnimateSwell( 0.14f, 0.4f, 0.03f, 1.3f );
-            StartCoroutine( previousAnimation );
-
+            ActivateMode( maybeController.gameObject );
         }
     }
 
     private void SetGripPlacePrefab( GameObject o )
     {
-        o.GetComponent<GripPlaceDeleteInteraction>().currentPrefabToUse = givenPrefab;
+        // do for standard grip
+        GripPlaceDeleteInteraction gripPlace = o.GetComponent<GripPlaceDeleteInteraction>();
+        if( gripPlace )
+        {
+            gripPlace.enabled = true;
+            gripPlace.currentPrefabToUse = givenPrefab;
+        }
+
+        // and for remote grip
+        RemoteGripPlaceDeleteInteraction remoteGripPlace = o.GetComponent<RemoteGripPlaceDeleteInteraction>();
+        if( remoteGripPlace )
+        {
+            remoteGripPlace.enabled = true;
+            remoteGripPlace.currentPrefabToUse = givenPrefab;
+            remoteGripPlace.isDeleteEnabled = false;
+        }
+
+        gripInUse = true;
     }
+
+    private void DisableGripPlacers( GameObject o )
+    {
+        // do for standard grip
+        GripPlaceDeleteInteraction gripPlace = o.GetComponent<GripPlaceDeleteInteraction>();
+        if( gripPlace )
+        {
+            gripPlace.currentPrefabToUse = null;
+            gripPlace.enabled = false;
+        }
+
+        // and for remote grip
+        RemoteGripPlaceDeleteInteraction remoteGripPlace = o.GetComponent<RemoteGripPlaceDeleteInteraction>();
+        if( remoteGripPlace )
+        {
+            remoteGripPlace.currentPrefabToUse = null;
+            remoteGripPlace.isDeleteEnabled = false;
+            remoteGripPlace.enabled = false;
+        }
+    }
+
+    
+
 
     private void DisableMovementInteractors( GameObject o )
     {
-        o.GetComponent<FlyingTeleporter>().HideLasers();
-        o.GetComponent<FlyingTeleporter>().enabled = false;
-        o.GetComponent<FlyingMovement>().HideLasers();
-        o.GetComponent<FlyingMovement>().enabled = false;
-        o.GetComponent<GroundFlyingMovement>().HideLasers();
-        o.GetComponent<GroundFlyingMovement>().enabled = false;
+        DisableComponent<FlyingTeleporter>( o );
+        DisableComponent<FlyingMovement>( o );
+        DisableComponent<GroundFlyingMovement>( o );
+        DisableComponent<SnapTurn>( o );
+
         SlewToTransform slew = o.GetComponentInParent<SlewToTransform>();
         slew.objectToTrack = null;
         slew.enabled = false;
+    }
+
+    public static void DisableTouchpadAuxiliaryInteractors( GameObject o )
+    {
+        // movement
+        DisableComponent<FlyingTeleporter>( o );
+        DisableComponent<FlyingMovement>( o );
+        DisableComponent<GroundFlyingMovement>( o );
+        DisableComponent<SnapTurn>( o );
+
+        // placing
+        DisableComponent<SlowlySpawnPrefab>( o );
+        DisableComponent<TerrainLaserRaiseLowerInteractor>( o );
+        DisableComponent<LaserPointerColliderSelector>( o );
+    }
+
+    public static void EnableTouchpadPrimaryInteractors( GameObject o )
+    {
+        EnableComponent<TouchpadLeftRightClickInteraction>( o );
+        EnableComponent<TouchpadUpDownInteraction>( o );
+        EnableComponent<RemoteTouchpadLeftRightClickInteraction>( o );
+        EnableComponent<RemoteTouchpadUpDownInteraction>( o );
+        EnableComponent<RemoteTouchpadUpDownScrollInteraction>( o );
     }
 
     
 
     private void DisablePlacementInteractors( GameObject o )
     {
-        o.GetComponent<GripPlaceDeleteInteraction>().currentPrefabToUse = null;
-        // enable the grip deleter; some may disable it later if they need it disabled
-        o.GetComponent<GripPlaceDeleteInteraction>().enabled = true;
+        // set prefab to null and disable grip deleters
+        DisableGripPlacers( o );
+
+        // disable others
+        DisableComponent<TouchpadLeftRightClickInteraction>( o );
+        DisableComponent<TouchpadUpDownInteraction>( o );
+        DisableComponent<TriggerGrabMoveInteraction>( o );
+        DisableComponent<RemoteTouchpadLeftRightClickInteraction>( o );
+        DisableComponent<RemoteTouchpadUpDownInteraction>( o );
+        DisableComponent<RemoteTouchpadUpDownScrollInteraction>( o );
+        DisableComponent<RemoteTriggerGrabMoveInteraction>( o );
         
-        foreach( LaserPointerColliderSelector l in o.GetComponents<LaserPointerColliderSelector>() )
-        {
-            l.HideLaser();
-            l.enabled = false;
-        }
-
-        o.GetComponent<TerrainGradualInteractor>().Abort();
-        o.GetComponent<TerrainGradualInteractor>().enabled = false;
-        
-        o.GetComponent<TerrainLocalRaiseLowerInteractor>().Abort();
-        o.GetComponent<TerrainLocalRaiseLowerInteractor>().enabled = false;
-
-        o.GetComponent<TerrainLaserRaiseLowerInteractor>().Abort();
-        o.GetComponent<TerrainLaserRaiseLowerInteractor>().enabled = false;
-
-        o.GetComponent<SlowlySpawnPrefab>().enabled = false;
-
-        LaserPointerDragAndDrop maybeDragDrop = o.GetComponent<LaserPointerDragAndDrop>();
-        if( maybeDragDrop ) { maybeDragDrop.enabled = false; }
-
-        SoundEngineTempoRegressor.Deactivate();
-        SoundEngineChordClassifier.Deactivate();
-        SoundEngine0To1Regressor.Deactivate( SoundEngine0To1Regressor.timbreRegressor );
-        SoundEngine0To1Regressor.Deactivate( SoundEngine0To1Regressor.densityRegressor );
-        SoundEngine0To1Regressor.Deactivate( SoundEngine0To1Regressor.volumeRegressor );
+        // special terrain height methods
+        DisableComponent<TerrainGradualInteractor>( o );
+        DisableComponent<TerrainLocalRaiseLowerInteractor>( o );
+        DisableComponent<TerrainLaserRaiseLowerInteractor>( o );
+        DisableComponent<LaserPointerColliderSelector>( o );
+        DisableComponent<SlowlySpawnPrefab>( o );
+        DisableComponent<LaserPointerDragAndDrop>( o );
     }
 
     private IEnumerator AnimateSwell( float upSeconds, float upSlew, float downSlew, float increaseSizeBy )
@@ -251,6 +377,26 @@ public class SwitchToComponent : MonoBehaviour
         }
 
         transform.localScale = originalScale;
+    }
+
+
+    public static void EnableComponent<T>( GameObject o ) where T : MonoBehaviour
+    {
+        T component = o.GetComponent<T>();
+        if( component != null )
+        {
+            component.enabled = true;
+        }
+    }
+    
+    
+    public static void DisableComponent<T>( GameObject o ) where T : MonoBehaviour
+    {
+        T component = o.GetComponent<T>();
+        if( component != null )
+        {
+            component.enabled = false;
+        }
     }
 
 }

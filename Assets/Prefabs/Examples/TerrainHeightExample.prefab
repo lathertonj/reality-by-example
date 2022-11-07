@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 283175042314637859}
   - component: {fileID: 7944843376312580811}
   - component: {fileID: 8860223470136306106}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: DisplayHint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -89,7 +89,7 @@ GameObject:
   - component: {fileID: 8077804455845214293}
   - component: {fileID: 8077804455845214292}
   - component: {fileID: 8077804455845214295}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Cube
   m_TagString: TerrainExample
   m_Icon: {fileID: 0}
@@ -179,7 +179,7 @@ GameObject:
   - component: {fileID: 8077804456191148359}
   - component: {fileID: 5524136468175125564}
   - component: {fileID: 6496100472159615916}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: TerrainHeightExample
   m_TagString: TerrainExample
   m_Icon: {fileID: 0}

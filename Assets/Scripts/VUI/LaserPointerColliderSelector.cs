@@ -129,4 +129,9 @@ public class LaserPointerColliderSelector : MonoBehaviour
         currentlyIntersecting = false;
         canShowPreview = false;
     }
+
+    void OnDisable()
+    {
+        HideLaser();
+    }
 }

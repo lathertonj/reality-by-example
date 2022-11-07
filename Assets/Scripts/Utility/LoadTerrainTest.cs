@@ -22,8 +22,8 @@ public class LoadTerrainTest : MonoBehaviour
     void LoadIt()
     {
         TerrainData aTerrain = GetComponent<Terrain>().terrainData;
-        int h = aTerrain.heightmapHeight;
-        int w = aTerrain.heightmapWidth;
+        int h = aTerrain.heightmapResolution;
+        int w = aTerrain.heightmapResolution;
         float[,] fileData = new float[filenameSize,filenameSize];
         float[,] data = new float[h, w];
 

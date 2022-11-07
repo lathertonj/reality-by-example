@@ -4,14 +4,17 @@ using UnityEngine;
 
 public class DummyTerrain : MonoBehaviour
 {
-    // Start is called before the first frame update
+    
+    TerrainData myTerrainData;
     void Start()
     {
-        TerrainData myTerrainData = GetComponent<Terrain>().terrainData;
-        int verticesPerSide = myTerrainData.heightmapWidth;
-        float [,] heights = new float[verticesPerSide, verticesPerSide];
-        myTerrainData.SetHeightsDelayLOD( 0, 0, heights );
-        myTerrainData.SyncHeightmap();
+        myTerrainData = GetComponent<Terrain>().terrainData;
+        Flatten();
+    }
+
+    public void Flatten()
+    {
+        TerrainUtility.FlattenTerrainData( myTerrainData );
     }
 
 }

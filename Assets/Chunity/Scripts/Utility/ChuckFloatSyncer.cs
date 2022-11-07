@@ -3,6 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+#if UNITY_WEBGL
+using CK_INT = System.Int32;
+using CK_UINT = System.UInt32;
+#else
+using CK_INT = System.Int64;
+using CK_UINT = System.UInt64;
+#endif
+using CK_FLOAT = System.Double;
+
 public class ChuckFloatSyncer : MonoBehaviour
 {
 
@@ -23,7 +32,10 @@ public class ChuckFloatSyncer : MonoBehaviour
         // start up again
         myChuck = chuck;
         myFloatName = floatToSync;
-        myFloatCallback = Chuck.CreateGetFloatCallback( MyCallback );
+        #if UNITY_WEBGL
+        #else
+        myFloatCallback = MyCallback;
+        #endif
     }
 
 
@@ -51,7 +63,7 @@ public class ChuckFloatSyncer : MonoBehaviour
         // set
         if( myChuck != null && myFloatName != "" )
         {
-            myChuck.SetFloat( myFloatName, (double) newValue );
+            myChuck.SetFloat( myFloatName, (CK_FLOAT) newValue );
         }
 
         // pre-set my storage too
@@ -76,19 +88,30 @@ public class ChuckFloatSyncer : MonoBehaviour
     // =========== INTERNAL MECHANICS ========== //
 
     ChuckSubInstance myChuck = null;
+    #if UNITY_WEBGL
+    #else
     Chuck.FloatCallback myFloatCallback;
+    #endif
     string myFloatName = "";
 
     private void Update()
     {
+        #if UNITY_WEBGL
+        if( myChuck != null && myFloatName != "" )
+        {
+            myChuck.GetFloat( myFloatName, gameObject.name, "MyCallback" );
+        }
+        #else
         if( myChuck != null && myFloatCallback != null && myFloatName != "" )
         {
             myChuck.GetFloat( myFloatName, myFloatCallback );
         }
+        #endif
     }
 
     private float myFloatValue = 0;
-    private void MyCallback( double newValue )
+    [AOT.MonoPInvokeCallback(typeof(Chuck.FloatCallback))]
+    private void MyCallback( CK_FLOAT newValue )
     {
         myFloatValue = (float) newValue;
     }

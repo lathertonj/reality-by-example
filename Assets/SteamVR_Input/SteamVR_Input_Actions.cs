@@ -17,141 +17,186 @@ namespace Valve.VR
     public partial class SteamVR_Actions
     {
         
-        private static SteamVR_Action_Boolean p_terraingenerate_TouchpadPressed;
+        private static SteamVR_Action_Boolean p_rbe_GrabObject;
         
-        private static SteamVR_Action_Vector2 p_terraingenerate_Touchpad_XY;
+        private static SteamVR_Action_Pose p_rbe_Pose;
         
-        private static SteamVR_Action_Boolean p_terraingenerate_GrabObject;
+        private static SteamVR_Action_Boolean p_rbe_MenuAndSelectLaser;
         
-        private static SteamVR_Action_Pose p_terraingenerate_Pose;
+        private static SteamVR_Action_Boolean p_rbe_TakeActionGeneric;
         
-        private static SteamVR_Action_Boolean p_terraingenerate_GeneratePoint;
+        private static SteamVR_Action_Boolean p_rbe_TakeActionMovement;
         
-        private static SteamVR_Action_Boolean p_terraingenerate_TouchpadPreview;
+        private static SteamVR_Action_Boolean p_rbe_LeftClick;
         
-        private static SteamVR_Action_Boolean p_terraingenerate_Menu;
+        private static SteamVR_Action_Boolean p_rbe_RightClick;
         
-        private static SteamVR_Action_Vibration p_terraingenerate_Haptic;
+        private static SteamVR_Action_Vector2 p_rbe_UpDownTouchpad;
         
-        public static SteamVR_Action_Boolean terraingenerate_TouchpadPressed
+        private static SteamVR_Action_Boolean p_rbe_UpDownTouchpadPressed;
+        
+        private static SteamVR_Action_Boolean p_rbe_PreviewActionGeneric;
+        
+        private static SteamVR_Action_Vibration p_rbe_Haptic;
+        
+        public static SteamVR_Action_Boolean rbe_GrabObject
         {
             get
             {
-                return SteamVR_Actions.p_terraingenerate_TouchpadPressed.GetCopy<SteamVR_Action_Boolean>();
+                return SteamVR_Actions.p_rbe_GrabObject.GetCopy<SteamVR_Action_Boolean>();
             }
         }
         
-        public static SteamVR_Action_Vector2 terraingenerate_Touchpad_XY
+        public static SteamVR_Action_Pose rbe_Pose
         {
             get
             {
-                return SteamVR_Actions.p_terraingenerate_Touchpad_XY.GetCopy<SteamVR_Action_Vector2>();
+                return SteamVR_Actions.p_rbe_Pose.GetCopy<SteamVR_Action_Pose>();
             }
         }
         
-        public static SteamVR_Action_Boolean terraingenerate_GrabObject
+        public static SteamVR_Action_Boolean rbe_MenuAndSelectLaser
         {
             get
             {
-                return SteamVR_Actions.p_terraingenerate_GrabObject.GetCopy<SteamVR_Action_Boolean>();
+                return SteamVR_Actions.p_rbe_MenuAndSelectLaser.GetCopy<SteamVR_Action_Boolean>();
             }
         }
         
-        public static SteamVR_Action_Pose terraingenerate_Pose
+        public static SteamVR_Action_Boolean rbe_TakeActionGeneric
         {
             get
             {
-                return SteamVR_Actions.p_terraingenerate_Pose.GetCopy<SteamVR_Action_Pose>();
+                return SteamVR_Actions.p_rbe_TakeActionGeneric.GetCopy<SteamVR_Action_Boolean>();
             }
         }
         
-        public static SteamVR_Action_Boolean terraingenerate_GeneratePoint
+        public static SteamVR_Action_Boolean rbe_TakeActionMovement
         {
             get
             {
-                return SteamVR_Actions.p_terraingenerate_GeneratePoint.GetCopy<SteamVR_Action_Boolean>();
+                return SteamVR_Actions.p_rbe_TakeActionMovement.GetCopy<SteamVR_Action_Boolean>();
             }
         }
         
-        public static SteamVR_Action_Boolean terraingenerate_TouchpadPreview
+        public static SteamVR_Action_Boolean rbe_LeftClick
         {
             get
             {
-                return SteamVR_Actions.p_terraingenerate_TouchpadPreview.GetCopy<SteamVR_Action_Boolean>();
+                return SteamVR_Actions.p_rbe_LeftClick.GetCopy<SteamVR_Action_Boolean>();
             }
         }
         
-        public static SteamVR_Action_Boolean terraingenerate_Menu
+        public static SteamVR_Action_Boolean rbe_RightClick
         {
             get
             {
-                return SteamVR_Actions.p_terraingenerate_Menu.GetCopy<SteamVR_Action_Boolean>();
+                return SteamVR_Actions.p_rbe_RightClick.GetCopy<SteamVR_Action_Boolean>();
             }
         }
         
-        public static SteamVR_Action_Vibration terraingenerate_Haptic
+        public static SteamVR_Action_Vector2 rbe_UpDownTouchpad
         {
             get
             {
-                return SteamVR_Actions.p_terraingenerate_Haptic.GetCopy<SteamVR_Action_Vibration>();
+                return SteamVR_Actions.p_rbe_UpDownTouchpad.GetCopy<SteamVR_Action_Vector2>();
+            }
+        }
+        
+        public static SteamVR_Action_Boolean rbe_UpDownTouchpadPressed
+        {
+            get
+            {
+                return SteamVR_Actions.p_rbe_UpDownTouchpadPressed.GetCopy<SteamVR_Action_Boolean>();
+            }
+        }
+        
+        public static SteamVR_Action_Boolean rbe_PreviewActionGeneric
+        {
+            get
+            {
+                return SteamVR_Actions.p_rbe_PreviewActionGeneric.GetCopy<SteamVR_Action_Boolean>();
+            }
+        }
+        
+        public static SteamVR_Action_Vibration rbe_Haptic
+        {
+            get
+            {
+                return SteamVR_Actions.p_rbe_Haptic.GetCopy<SteamVR_Action_Vibration>();
             }
         }
         
         private static void InitializeActionArrays()
         {
             Valve.VR.SteamVR_Input.actions = new Valve.VR.SteamVR_Action[] {
-                    SteamVR_Actions.terraingenerate_TouchpadPressed,
-                    SteamVR_Actions.terraingenerate_Touchpad_XY,
-                    SteamVR_Actions.terraingenerate_GrabObject,
-                    SteamVR_Actions.terraingenerate_Pose,
-                    SteamVR_Actions.terraingenerate_GeneratePoint,
-                    SteamVR_Actions.terraingenerate_TouchpadPreview,
-                    SteamVR_Actions.terraingenerate_Menu,
-                    SteamVR_Actions.terraingenerate_Haptic};
+                    SteamVR_Actions.rbe_GrabObject,
+                    SteamVR_Actions.rbe_Pose,
+                    SteamVR_Actions.rbe_MenuAndSelectLaser,
+                    SteamVR_Actions.rbe_TakeActionGeneric,
+                    SteamVR_Actions.rbe_TakeActionMovement,
+                    SteamVR_Actions.rbe_LeftClick,
+                    SteamVR_Actions.rbe_RightClick,
+                    SteamVR_Actions.rbe_UpDownTouchpad,
+                    SteamVR_Actions.rbe_UpDownTouchpadPressed,
+                    SteamVR_Actions.rbe_PreviewActionGeneric,
+                    SteamVR_Actions.rbe_Haptic};
             Valve.VR.SteamVR_Input.actionsIn = new Valve.VR.ISteamVR_Action_In[] {
-                    SteamVR_Actions.terraingenerate_TouchpadPressed,
-                    SteamVR_Actions.terraingenerate_Touchpad_XY,
-                    SteamVR_Actions.terraingenerate_GrabObject,
-                    SteamVR_Actions.terraingenerate_Pose,
-                    SteamVR_Actions.terraingenerate_GeneratePoint,
-                    SteamVR_Actions.terraingenerate_TouchpadPreview,
-                    SteamVR_Actions.terraingenerate_Menu};
+                    SteamVR_Actions.rbe_GrabObject,
+                    SteamVR_Actions.rbe_Pose,
+                    SteamVR_Actions.rbe_MenuAndSelectLaser,
+                    SteamVR_Actions.rbe_TakeActionGeneric,
+                    SteamVR_Actions.rbe_TakeActionMovement,
+                    SteamVR_Actions.rbe_LeftClick,
+                    SteamVR_Actions.rbe_RightClick,
+                    SteamVR_Actions.rbe_UpDownTouchpad,
+                    SteamVR_Actions.rbe_UpDownTouchpadPressed,
+                    SteamVR_Actions.rbe_PreviewActionGeneric};
             Valve.VR.SteamVR_Input.actionsOut = new Valve.VR.ISteamVR_Action_Out[] {
-                    SteamVR_Actions.terraingenerate_Haptic};
+                    SteamVR_Actions.rbe_Haptic};
             Valve.VR.SteamVR_Input.actionsVibration = new Valve.VR.SteamVR_Action_Vibration[] {
-                    SteamVR_Actions.terraingenerate_Haptic};
+                    SteamVR_Actions.rbe_Haptic};
             Valve.VR.SteamVR_Input.actionsPose = new Valve.VR.SteamVR_Action_Pose[] {
-                    SteamVR_Actions.terraingenerate_Pose};
+                    SteamVR_Actions.rbe_Pose};
             Valve.VR.SteamVR_Input.actionsBoolean = new Valve.VR.SteamVR_Action_Boolean[] {
-                    SteamVR_Actions.terraingenerate_TouchpadPressed,
-                    SteamVR_Actions.terraingenerate_GrabObject,
-                    SteamVR_Actions.terraingenerate_GeneratePoint,
-                    SteamVR_Actions.terraingenerate_TouchpadPreview,
-                    SteamVR_Actions.terraingenerate_Menu};
+                    SteamVR_Actions.rbe_GrabObject,
+                    SteamVR_Actions.rbe_MenuAndSelectLaser,
+                    SteamVR_Actions.rbe_TakeActionGeneric,
+                    SteamVR_Actions.rbe_TakeActionMovement,
+                    SteamVR_Actions.rbe_LeftClick,
+                    SteamVR_Actions.rbe_RightClick,
+                    SteamVR_Actions.rbe_UpDownTouchpadPressed,
+                    SteamVR_Actions.rbe_PreviewActionGeneric};
             Valve.VR.SteamVR_Input.actionsSingle = new Valve.VR.SteamVR_Action_Single[0];
             Valve.VR.SteamVR_Input.actionsVector2 = new Valve.VR.SteamVR_Action_Vector2[] {
-                    SteamVR_Actions.terraingenerate_Touchpad_XY};
+                    SteamVR_Actions.rbe_UpDownTouchpad};
             Valve.VR.SteamVR_Input.actionsVector3 = new Valve.VR.SteamVR_Action_Vector3[0];
             Valve.VR.SteamVR_Input.actionsSkeleton = new Valve.VR.SteamVR_Action_Skeleton[0];
             Valve.VR.SteamVR_Input.actionsNonPoseNonSkeletonIn = new Valve.VR.ISteamVR_Action_In[] {
-                    SteamVR_Actions.terraingenerate_TouchpadPressed,
-                    SteamVR_Actions.terraingenerate_Touchpad_XY,
-                    SteamVR_Actions.terraingenerate_GrabObject,
-                    SteamVR_Actions.terraingenerate_GeneratePoint,
-                    SteamVR_Actions.terraingenerate_TouchpadPreview,
-                    SteamVR_Actions.terraingenerate_Menu};
+                    SteamVR_Actions.rbe_GrabObject,
+                    SteamVR_Actions.rbe_MenuAndSelectLaser,
+                    SteamVR_Actions.rbe_TakeActionGeneric,
+                    SteamVR_Actions.rbe_TakeActionMovement,
+                    SteamVR_Actions.rbe_LeftClick,
+                    SteamVR_Actions.rbe_RightClick,
+                    SteamVR_Actions.rbe_UpDownTouchpad,
+                    SteamVR_Actions.rbe_UpDownTouchpadPressed,
+                    SteamVR_Actions.rbe_PreviewActionGeneric};
         }
         
         private static void PreInitActions()
         {
-            SteamVR_Actions.p_terraingenerate_TouchpadPressed = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/terraingenerate/in/TouchpadPressed")));
-            SteamVR_Actions.p_terraingenerate_Touchpad_XY = ((SteamVR_Action_Vector2)(SteamVR_Action.Create<SteamVR_Action_Vector2>("/actions/terraingenerate/in/Touchpad_XY")));
-            SteamVR_Actions.p_terraingenerate_GrabObject = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/terraingenerate/in/GrabObject")));
-            SteamVR_Actions.p_terraingenerate_Pose = ((SteamVR_Action_Pose)(SteamVR_Action.Create<SteamVR_Action_Pose>("/actions/terraingenerate/in/Pose")));
-            SteamVR_Actions.p_terraingenerate_GeneratePoint = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/terraingenerate/in/GeneratePoint")));
-            SteamVR_Actions.p_terraingenerate_TouchpadPreview = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/terraingenerate/in/TouchpadPreview")));
-            SteamVR_Actions.p_terraingenerate_Menu = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/terraingenerate/in/Menu")));
-            SteamVR_Actions.p_terraingenerate_Haptic = ((SteamVR_Action_Vibration)(SteamVR_Action.Create<SteamVR_Action_Vibration>("/actions/terraingenerate/out/Haptic")));
+            SteamVR_Actions.p_rbe_GrabObject = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/rbe/in/GrabObject")));
+            SteamVR_Actions.p_rbe_Pose = ((SteamVR_Action_Pose)(SteamVR_Action.Create<SteamVR_Action_Pose>("/actions/rbe/in/Pose")));
+            SteamVR_Actions.p_rbe_MenuAndSelectLaser = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/rbe/in/MenuAndSelectLaser")));
+            SteamVR_Actions.p_rbe_TakeActionGeneric = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/rbe/in/TakeActionGeneric")));
+            SteamVR_Actions.p_rbe_TakeActionMovement = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/rbe/in/TakeActionMovement")));
+            SteamVR_Actions.p_rbe_LeftClick = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/rbe/in/LeftClick")));
+            SteamVR_Actions.p_rbe_RightClick = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/rbe/in/RightClick")));
+            SteamVR_Actions.p_rbe_UpDownTouchpad = ((SteamVR_Action_Vector2)(SteamVR_Action.Create<SteamVR_Action_Vector2>("/actions/rbe/in/UpDownTouchpad")));
+            SteamVR_Actions.p_rbe_UpDownTouchpadPressed = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/rbe/in/UpDownTouchpadPressed")));
+            SteamVR_Actions.p_rbe_PreviewActionGeneric = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/rbe/in/PreviewActionGeneric")));
+            SteamVR_Actions.p_rbe_Haptic = ((SteamVR_Action_Vibration)(SteamVR_Action.Create<SteamVR_Action_Vibration>("/actions/rbe/out/Haptic")));
         }
     }
 }

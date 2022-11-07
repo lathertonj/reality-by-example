@@ -1,49 +1,64 @@
 {
   "actions": [
     {
-      "name": "/actions/terraingenerate/in/TouchpadPressed",
+      "name": "/actions/rbe/in/GrabObject",
       "type": "boolean",
       "requirement": "mandatory"
     },
     {
-      "name": "/actions/terraingenerate/in/Touchpad_XY",
-      "type": "vector2",
-      "requirement": "mandatory"
-    },
-    {
-      "name": "/actions/terraingenerate/in/GrabObject",
-      "type": "boolean",
-      "requirement": "mandatory"
-    },
-    {
-      "name": "/actions/terraingenerate/in/Pose",
+      "name": "/actions/rbe/in/Pose",
       "type": "pose",
       "requirement": "mandatory"
     },
     {
-      "name": "/actions/terraingenerate/in/GeneratePoint",
+      "name": "/actions/rbe/in/MenuAndSelectLaser",
       "type": "boolean",
       "requirement": "mandatory"
     },
     {
-      "name": "/actions/terraingenerate/in/TouchpadPreview",
+      "name": "/actions/rbe/in/TakeActionGeneric",
       "type": "boolean",
       "requirement": "mandatory"
     },
     {
-      "name": "/actions/terraingenerate/in/Menu",
+      "name": "/actions/rbe/in/TakeActionMovement",
       "type": "boolean",
       "requirement": "mandatory"
     },
     {
-      "name": "/actions/terraingenerate/out/Haptic",
+      "name": "/actions/rbe/in/LeftClick",
+      "type": "boolean",
+      "requirement": "mandatory"
+    },
+    {
+      "name": "/actions/rbe/in/RightClick",
+      "type": "boolean",
+      "requirement": "mandatory"
+    },
+    {
+      "name": "/actions/rbe/in/UpDownTouchpad",
+      "type": "vector2",
+      "requirement": "mandatory"
+    },
+    {
+      "name": "/actions/rbe/in/UpDownTouchpadPressed",
+      "type": "boolean",
+      "requirement": "mandatory"
+    },
+    {
+      "name": "/actions/rbe/in/PreviewActionGeneric",
+      "type": "boolean",
+      "requirement": "mandatory"
+    },
+    {
+      "name": "/actions/rbe/out/Haptic",
       "type": "vibration",
       "requirement": "mandatory"
     }
   ],
   "action_sets": [
     {
-      "name": "/actions/terraingenerate",
+      "name": "/actions/rbe",
       "usage": "single"
     }
   ],

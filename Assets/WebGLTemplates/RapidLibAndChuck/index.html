@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>%UNITY_WEB_NAME%</title>
+    <link rel="stylesheet" href="./css/rbe.css">
+  </head>
+  
+  <body>
+    <div id="unityContainer" class="game-column"></div>
+    <div class="controls-column">
+      <p>In-browser controls:</p>
+      <p><span class="bold">Arrow keys:</span> move around <br />
+        <span class="bold">Right click and drag:</span> look around <br />
+        <span class="bold">Left click on a creature:</span> follow it and hear its sound <br />
+        <span class="bold">Left click on anything else:</span> stop following the creature <br />
+        <span class="bold">z:</span> zoom in and out <br />
+      </p>
+      <p>Click on the game if the controls are not working!</p>
+      <p>The audio may stutter until <span class="bold">all creatures have been remembered</span>.</p>
+      <br />
+      <button id="startButton">Start</button>
+    </div>
+
+
+    <script type="text/javascript" src="./js/defer.js"></script>
+    <script type="text/javascript" src="./js/RapidLib.js"></script>
+    <script>
+        // override
+        var whereIsChuck = "./js";
+        var serverFilesToPreload = [
+          {
+            serverFilename: './StreamingAssets/aah5.wav',
+            virtualFilename: 'aah5.wav'
+          }
+        ];
+    </script>
+    <script type="text/javascript" src="./js/chuckscriptwebaudio.js"></script>
+    <script src="%UNITY_WEBGL_LOADER_URL%"></script>
+    <script>
+    var startButton = document.getElementById( "startButton" );
+    var AudioContext = window.AudioContext || window.webkitAudioContext;
+    var audioContext = undefined;
+    var chunityAudioListener = undefined;
+    var unityInstance = undefined;
+    var preloadedFilesReady = preloadFilenames( serverFilesToPreload );
+
+    startButton.addEventListener( "click", async function() {
+        startButton.disabled = true;
+        await preloadedFilesReady;
+        await startChuck();
+        await theChuckReady;
+        chunityAudioListener = audioContext.listener;
+        
+        unityInstance = UnityLoader.instantiate("unityContainer", "%UNITY_WEBGL_BUILD_URL%");    
+    });
+    </script>
+  </body>
+  
+</html>

@@ -2,16 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpawnedObject : MonoBehaviour , GripPlaceDeleteInteractable
+public class SpawnedObject : MonoBehaviour , GripPlaceDeleteInteractable , DynamicSerializableByExample
 {
 
-    [HideInInspector] public LayerMask mask;
+    public LayerMask terrainsToPlaceOn;
     private static List<SpawnedObject> allSpawnedObjects = new List<SpawnedObject>();
+    private static int nextID = 0;
+    private int myID;
+
+    public string prefabName;
 
     // Start is called before the first frame update
     void Start()
     {
         allSpawnedObjects.Add( this );
+        myID = nextID;
+        nextID++;
     }
 
     public static void ResetSpawnedObjectHeights()
@@ -26,7 +32,7 @@ public class SpawnedObject : MonoBehaviour , GripPlaceDeleteInteractable
     {
         // find a terrain beneath me
         RaycastHit hit;
-        if( Physics.Raycast( transform.position + 600 * Vector3.up, Vector3.down, out hit, 2000, mask ) )
+        if( Physics.Raycast( transform.position + 600 * Vector3.up, Vector3.down, out hit, 2000, terrainsToPlaceOn ) )
         {
             // set my position
             transform.position = hit.point;
@@ -37,11 +43,54 @@ public class SpawnedObject : MonoBehaviour , GripPlaceDeleteInteractable
     {
         // this will likely not be placed with the Grip interaction, but in case it is
         UpdateHeight();
-        Debug.LogError( "Spawned object placed with grip will not have the right Mask assigned!" );
     }
 
     void GripPlaceDeleteInteractable.AboutToBeDeleted()
     {
         allSpawnedObjects.Remove( this );
     }
+
+
+    bool DynamicSerializableByExample.ShouldSerialize()
+    {
+        return true;
+    }
+
+    string SerializableByExample.SerializeExamples()
+    {
+        SerializedSpawnedObject serial = new SerializedSpawnedObject();
+        serial.position = transform.position;
+        serial.rotation = transform.rotation;
+        return SerializationManager.ConvertToJSON<SerializedSpawnedObject>( serial );
+    }
+
+    IEnumerator SerializableByExample.LoadExamples( string serializedExamples )
+    {
+        SerializedSpawnedObject serial = SerializationManager.ConvertFromJSON<SerializedSpawnedObject>( serializedExamples );
+        transform.position = serial.position;
+        transform.rotation = serial.rotation;
+        
+        // reset height just in case
+        UpdateHeight();
+
+        yield break;
+    }
+
+    string SerializableByExample.FilenameIdentifier()
+    {
+        return "spawned_object_" + myID.ToString();
+    }
+    
+    string DynamicSerializableByExample.PrefabName()
+    {
+        return prefabName;
+    }
+}
+
+
+[System.Serializable]
+class SerializedSpawnedObject
+{
+    public Vector3 position;
+    public Quaternion rotation;
 }

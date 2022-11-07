@@ -8,6 +8,7 @@ public class RapidMixRegression : MonoBehaviour
 {
 #if UNITY_WEBGL
     private int myTrainingID, myRegressionID, myInputLength, myOutputLength;
+    public static bool haveInitializedLib = false;
 #else
     private System.UInt32 myTrainingID, myRegressionID, myInputLength, myOutputLength;
 #endif
@@ -16,7 +17,11 @@ public class RapidMixRegression : MonoBehaviour
     void Awake()
     {
         #if UNITY_WEBGL
-            initializeRapidMix();
+            if( !haveInitializedLib )
+            {
+                initializeRapidMix();
+                haveInitializedLib = true;
+            }
         #endif
         myTrainingID = createEmptyTrainingData();
         myRegressionID = createNewStaticRegression();

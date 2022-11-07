@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable
+public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteractable , TriggerGrabMoveInteractable , GripPlaceDeleteInteractable , LaserPointerSelectable
 {
 
     // default to 0.5
@@ -35,6 +35,8 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
 
     private void UpdateMyChord( int newChord )
     {
+        if( !myText ) { myText = GetComponentInChildren<TextMesh>(); }
+        
         // clamp to min / max
         myChord = newChord % numChords;
 
@@ -67,7 +69,6 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
         }
 
         // update text too
-        myText = GetComponentInChildren<TextMesh>();
         UpdateMyChord( myChord );
 
         // inform it
@@ -95,6 +96,7 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
 
     public static void ShowHints( float pauseTimeBeforeFade )
     {
+        if( myClassifier == null ) { return; }
         foreach( SoundChordExample e in myClassifier.myClassifierExamples )
         {
             e.ShowHint( pauseTimeBeforeFade );
@@ -116,4 +118,38 @@ public class SoundChordExample : MonoBehaviour , TouchpadLeftRightClickInteracta
             StopCoroutine( hintCoroutine );
         }
     }
+
+    public SerializableChordExample Serialize()
+    {
+        SerializableChordExample serial = new SerializableChordExample();
+        serial.position = transform.position;
+        serial.chord = myChord;
+        return serial;
+    }
+
+    public void ResetFromSerial( SerializableChordExample serialized )
+    {
+        transform.position = serialized.position;
+        UpdateMyChord( serialized.chord );
+    }
+
+    void LaserPointerSelectable.Selected()
+    {
+        // activate visualization when selected
+        SoundEngineChordClassifier.Activate();
+    }
+
+    void LaserPointerSelectable.Unselected()
+    {
+        // deactivate visualization when unselected
+        SoundEngineChordClassifier.Deactivate();
+    }
 }
+
+[System.Serializable]
+public class SerializableChordExample
+{
+    public Vector3 position;
+    public int chord;
+}
+

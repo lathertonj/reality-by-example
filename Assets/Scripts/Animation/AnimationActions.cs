@@ -8,36 +8,28 @@ public class AnimationActions : MonoBehaviour
 
     public SteamVR_Input_Sources hand;
     public SteamVR_Action_Boolean actionButton;
+    public SteamVR_Action_Boolean selectionButton;
+    private SteamVR_Behaviour_Pose controller;
     private VibrateController vibration;
 
 
-    GripPlaceDeleteInteraction myDeleter;
-    CloneMoveInteraction myCloner;
 
-    LaserPointerColliderSelector myLaser;
+    private AnimationByRecordedExampleController selectedCreature = null;
+    private AnimationByRecordedExampleController previouslySelectedCreature = null;
 
-    public Transform baseDataSource;
-    public Transform[] relativePointsDataSources;
+    public enum CurrentAction{ Clone, Nothing };
 
-    private static AnimationByRecordedExampleController currentCreature;
-
-    public enum CurrentAction{ Select, SelectAndFollow, Clone, Nothing };
     public CurrentAction currentAction = CurrentAction.Nothing;
+    public enum SelectionResponse{ FollowSelected, PrepareForRecording, Nothing };
+    private SelectionResponse currentSelectionResponse = SelectionResponse.Nothing;
+
+    public float creationDistance = 1.5f;
 
     // Start is called before the first frame update
     void Start()
     {
-        myDeleter = GetComponent<GripPlaceDeleteInteraction>();
-        myCloner = GetComponent<CloneMoveInteraction>();
         vibration = GetComponent<VibrateController>();
-        // hacky way to select between 2 laser pointers :(
-        foreach( LaserPointerColliderSelector l in GetComponents<LaserPointerColliderSelector>() )
-        {
-            if( l.stopShowingOnUp )
-            {
-                myLaser = l;
-            }
-        }
+        controller = GetComponent<SteamVR_Behaviour_Pose>();
     }
 
     // Update is called once per frame
@@ -48,27 +40,50 @@ public class AnimationActions : MonoBehaviour
             // only do this if we're in select mode
             switch( currentAction )
             {
-                case CurrentAction.Select:
-                    SelectCreature( false );
-                    // also, show hints if creature was selected
-                    ShowCurrentCreatureHints();
-                    break;
-                case CurrentAction.SelectAndFollow:
-                    if( SelectCreature( false ) )
-                    {
-                        SlewToTransform slew = GetComponentInParent<SlewToTransform>();
-                        slew.objectToTrack = currentCreature.transform;
-                        slew.enabled = true;
-                    }
-                    break;
                 case CurrentAction.Clone:
                     CloneCurrentCreature( true );
-                    // also, show hint to remind what was cloned
-                    ShowCurrentCreatureHints();
                     break;
                 case CurrentAction.Nothing:
                     // nothing
                     break;
+            }
+        }
+    }
+
+    void LateUpdate()
+    {
+        if( selectionButton.GetStateUp( hand ) && !LaserPointerSelector.WasPressMenu() )
+        {
+            // respond to a potential selection
+            if( FindSelectedCreature() )
+            {
+                // check if what we've selected is different than the previously selected creature
+                if( selectedCreature != previouslySelectedCreature )
+                {
+                    // hide the previously selected creature's examples
+                    if( previouslySelectedCreature != null ) 
+                    { 
+                        previouslySelectedCreature.HideExamples();
+                    }
+
+                    // show new creature's examples
+                    selectedCreature.ShowExamples();
+                    
+                    previouslySelectedCreature = selectedCreature;
+                }
+                switch( currentSelectionResponse )
+                {
+                    case SelectionResponse.FollowSelected:
+                            SlewToTransform slew = GetComponentInParent<SlewToTransform>();
+                            slew.objectToTrack = selectedCreature.transform;
+                            slew.enabled = true;
+                        break;
+                    case SelectionResponse.PrepareForRecording:
+                        EnableSelectedCreatureAction();
+                        break;
+                    case SelectionResponse.Nothing:
+                        break;
+                }
             }
         }
     }
@@ -79,61 +94,57 @@ public class AnimationActions : MonoBehaviour
     {
         // do nothing
         currentAction = CurrentAction.Nothing;
-        // disable grip cloner
-        myCloner.enabled = false;
-        // disable grip laser pointer selector
-        if( myLaser.enabled ) { myLaser.HideLaser(); }
-        myLaser.enabled = false;
+        currentSelectionResponse = SelectionResponse.Nothing;
+        // disable grip cloners
+        SwitchToComponent.DisableComponent<CloneMoveInteraction>( gameObject );
+        SwitchToComponent.DisableComponent<RemoteCloneMoveInteraction>( gameObject );
         // set animator mode to "do not respond to grip"
-        DisableCurrentCreatureAction();
+        DisableSelectedCreatureAction();
+        // reset selected creature
+        FindSelectedCreature();
     }
 
     // hacky custom UI...
     public void ProcessUIChange( SwitchToComponent.InteractionType interaction, Transform prefab )
     {
-        // only for our own actions, disable grip
-        myDeleter.enabled = false;
-
         switch( interaction )
         {
             case SwitchToComponent.InteractionType.CreatureCreate:
-                // hide examples
-                HideCurrentCreatureExamples();
-                // forget current bird and create new one
-                currentCreature = Instantiate( prefab, transform.position, Quaternion.identity ).GetComponent<AnimationByRecordedExampleController>();
-                currentCreature.prefabThatCreatedMe = prefab;
+                // create new bird
+                AnimationByRecordedExampleController newCreature = Instantiate( prefab, CalcSpawnPosition(), CalcSpawnRotation() ).GetComponent<AnimationByRecordedExampleController>();
+                newCreature.prefabThatCreatedMe = prefab;
+                
                 // set data sources
-                currentCreature.modelBaseDataSource = baseDataSource;
-                currentCreature.modelRelativePointsDataSource = relativePointsDataSources;
+                newCreature.modelBaseDataSource = DefaultAnimationDataSources.theBaseDataSource;
+                newCreature.modelRelativePointsDataSource = DefaultAnimationDataSources.theRelativePointsDataSources;
+                
+                // select new creature (forgetting currently selected one in the process)
+                LaserPointerSelector.SelectNewObject( newCreature.gameObject );
+
+                // and after we make a new creature, switch immediately into recording mode
+                ProcessUIChange( SwitchToComponent.InteractionType.CreatureExampleRecord, null );
                 break;
             case SwitchToComponent.InteractionType.CreatureSelect:
-                // turn on laser pointer selector
-                myLaser.enabled = true;
-                currentAction = CurrentAction.Select;
+                // this is no longer an option, now that we can select anything at any time
                 break;
             case SwitchToComponent.InteractionType.CreatureClone:
                 currentAction = CurrentAction.Clone;
-                // also, show hint for examples of the current creature
-                ShowCurrentCreatureHints();
+                // also, show hint for examples of the still-selected creature
+                ShowSelectedCreatureHints();
                 break;
             case SwitchToComponent.InteractionType.CreatureExampleRecord:
                 // turn on create new animation (in selected bird animator)
-                EnableCurrentCreatureAction();
-                // else
-                // {
-                //     // TODO: inform debug somehow that there is no creature selected
-                // }
-
-                // also, show hint for examples of the current creature
-                ShowCurrentCreatureHints();
+                EnableSelectedCreatureAction();
+                // next time we hear a selection happened, try enabling it for recording
+                currentSelectionResponse = SelectionResponse.PrepareForRecording; 
                 break;
             case SwitchToComponent.InteractionType.CreatureExampleClone:
                 // turn on cloning functionality
-                myCloner.enabled = true;
+                SwitchToComponent.EnableComponent<CloneMoveInteraction>( gameObject );
+                SwitchToComponent.EnableComponent<RemoteCloneMoveInteraction>( gameObject );
                 break;
             case SwitchToComponent.InteractionType.CreatureExampleDelete:
-                // turn on the grip delete interactor 
-                myDeleter.enabled = true;
+                // pass -- handle this in SwitchToComponent
                 break;
             case SwitchToComponent.InteractionType.CreatureConstantTimeMode:
                 // switch mode for all creatures
@@ -144,9 +155,8 @@ public class AnimationActions : MonoBehaviour
                 AnimationByRecordedExampleController.SwitchGlobalRecordingMode( AnimationByRecordedExampleController.RecordingType.MusicTempo );
                 break;
             case SwitchToComponent.InteractionType.MoveFollowCreature:
-                // turn on laser pointer selector
-                myLaser.enabled = true;
-                currentAction = CurrentAction.SelectAndFollow;
+                // next time we hear a selection happened, try to follow it
+                currentSelectionResponse = SelectionResponse.FollowSelected;
                 break;
             default:
                 // do nothing
@@ -155,101 +165,66 @@ public class AnimationActions : MonoBehaviour
         }
     }
 
-    bool SelectCreature( bool enableRecordingIfFound )
+    bool FindSelectedCreature()
     {
-        // unstore current creature
-        currentCreature = null;
-        if( myLaser.IsIntersecting() )
+        GameObject selectedObject = LaserPointerSelector.GetSelectedObject();
+        if( selectedObject == null )
         {
-            HideCurrentCreatureExamples();
-            DisableCurrentCreatureAction();
-            GameObject maybeCreature = myLaser.GetMostRecentIntersectedObject();
-            if( maybeCreature != null )
-            {
-                currentCreature = maybeCreature.GetComponent<AnimationByRecordedExampleController>();
-                ShowCurrentCreatureExamples();
-
-                // vibrate if found
-                if( currentCreature != null )
-                {
-                    vibration.Vibrate( 0.1f, 100, 50 );
-                }
-
-                myLaser.HideLaser();
-                if( enableRecordingIfFound && currentCreature != null )
-                {
-                    // switch into recording mode
-                    currentAction = CurrentAction.Nothing;
-                    myLaser.enabled = false;
-                    EnableCurrentCreatureAction();
-                }
-                return true;
-            }
-
+            selectedCreature = null;
+            return false;
         }
-        return false;
+        selectedCreature = selectedObject.GetComponent<AnimationByRecordedExampleController>();
+        return selectedCreature != null;
     }
 
-    void DisableCurrentCreatureAction()
+    void DisableSelectedCreatureAction()
     {
-        if( currentCreature != null )
+        if( FindSelectedCreature() )
         {
-            currentCreature.nextAction = AnimationByRecordedExampleController.AnimationAction.DoNothing;
+            selectedCreature.SetNextAction( AnimationByRecordedExampleController.AnimationAction.DoNothing, controller );
         }
     }
 
-    void EnableCurrentCreatureAction()
+    void EnableSelectedCreatureAction()
     {
-        if( currentCreature != null )
+        if( FindSelectedCreature() )
         {
-            currentCreature.nextAction = AnimationByRecordedExampleController.AnimationAction.RecordAnimation;
-            currentCreature.handType = hand;
+            selectedCreature.SetNextAction( AnimationByRecordedExampleController.AnimationAction.RecordAnimation, controller );
+            selectedCreature.handType = hand;
         }
+
+        // also, show hint for examples of the current creature
+        ShowSelectedCreatureHints();
     }
 
-    void HideCurrentCreatureExamples()
-    {
-        if( currentCreature != null )
-        {
-            currentCreature.HideExamples();
-        }
-    }
-
-    void ShowCurrentCreatureExamples()
-    {
-        if( currentCreature != null )
-        {
-            currentCreature.ShowExamples();
-        }
-    }
 
     void CloneCurrentCreature( bool intoGroup )
     {
-        if( currentCreature != null )
+        if( FindSelectedCreature() )
         {
             // create new one 
             AnimationByRecordedExampleController newCreature = 
-                Instantiate( currentCreature.prefabThatCreatedMe, transform.position, Quaternion.identity )
+                Instantiate( selectedCreature.prefabThatCreatedMe, CalcSpawnPosition(), selectedCreature.transform.rotation )
                 .GetComponent<AnimationByRecordedExampleController>();
             
             // set data sources
-            newCreature.modelBaseDataSource = baseDataSource;
-            newCreature.modelRelativePointsDataSource = relativePointsDataSources;
-            newCreature.SwitchRecordingMode( currentCreature );
-            newCreature.prefabThatCreatedMe = currentCreature.prefabThatCreatedMe;
+            newCreature.modelBaseDataSource = DefaultAnimationDataSources.theBaseDataSource;
+            newCreature.modelRelativePointsDataSource = DefaultAnimationDataSources.theRelativePointsDataSources;
+            newCreature.SwitchRecordingMode( selectedCreature );
+            newCreature.prefabThatCreatedMe = selectedCreature.prefabThatCreatedMe;
             
 
             if( intoGroup )
             {
                 // initialize within a group
-                newCreature.AddToGroup( currentCreature );
+                newCreature.AddToGroup( selectedCreature );
             }
             else
             {
                 // make independent. give it its own examples
                 Transform _ = null;
                 // clone each example and tell newCreature not to rescan provided examples yet
-                foreach( AnimationExample e in currentCreature.examples )
+                foreach( AnimationExample e in selectedCreature.examples )
                 {
                     newCreature.ProvideExample( e.CloneExample( newCreature, out _ ), false );
                 }
@@ -258,14 +233,36 @@ public class AnimationActions : MonoBehaviour
                 newCreature.HideExamples();
             }
 
-            newCreature.CloneAudioSystem( currentCreature, intoGroup );
+            newCreature.CloneAudioSystem( selectedCreature, intoGroup );
             newCreature.RescanMyProvidedExamples();
+
+            // also, show hint to remind what was cloned
+            ShowSelectedCreatureHints();
+
+            // finally, copy color
+            newCreature.GetComponent<AnimatedCreatureColor>().CopyColor( selectedCreature.GetComponent<AnimatedCreatureColor>() );
         }
     }
 
-    void ShowCurrentCreatureHints()
+    void ShowSelectedCreatureHints()
     {
-        AnimationExample.ShowHints( currentCreature, SwitchToComponent.hintTime );
+        if( selectedCreature != null )
+        {
+            // show hints of currently selected creature
+            AnimationExample.ShowHints( selectedCreature, SwitchToComponent.hintTime );
+        }
+    }
+
+    Vector3 CalcSpawnPosition()
+    {
+        Transform yBase = DefaultAnimationDataSources.BaseDataSourceYTransformOnly();
+        return yBase.position + creationDistance * yBase.forward;
+    }
+
+    Quaternion CalcSpawnRotation()
+    {
+        Transform yBase = DefaultAnimationDataSources.BaseDataSourceYTransformOnly();
+        return yBase.rotation;
     }
 
 }

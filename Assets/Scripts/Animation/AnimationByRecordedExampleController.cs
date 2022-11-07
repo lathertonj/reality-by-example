@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
 
-public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDeleteInteractable
+public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDeleteInteractable , LaserPointerSelectable , DynamicSerializableByExample , Nameable
 {
     private static List< AnimationByRecordedExampleController > allCreatures = new List< AnimationByRecordedExampleController >();
     private List< AnimationByRecordedExampleController > myGroup = null;
+    private int myGroupID = 0;
+    private static int nextGroupID = 0;
     [HideInInspector] public Transform prefabThatCreatedMe;
+
+    public enum CreatureType { Flying, Land, Water };
+    public CreatureType creatureType = CreatureType.Flying;
     public enum PredictionType { Classification, Regression };
     public PredictionType predictionType;
 
@@ -16,29 +21,33 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     public enum RecordingType { ConstantTime, MusicTempo };
     public RecordingType currentRecordingAndPlaybackMode = RecordingType.ConstantTime;
     private static RecordingType recordingTypeForNewBirds = RecordingType.ConstantTime;
-    public AnimationAction nextAction = AnimationAction.DoNothing;
+    private AnimationAction nextAction = AnimationAction.DoNothing;
 
     public AnimationExample examplePrefab;
 
     public SteamVR_Input_Sources handType;
     public SteamVR_Action_Boolean startStopDataCollection;
+    private SteamVR_Behaviour_Pose currentHand = null;
 
     public Transform modelBaseDataSource, modelBaseToAnimate;
     public Transform[] modelRelativePointsDataSource, modelRelativePointsToAnimate;
+    private NeckRotatable myNeck;
+    public float relativeDataSourceScaleFactor = 1f;
+    public float relativeDataSourceExtraOffsetUp;
+    public float relativeDataSourceExtraOffsetTowardCamera;
+    private Vector3 relativeDataSourceExtraOffset;
 
     // Basic idea:
     // predict the increment to modelBase location and rotation
     // input features: y, steepness of terrain; previous location / rotation.
     // --> 2 regressions for modelBase
     public List<AnimationExample> examples = null, currentlyUsedExamples;
-    //private List<List<ModelBaseDatum>> modelBasePositionData;
     private RapidMixClassifier myAnimationClassifier;
     private RapidMixRegression myAnimationRegression;
 
 
     // predict the position of each modelRelativePoint, relative to modelBase
     // input features: y, steepness of terrain, quaternion of current rotation
-    //private List<List<ModelRelativeDatum>>[] modelRelativePositionData;
 
     // and, have a maximum amount that each thing can actually move -- maybe a slew per frame.
     public float globalSlew = 0.1f;
@@ -46,10 +55,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     public float motionSpeedupSlew = 0.08f;
     public float motionSlowdownSlew = 0.03f;
     public float maxSpeed = 1;
-    public float avoidTerrainAngle = 30;
+    public float avoidTerrainIntensity = 1f;
     public float avoidTerrainDetection = 2f;
     public float avoidTerrainMinheight = 1.5f;
-    public float boidSlew = 0.01f;
+    public float avoidWaterMinDistance = 0.5f;
+    public float boidUpSlew = 0.05f, boidDownSlew = 0.1f;
+    public float hugTerrainHeight = 0.5f;
 
     public float maxDistanceFromAnyExample = 15f;
     public float distanceRampUpRange = 10f;
@@ -58,8 +69,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     // and, specify a data collection rate and a prediction output rate.
     public float dataCollectionRate = 0.1f;
 
-    // TODO use AngleMinify function?
-    public Vector3 maxEulerAnglesChange;
 
     // other stuff
     bool haveTrained = false;
@@ -70,7 +79,19 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     IEnumerator dataCollectionCoroutine = null, runtimeCoroutine = null;
 
     private AnimationSoundRecorderPlaybackController mySounder = null;
+    private AnimatedCreatureColor myColor = null;
 
+    public bool useRecordingModeOffset = false;
+    public float recordingModeLateralOffset = 1.5f;
+    private Vector3 recordingModeOffset = Vector3.zero;
+
+    public string myPrefabName;
+
+    private GameObject _yRotationBaseObject;
+    private Transform yRotationBase;
+
+    public TextMesh myDisplayName;
+    private string myBaseName;
 
     void Awake()
     {
@@ -89,21 +110,47 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         }
         goalLocalPositions = new Vector3[modelRelativePointsDataSource.Length];
 
+        // get components
         mySounder = GetComponent<AnimationSoundRecorderPlaybackController>();
+        myColor = GetComponent<AnimatedCreatureColor>();
 
         // free the dummy points
+        // and reset the scale when appropriate
         modelBaseToAnimate.parent = null;
+        modelBaseToAnimate.localScale = transform.localScale;
         for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
         {
             modelRelativePointsToAnimate[i].parent = null;
+            modelRelativePointsToAnimate[i].localScale = Vector3.one;
         }
+
+        // make mock dummy point
+        _yRotationBaseObject = new GameObject();
+        _yRotationBaseObject.name = "y rotation version of camera";
+        yRotationBase = _yRotationBaseObject.transform;
+
+        // get neck reference
+        myNeck = GetComponent<NeckRotatable>();
+    }
+
+    void Start()
+    {
+        // listen to terrain changes and rescan provided examples when they occur
+        NotifyWhenChanges.NotifyIfTerrainChanges( RescanMyProvidedExamples );
     }
 
     public void AddToGroup( AnimationByRecordedExampleController groupLeader )
     {
+        // reference to my group
         myGroup = groupLeader.myGroup;
+        // add myself to it
         myGroup.Add( this );
+        // copy over my examples and ID
         examples = groupLeader.examples;
+        myGroupID = groupLeader.myGroupID;
+        // copy my display name
+        myBaseName = groupLeader.myBaseName;
+        UpdateMyDisplayName( myGroup.Count - 1 );
     }
 
     private void InitializeIndependently()
@@ -111,6 +158,8 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         myGroup = new List< AnimationByRecordedExampleController >();
         myGroup.Add( this );
         examples = new List<AnimationExample>();
+        myGroupID = nextGroupID;
+        nextGroupID++;
     }
 
     public void CloneAudioSystem( AnimationByRecordedExampleController toCloneFrom, bool shareSamples )
@@ -124,12 +173,16 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     
 
     // Update is called once per frame
+    float goalSpeedMultiplier = 0, currentSpeedMultiplier = 0;
     void Update()
     {
         if( runtimeMode )
         {
             // keep track of how much movement happens
             float movementThisFrame = 0;
+
+            // slew base
+            modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, goalBaseRotation, globalSlew );
 
             // slew the relative positions while computing movement 
             for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
@@ -144,7 +197,25 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
             // derive ideal movement speed from movement of the limbs
             movementThisFrame /= modelRelativePointsToAnimate.Length;
+            // TODO: compute speed multiplier differently if we don't have limbs?
             goalSpeedMultiplier = 10 * Mathf.Clamp( movementThisFrame, 0, 0.1f );
+
+            // on land, speed is relative to the angle of the terrain
+            if( creatureType == CreatureType.Land )
+            {
+                // reduce speed on steep terrain
+                float modelTilt = modelBaseToAnimate.rotation.eulerAngles.x;
+                if( modelTilt > 12 && modelTilt < 180 )
+                {
+                    // downhill
+                    goalSpeedMultiplier *= modelTilt.PowMapClamp( 12, 20, 1.0f, 0.5f, 2.5f );
+                }
+                else if( modelTilt < 360 - 12 && modelTilt > 180 )
+                {
+                    // uphill
+                    goalSpeedMultiplier *= modelTilt.PowMapClamp( 360 - 12, 360 - 20, 1.0f, 0.35f, 2f );
+                }
+            }
 
             // current speed is delayed from ideal
             if( currentSpeedMultiplier < goalSpeedMultiplier )
@@ -156,38 +227,68 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
                 currentSpeedMultiplier += motionSlowdownSlew * ( goalSpeedMultiplier - currentSpeedMultiplier );
             }
 
-            // slew base
-            modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, goalBaseRotation, globalSlew );
-
             // get base velocity
             Vector3 baseVelocity = modelBaseToAnimate.forward;
 
-            // boids
-            Vector3 groundAvoidance = ProcessBoidsGroundAvoidance();
-            Vector3 examplesAttraction = ProcessBoidsExamplesAttraction();
-            Vector3 boidAvoidance = ProcessBoidsOthersAvoidance();
+            // dependent on creature type
+            switch( creatureType )
+            {
+                case CreatureType.Flying:
+                    // move in the forward direction, with speed according to delayed limb movement
+                    modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * baseVelocity;
+                    break;
+                case CreatureType.Land:
+                    // move in the forward direction
+                    modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * baseVelocity;
+                    // re-center self on ground
+                    Vector3 terrainNormal = Vector3.up;
+                    modelBaseToAnimate.position = GetHugTerrainPoint( modelBaseToAnimate.position, out terrainNormal );
 
-            // overall velocity
-            Vector3 velocity = baseVelocity + groundAvoidance + examplesAttraction + boidAvoidance;
+                    // align look direction to ground 
+                    // find forward direction that's along the terrain, in our original direction
+                    // cross product gets a tangent to the normal
+                    // cross product with the left vector gets a tangent in roughly the forward direction
+                    Vector3 newForward = Vector3.Cross( terrainNormal, -transform.right );
+                    // but "up" isn't the normal, then animal would look glued to mountain
+                    // animals try to make "up" be opposite of gravity.
+                    Quaternion newRotation = Quaternion.LookRotation( newForward, Vector3.up );
 
-            // move in the forward direction, with speed according to delayed limb movement
-            modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * velocity;
+                    // approach this new rotation
+                    modelBaseToAnimate.rotation = Quaternion.Slerp( modelBaseToAnimate.rotation, newRotation, globalSlew ); 
+                    break;
+                case CreatureType.Water:
+                    // check if we need to reset position
+                    // it's when we're no longer above the terrain -- we swam through it
+                    if( !TerrainUtility.AboveLayer( modelBaseToAnimate.position, Vector3.down, Mathf.Infinity, 8 ) )
+                    {
+                        // we swam underground :( let's just go back to the start!
+                        ResetCreaturePosition( true );
+                    }
+                    // move in the forward direction, with speed according to delayed limb movement
+                    modelBaseToAnimate.position += maxSpeed * currentSpeedMultiplier * Time.deltaTime * baseVelocity;
+                    break;
+                default:
+                    Debug.LogWarning( "unknown type of creature" );
+                    break;
+            }
 
-            // change the rotation to be looking in that direction
-            // TODO: does this negatively impact animation overall?
-            modelBaseToAnimate.rotation = Quaternion.LookRotation( velocity, modelBaseToAnimate.up );
 
 
         }
         else if( nextAction == AnimationAction.RecordAnimation )
         {
             // animate it as just following the data sources, only if we're recording data or might again soon
-            modelBaseToAnimate.position = modelBaseDataSource.position;
-            modelBaseToAnimate.rotation = modelBaseDataSource.rotation;
+            // recordingModeOffset: have it be a little away from us so we can see the body
+            modelBaseToAnimate.position = modelBaseDataSource.position + recordingModeOffset;
+            modelBaseToAnimate.rotation = ProcessGoalRotation( GetModelBaseDataRotation() );
 
             for( int i = 0; i < modelRelativePointsToAnimate.Length; i++ )
             {
-                modelRelativePointsToAnimate[i].position = modelRelativePointsDataSource[i].position;
+                // what's being stored by the learning algorithm
+                Vector3 localOffset = GetLocalPositionOfRelativeToBase( i );
+                // how it's going to be rendered in the future
+                Vector3 positionOnCreature = modelBaseToAnimate.TransformPoint( localOffset );
+                modelRelativePointsToAnimate[i].position = positionOnCreature;
             }
         }
 
@@ -259,20 +360,6 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
     
 
     Vector3 mostRecentTerrainFoundPoint;
-    private Terrain FindTerrain( Vector3 nearPoint )
-    {
-        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
-        int layerMask = 1 << 8;
-
-        RaycastHit hit;
-        // Check from a point really high above us, in the downward direction (in case we are below terrain)
-        if( Physics.Raycast( nearPoint + 400 * Vector3.up, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
-        {
-            mostRecentTerrainFoundPoint = hit.point;
-            return hit.transform.GetComponentInParent<Terrain>();
-        }
-        return null;
-    }
 
     private void FindTerrainInformation( out float height, out float steepness, out float distanceAbove )
     {
@@ -281,7 +368,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     public void FindTerrainInformation( Vector3 fromPosition, out float height, out float steepness, out float distanceAbove )
     {
-        Terrain currentTerrain = FindTerrain( fromPosition );
+        Terrain currentTerrain = TerrainUtility.FindTerrain<Terrain>( fromPosition );
         if( currentTerrain )
         {
             Vector2 terrainCoords = CoordinatesToIndices( currentTerrain, modelBaseDataSource.position );
@@ -305,7 +392,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return indices;
     }
 
-    // TODO: 
+    // 
     // 0. Set the previous translation to be current position - previous position
     // 1. Set the previous rotation to be current rotation * inv( prev rotation ) // AND DOUBLE CHECK THIS
     // 2. Set the goalBasePosition based on currentPosition + output of regression
@@ -317,12 +404,17 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
 
     private Quaternion seamHideRotation;
+    private Quaternion combinedSeamHideAndBoidsRotation;
     int currentRuntimeFrame = 0;
     private IEnumerator Run()
     {
         runtimeMode = true;
         seamHideRotation = Quaternion.identity;
-        currentRuntimeFrame = 0;
+        // TODO: do we WANT to reset the current frame every time we run?
+        // currentRuntimeFrame = 0;
+
+        // to start water creatures, put them onto the ground == underwater, hopefully.
+        ResetCreaturePosition( false );
 
         switch( currentRecordingAndPlaybackMode )
         {
@@ -378,104 +470,211 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         runtimeMode = false;
     }
 
+    // public Transform debug1, debug2, debug3, debug4;
+    private static AnimationByRecordedExampleController creatureWhoGetsToShowActivation = null;
     private void RunOneFrameRegression()
     {
-            // 1. Run regression and normalize to get relative levels of each animation
-            // 2. Average together all the results of that frame offset
-            // 3. Use that as the next goal position / rotation
-            double[] baseInput = FindBaseInput( modelBaseToAnimate.position );
+        // 1. Run regression and normalize to get relative levels of each animation
+        // 2. Average together all the results of that frame offset
+        // 3. Use that as the next goal position / rotation
+        double[] baseInput = FindBaseInput( modelBaseToAnimate.position );
 
-            // animation
-            double[] o = myAnimationRegression.Run( baseInput );
-            // normalize o
-            double sum = 0;
-            // clamp to [0, inf)
-            for( int i = 0; i < o.Length; i++ ) { o[i] = Mathf.Clamp( (float) o[i], 0, float.MaxValue ); }
-            // compute sum
-            for( int i = 0; i < o.Length; i++ ) { sum += o[i]; }
-            // divide by sum
-            for( int i = 0; i < o.Length; i++ ) { o[i] /= sum; }
+        // animation
+        double[] o = myAnimationRegression.Run( baseInput );
+        // normalize o
+        double sum = 0;
+        // clamp to [0, inf)
+        for( int i = 0; i < o.Length; i++ ) { o[i] = Mathf.Clamp( (float) o[i], 0, float.MaxValue ); }
+        // compute sum
+        for( int i = 0; i < o.Length; i++ ) { sum += o[i]; }
+        // divide by sum
+        for( int i = 0; i < o.Length; i++ ) { o[i] /= sum; }
 
-            // show activation
+        // show activation
+        if( creatureWhoGetsToShowActivation == this )
+        {
             for( int i = 0; i < currentlyUsedExamples.Count; i++ ) 
             {
-                currentlyUsedExamples[i].SetActivation( (float) o[i] );
-            }
-
-            // TODO: how to do a weighted average of Quaternion? maybe with slerp?
-            // see: https://stackoverflow.com/questions/12374087/average-of-multiple-quaternions
-            // average of many requires finding eigenvectors
-            // --> just slerp between the largest 2 -- we can still do a weighted avg of 2
-
-            // find top two indices
-            int mostProminent = 0, secondMostProminent = 0;
-            double mpAmount = 0;
-            for( int i = 0; i < o.Length; i++ )
-            {
-                if( o[i] > mpAmount )
+                foreach( AnimationExample e in currentlyUsedExamples[i].Group() )
                 {
-                    mpAmount = o[i];
-                    secondMostProminent = mostProminent;
-                    mostProminent = i;
+                    e.SetActivation( (float) o[i] );
                 }
             }
+        }
 
-            // re normalize 
-            float slerpAmount = (float) o[secondMostProminent] / (float) ( o[mostProminent] + o[secondMostProminent] );
+        // how to do a weighted average of Quaternion? maybe with slerp?
+        // see: https://stackoverflow.com/questions/12374087/average-of-multiple-quaternions
+        // average of many requires finding eigenvectors
+        // --> just slerp between the largest 2 -- we can still do a weighted avg of 2
 
-            // goal rotation is weighted average between the two most prominent animations
-            goalBaseRotation = Quaternion.Slerp(
-                GetBaseQuaternion( mostProminent, currentRuntimeFrame ),
-                GetBaseQuaternion( secondMostProminent, currentRuntimeFrame ),
+        // find top two indices
+        int mostProminent = 0, secondMostProminent = 0;
+        double mpAmount = 0;
+        for( int i = 0; i < o.Length; i++ )
+        {
+            if( o[i] > mpAmount )
+            {
+                mpAmount = o[i];
+                secondMostProminent = mostProminent;
+                mostProminent = i;
+            }
+        }
+
+        // re normalize 
+        float slerpAmount = (float) o[secondMostProminent] / (float) ( o[mostProminent] + o[secondMostProminent] );
+
+        // goal rotation is weighted average between the two most prominent animations
+        Quaternion rotationFromAnimation = Quaternion.Slerp(
+            GetBaseQuaternion( mostProminent, currentRuntimeFrame ),
+            GetBaseQuaternion( secondMostProminent, currentRuntimeFrame ),
+            slerpAmount
+        );
+
+        // show on neck
+        if( myNeck != null )
+        {
+            // make invariant to the way we were facing at the start of the phrase
+            Quaternion frame0Position = Quaternion.Slerp(
+                GetBaseQuaternion( mostProminent, 0 ),
+                GetBaseQuaternion( secondMostProminent, 0 ),
                 slerpAmount
             );
+            Quaternion neckRotation = Quaternion.AngleAxis( -frame0Position.eulerAngles.y, Vector3.up ) * rotationFromAnimation;
 
+            // set
+            myNeck.SetNeckRotation( neckRotation );
+        }
+
+        // compute boids
+        // boids
+        Vector3 examplesAttraction = ProcessBoidsExamplesAttraction();
+        Vector3 boidAvoidance = ProcessBoidsOthersAvoidance();
+        Vector3 groundAvoidance, cliffAvoidance, waterAvoidance;
+        Vector3 velocity = examplesAttraction + boidAvoidance;
+
+        // dependent on creature type
+        switch( creatureType )
+        {
+            case CreatureType.Flying:
+                // extra boids
+                groundAvoidance = ProcessBoidsGroundAvoidance();
+                cliffAvoidance = ProcessBoidsCliffAvoidance( 120 );
+                // avoid water below us
+                waterAvoidance = ProcessBoidsWaterAvoidance( true );
+
+
+                // add to velocity
+                velocity += groundAvoidance + cliffAvoidance + waterAvoidance;
+                break;
+            case CreatureType.Land:
+                // avoid edge of water
+                Vector3 waterDirection = modelBaseToAnimate.forward + 0.3f * Vector3.down;
+                waterDirection.Normalize();
+                // make more important than other features
+                waterAvoidance = 1.7f * ProcessBoidsWaterAvoidance( waterDirection, true, 120 );
+                velocity += waterAvoidance;
+                // debug1.position = transform.position + examplesAttraction;
+                // debug2.position = transform.position + boidAvoidance;
+                // debug3.position = transform.position + waterAvoidance;
+                // // debug4.position = transform.position + cliffAvoidance;
+                break;
+            case CreatureType.Water:
+                // extras boid of avoiding the ground AND the top of the water! :)
+                groundAvoidance = ProcessBoidsGroundAvoidance();
+                cliffAvoidance = ProcessBoidsCliffAvoidance( 120 );
+                // if water is above us, go down
+                waterAvoidance = ProcessBoidsWaterAvoidance( false );
+                // if it's too shallow, turn around (disabled)
+                // Vector3 shallowAvoidance = ProcessBoidsShallowAvoidance( groundAvoidance, waterAvoidance );
+                
+                // add to velocity. make shallow avoidance the most effective
+                velocity += groundAvoidance + cliffAvoidance + waterAvoidance;// + 3.0f * shallowAvoidance;
+                break;
+            default:
+                Debug.LogWarning( "unknown type of creature" );
+                break;
+        }
+
+
+        if( velocity.magnitude > 0.005f )
+        {
             // rotate the animation by whatever angle we were at when we started
             // this loop
-            goalBaseRotation = seamHideRotation * goalBaseRotation;
+            Quaternion rotationWithoutBoids = seamHideRotation * rotationFromAnimation;
+
+            // boids desired rotation is to move in velocity direction
+            Quaternion boidsDesiredRotation = Quaternion.LookRotation( velocity, Vector3.up );
+
+            // difference between the desired boids position and rotation without boids
+            Quaternion boidsDesiredChange = boidsDesiredRotation * Quaternion.Inverse( rotationWithoutBoids );
+
+            // update seam hide rotation by a certain percentage of the boids desired change, according to strength of boids
+            // maximum = velocity of 1 --> 100% of the way there
+            float amountToChange = velocity.magnitude.MapClamp( 0, 1, 0, 1f );
+            combinedSeamHideAndBoidsRotation = Quaternion.Slerp( seamHideRotation, boidsDesiredChange * seamHideRotation, amountToChange );
+
+            // the actual goal orientation
+            goalBaseRotation = combinedSeamHideAndBoidsRotation * rotationFromAnimation;
+
+            // update seam hide to be in line with output from most recent boids
+            seamHideRotation = Quaternion.AngleAxis( goalBaseRotation.eulerAngles.y - rotationFromAnimation.eulerAngles.y, Vector3.up );
+
+        }
+        else
+        {
+            // don't use boids if the effect is not strong
+            goalBaseRotation = seamHideRotation * rotationFromAnimation;
+            // debug1.position = transform.position;
+            // debug2.position = transform.position;
+            // debug3.position = transform.position;
+            // debug4.position = transform.position;
+        }
+
+        // only use y rotation for land creatures
+        goalBaseRotation =  ProcessGoalRotation( goalBaseRotation );
 
 
-            // weighted average of vectors:
-            // compute the relative position goals
-            for( int i = 0; i < goalLocalPositions.Length; i++ )
+        // weighted average of vectors:
+        // compute the relative position goals
+        for( int i = 0; i < goalLocalPositions.Length; i++ )
+        {
+            goalLocalPositions[i] = Vector3.zero;
+
+            // number of example-groups exactly same as number of animations..??? some examples may reuse the same animation
+            // but in different positions, but each group is only tracked once in currentlyUsedExamples
+            for( int whichAnimation = 0; whichAnimation < currentlyUsedExamples.Count; whichAnimation++ )
             {
-                goalLocalPositions[i] = Vector3.zero;
+                // weighted sum
+                goalLocalPositions[i] += (float) o[whichAnimation] * GetLocalPosition( i, whichAnimation, currentRuntimeFrame );
 
-                // TODO: number of examples not necessarily same as number of animations..??? some examples may reuse the same animation
-                // but in different positions. I smell a redesign!
-                for( int whichAnimation = 0; whichAnimation < currentlyUsedExamples.Count; whichAnimation++ )
-                {
-                    // weighted sum
-                    goalLocalPositions[i] += (float) o[whichAnimation] * GetLocalPosition( i, whichAnimation, currentRuntimeFrame );
-
-                }
             }
+        }
 
-            // sound
-            if( mySounder )
-            {
-                // compute features
-                float currentHeight = 0, currentSteepness = 0, heightAboveTerrain = 0;
-                FindTerrainInformation( out currentHeight, out currentSteepness, out heightAboveTerrain );
-                mySounder.Predict( SoundInput(
-                    modelBaseToAnimate.rotation,
-                    currentHeight,
-                    currentSteepness,
-                    heightAboveTerrain
-                ) );
-            }
+        // sound
+        if( mySounder )
+        {
+            // compute features
+            float currentHeight = 0, currentSteepness = 0, heightAboveTerrain = 0;
+            FindTerrainInformation( out currentHeight, out currentSteepness, out heightAboveTerrain );
+            mySounder.Predict( SoundInput(
+                modelBaseToAnimate.rotation,
+                currentHeight,
+                currentSteepness
+            ) );
+        }
 
-            currentRuntimeFrame++;
+        currentRuntimeFrame++;
 
-            // update seam hiding rotation:
-            // if the next frame represents "restarting" the most prominent animation
-            if( mostProminent < currentlyUsedExamples.Count && currentRuntimeFrame % currentlyUsedExamples[ mostProminent ].baseExamples.Count == 0 )
-            {
-                seamHideRotation = Quaternion.AngleAxis( 
-                    goalBaseRotation.eulerAngles.y - currentlyUsedExamples[ mostProminent ].baseExamples[0].rotation.eulerAngles.y, 
-                    Vector3.up
-                );
-            }
+        // update seam hiding rotation:
+        // if the next frame represents "restarting" the most prominent animation
+        if( mostProminent < currentlyUsedExamples.Count && currentRuntimeFrame % currentlyUsedExamples[ mostProminent ].baseExamples.Count == 0 )
+        {
+            seamHideRotation = Quaternion.AngleAxis( 
+                goalBaseRotation.eulerAngles.y - GetBaseQuaternion( mostProminent, 0 ).eulerAngles.y, 
+                Vector3.up
+            );
+            currentRuntimeFrame = 0;
+        }
         
     }
 
@@ -489,8 +688,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         // 3. Use that as the next goal position
         double[] baseInput = FindBaseInput( modelBaseToAnimate.position );
         // animation
+        #if UNITY_WEBGL
+        int whichAnimation = myAnimationClassifier.Run( baseInput );
+        #else
         string o = myAnimationClassifier.Run( baseInput );
         int whichAnimation = System.Convert.ToInt32( o );
+        #endif
 
         goalBaseRotation = GetBaseQuaternion( whichAnimation, currentRuntimeFrame );
 
@@ -509,8 +712,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             mySounder.Predict( SoundInput(
                 modelBaseToAnimate.rotation,
                 currentHeight,
-                currentSteepness,
-                heightAboveTerrain
+                currentSteepness
             ) );
         }
 
@@ -529,6 +731,88 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return currentlyUsedExamples[whichAnimation].relativeExamples[i][ currentFrame % numFrames ].positionRelativeToBase;
     }
 
+    private Vector3 GetRelativeDataPosition( int i )
+    {
+        return modelRelativePointsDataSource[i].position + relativeDataSourceExtraOffset;
+    }
+
+    // mock data source only has y rotation
+    private void RepopulateYRotationBase()
+    {
+        // we actually want it relative to a version of the base data source that only has
+        // y rotation
+        yRotationBase.position = modelBaseDataSource.position;
+        yRotationBase.rotation = Quaternion.AngleAxis( modelBaseDataSource.eulerAngles.y, Vector3.up );
+        yRotationBase.localScale = modelBaseDataSource.localScale;
+    }
+
+    private Vector3 GetLocalPositionOfRelativeToBase( int i )
+    {
+        RepopulateYRotationBase();
+        return relativeDataSourceScaleFactor * yRotationBase.InverseTransformPoint( GetRelativeDataPosition( i ) );
+    }
+
+    private Quaternion GetModelBaseDataRotation()
+    {
+        switch( creatureType )
+        {
+            case CreatureType.Flying:
+            case CreatureType.Water:
+            case CreatureType.Land:
+                return modelBaseDataSource.rotation;
+            default:
+                // uh oh
+                return Quaternion.identity;
+        }
+    }
+
+    private Quaternion ProcessGoalRotation( Quaternion goal )
+    {
+        switch( creatureType )
+        {
+            case CreatureType.Land:
+                return Quaternion.AngleAxis( goal.eulerAngles.y, Vector3.up );
+            case CreatureType.Flying:
+            case CreatureType.Water:
+            default:
+                return goal;
+        }
+    }
+
+    private void ComputeRecordingOffset()
+    {
+        if( useRecordingModeOffset && currentHand != null )
+        {
+            RepopulateYRotationBase();
+            Vector3 direction = yRotationBase.forward;
+            direction.y = 0;
+            recordingModeOffset = direction.normalized * recordingModeLateralOffset;
+            
+            // recordingOffset moves points away from the camera
+            // so -recordingOffset moves points back toward the camera
+            relativeDataSourceExtraOffset = -recordingModeOffset;
+            relativeDataSourceExtraOffset.y = 0;
+            relativeDataSourceExtraOffset *= relativeDataSourceExtraOffsetTowardCamera / relativeDataSourceExtraOffset.magnitude;
+            relativeDataSourceExtraOffset.y = relativeDataSourceExtraOffsetUp;
+        }
+        else
+        {
+            recordingModeOffset = Vector3.zero;
+            relativeDataSourceExtraOffset = Vector3.zero;
+        }
+    }
+
+    public void SetNextAction( AnimationAction newAction, SteamVR_Behaviour_Pose associatedController )
+    {
+        nextAction = newAction;
+        currentHand = associatedController;
+        
+        if( nextAction == AnimationAction.RecordAnimation )
+        {
+            ComputeRecordingOffset();
+        }
+    }
+
 
     List<ModelBaseDatum> currentBasePhrase;
     List<ModelRelativeDatum>[] currentRelativePhrases;
@@ -545,11 +829,14 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             currentRelativePhrases[i] = new List<ModelRelativeDatum>();
         }
 
+        // recompute the offset -- we might record in a different direction than last time
+        ComputeRecordingOffset();
+
         // store the data in the example!
-        AnimationExample newExample = Instantiate( examplePrefab, modelBaseDataSource.position, Quaternion.identity );
+        AnimationExample newExample = Instantiate( examplePrefab, modelBaseDataSource.position + recordingModeOffset, Quaternion.identity );
         examples.Add( newExample );
-        // TODO ensure this is a shallow copy and that the lists are identical
-        newExample.Initiate( currentBasePhrase, currentRelativePhrases, this, currentRecordingAndPlaybackMode );
+        // this is a shallow copy and the lists are identical
+        newExample.Initialize( currentBasePhrase, currentRelativePhrases, this, currentRecordingAndPlaybackMode, true );
 
 
         // start sound
@@ -591,7 +878,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // base datum
             ModelBaseDatum newDatum = new ModelBaseDatum();
             // direct way
-            newDatum.rotation = modelBaseDataSource.rotation;
+            newDatum.rotation = GetModelBaseDataRotation();
             
             // indirect way: from the hand positions
             // This can be used if we don't have a base data source,
@@ -607,15 +894,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // averageUp.Normalize();
             // newDatum.rotation = Quaternion.LookRotation( averageForward, averageUp );
 
-            newDatum.terrainHeight = currentHeight;
-            newDatum.terrainSteepness = currentSteepness;
-
             currentBasePhrase.Add( newDatum );
 
             // sound
             if( mySounder )
             {
-                double[] input = SoundInput( newDatum.rotation, newDatum.terrainHeight, newDatum.terrainSteepness, heightAboveTerrain );
+                double[] input = SoundInput( newDatum.rotation, currentHeight, currentSteepness );
                 double[] output = mySounder.ProvideExample( input );
                 foreach( AnimationByRecordedExampleController creature in myGroup )
                 {
@@ -629,7 +913,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             {
                 ModelRelativeDatum newRelativeDatum = new ModelRelativeDatum();
                 // find local position: local position of X relative to B is B.inverseTransformPoint(X.position);
-                Vector3 localPosition = modelBaseDataSource.InverseTransformPoint( modelRelativePointsDataSource[i].position );
+                Vector3 localPosition = GetLocalPositionOfRelativeToBase( i );
                 newRelativeDatum.positionRelativeToBase = localPosition;
 
                 currentRelativePhrases[i].Add( newRelativeDatum );
@@ -646,9 +930,9 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         }
     }
 
-    public void ForgetExample( AnimationExample e )
+    public void ForgetExample( AnimationExample e, bool shouldRescan = true )
     {
-        if( examples.Remove( e ) )
+        if( examples.Remove( e ) && shouldRescan )
         {
             // successfully removed example --> rescan remaining ones
             RescanProvidedExamples();
@@ -707,28 +991,24 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         }
     }
 
-    // base:
-    // predict the increment to modelBase location and rotation
-    // input features: y, steepness of terrain; previous location / rotation.
-    double[] BaseInput( ModelBaseDatum d )
+    double[] BaseInput( AnimationExample e )
     {
-        return new double[] {
-            d.terrainHeight,
-            d.terrainSteepness,
-        };
+        return FindBaseInput( e.transform.position );
     }
 
 
 
-    ModelBaseDatum _dummy = new ModelBaseDatum();
+    // base:
+    // predict the increment to modelBase location and rotation
+    // input features: y, steepness of terrain; previous location / rotation.
     double[] FindBaseInput( Vector3 worldPos )
     {
-        float h, s, da;
-        FindTerrainInformation( out h, out s, out da );
-        _dummy.terrainHeight = h;
-        _dummy.terrainSteepness = s;
-
-        return BaseInput( _dummy );
+        float h, s, _;
+        FindTerrainInformation( worldPos, out h, out s, out _ );
+        return new double[] {
+            h,
+            s
+        };
     }
 
     string BaseOutput( int label )
@@ -736,21 +1016,19 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return label.ToString();
     }
 
-    public void UpdateBaseDatum( ModelBaseDatum d, float newHeight, float newSteepness, Quaternion spinRotation )
-    {
-        d.terrainHeight = newHeight;
-        d.terrainSteepness = newSteepness;
-        d.rotation = spinRotation * d.rotation;
-    }
-
     void Train()
     {
         currentlyUsedExamples.Clear();
-        foreach( AnimationExample e in examples )
+        foreach( AnimationExample known in examples )
         {
-            if( e.IsEnabled() && currentRecordingAndPlaybackMode == e.myRecordingType ) 
-            { 
-                currentlyUsedExamples.Add( e );
+            // if any of the group are enabled, add the group
+            foreach( AnimationExample e in known.Group() )
+            {
+                if( e.IsEnabled() && currentRecordingAndPlaybackMode == e.myRecordingType )
+                {
+                    currentlyUsedExamples.Add( known );
+                    break;
+                }
             }
         }
         if( currentlyUsedExamples.Count <= 0 )
@@ -768,16 +1046,16 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             myAnimationClassifier.ResetClassifier();
             for( int j = 0; j < currentlyUsedExamples.Count; j++ )
             {
-                AnimationExample e = currentlyUsedExamples[j];
-                if( !e.IsEnabled() )
+                foreach( AnimationExample e in currentlyUsedExamples[j].Group() )
                 {
-                    // skip it
-                    continue;
-                }
-                List<ModelBaseDatum> phrase = e.baseExamples;
-                for( int i = 0; i < phrase.Count; i++ )
-                {
-                    myAnimationClassifier.RecordDataPoint( BaseInput( phrase[i] ), BaseOutput( j ) );
+                    if( e.IsEnabled() )
+                    {
+                        #if UNITY_WEBGL
+                        myAnimationClassifier.RecordDataPoint( BaseInput( e ), j );
+                        #else
+                        myAnimationClassifier.RecordDataPoint( BaseInput( e ), BaseOutput( j ) );
+                        #endif
+                    }
                 }
             }
             myAnimationClassifier.Train();
@@ -788,11 +1066,16 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             
             for( int j = 0; j < currentlyUsedExamples.Count; j++ )
             {
-                AnimationExample e = currentlyUsedExamples[j];
-                List<ModelBaseDatum> phrase = e.baseExamples;
-                for( int i = 0; i < phrase.Count; i++ )
+                foreach( AnimationExample e in currentlyUsedExamples[j].Group() )
                 {
-                    myAnimationRegression.RecordDataPoint( BaseInput( phrase[i] ), LabelToRegressionOutput( j, currentlyUsedExamples.Count ) );
+                    // record each example in the group iff it's enabled
+                    if( e.IsEnabled() )
+                    {
+                        // note: only one example per phrase
+                        // because of the way things are recorded, the input features will not be different for each frame
+                        // of the data. this way we get less baked-in behavior and more happy surprises.
+                        myAnimationRegression.RecordDataPoint( BaseInput( e ), LabelToRegressionOutput( j, currentlyUsedExamples.Count ) );
+                    }
                 }
             }
             myAnimationRegression.Train();
@@ -801,50 +1084,307 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         haveTrained = true;
     }
 
+
+    void ResetCreaturePosition( bool useExamplePosition )
+    {
+        // for water types, put them underneath their first example
+        // which is hopefully above water!
+        if( creatureType == CreatureType.Water )
+        {
+            Vector3 terrainNormal = Vector3.up;
+            modelBaseToAnimate.position = GetHugTerrainPoint( 
+                useExamplePosition ? examples[0].transform.position : modelBaseToAnimate.position, 
+                out terrainNormal
+            );
+        }
+    }
+
     Vector3 averageExamplePosition;
     private void ComputeStaticBoidsFeatures()
     {
         Vector3 sum = Vector3.zero;
-        for( int i = 0; i < currentlyUsedExamples.Count; i++ ) { sum += currentlyUsedExamples[i].transform.position; }
-        averageExamplePosition = sum / currentlyUsedExamples.Count;
+        int count = 0;
+        for( int i = 0; i < currentlyUsedExamples.Count; i++ ) 
+        {
+            foreach( AnimationExample e in currentlyUsedExamples[i].Group() )
+            {
+                sum += e.transform.position; 
+                count++;
+            } 
+        }
+        averageExamplePosition = sum / count;
+    }
+
+    private bool ForwardWillCollideWithLayerFromAbove( int layer )
+    {
+        return TerrainUtility.AboveLayer( modelBaseToAnimate.position, modelBaseToAnimate.forward, avoidTerrainDetection, layer );
+    }
+
+    private bool ForwardWillCollideWithLayerFromBelow( int layer )
+    {
+        return TerrainUtility.BelowOneSidedLayer( modelBaseToAnimate.position, modelBaseToAnimate.forward, avoidTerrainDetection, layer );
+    }
+
+    private bool DirectionWillCollideWithLayerFromAbove( Vector3 direction, float checkDist, int layer )
+    {
+        return TerrainUtility.AboveLayer( modelBaseToAnimate.position, direction, checkDist, layer );
+    }
+
+    private bool DirectionWillCollideWithLayerFromBelow( Vector3 direction, float checkDist, int layer )
+    {
+        return TerrainUtility.BelowOneSidedLayer( modelBaseToAnimate.position, direction, checkDist, layer );
     }
 
     private bool WillCollideWithTerrainSoon()
     {
-        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
-        int layerMask = 1 << 8;
-
-        RaycastHit hit;
-        // check if the model will hit anything in its forward direction
-        return ( Physics.Raycast( modelBaseToAnimate.position, modelBaseToAnimate.forward, out hit, avoidTerrainDetection, layerMask ) );
+        // 8: Connected terrains
+        return ForwardWillCollideWithLayerFromAbove( 8 );
     }
 
     private bool TooLowAboveTerrain()
     {
-        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
-        int layerMask = 1 << 8;
-
-        RaycastHit hit;
-        // check if the model will hit anything in its forward direction
-        return ( Physics.Raycast( modelBaseToAnimate.position, Vector3.down, out hit, avoidTerrainMinheight, layerMask ) );
+        // 8: connected terrains
+        return DirectionWillCollideWithLayerFromAbove( Vector3.down, avoidTerrainMinheight, 8 );
     }
 
-    float goalSpeedMultiplier = 0, currentSpeedMultiplier = 0;
-    float goalAvoidanceAngle = 0, currentAvoidanceAngle = 0;
-    Vector3 ProcessBoidsGroundAvoidance()
+    private bool WillCollideWithWaterSoon( bool fromAbove )
     {
-        // if the forward direction has land, avoid it
-        if( WillCollideWithTerrainSoon() || TooLowAboveTerrain() )
+        // 11: water
+        if( fromAbove )
         {
-            goalAvoidanceAngle = avoidTerrainAngle;
+           return ForwardWillCollideWithLayerFromAbove( 11 );
         }
         else
         {
-            goalAvoidanceAngle = 0;
+            return ForwardWillCollideWithLayerFromBelow( 11 );
         }
-        currentAvoidanceAngle += boidSlew * ( goalAvoidanceAngle - currentAvoidanceAngle );
+    }
+
+    private bool TooCloseToWater( Vector3 direction, bool fromAbove )
+    {
+        // 11: water
+        if( fromAbove )
+        {
+            // from above, avoid it just like terrain
+            return DirectionWillCollideWithLayerFromAbove( direction, avoidTerrainMinheight, 11 );
+        }
+        else
+        {
+            // from below, avoid it like water
+            // if we're supposed to be below, we DEFINITELY can't be above!
+            return DirectionWillCollideWithLayerFromBelow( direction, avoidWaterMinDistance, 11 );
+        }
+    }
+
+    private bool VeryTooCloseToWater( Vector3 direction, bool fromAbove )
+    {
+        return !fromAbove && DirectionWillCollideWithLayerFromAbove( -direction, Mathf.Infinity, 11 );
+    }
+
+    private Vector3 GetHugTerrainPoint( Vector3 near, out Vector3 normalDirection )
+    {
+        Vector3 nearestPointOnTerrain;
+        TerrainUtility.FindTerrain<ConnectedTerrainController>( near, out nearestPointOnTerrain, out normalDirection );
+        return nearestPointOnTerrain + hugTerrainHeight * Vector3.up;
+    }
+
+    // don't slew: we often "get away" from the avoidance thing
+    // LONG before we slew up to max value, and then 
+    // it takes forever to get back to min value because we didn't get
+    // to max. so instead just lerp around -- that way the ramp in
+    // and ramp out will be symmetric
+    // later animation stages are slewed anyway!
+    private float LerpSlew( float current, float goal )
+    {
+        if( current <= goal )
+        {
+            return Mathf.Min( current + boidUpSlew, goal );
+        }
+        else
+        {
+            return Mathf.Max( current - boidDownSlew, goal );
+        }
+    }
+
+    float goalGroundAvoidanceAmount = 0, currentGroundAvoidanceAmount = 0;
+    Vector3 ProcessBoidsGroundAvoidance()
+    {
+        // if we are close to the ground, avoid it
+        if( TooLowAboveTerrain() )
+        {
+            goalGroundAvoidanceAmount = 1;
+        }
+        else
+        {
+            goalGroundAvoidanceAmount = 0;
+        }
+        currentGroundAvoidanceAmount = LerpSlew( currentGroundAvoidanceAmount, goalGroundAvoidanceAmount );
+
+        if( currentGroundAvoidanceAmount < 0.01f )
+        {
+            return Vector3.zero;
+        }
         
-        return Mathf.Sin( (Mathf.PI / 2) * currentAvoidanceAngle / avoidTerrainAngle ) * Vector3.up;
+        Vector3 upDirection = currentGroundAvoidanceAmount.MapClamp( 0, 1, 0, avoidTerrainIntensity ) * Vector3.up;
+        // boids STRAIGHT up never goes well. add a LITTLE forward
+        Vector3 forwardDirection = 0.01f * transform.forward;
+        return upDirection + forwardDirection;
+    }
+
+
+    float goalCliffAvoidanceAmount = 0, currentCliffAvoidanceAmount = 0;
+    bool isCliffDirectionChosen = false;
+    Vector3 cliffDirection = Vector3.zero;
+    Vector3 ProcessBoidsCliffAvoidance( float degreeRotation )
+    {
+        // if the forward direction has land, avoid it
+        if( WillCollideWithTerrainSoon() )
+        {
+            goalCliffAvoidanceAmount = 1;
+            if( !isCliffDirectionChosen )
+            {
+                // evade directions are to the left and right but without y direction
+                Vector3 evadeDirectionL, evadeDirectionR;
+                evadeDirectionL = Quaternion.AngleAxis( -degreeRotation, Vector3.up ) * modelBaseToAnimate.forward;
+                evadeDirectionR = Quaternion.AngleAxis( degreeRotation, Vector3.up ) * modelBaseToAnimate.forward;
+                evadeDirectionL.y = evadeDirectionR.y = 0;
+                evadeDirectionL.Normalize();
+                evadeDirectionR.Normalize();
+                
+                // go in the direction that has a cliff farther away
+                float cliffDistanceL = TerrainUtility.DistanceToLayerFromAbove( modelBaseToAnimate.position, evadeDirectionL, 8 );
+                float cliffDistanceR = TerrainUtility.DistanceToLayerFromAbove( modelBaseToAnimate.position, evadeDirectionR, 8 );
+                cliffDirection = cliffDistanceL >= cliffDistanceR ? evadeDirectionL : evadeDirectionR;
+
+                // keep using this direction ONLY if we found a direction that avoids the terrain
+                // otherwise, try again next time after rotating a bit from this direction
+                isCliffDirectionChosen = Mathf.Min( cliffDistanceL, cliffDistanceR ) >= avoidTerrainDetection;
+                
+            }
+        }
+        else
+        {
+            goalCliffAvoidanceAmount = 0;
+        }
+        currentCliffAvoidanceAmount = LerpSlew( currentCliffAvoidanceAmount, goalCliffAvoidanceAmount );
+
+        if( currentCliffAvoidanceAmount < 0.01f )
+        {
+            isCliffDirectionChosen = false;
+            return Vector3.zero;
+        }
+
+        float evadeIntensity = currentCliffAvoidanceAmount.MapClamp( 0, 1, 0, avoidTerrainIntensity );
+        Vector3 evadeDirection = evadeIntensity * cliffDirection;
+        return evadeDirection;
+    }
+
+    // for up and down: just go the opposite direction
+    Vector3 ProcessBoidsWaterAvoidance( bool shouldBeAboveWater )
+    {
+        return ProcessBoidsWaterAvoidance( shouldBeAboveWater ? Vector3.down : Vector3.up, shouldBeAboveWater, false, 90 );
+    }
+
+    // for any other direction: try turning left or right
+    Vector3 ProcessBoidsWaterAvoidance( Vector3 checkDirection, bool shouldBeAboveWater, float degreeRotation )
+    {
+        // TODO: third argument --> false to debug whether it's better to have land animals
+        // turn around instead of turn L/R when they get to water.
+        return ProcessBoidsWaterAvoidance( checkDirection, shouldBeAboveWater, false, degreeRotation );
+    }
+
+    float goalWaterAvoidanceAmount = 0, currentWaterAvoidanceAmount = 0;
+    bool isWaterDirectionChosen = false;
+    Vector3 waterDirection = Vector3.zero;
+    Vector3 ProcessBoidsWaterAvoidance( Vector3 checkDirection, bool shouldBeAboveWater, bool shouldComputeBoidsDirection, float degreeRotation )
+    {
+        // if the forward direction or check direction has water, avoid it
+        bool wayTooClose = VeryTooCloseToWater( checkDirection, shouldBeAboveWater );
+        if( wayTooClose || WillCollideWithWaterSoon( shouldBeAboveWater ) || TooCloseToWater( checkDirection, shouldBeAboveWater ) )
+        {
+            goalWaterAvoidanceAmount = 1;
+            if( !isWaterDirectionChosen )
+            {
+                // should we look to the left or right to evade?
+                if( shouldComputeBoidsDirection )
+                {
+                    // evade directions are to the left and right but without y direction
+                    Vector3 evadeDirectionL, evadeDirectionR;
+                    evadeDirectionL = Quaternion.AngleAxis( -degreeRotation, Vector3.up ) * checkDirection;
+                    evadeDirectionR = Quaternion.AngleAxis( degreeRotation, Vector3.up ) * checkDirection;
+                    evadeDirectionL.y = evadeDirectionR.y = 0;
+                    evadeDirectionL.Normalize();
+                    evadeDirectionR.Normalize();
+                    
+                    // go in the direction that has a cliff farther away
+                    float waterDistanceL = TerrainUtility.DistanceToLayerFromAbove( modelBaseToAnimate.position, evadeDirectionL, 11 );
+                    float waterDistanceR = TerrainUtility.DistanceToLayerFromAbove( modelBaseToAnimate.position, evadeDirectionR, 11 );
+                    waterDirection = waterDistanceL >= waterDistanceR ? evadeDirectionL : evadeDirectionR;
+                }
+                // just go in the opposite direction
+                else
+                {
+                    waterDirection = -checkDirection;
+                }
+
+                isWaterDirectionChosen = true;
+            }
+        }
+        else
+        {
+            goalWaterAvoidanceAmount = 0;
+        }
+        currentWaterAvoidanceAmount = LerpSlew( currentWaterAvoidanceAmount, goalWaterAvoidanceAmount );
+
+        if( currentWaterAvoidanceAmount < 0.01f )
+        {
+            isWaterDirectionChosen = false;
+            return Vector3.zero;
+        }
+        
+        // intensity is avoidTerrainIntensity, but MUCH stronger if we get "way" too close
+        Vector3 avoidDirection = currentWaterAvoidanceAmount.MapClamp( 0, 1, 0, ( wayTooClose ? 4 : 1 ) * avoidTerrainIntensity ) * waterDirection;
+        // boids STRAIGHT up never goes well. add a LITTLE forward
+        Vector3 forwardDirection = 0.01f * transform.forward;
+        return avoidDirection + forwardDirection;
+    }
+
+
+    float goalShallowAvoidanceAmount = 0, currentShallowAvoidanceAmount = 0;
+    bool isShallowDirectionChosen = false;
+    Vector3 shallowDirection = Vector3.zero;
+    float shallowCutoff = 0.5f;
+    Vector3 ProcessBoidsShallowAvoidance( Vector3 groundAvoidance, Vector3 waterAvoidance )
+    {
+        // if the forward direction or check direction has Shallow, avoid it
+        if( groundAvoidance.magnitude > shallowCutoff * avoidTerrainMinheight
+          && waterAvoidance.magnitude > shallowCutoff * avoidWaterMinDistance )
+        {
+            goalShallowAvoidanceAmount = 1;
+            if( !isShallowDirectionChosen )
+            {
+                // go in opposite direction of the shallow
+                shallowDirection = -modelBaseToAnimate.forward;
+                shallowDirection.y = 0;
+                shallowDirection.Normalize();
+
+                // remember
+                isShallowDirectionChosen = true;
+            }
+        }
+        else
+        {
+            goalShallowAvoidanceAmount = 0;
+        }
+        currentShallowAvoidanceAmount = LerpSlew( currentShallowAvoidanceAmount, goalShallowAvoidanceAmount );
+
+        if( currentShallowAvoidanceAmount < 0.01f )
+        {
+            isShallowDirectionChosen = false;
+            return Vector3.zero;
+        }
+        
+        return currentShallowAvoidanceAmount.MapClamp( 0, 1, 0, avoidTerrainIntensity ) * shallowDirection;
     }
 
     Vector3 ProcessBoidsExamplesAttraction()
@@ -853,19 +1393,25 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         float minDistance = float.MaxValue;
         for( int i = 0; i < currentlyUsedExamples.Count; i++ )
         {
-            float d = ( modelBaseToAnimate.position - currentlyUsedExamples[i].transform.position ).magnitude;
-            if( d < maxDistanceFromAnyExample )
+            foreach( AnimationExample e in currentlyUsedExamples[i].Group() )
             {
-                // we don't have to do anything
-                return Vector3.zero;
-            }
-            else if( d < minDistance )
-            {
-                minDistance = d;
+                float d = ( modelBaseToAnimate.position - e.transform.position ).magnitude;
+                if( d < maxDistanceFromAnyExample )
+                {
+                    // we don't have to do anything
+                    return Vector3.zero;
+                }
+                else if( d < minDistance )
+                {
+                    minDistance = d;
+                }
             }
         }
 
-        float severity = minDistance.PowMapClamp( maxDistanceFromAnyExample, maxDistanceFromAnyExample + distanceRampUpRange, 0, 1, rampUpSeverity );
+        // if we got here, we know we're SOMEWHERE in the "danger zone"
+        // have the severity start at 25% instead of 0%
+        // this way, animals will not get stuck walking along the edge of the ring but will go back inward
+        float severity = minDistance.PowMapClamp( maxDistanceFromAnyExample, maxDistanceFromAnyExample + distanceRampUpRange, 0.25f, 1, rampUpSeverity );
         Vector3 correctionVelocity = ( averageExamplePosition - modelBaseToAnimate.position ).normalized;
 
         return severity * correctionVelocity;
@@ -882,7 +1428,7 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         foreach( Transform other in nearOtherBoids )
         {
             Vector3 direction = transform.position - other.position;
-            float intensity = direction.magnitude.PowMapClamp( 0, 2, 0.5f, 0, 0.6f );
+            float intensity = direction.magnitude.PowMapClamp( 0, 2, 0.8f, 0, 0.6f );
             desiredMovement += intensity * direction.normalized;
         }
         return desiredMovement;
@@ -911,50 +1457,12 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
         return ret;
     }
 
-    private Vector3 AngleMinify( Vector3 i )
-    {
-        // x
-        if( i.x < -180 )
-        {
-            i.x += 360;
-        }
-        if( i.x > 180 )
-        {
-            i.x -= 360;
-        }
 
-        // y
-        if( i.y < -180 )
-        {
-            i.y += 360;
-        }
-        if( i.y > 180 )
-        {
-            i.y -= 360;
-        }
-
-        // z
-        if( i.z < -180 )
-        {
-            i.z += 360;
-        }
-        if( i.z > 180 )
-        {
-            i.z -= 360;
-        }
-
-        i.x = Mathf.Clamp( i.x, -maxEulerAnglesChange.x, maxEulerAnglesChange.x );
-        i.y = Mathf.Clamp( i.y, -maxEulerAnglesChange.y, maxEulerAnglesChange.y );
-        i.z = Mathf.Clamp( i.z, -maxEulerAnglesChange.z, maxEulerAnglesChange.z );
-
-        return i;
-    }
-
-    double[] SoundInput( Quaternion baseRotation, float terrainHeight, float terrainSteepness, float heightAboveTerrain )
+    double[] SoundInput( Quaternion baseRotation, float terrainHeight, float terrainSteepness )
     {
         return new double[] {
             baseRotation.x, baseRotation.y, baseRotation.z, baseRotation.w,
-            terrainHeight, terrainSteepness, heightAboveTerrain
+            terrainHeight, terrainSteepness
         };
     }
 
@@ -981,7 +1489,10 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             // delete all my examples, only if I'm the last one left
             for( int i = 0; i < examples.Count; i++ )
             {
-                Destroy( examples[i].gameObject );
+                foreach( AnimationExample e in examples[i].Group() )
+                {
+                    Destroy( e.gameObject );
+                }
             }
         }
         else
@@ -997,35 +1508,247 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
 
     public void HideExamples()
     {
-        foreach( AnimationExample e in examples )
+        foreach( AnimationExample known in examples )
         {
-            e.gameObject.SetActive( false );
+            foreach( AnimationExample e in known.Group() )
+            {
+                e.gameObject.SetActive( false );
+            }
         }
     }
 
     public void ShowExamples()
     {
-        foreach( AnimationExample e in examples )
+        // visually render the examples
+        foreach( AnimationExample known in examples )
         {
-            e.gameObject.SetActive( true );
+            foreach( AnimationExample e in known.Group() )
+            {
+                e.gameObject.SetActive( true );
+            }
+        }
+
+        // also show the hint now that we've enabled them
+        AnimationExample.ShowHints( this, SwitchToComponent.hintTime );        
+    }
+
+
+    void UpdateMyDisplayName( int i )
+    {
+        myDisplayName.text = myBaseName + " " + (i+1).ToString( "00" );
+    }
+
+
+    public void UpdateColor( float newHue )
+    {
+        foreach( AnimationByRecordedExampleController creature in myGroup )
+        {
+            creature.myColor.UpdateColor( newHue );
         }
     }
 
+
+    void Nameable.SetDisplayName( string newName )
+    {
+        for( int i = 0; i < myGroup.Count; i++ )
+        {
+            myGroup[i].myBaseName = newName;
+            myGroup[i].UpdateMyDisplayName( i );
+        }
+    }
+
+    string Nameable.GetDisplayName()
+    {
+        return myBaseName;
+    }
+
+    void LaserPointerSelectable.Selected()
+    {
+        // show my examples (someone else might call this too)
+        ShowExamples();
+
+        // also be nameable
+        NameSystemController.SetObjectToName( this );
+
+        // also I get to show activation
+        creatureWhoGetsToShowActivation = this;
+    }
+
+    void LaserPointerSelectable.Unselected()
+    {
+        // N.B. this is not the right time to hide examples. this prevents us from
+        // selecting an example, because it is hidden when the creature is unselected
+        // instead, hide examples only when a new creature is selected
+        // HideExamples();
+
+        // also, disable recording
+        SetNextAction( AnimationAction.DoNothing, null );
+
+        // also don't be nameable
+        NameSystemController.SetObjectToName( null );
+    }
+
+    string DynamicSerializableByExample.PrefabName()
+    {
+        return myPrefabName;
+    }
+
+    string SerializableByExample.SerializeExamples()
+    {
+        SerializableAnimatedCreatureGroup serialGroup = new SerializableAnimatedCreatureGroup();
+
+        // store mode and prefab
+        serialGroup.currentRecordingMode = currentRecordingAndPlaybackMode;
+        serialGroup.prefab = myPrefabName;
+
+        // store name
+        serialGroup.name = myBaseName;
+
+        // store examples
+        serialGroup.examples = new List<SerializableAnimationExample>();
+        foreach( AnimationExample e in examples )
+        {
+            // TODO: is serialization different for group-examples?
+            serialGroup.examples.Add( e.Serialize() );
+        }
+
+        // for each one in group, store position and rotation
+        serialGroup.positions = new List<Vector3>();
+        serialGroup.rotations = new List<Quaternion>();
+        serialGroup.nextFrames = new List<int>();
+        serialGroup.colors = new List<float>();
+        foreach( AnimationByRecordedExampleController groupMember in myGroup )
+        {
+            serialGroup.positions.Add( groupMember.modelBaseToAnimate.position );
+            serialGroup.rotations.Add( groupMember.modelBaseToAnimate.rotation );
+            serialGroup.nextFrames.Add( groupMember.currentRuntimeFrame );
+            serialGroup.colors.Add( groupMember.myColor.Serialize() );
+        }
+
+        // serialize audio system
+        serialGroup.audio = myGroup[0].mySounder.Serialize();
+
+        // json-ify
+        return SerializationManager.ConvertToJSON<SerializableAnimatedCreatureGroup>( serialGroup );
+    }
+
+    IEnumerator SerializableByExample.LoadExamples( string serializedExamples )
+    {
+        SerializableAnimatedCreatureGroup serialGroup = 
+            SerializationManager.ConvertFromJSON<SerializableAnimatedCreatureGroup>( serializedExamples );
+        
+        // set recording mode
+        AnimationByRecordedExampleController groupLeader = this;
+        groupLeader.SwitchRecordingMode( serialGroup.currentRecordingMode );
+        groupLeader.prefabThatCreatedMe = ((GameObject) Resources.Load( "Prefabs/" + serialGroup.prefab )).transform;
+
+        // find some data sources
+        groupLeader.modelBaseDataSource = DefaultAnimationDataSources.theBaseDataSource;
+        groupLeader.modelRelativePointsDataSource = DefaultAnimationDataSources.theRelativePointsDataSources;
+
+        // set position and rotation
+        groupLeader.modelBaseToAnimate.position = serialGroup.positions[0];
+        groupLeader.modelBaseToAnimate.rotation = serialGroup.rotations[0];
+
+        // animation offset
+        groupLeader.currentRuntimeFrame = serialGroup.nextFrames[0];
+
+        // color
+        groupLeader.myColor.Deserialize( serialGroup.colors[0] );
+
+        // clone examples
+        foreach( SerializableAnimationExample serialExample in serialGroup.examples )
+        {
+            // don't rescan until end
+            ProvideExample( AnimationExample.Deserialize( serialExample, groupLeader ), false );
+        }
+        // don't shoe the examples until we've selected one of these creatures
+        groupLeader.HideExamples();
+
+        // rescan
+        groupLeader.RescanMyProvidedExamples();
+
+        // set name
+        myBaseName = serialGroup.name;
+        UpdateMyDisplayName( 0 );
+
+        // set game object name to be unique
+        gameObject.name = "loaded_creature_" + myGroupID.ToString() + "_0";
+
+        // reset audio system
+        if( serialGroup.audio.audioData.Length < serialGroup.audio.nextAudioFrame )
+        {
+            Debug.LogError( myDisplayName.text + " has invalid audio values (next audio frame too long!). rectifying...." );
+            serialGroup.audio.nextAudioFrame = serialGroup.audio.audioData.Length - 2;
+        }
+        yield return StartCoroutine( groupLeader.mySounder.InitFromSerial( serialGroup.audio ) );
+
+        // create remaining creatures
+        for( int i = 1; i < serialGroup.positions.Count; i++ )
+        {
+            // instantiate and set position
+            AnimationByRecordedExampleController newCreature = Instantiate( 
+                groupLeader.prefabThatCreatedMe, 
+                serialGroup.positions[i], 
+                serialGroup.rotations[i]
+            ).GetComponent<AnimationByRecordedExampleController>();
+
+            // copy some values
+            newCreature.modelBaseDataSource = groupLeader.modelBaseDataSource;
+            newCreature.modelRelativePointsDataSource = groupLeader.modelRelativePointsDataSource;
+            newCreature.SwitchRecordingMode( groupLeader );
+            newCreature.prefabThatCreatedMe = groupLeader.prefabThatCreatedMe;
+
+            newCreature.AddToGroup( groupLeader );
+
+            // animation offset
+            newCreature.currentRuntimeFrame = serialGroup.nextFrames[i];
+
+            // color
+            newCreature.myColor.Deserialize( serialGroup.colors[i] );
+
+            // name
+            newCreature.myBaseName = myBaseName;
+            newCreature.UpdateMyDisplayName( i );
+
+            // set gameobject name to be unique
+            newCreature.gameObject.name = "loaded_creature_" + myGroupID.ToString() + "_" + i.ToString();
+
+            // copy audio system
+            newCreature.CloneAudioSystem( groupLeader, true );
+
+            // rescan examples
+            newCreature.RescanMyProvidedExamples();
+        }
+
+        yield break;
+    }
+
+    string SerializableByExample.FilenameIdentifier()
+    {
+        return "creature_" + myGroupID.ToString();
+    }
+
+    bool DynamicSerializableByExample.ShouldSerialize()
+    {
+        // only the group leader should be serialized
+        return myGroup[0] == this;
+    }
+
+    [System.Serializable]
     public class ModelBaseDatum
     {
         public Quaternion rotation;
-        public float terrainHeight, terrainSteepness;
 
         public ModelBaseDatum Clone()
         {
             ModelBaseDatum c = new ModelBaseDatum();
             c.rotation = rotation;
-            c.terrainHeight = terrainHeight;
-            c.terrainSteepness = terrainSteepness;
             return c;
         }
     }
 
+    [System.Serializable]
     public class ModelRelativeDatum
     {
         public Vector3 positionRelativeToBase;
@@ -1037,4 +1760,20 @@ public class AnimationByRecordedExampleController : MonoBehaviour , GripPlaceDel
             return c;
         }
     }
+}
+
+
+
+[System.Serializable]
+public class SerializableAnimatedCreatureGroup
+{
+    public AnimationByRecordedExampleController.RecordingType currentRecordingMode;
+    public List<Vector3> positions;
+    public List<Quaternion> rotations;
+    public List<int> nextFrames;
+    public List<float> colors;
+    public List<SerializableAnimationExample> examples;
+    public string prefab;
+    public string name;
+    public SerializedAnimationAudio audio;
 }

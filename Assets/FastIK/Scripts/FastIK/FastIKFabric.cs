@@ -20,6 +20,7 @@ namespace DitzelGames.FastIK
         /// </summary>
         public Transform Target;
         public Transform Pole;
+        public Transform[] Poles;
 
         /// <summary>
         /// Solver iterations per update
@@ -185,6 +186,22 @@ namespace DitzelGames.FastIK
                     var angle = Vector3.SignedAngle(projectedBone - Positions[i - 1], projectedPole - Positions[i - 1], plane.normal);
                     Positions[i] = Quaternion.AngleAxis(angle, plane.normal) * (Positions[i] - Positions[i - 1]) + Positions[i - 1];
                 }
+            }
+            else if (Poles.Length == Positions.Length - 2 )
+            {
+                for (int i = 1; i < Positions.Length - 1; i++)
+                {
+                    var polePosition = GetPositionRootSpace(Poles[i-1]);
+                    var plane = new Plane(Positions[i + 1] - Positions[i - 1], Positions[i - 1]);
+                    var projectedPole = plane.ClosestPointOnPlane(polePosition);
+                    var projectedBone = plane.ClosestPointOnPlane(Positions[i]);
+                    var angle = Vector3.SignedAngle(projectedBone - Positions[i - 1], projectedPole - Positions[i - 1], plane.normal);
+                    Positions[i] = Quaternion.AngleAxis(angle, plane.normal) * (Positions[i] - Positions[i - 1]) + Positions[i - 1];
+                }
+            }
+            else if (Poles.Length != 0 )
+            {
+                Debug.Log( "If specifying multiple poles, then you need one for each inner joint!" );
             }
 
             //set position & rotation

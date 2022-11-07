@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Stitchscape;
 
-public class ConnectedTerrainController : MonoBehaviour
+public class ConnectedTerrainController : MonoBehaviour , SerializableByExample
 {
     // CRIT NOTES
     // - could do a comparison between this and linear regression and to non-ML interpolation
@@ -23,7 +23,6 @@ public class ConnectedTerrainController : MonoBehaviour
     private TerrainData myTerrainData;
     private ConnectedTerrainTextureController myTextureController;
 
-    public Transform examplePointsContainer;
     public ConnectedTerrainController leftNeighbor, rightNeighbor, upperNeighbor, lowerNeighbor;
 
     static int extraBorderPixels = 20;
@@ -46,6 +45,14 @@ public class ConnectedTerrainController : MonoBehaviour
     public bool addGISTexture = true;
     public bool debugGISFeatures = false;
     public TextMesh debugUI;
+
+
+    public TerrainHeightExample heightPrefab;
+    public TerrainGISExample gisPrefab;
+
+    public string serializationIdentifier;
+
+
     private RapidMixRegression myGISRegression;
     [HideInInspector] public List<TerrainGISExample> myGISRegressionExamples;
     private bool haveTrainedGIS = false;
@@ -98,66 +105,103 @@ public class ConnectedTerrainController : MonoBehaviour
     }
 
 
-    public void ProvideExample( TerrainHeightExample example )
+    public void ProvideExample( TerrainHeightExample example, bool shouldRescan = true )
     {
         // remember
         myRegressionExamples.Add( example );
 
         // recompute
-        RescanProvidedExamples();
+        if( shouldRescan )
+        {
+            RescanProvidedExamples();
+        }
     }
 
-    public void ProvideExampleEfficient( TerrainHeightExample example )
-    {
-        // remember
-        myRegressionExamples.Add( example );
-    }
-
-    public void ForgetExample( TerrainHeightExample example )
+    public void ForgetExample( TerrainHeightExample example, bool shouldRescan = true )
     {
         // forget
-        if( myRegressionExamples.Remove( example ) )
+        if( myRegressionExamples.Remove( example ) && shouldRescan )
         {
             // recompute
             RescanProvidedExamples();
         }
     }
 
-    public void ProvideExample( TerrainGISExample example )
+    public void ProvideExample( TerrainGISExample example, bool shouldRescan = true )
     {
         if( !addGISTexture ) return;
         // remember
         myGISRegressionExamples.Add( example );
 
         // recompute
-        RescanProvidedExamples();
+        if( shouldRescan )
+        {
+            RescanProvidedExamples();
+        }
     }
 
-    public void ProvideExampleEfficient( TerrainGISExample example )
-    {
-        if( !addGISTexture ) return;
-        // remember
-        myGISRegressionExamples.Add( example );
-    }
 
-    public void ForgetExample( TerrainGISExample example )
+    public void ForgetExample( TerrainGISExample example, bool shouldRescan = true )
     {
         if( !addGISTexture ) return;
         // forget
-        if( myGISRegressionExamples.Remove( example ) )
+        if( myGISRegressionExamples.Remove( example ) && shouldRescan )
         {
             // recompute
             RescanProvidedExamples();
         }
+    }
+
+    // this will only be called before my examples are overwritten
+    public void MatchNumberOfExamples( ConnectedTerrainController other )
+    {
+        // since examples will be overwritten soon, doesn't matter if
+        // we delete or add examples / which ones
+
+        // first, perhaps delete extra examples
+        while( myRegressionExamples.Count > other.myRegressionExamples.Count )
+        {
+            TerrainHeightExample exampleToRemove = myRegressionExamples[0];
+            ForgetExample( exampleToRemove, false );
+            Destroy( exampleToRemove.gameObject );
+        }
+
+        while( myGISRegressionExamples.Count > other.myGISRegressionExamples.Count )
+        {
+            TerrainGISExample exampleToRemove = myGISRegressionExamples[0];
+            ForgetExample( exampleToRemove, false );
+            Destroy( exampleToRemove.gameObject );
+        }
+
+        // next, perhaps add blank examples
+        while( myRegressionExamples.Count < other.myRegressionExamples.Count )
+        {
+            TerrainHeightExample newExample = Instantiate( heightPrefab, transform.position, Quaternion.identity );
+            ProvideExample( newExample, false );
+        }
+
+        while( myGISRegressionExamples.Count < other.myGISRegressionExamples.Count )
+        {
+            TerrainGISExample newExample = Instantiate( gisPrefab, transform.position, Quaternion.identity );
+            ProvideExample( newExample, false );
+        }
+
+        // finally, check texture
+        myTextureController.MatchNumberOfExamples( other.myTextureController );
     }
 
     // TODO: can this be split into two phases: the base data and the GIS data,
     // so that we can only recompute one when it changes? :|
     public void RescanProvidedExamples( bool lazy = false, int framesToSpreadOver = 15, int framesToSpreadGISOver = 15, int framesToSpreadTextureOver = 3 )
     {
+        StartCoroutine( RescanProvidedExamplesCoroutine( lazy, framesToSpreadOver, framesToSpreadGISOver, framesToSpreadTextureOver ) );
+    }
+
+    private IEnumerator RescanProvidedExamplesCoroutine( bool lazy, int framesToSpreadOver, int framesToSpreadGISOver, int framesToSpreadTextureOver )
+    {
         // train and recompute
         TrainRegression();
-        StartCoroutine( ComputeLandHeight( lazy, framesToSpreadOver, framesToSpreadGISOver, framesToSpreadTextureOver ) );
+        yield return StartCoroutine( ComputeLandHeight( lazy, framesToSpreadOver, framesToSpreadGISOver, framesToSpreadTextureOver ) );
     }
 
 
@@ -176,7 +220,7 @@ public class ConnectedTerrainController : MonoBehaviour
         myGISRegressionExamples = new List<TerrainGISExample>();
 
         // compute sizes
-        verticesPerSide = myTerrainData.heightmapWidth;
+        verticesPerSide = myTerrainData.heightmapResolution;
         terrainSize = myTerrainData.size.x; // it is invariant to scale. scaling up doesn't affect the computations here.
         terrainHeight = myTerrainData.size.y;
         spaceBetweenVertices = terrainSize / ( verticesPerSide - 1 );
@@ -241,7 +285,7 @@ public class ConnectedTerrainController : MonoBehaviour
     // steepness information and normals.
     private double[] GISInputVectorFromNormCoordinates( float normX, float normY )
     {
-        float normHeight = myTerrainData.GetInterpolatedHeight( normX, normY ) / myTerrainData.heightmapHeight;
+        float normHeight = myTerrainData.GetInterpolatedHeight( normX, normY ) / myTerrainData.heightmapResolution;
         float x = normX, y = normHeight, z = normY;
         return new double[] {
             x, y, z,
@@ -262,32 +306,10 @@ public class ConnectedTerrainController : MonoBehaviour
 
     void Start()
     {
-        if( examplePointsContainer )
-        {
-            foreach( Transform example in examplePointsContainer )
-            {
-                // remember
-                TerrainHeightExample e = example.GetComponent<TerrainHeightExample>();
-                if( e )
-                {
-                    e.JustPlaced();
-                }
-            }
-        }
-
         // edges
         SetNeighbors( true );
-
-        if( myRegressionExamples.Count > 0 )
-        {
-            // train and show
-            RescanProvidedExamples();
-        }
-        else
-        {
-            // just reset
-            SetTerrainData( true );
-        }
+        // reset data until told to rescan
+        SetTerrainData( true );
     }
 
 
@@ -401,6 +423,9 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
             
             // finally, update all spawned object positions
             SpawnedObject.ResetSpawnedObjectHeights();
+
+            // and tell anyone else listening to reset
+            NotifyWhenChanges.Terrain();
         
         }
         else
@@ -892,8 +917,78 @@ Mountain: {3:0.000}", gisWeights[0], gisWeights[1], gisWeights[3], gisWeights[4]
         }
     }
 
+    string SerializableByExample.SerializeExamples()
+    {
+        SerializableTerrainHeightTrainingExamples mySerializableExamples;
+        mySerializableExamples = new SerializableTerrainHeightTrainingExamples();
+        mySerializableExamples.heightExamples = new List<SerializableTerrainHeightExample>();
+        mySerializableExamples.gisExamples = new List<SerializableTerrainGISExample>();
+
+        // height
+        foreach( TerrainHeightExample example in myRegressionExamples )
+        {
+            mySerializableExamples.heightExamples.Add( example.Serialize( this ) );
+        }
+
+        // gis
+        foreach( TerrainGISExample example in myGISRegressionExamples )
+        {
+            mySerializableExamples.gisExamples.Add( example.Serialize( this ) );
+        }
+
+        // texture
+        mySerializableExamples.textureExamples = myTextureController.SerializeExamples();
+
+        // convert to json
+        return SerializationManager.ConvertToJSON<SerializableTerrainHeightTrainingExamples>( mySerializableExamples );
+    }
+
+    IEnumerator SerializableByExample.LoadExamples( string serializedExamples )
+    {
+        SerializableTerrainHeightTrainingExamples examples = 
+            SerializationManager.ConvertFromJSON<SerializableTerrainHeightTrainingExamples>( serializedExamples );
+        
+        // height
+        for( int i = 0; i < examples.heightExamples.Count; i++ )
+        {
+            TerrainHeightExample newExample = Instantiate( heightPrefab );
+            newExample.ResetFromSerial( examples.heightExamples[i], this );
+            // initialize it
+            newExample.ManuallySpecifyTerrain( this );
+            // don't retrain until end
+            ProvideExample( newExample, false );
+        }
+
+        // gis
+        for( int i = 0; i < examples.gisExamples.Count; i++ )
+        {
+            TerrainGISExample newExample = Instantiate( gisPrefab );
+            newExample.ResetFromSerial( examples.gisExamples[i], this );
+            // initialize it
+            newExample.ManuallySpecifyTerrain( this );
+            // don't retrain until end
+            ProvideExample( newExample, false );
+        }
+
+        // texture
+        myTextureController.LoadExamples( examples.textureExamples );
+
+        // retrain!
+        // not lazy, 15 frames for height, 15 frames for GIS, 3 frames for texture
+        yield return StartCoroutine( RescanProvidedExamplesCoroutine( false, 15, 15, 3 ) );
+    }
+
+    string SerializableByExample.FilenameIdentifier()
+    {
+        return "terrain_" + serializationIdentifier;
+    }
+}
 
 
-
-
+[System.Serializable]
+public class SerializableTerrainHeightTrainingExamples
+{
+    public List< SerializableTerrainHeightExample > heightExamples;
+    public List< SerializableTerrainGISExample > gisExamples;
+    public List< SerializableTerrainTextureExample > textureExamples;
 }

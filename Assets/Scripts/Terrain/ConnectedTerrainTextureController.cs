@@ -9,12 +9,8 @@ public class ConnectedTerrainTextureController : MonoBehaviour
     private TerrainData myTerrainData;
     private RapidMixRegression myRegression;
 
-    public bool saveExamplesOnQuit;
-    public string saveExamplesFilename;
     public TerrainTextureExample terrainExamplePrefab;
 
-    public bool loadExamples;
-    public string loadExamplesFilename;
 
     private ConnectedTerrainTextureController leftNeighbor, rightNeighbor, upperNeighbor, lowerNeighbor;
     private ConnectedTerrainController myHeightController;
@@ -83,11 +79,6 @@ public class ConnectedTerrainTextureController : MonoBehaviour
         rightNeighbor = myHeightController.rightNeighbor ? myHeightController.rightNeighbor.GetComponent<ConnectedTerrainTextureController>() : null;
         upperNeighbor = myHeightController.upperNeighbor ? myHeightController.upperNeighbor.GetComponent<ConnectedTerrainTextureController>() : null;
         lowerNeighbor = myHeightController.lowerNeighbor ? myHeightController.lowerNeighbor.GetComponent<ConnectedTerrainTextureController>() : null;
-
-        if( loadExamples )
-        {
-            LoadExamplesFromFile();
-        }
     }
 
     [HideInInspector] public List<TerrainTextureExample> myRegressionExamples;
@@ -105,13 +96,32 @@ public class ConnectedTerrainTextureController : MonoBehaviour
         }
     }
 
-    public void ForgetExample( TerrainTextureExample example )
+    public void ForgetExample( TerrainTextureExample example, bool shouldRetrain = true )
     {
         // forget
-        if( myRegressionExamples.Remove( example ) )
+        if( myRegressionExamples.Remove( example ) && shouldRetrain )
         {
             // recompute
             RescanProvidedExamples();
+        }
+    }
+
+    // called before my examples are overwritten with other's examples
+    public void MatchNumberOfExamples( ConnectedTerrainTextureController other )
+    {
+        // first, perhaps delete extra examples
+        while( myRegressionExamples.Count > other.myRegressionExamples.Count )
+        {
+            TerrainTextureExample exampleToRemove = myRegressionExamples[0];
+            ForgetExample( exampleToRemove, false );
+            Destroy( exampleToRemove.gameObject );
+        }
+
+        // next, perhaps add blank examples
+        while( myRegressionExamples.Count < other.myRegressionExamples.Count )
+        {
+            TerrainTextureExample newExample = Instantiate( terrainExamplePrefab, transform.position, Quaternion.identity );
+            ProvideExample( newExample, false );
         }
     }
 
@@ -523,7 +533,7 @@ public class ConnectedTerrainTextureController : MonoBehaviour
     {
         // FIRST POINT: normalized height at this location in terrain
         // TODO check if this is normalized already or if we need to divide by myTerrainData.heightmapHeight
-        float normHeight = myTerrainData.GetInterpolatedHeight( normX, normY ) / myTerrainData.heightmapHeight;
+        float normHeight = myTerrainData.GetInterpolatedHeight( normX, normY ) / myTerrainData.heightmapResolution;
 
         // SECOND POINT: normalized steepness at this location in terrain
         // according to Unity: "Steepness is given as an angle, 0..90 degrees"
@@ -563,70 +573,36 @@ public class ConnectedTerrainTextureController : MonoBehaviour
         };
     }
 
-    void OnApplicationQuit()
-    {
-        if( saveExamplesOnQuit )
-        {
-            SaveExamples();
-        }
-    }
 
-    void SaveExamples()
+    public List<SerializableTerrainTextureExample> SerializeExamples()
     {
-        SerializableTerrainTrainingExamples mySerializableExamples;
-        mySerializableExamples = new SerializableTerrainTrainingExamples();
-        mySerializableExamples.examples = new List<SerializableTerrainTextureExample>();
+        List<SerializableTerrainTextureExample> examples = new List<SerializableTerrainTextureExample>();
 
         foreach( TerrainTextureExample example in myRegressionExamples )
         {
-            mySerializableExamples.examples.Add( example.serializableObject );
+            examples.Add( example.Serialize( transform ) );
         }
 
-        // open for overwriting (append = false)
-        StreamWriter writer = new StreamWriter( Application.streamingAssetsPath + "/" + saveExamplesFilename, false );
-        // convert to json and write
-        string theJSON = JsonUtility.ToJson( mySerializableExamples );
-        Debug.Log( theJSON );
-        writer.Write( theJSON );
-        writer.Close();
+        return examples;
     }
 
-    void LoadExamplesFromFile()
+    public void LoadExamples( List<SerializableTerrainTextureExample> examples )
     {
-        StreamReader reader = new StreamReader( Application.streamingAssetsPath + "/" + loadExamplesFilename );
-        string json = reader.ReadToEnd();
-        reader.Close();
-        LoadExamples( json );
-    }
-
-    void LoadExamples( string examplesJSON )
-    {
-        Debug.Log( examplesJSON );
-        SerializableTerrainTrainingExamples examples =
-            JsonUtility.FromJson<SerializableTerrainTrainingExamples>( examplesJSON );
-        for( int i = 0; i < examples.examples.Count; i++ )
+        for( int i = 0; i < examples.Count; i++ )
         {
             TerrainTextureExample newExample = Instantiate( terrainExamplePrefab );
-            newExample.ResetFromSerial( examples.examples[i] );
+            newExample.ResetFromSerial( examples[i], transform );
+            // initialize
+            newExample.ManuallySpecifyTerrain( this );
             // don't retrain until end
             ProvideExample( newExample, false );
         }
-        RescanProvidedExamples();
-    }
-
-    void ClearExamples()
-    {
-        for( int i = 0; i < myRegressionExamples.Count; i++ )
-        {
-            Destroy( myRegressionExamples[i].gameObject );
-        }
-        myRegressionExamples.Clear();
-    }
-
-    public void ReplaceTrainingExamplesWithSerial( string examplesJSON )
-    {
-        ClearExamples();
-        LoadExamples( examplesJSON );
     }
 }
 
+
+[System.Serializable]
+public class SerializableTerrainTextureTrainingExamples
+{
+    public List< SerializableTerrainTextureExample > examples;
+}

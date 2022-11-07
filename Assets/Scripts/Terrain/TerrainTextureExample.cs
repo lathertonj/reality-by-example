@@ -10,21 +10,17 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
     public Material[] myHintMaterials;
 
     [HideInInspector] public double[] myValues = new double[4];
-    public string myLabel = "";
-    private int myCurrentValue;
+    [HideInInspector] public string myLabel = "";
+    [HideInInspector] public int myCurrentValue;
     private MeshRenderer myRenderer;
 
-    [HideInInspector] public SerializableTerrainTextureExample serializableObject;
     [HideInInspector] private ConnectedTerrainTextureController myTerrain;
 
     void Awake()
     {
-        serializableObject = new SerializableTerrainTextureExample();
-
         myCurrentValue = 0;
         myRenderer = GetComponentInChildren<MeshRenderer>();
         UpdateMaterial();
-        UpdatePosition();
     }
 
     private void SwitchToNextMaterial()
@@ -47,11 +43,6 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
         UpdateMaterial();
     }
 
-    public void UpdatePosition()
-    {
-        serializableObject.position = transform.position;
-    }
-
     // Update is called once per frame
     void UpdateMaterial()
     {
@@ -59,35 +50,16 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
         myRenderer.material = myMaterials[ myCurrentValue ];
         myHint.material = myHintMaterials[ myCurrentValue ];
 
-        // store for serialize
-        serializableObject.material = myCurrentValue;
-
         // store for IML
         for( int i = 0; i < myValues.Length; i++ ) { myValues[i] = 0; }
         myValues[ myCurrentValue ] = 1;
         myLabel = myCurrentValue.ToString();
     }
 
-    public void ResetFromSerial( SerializableTerrainTextureExample serialized )
-    {
-        transform.position = serialized.position;
-        myCurrentValue = serialized.material;
-        UpdatePosition();
-        UpdateMaterial();
-    }
 
     private ConnectedTerrainTextureController FindTerrain()
     {
-        // Bit shift the index of the layer (8: Connected terrains) to get a bit mask
-        int layerMask = 1 << 8;
-
-        RaycastHit hit;
-        // Check from a point really high above us, in the downward direction (in case we are below terrain)
-        if( Physics.Raycast( transform.position + 400 * Vector3.up, Vector3.down, out hit, Mathf.Infinity, layerMask ) )
-        {
-            return hit.transform.GetComponentInParent<ConnectedTerrainTextureController>();
-        }
-        return null;
+        return TerrainUtility.FindTerrain<ConnectedTerrainTextureController>( transform.position );
     }
 
     void GripPlaceDeleteInteractable.JustPlaced()
@@ -136,9 +108,6 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
 
     void TriggerGrabMoveInteractable.FinalizeMovement( Vector3 endPosition )
     {
-        // remember for serial
-        UpdatePosition();
-
         // see if we're on a new terrain
         ConnectedTerrainTextureController newTerrain = FindTerrain();
         if( newTerrain != null && newTerrain != myTerrain )
@@ -175,6 +144,14 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
         }
     }
 
+    public void SwitchTo( int newValue )
+    {
+        while( myCurrentValue != newValue )
+        {
+            SwitchToNextMaterial();
+        }
+    }
+
 
     public static void ShowHints( float pauseTimeBeforeFade )
     {
@@ -199,11 +176,27 @@ public class TerrainTextureExample : MonoBehaviour , TouchpadLeftRightClickInter
             StopCoroutine( hintCoroutine );
         }
     }
+    
+
+    public SerializableTerrainTextureExample Serialize( Transform myTerrain )
+    {
+        SerializableTerrainTextureExample serial = new SerializableTerrainTextureExample();
+        serial.localPosition = myTerrain.InverseTransformPoint( transform.position );
+        serial.material = myCurrentValue;
+        return serial;
+    }
+
+    public void ResetFromSerial( SerializableTerrainTextureExample serialized, Transform myTerrain )
+    {
+        transform.position = myTerrain.TransformPoint( serialized.localPosition );
+        myCurrentValue = serialized.material;
+        UpdateMaterial();
+    }
 }
 
 [System.Serializable]
 public class SerializableTerrainTextureExample
 {
-    public Vector3 position;
+    public Vector3 localPosition;
     public int material;
 }

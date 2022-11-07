@@ -24,4 +24,18 @@ public static class ExtensionMethods
         return Mathf.Clamp( value.PowMap( inputFrom, inputTo, outputFrom, outputTo, pow ), Mathf.Min( outputFrom, outputTo ), Mathf.Max( outputFrom, outputTo ) );
     }
 
+    public static void Shuffle<T>( this List<T> ts ) 
+    {
+        int count = ts.Count;
+        int last = count - 1;
+        for( int i = 0; i < last; i++ )
+        {
+            int r = UnityEngine.Random.Range(i, count);
+            T tmp = ts[i];
+            ts[i] = ts[r];
+            ts[r] = tmp;
+        }
+    }
+
+
 }

@@ -1,6 +1,6 @@
 # Reality by Example
 
-[Reality by Example](https://ccrma.stanford.edu/~lja/vr/RealityByExample/) is a tool for creating an entire virtual world from within it. 
+[Reality by Example](https://ccrma.stanford.edu/~lja/vr/RealityByExample/) is a tool for creating an entire virtual world from within VR. 
 Users can shape terrain, create interactive background music, and animate and sonify creatures by demonstrating what they would like.
 Internal interactive machine learning models then give the user a best guess of what they wanted, extrapolating the demonstrated examples
 across the entire world. From there, the user refines the examples they have given until they are satisfied.
@@ -14,8 +14,8 @@ One major goal for this tool is to make it difficult to make an overly unpleasan
 note by note, the user controls high-level parameters of the background music, such as chord changes, tempo, timbre, and textural density. This 
 way, they can craft a narrative with sound, such as making the music sound more triumphant and energetic as you move up a mountain peak.
 
-It was important to me to give the creatures that users create an important sense of animus. I wanted them to feel like they were inspired at their 
-core by the demonstration that users give with body movements and microphone sounds, but at the same time that they also had a mind of their own. 
+It was important to me to give the creatures that users create a sense of animus: I wanted them to feel like they were inspired at their 
+core by the demonstrations that users give with body movements and microphone sounds, but at the same time that they also had a mind of their own. 
 As such, the creatures have additional rules for their behavior depending on whether they are flying, swimming, or walking creatures. These rules are 
 based loosely on the concept of [boids](https://en.wikipedia.org/wiki/Boids).
 
@@ -29,7 +29,7 @@ it gets faster and slower.
 
 ## Running the Project
 
-The tool can be run / compiled from the [CombinedUI](Assets/Scenes/CombinedUI.unity) scene. Use the VR controller to summon a palette of the tools 
+The tool can be run / compiled from the [CombinedUI](Assets/Scenes/CombinedUI.unity) Unity scene. Use the VR controller to summon a palette of the tools 
 at your disposal. 
 
 Since the entire world is learned from examples, you only need to save the examples themselves in order to load the world later. The 
@@ -51,7 +51,7 @@ Terrains are comprised of three underlying models.
 
 - The base height model in the [ConnectedTerrainController](Assets/Scripts/Terrain/ConnectedTerrainController.cs) maps the (x,z) coordinates 
 of examples to the desired (y) height of those examples.
-- Then, the same component learns a refined "bumpiness" map, summing the relative strength of GPS data of various types of landscapes onto the 
+- Then, the same component learns a refined "bumpiness" map, summing the relative strengths of GPS data of various types of landscapes onto the 
 landscape. It can use not only the (x,z) coordinates of its examples but also the learned (y) height of the base height model as its inputs.
 - Finally, the [ConnectedTerrainTextureController](Assets/Scripts/Terrain/ConnectedTerrainTextureController.cs) predicts the relative strengths 
 of different visual textures according to the (x,y,z) and steepness of the terrain; the (y) and steepness are the output of the previous two models.
